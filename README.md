@@ -26,8 +26,8 @@ Do not run the mock and the real API on 8090 at the same time. Set `MOCK_PORT` i
 
 Optional trailer keys (Account screen, or env):
 
-- `VITE_IVA_API_KEY` — Internet Video Archive / Fabric Origin subscription key. Plex uses IVA for extras and mini trailers.
-- `VITE_TMDB_API_KEY` — optional fallback that looks up YouTube trailers when IVA has no match.
+- `VITE_TMDB_API_KEY` — default. Free TMDB key for YouTube trailers on the billboard, hover cards, and title modal.
+- `VITE_IVA_API_KEY` — optional paid Fabric Origin / IVA key. Used only when TMDB has no match. Leave this unset.
 
 ## Screens
 
@@ -48,7 +48,7 @@ Rows use silent posters. Hovering a tile opens a jawbone with a muted mini-trail
 
 Taste rows are ranked from favorite genres, likes, and titles that profile has watched. History, My List, and likes do not sync across phones and the TV unless they share a browser.
 
-Mini trailers play on the billboard, hover cards, and title modal. IVA is tried first (short GetVideo clips). If that key is missing or IVA has no match, TMDB YouTube trailers are used. Catalog playback is still only `watch_href`.
+Mini trailers play on the billboard, hover cards, and title modal. They default to TMDB YouTube trailers. IVA / Fabric Origin is optional and only used if that key is present and TMDB has no match. Catalog playback is still only `watch_href`.
 
 Movies vs TV shows: the API sets `kind` to `"movie"` or `"show"` on each title. Catalog calls use `/catalog/movies` vs `/catalog/shows`. Show modals are the ones with seasons and episodes.
 

@@ -30,16 +30,16 @@ export async function resolveTrailer(
   }
 
   let hit: TrailerHit | null = null
-  if (keys.iva) {
+  if (keys.tmdb) {
     try {
-      hit = await findIvaTrailer(item, keys.iva, opts)
+      hit = await findTmdbTrailer(item, keys.tmdb)
     } catch {
       hit = null
     }
   }
-  if (!hit && keys.tmdb) {
+  if (!hit && keys.iva) {
     try {
-      hit = await findTmdbTrailer(item, keys.tmdb)
+      hit = await findIvaTrailer(item, keys.iva, opts)
     } catch {
       hit = null
     }
