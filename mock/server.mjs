@@ -33,16 +33,37 @@ function hue(seed) {
 }
 
 function svgArt({ id, kind, title, year, variant, season, episode }) {
-  const color = `hsl(${hue(id)} 42% 28%)`
-  const accent = `hsl(${(hue(id) + 40) % 360} 55% 46%)`
-  const label = kind === 'show' ? 'SERIES' : 'FILM'
+  const h = hue(id)
+  const color = `hsl(${h} 48% 24%)`
+  const accent = `hsl(${(h + 38) % 360} 62% 48%)`
+  const wash = `hsl(${(h + 190) % 360} 30% 14%)`
   const subtitle =
     variant === 'thumb' && season && episode
       ? `S${season} · E${episode}`
       : String(year ?? '')
   const width = variant === 'poster' ? 500 : 1280
   const height = variant === 'poster' ? 750 : variant === 'thumb' ? 270 : 720
-  const titleSize = variant === 'poster' ? 42 : 48
+  const showType = kind === 'show'
+  if (variant === 'poster') {
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${color}"/>
+      <stop offset="1" stop-color="${wash}"/>
+    </linearGradient>
+    <radialGradient id="spot" cx="70%" cy="20%" r="55%">
+      <stop offset="0" stop-color="${accent}" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="${accent}" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#g)"/>
+  <rect width="100%" height="100%" fill="url(#spot)"/>
+  <circle cx="${showType ? 360 : 140}" cy="${showType ? 220 : 520}" r="${showType ? 180 : 120}" fill="${accent}" opacity="0.35"/>
+  <rect x="0" y="${height - 140}" width="100%" height="140" fill="#000" opacity="0.18"/>
+</svg>`
+  }
+  const titleSize = variant === 'thumb' ? 28 : 52
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <defs>
@@ -52,10 +73,9 @@ function svgArt({ id, kind, title, year, variant, season, episode }) {
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#g)"/>
-  <rect x="0" y="0" width="12" height="100%" fill="${accent}"/>
-  <text x="40" y="72" fill="#ffffffcc" font-family="system-ui,sans-serif" font-size="22" font-weight="700">${label}</text>
-  <text x="40" y="${Math.round(height * 0.55)}" fill="#fff" font-family="system-ui,sans-serif" font-size="${titleSize}" font-weight="800">${escapeXml(title)}</text>
-  <text x="40" y="${Math.round(height * 0.55) + 48}" fill="#ddd" font-family="system-ui,sans-serif" font-size="24">${escapeXml(subtitle)}</text>
+  <circle cx="78%" cy="30%" r="180" fill="${accent}" opacity="0.4"/>
+  <text x="48" y="${Math.round(height * 0.78)}" fill="#fff" font-family="system-ui,sans-serif" font-size="${titleSize}" font-weight="800">${escapeXml(title)}</text>
+  <text x="48" y="${Math.round(height * 0.78) + 40}" fill="#ddd" font-family="system-ui,sans-serif" font-size="22">${escapeXml(subtitle)}</text>
 </svg>`
 }
 

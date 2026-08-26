@@ -114,7 +114,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       }
       updateStore((prev) => ({
         profiles: [...prev.profiles, { ...profile, color: nextColor(prev.profiles) }],
-        activeProfileId: profile.id,
+        activeProfileId: prev.activeProfileId,
       }))
       return profile
     },
