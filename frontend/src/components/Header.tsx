@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { useProfiles } from '../profiles/ProfileContext'
 
@@ -43,6 +43,17 @@ export function Header() {
         <Link className="logo" to="/browse">
           <span className="logo-accent">F</span>LIX
         </Link>
+        <nav className="primary-nav" aria-label="Browse">
+          <NavLink className="nav-link" to="/browse" end>
+            Home
+          </NavLink>
+          <NavLink className="nav-link" to="/browse/movies">
+            Movies
+          </NavLink>
+          <NavLink className="nav-link" to="/browse/shows">
+            TV Shows
+          </NavLink>
+        </nav>
         <label className="search-wrap">
           <span className="search-ico" aria-hidden="true">
             ⌕

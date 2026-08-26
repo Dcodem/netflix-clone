@@ -50,6 +50,27 @@ export async function getCatalog(
   return data.items ?? []
 }
 
+/** Fetch a few catalog pages so home rails have enough titles to theme. */
+export async function getCatalogMany(
+  kind: 'movies' | 'shows',
+  maxPages = 3,
+): Promise<MovieListItem[]> {
+  const collected: MovieListItem[] = []
+  const seen = new Set<string>()
+  for (let page = 1; page <= maxPages; page++) {
+    const items = await getCatalog(kind, { page })
+    let added = 0
+    for (const item of items) {
+      if (seen.has(item.id)) continue
+      seen.add(item.id)
+      collected.push(item)
+      added += 1
+    }
+    if (!items.length || added === 0) break
+  }
+  return collected
+}
+
 export function proxyImageUrl(url: string): string {
   return `/img?u=${encodeURIComponent(url)}`
 }

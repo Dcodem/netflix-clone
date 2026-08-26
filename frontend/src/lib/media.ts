@@ -4,6 +4,19 @@ export function isShow(item: { kind?: string }): boolean {
   return item.kind === 'show'
 }
 
+export function isMovie(item: { kind?: string }): boolean {
+  return !isShow(item)
+}
+
+export function ofKind(
+  items: MovieListItem[],
+  kind: 'all' | 'movies' | 'shows',
+): MovieListItem[] {
+  if (kind === 'movies') return items.filter(isMovie)
+  if (kind === 'shows') return items.filter(isShow)
+  return items
+}
+
 export function detailPath(item: { id: string; kind?: string }): string {
   const id = encodeURIComponent(item.id)
   return isShow(item) ? `/show/${id}` : `/movie/${id}`

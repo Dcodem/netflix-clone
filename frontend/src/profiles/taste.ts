@@ -24,6 +24,28 @@ export function topGenres(weights: Record<string, number>, limit = 3): string[] 
     .map(([genre]) => genre)
 }
 
+export function becauseYouWatched(
+  items: MovieListItem[],
+  history: WatchHistoryItem[],
+): { title: string; items: MovieListItem[] } | null {
+  const seed = history[0]
+  if (!seed) return null
+  const genres = new Set(seed.genres)
+  if (!genres.size) return null
+  const watched = new Set(history.map((item) => item.id))
+  const related = items
+    .filter(
+      (item) =>
+        item.id !== seed.id &&
+        !watched.has(item.id) &&
+        genresOf(item).some((genre) => genres.has(genre)),
+    )
+    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+    .slice(0, 18)
+  if (related.length < 4) return null
+  return { title: `Because you watched ${seed.title}`, items: related }
+}
+
 export function rankByTaste(
   items: MovieListItem[],
   history: WatchHistoryItem[],

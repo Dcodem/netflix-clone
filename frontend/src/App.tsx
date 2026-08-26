@@ -16,7 +16,9 @@ export default function App() {
           <Routes>
             <Route path="/" element={<ProfileSelect />} />
             <Route element={<AppLayout />}>
-              <Route path="/browse" element={<Home />} />
+              <Route path="/browse" element={<Home filter="home" />} />
+              <Route path="/browse/movies" element={<Home filter="movies" />} />
+              <Route path="/browse/shows" element={<Home filter="shows" />} />
               <Route path="/search" element={<Search />} />
               <Route path="/movie/:id" element={<MovieDetail />} />
               <Route path="/show/:id" element={<ShowDetail />} />
