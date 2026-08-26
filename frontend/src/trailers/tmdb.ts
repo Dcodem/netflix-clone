@@ -6,7 +6,17 @@ type SearchItem = {
   kind?: string
 }
 
-type TmdbSearch = { results?: Array<{ id: number; title?: string; name?: string; release_date?: string; first_air_date?: string }> }
+type TmdbSearch = {
+  results?: Array<{
+    id: number
+    title?: string
+    name?: string
+    poster_path?: string | null
+    backdrop_path?: string | null
+    release_date?: string
+    first_air_date?: string
+  }>
+}
 type TmdbVideos = { results?: Array<{ key: string; site: string; type: string; official?: boolean }> }
 
 async function tmdbJson<T>(path: string, key: string, extra: Record<string, string> = {}): Promise<T> {
@@ -38,7 +48,7 @@ export async function findTmdbTrailer(item: SearchItem, key: string): Promise<Tr
   const isShow = item.kind === 'show'
   const path = isShow ? '/3/search/tv' : '/3/search/movie'
   const extra: Record<string, string> = { query: item.title }
-  if (item.year) extra.year = String(item.year)
+  if (item.year) extra[isShow ? 'first_air_date_year' : 'year'] = String(item.year)
   const search = await tmdbJson<TmdbSearch>(path, key, extra)
   const match = search.results?.[0]
   if (!match) return null
@@ -50,5 +60,26 @@ export async function findTmdbTrailer(item: SearchItem, key: string): Promise<Tr
     kind: 'youtube',
     src: youtubeKey,
     label: 'Trailer',
+  }
+}
+
+const TMDB_IMG = 'https://image.tmdb.org/t/p'
+
+export type TmdbArt = {
+  poster: string | null
+  backdrop: string | null
+}
+
+export async function findTmdbArt(item: SearchItem, key: string): Promise<TmdbArt | null> {
+  const isShow = item.kind === 'show'
+  const path = isShow ? '/3/search/tv' : '/3/search/movie'
+  const extra: Record<string, string> = { query: item.title }
+  if (item.year) extra[isShow ? 'first_air_date_year' : 'year'] = String(item.year)
+  const search = await tmdbJson<TmdbSearch>(path, key, extra)
+  const match = search.results?.[0]
+  if (!match) return null
+  return {
+    poster: match.poster_path ? `${TMDB_IMG}/w342${match.poster_path}` : null,
+    backdrop: match.backdrop_path ? `${TMDB_IMG}/w1280${match.backdrop_path}` : null,
   }
 }

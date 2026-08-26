@@ -6,7 +6,7 @@ import { maturityLabel } from '../lib/netflix'
 import { TrailerPreview } from '../trailers/TrailerPreview'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
-import { MediaImage } from './MediaImage'
+import { CatalogImage } from './CatalogImage'
 
 export function Hero({ item }: { item: MovieListItem }) {
   const { openWatch } = useWatch()
@@ -56,7 +56,7 @@ export function Hero({ item }: { item: MovieListItem }) {
 
   return (
     <section className="hero">
-      <MediaImage src={backdrop} alt="" className="hero-img" />
+      <CatalogImage item={{ ...item, backdrop_url: backdrop }} alt="" className="hero-img" prefer="backdrop" />
       <TrailerPreview
         title={item.title}
         year={item.year}

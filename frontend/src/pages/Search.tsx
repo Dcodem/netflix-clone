@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { searchTitles } from '../api/client'
 import { EmptyState } from '../components/EmptyState'
@@ -5,19 +6,64 @@ import { ErrorState } from '../components/ErrorState'
 import { MediaGrid } from '../components/MediaGrid'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
+import { filterForProfile } from '../lib/netflix'
+import { clearRecentSearches, listRecentSearches } from '../lib/recentSearch'
+import { useProfiles } from '../profiles/ProfileContext'
 
 export function Search() {
-  const [params] = useSearchParams()
+  const { activeProfile } = useProfiles()
+  const [params, setParams] = useSearchParams()
   const q = (params.get('q') ?? '').trim()
   const enabled = q.length >= 2
   const { data, error, loading, retry } = useFetch(() => searchTitles(q), q, { enabled })
+  const [recents, setRecents] = useState(listRecentSearches)
+  const items = useMemo(() => filterForProfile(data ?? [], activeProfile), [data, activeProfile])
+
+  useEffect(() => {
+    setRecents(listRecentSearches())
+  }, [q])
+
+  const recentBlock = useMemo(
+    () => (
+      <div className="search-recents">
+        <div className="search-recents-head">
+          <h2 className="section-title">Recent searches</h2>
+          {recents.length ? (
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => {
+                clearRecentSearches()
+                setRecents([])
+              }}
+            >
+              Clear
+            </button>
+          ) : null}
+        </div>
+        {recents.length ? (
+          <div className="search-recent-chips">
+            {recents.map((entry) => (
+              <button
+                type="button"
+                key={entry}
+                className="taste-chip"
+                onClick={() => setParams({ q: entry })}
+              >
+                {entry}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="section-sub">Searches stay on this device. Type two characters to look up a title.</p>
+        )}
+      </div>
+    ),
+    [recents, setParams],
+  )
 
   if (!enabled) {
-    return (
-      <main className="page page-pad">
-        <EmptyState title="Search for a title" detail="Type at least two characters in the header." />
-      </main>
-    )
+    return <main className="page page-pad">{recentBlock}</main>
   }
 
   if (loading) {
@@ -38,10 +84,13 @@ export function Search() {
 
   return (
     <main className="page page-pad">
-      {data?.length ? (
-        <MediaGrid items={data} />
+      {items.length ? (
+        <MediaGrid items={items} />
       ) : (
-        <EmptyState title="No matches" detail="Try a different title." />
+        <>
+          <EmptyState title="No matches" detail="Try a different title." />
+          {recentBlock}
+        </>
       )}
     </main>
   )

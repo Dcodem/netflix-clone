@@ -2,15 +2,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { getCatalogMany, getMovie, getShow } from '../api/client'
 import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
+import { CatalogImage } from '../components/CatalogImage'
 import { MediaGrid } from '../components/MediaGrid'
 import { MediaImage } from '../components/MediaImage'
 import { Spinner } from '../components/Spinner'
 import { TitleActions } from '../components/TitleActions'
 import { useFetch } from '../hooks/useFetch'
 import { formatRuntime, genresOf, isShow, uniqueById } from '../lib/media'
-import { matchPercent, maturityLabel } from '../lib/netflix'
+import { filterForProfile, isKidsSafe, matchPercent, maturityLabel } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
-import { rankByTaste } from '../profiles/taste'
+import { rankByTaste, similarByGenres } from '../profiles/taste'
 import { TrailerPreview } from '../trailers/TrailerPreview'
 import { useTitleModal } from './TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
@@ -23,11 +24,12 @@ export function TitleModal() {
   const { item, closeTitle } = useTitleModal()
   const { openWatch } = useWatch()
   const { activeProfile } = useProfiles()
+  const last = activeProfile?.history.find((entry) => entry.id === item?.id)
   const [seasonNumber, setSeasonNumber] = useState<number | null>(null)
 
   useEffect(() => {
-    setSeasonNumber(null)
-  }, [item?.id])
+    setSeasonNumber(last?.seasonNumber ?? null)
+  }, [item?.id, last?.seasonNumber])
 
   useEffect(() => {
     if (!item) return
@@ -58,10 +60,22 @@ export function TitleModal() {
 
   const similar = useMemo(() => {
     if (!item || !catalog.data) return []
-    const pool = catalog.data.filter((entry) => entry.id !== item.id)
-    if (activeProfile) return rankByTaste(pool, activeProfile).slice(0, 12)
-    return pool.slice(0, 12)
+    const pool = filterForProfile(catalog.data, activeProfile)
+    const byGenre = similarByGenres(item, pool, 12)
+    if (byGenre.length >= 12) return byGenre
+    const seen = new Set([item.id, ...byGenre.map((entry) => entry.id)])
+    const rest = activeProfile
+      ? rankByTaste(
+          pool.filter((entry) => !seen.has(entry.id)),
+          activeProfile,
+        )
+      : pool.filter((entry) => !seen.has(entry.id))
+    return uniqueById([...byGenre, ...rest]).slice(0, 12)
   }, [item, catalog.data, activeProfile])
+
+  useEffect(() => {
+    if (item && activeProfile?.kids && !isKidsSafe(item)) closeTitle()
+  }, [item, activeProfile?.kids, closeTitle])
 
   if (!item) return null
 
@@ -73,9 +87,13 @@ export function TitleModal() {
   const maturity = maturityLabel(item)
   const genres = genresOf(detail ?? item)
   const runtime = formatRuntime(detail?.runtime)
+  const resumeEpisode = activeSeason?.episodes?.find(
+    (episode) => episode.id === last?.episodeId || episode.number === last?.episodeNumber,
+  )
   const watchHref = isShow(item)
-    ? activeSeason?.episodes?.[0]?.watch_href || detail?.watch_href
+    ? last?.watch_href || resumeEpisode?.watch_href || activeSeason?.episodes?.[0]?.watch_href || detail?.watch_href
     : detail?.watch_href
+  const continueMode = Boolean(last?.progress && last.progress > 0.05)
 
   function playEpisode(episode: Episode, season: Season) {
     if (!detail) return
@@ -88,6 +106,9 @@ export function TitleModal() {
       genres,
       watch_href: episode.watch_href,
       runtime: episode.duration ?? detail.runtime ?? null,
+      seasonNumber: season.season_number,
+      episodeNumber: episode.number,
+      episodeId: episode.id,
     })
   }
 
@@ -104,11 +125,11 @@ export function TitleModal() {
           ×
         </button>
         <div className="title-modal-hero">
-          <MediaImage src={detail?.backdrop_url || item.poster_url} alt="" />
+          <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
           <TrailerPreview title={item.title} year={item.year} kind={item.kind} className="title-modal-trailer" />
           <div className="title-modal-hero-body">
             <h1>{item.title}</h1>
-            <TitleActions item={item} detail={detail} watchHref={watchHref} showMore={false} />
+            <TitleActions item={item} detail={detail} watchHref={watchHref} showMore={false} continueMode={continueMode} />
           </div>
         </div>
         <div className="title-modal-main">
@@ -150,7 +171,7 @@ export function TitleModal() {
                 <button
                   type="button"
                   key={episode.id}
-                  className="episode episode-btn"
+                  className={`episode episode-btn ${resumeEpisode?.id === episode.id ? 'is-resume' : ''}`}
                   onClick={() => playEpisode(episode, activeSeason)}
                 >
                   <MediaImage src={episode.thumb_url} alt="" className="ep-thumb" />

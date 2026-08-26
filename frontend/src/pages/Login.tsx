@@ -1,6 +1,9 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
+import { getMovies } from '../api/client'
+import type { MovieListItem } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
+import { CatalogImage } from '../components/CatalogImage'
 
 export function Login() {
   const { user, login, signup } = useAuth()
@@ -10,6 +13,13 @@ export function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [wall, setWall] = useState<MovieListItem[]>([])
+
+  useEffect(() => {
+    getMovies()
+      .then((items) => setWall(items.slice(0, 18)))
+      .catch(() => setWall([]))
+  }, [])
 
   if (user) return <Navigate to="/" replace />
 
@@ -32,6 +42,13 @@ export function Login() {
 
   return (
     <main className="login-page">
+      {wall.length ? (
+        <div className="login-wall" aria-hidden="true">
+          {wall.map((item) => (
+            <CatalogImage key={item.id} item={item} alt="" />
+          ))}
+        </div>
+      ) : null}
       <div className="login-card">
         <div className="logo login-logo">
           <span className="logo-accent">F</span>LIX

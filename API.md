@@ -2,18 +2,20 @@
 
 This frontend consumes a REST API at `http://localhost:8090`. It never extracts
 raw video URLs from the family catalog. Playback of a title uses `watch_href`
-from the JSON payloads. Mini trailers / extras come from a separate provider
-(Internet Video Archive / Fabric Origin — the same trailer service Plex uses),
-with optional TMDB YouTube fallback.
+from the JSON payloads. Mini trailers default to TMDB YouTube. IVA / Fabric Origin
+is optional paid extras, used only when a key is present and TMDB has no match.
 
 ## Base URL
 
-- **Dev:** `http://localhost:8090` — start the API with `./run-local.sh` in the
-  API repo (or whatever process you already run on `:8090`).
+- **Dev:** `http://localhost:8090` by default. Start the API with `./run-local.sh` in the
+  API repo, or `node mock/server.mjs` in this repo.
 - Vite proxies `/movies`, `/shows`, `/search`, `/catalog`, `/health`, `/watch`,
   `/img`, and `/art` to that origin during `npm run dev`.
-- For UI work without the real API, `node mock/server.mjs` serves the same
-  routes from a generated catalog (120 movies, 90 shows).
+- Override the proxy target with `VITE_API_ORIGIN` in `frontend/.env.local`.
+- Leave `VITE_API_BASE` empty while using the proxy or same-origin hosting.
+  For a split production host, set `VITE_API_BASE` to the catalog origin.
+- Relative `watch_href` values are prefixed with `VITE_PLAYER_ORIGIN` when set.
+  Absolute player URLs are used as-is.
 
 CORS is open, so the Vite dev server can also call the API directly with `fetch`.
 
@@ -85,6 +87,7 @@ There is **no raw video URL**. Open `watch_href` in a full-screen `<iframe>`.
 Do not construct player URLs or extract `.m3u8` streams.
 
 For a show, an episode's `watch_href` already points at the right episode.
+If `watch_href` is a relative path, set `VITE_PLAYER_ORIGIN` on the frontend.
 
 ## Images
 

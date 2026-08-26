@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_API_BASE?: string
+  readonly VITE_API_ORIGIN?: string
   readonly VITE_PLAYER_ORIGIN?: string
   readonly VITE_IVA_API_KEY?: string
   readonly VITE_TMDB_API_KEY?: string

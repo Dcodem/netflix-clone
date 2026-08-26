@@ -86,3 +86,19 @@ export function rankByTaste(items: MovieListItem[], profile: Profile): MovieList
     .sort((a, b) => b.score - a.score)
     .map((entry) => entry.item)
 }
+
+export function similarByGenres(item: MovieListItem, pool: MovieListItem[], limit = 12): MovieListItem[] {
+  const seed = new Set(genresOf(item))
+  if (!seed.size) return pool.filter((entry) => entry.id !== item.id).slice(0, limit)
+  return [...pool]
+    .filter((entry) => entry.id !== item.id)
+    .map((entry) => ({
+      entry,
+      overlap: genresOf(entry).filter((genre) => seed.has(genre)).length,
+      rating: entry.rating ?? 0,
+    }))
+    .filter((row) => row.overlap > 0)
+    .sort((a, b) => b.overlap - a.overlap || b.rating - a.rating)
+    .map((row) => row.entry)
+    .slice(0, limit)
+}
