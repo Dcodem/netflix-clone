@@ -7,15 +7,20 @@ export function MediaRow({
   items,
   progressById,
   continueMode = false,
+  loop = false,
 }: {
   title: string
   items: MovieListItem[]
   progressById?: Record<string, number>
   continueMode?: boolean
+  loop?: boolean
 }) {
-  const { ref, canPrev, canNext, scrollByPage } = useRowOverflow()
+  const looping = loop && items.length >= 8
+  const { ref, canPrev, canNext, copies, scrollByPage } = useRowOverflow(looping, items.length)
 
   if (!items.length) return null
+
+  const slides = looping ? Array.from({ length: copies }, (_, copy) => copy) : [0]
 
   return (
     <section className="media-row">
@@ -31,15 +36,17 @@ export function MediaRow({
             ‹
           </button>
         ) : null}
-        <div className="row-scroller" ref={ref}>
-          {items.map((item) => (
-            <PosterCard
-              key={item.id}
-              item={item}
-              progress={progressById?.[item.id]}
-              continueMode={continueMode}
-            />
-          ))}
+        <div className={`row-scroller ${looping ? 'is-looping' : ''}`} ref={ref}>
+          {slides.flatMap((copy) =>
+            items.map((item) => (
+              <PosterCard
+                key={`${copy}-${item.id}`}
+                item={item}
+                progress={progressById?.[item.id]}
+                continueMode={continueMode}
+              />
+            )),
+          )}
         </div>
         {canNext ? (
           <button
