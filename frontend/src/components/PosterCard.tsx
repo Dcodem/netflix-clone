@@ -48,7 +48,10 @@ export function PosterCard({
         type="button"
         className="poster-card"
         ref={rootRef}
-        onClick={() => openTitle(item)}
+        onClick={() => {
+          setHover(false)
+          openTitle(item)
+        }}
         aria-label={item.title}
       >
         <div className="poster-art">
