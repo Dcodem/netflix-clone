@@ -53,7 +53,7 @@ export async function getCatalog(
 /** Fetch a few catalog pages so home rails have enough titles to theme. */
 export async function getCatalogMany(
   kind: 'movies' | 'shows',
-  maxPages = 3,
+  maxPages = 6,
 ): Promise<MovieListItem[]> {
   const collected: MovieListItem[] = []
   const seen = new Set<string>()

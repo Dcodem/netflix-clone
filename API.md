@@ -8,7 +8,9 @@ raw video URLs. Playback uses `watch_href` from the JSON payloads.
 - **Dev:** `http://localhost:8090` — start the API with `./run-local.sh` in the
   API repo (or whatever process you already run on `:8090`).
 - Vite proxies `/movies`, `/shows`, `/search`, `/catalog`, `/health`, `/watch`,
-  and `/img` to that origin during `npm run dev`.
+  `/img`, and `/art` to that origin during `npm run dev`.
+- For UI work without the real API, `node mock/server.mjs` serves the same
+  routes from a generated catalog (120 movies, 90 shows).
 
 CORS is open, so the Vite dev server can also call the API directly with `fetch`.
 

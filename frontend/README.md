@@ -7,4 +7,4 @@ npm install
 npm run dev
 ```
 
-Requires the API on port 8090. From the repo root, see the main README for the full run sequence.
+Requires a catalog API on port 8090. From the repo root, `node mock/server.mjs` starts a local mock with 120 movies and 90 shows. From this folder, `npm run mock-api` does the same. Use the real API instead if it is already running.

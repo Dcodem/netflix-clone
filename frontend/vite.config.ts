@@ -5,7 +5,12 @@ import { defineConfig } from 'vite'
 const API = 'http://localhost:8090'
 
 function spaBypass(req: IncomingMessage) {
-  if (req.headers.accept?.includes('text/html')) return '/index.html'
+  const url = req.url ?? ''
+  // Only the search route is also an SPA page. Other HTML requests (player iframe)
+  // must reach the API instead of being rewritten to index.html.
+  if (url.startsWith('/search') && req.headers.accept?.includes('text/html')) {
+    return '/index.html'
+  }
 }
 
 const apiProxy = {
@@ -27,6 +32,7 @@ export default defineConfig({
       '/health': apiProxy,
       '/watch': apiProxy,
       '/img': apiProxy,
+      '/art': apiProxy,
     },
   },
 })

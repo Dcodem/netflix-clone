@@ -6,7 +6,11 @@ Profiles, watch history, and taste recommendations live in `localStorage` on eac
 
 ## Run
 
-The catalog API must already be running at `http://localhost:8090` (`GET /movies`, `GET /search`, `GET /movies/{id}`, `GET /shows/{id}`). Start it with `./run-local.sh` in the API repo if it is not up.
+The UI talks to a catalog API at `http://localhost:8090`. Use the real family API if you have it (`./run-local.sh` in that repo). If you do not, this repo includes a large mock catalog (120 movies, 90 shows, seasons, and episode synopses):
+
+```bash
+node mock/server.mjs
+```
 
 Then:
 
@@ -16,7 +20,9 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`. Vite proxies API routes (`/movies`, `/shows`, `/search`, `/catalog`, `/health`, `/watch`, `/img`) to `:8090`.
+Open `http://localhost:5173`. Vite proxies API routes (`/movies`, `/shows`, `/search`, `/catalog`, `/health`, `/watch`, `/img`, `/art`) to `:8090`.
+
+Do not run the mock and the real API on 8090 at the same time. Set `MOCK_PORT` if you need the mock on another port.
 
 Optional: if `watch_href` values are relative (e.g. `/movies/play/...`), set
 `VITE_PLAYER_ORIGIN` to the player site origin so the iframe can load them.
