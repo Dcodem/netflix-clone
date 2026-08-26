@@ -2,9 +2,8 @@
 
 This frontend consumes a REST API at `http://localhost:8090`. It never extracts
 raw video URLs from the family catalog. Playback of a title uses `watch_href`
-from the JSON payloads. Mini trailers / extras come from a separate provider
-(Internet Video Archive / Fabric Origin — the same trailer service Plex uses),
-with optional TMDB YouTube fallback.
+from the JSON payloads. Mini trailers default to TMDB YouTube. IVA / Fabric Origin
+is optional paid extras, used only when a key is present and TMDB has no match.
 
 ## Base URL
 
