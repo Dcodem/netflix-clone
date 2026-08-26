@@ -210,6 +210,47 @@ function makeItem(index, kind) {
   }
 }
 
+function namedItem(kind, n, title, year, rating, genres) {
+  const prefix = kind === 'show' ? 9100 + n : 2100 + n
+  const id = `${prefix}-${slugify(title)}-${year}`
+  return {
+    id,
+    title,
+    kind,
+    year,
+    rating,
+    quality: '4K',
+    genres,
+    poster_url: `/art/poster/${id}`,
+    href: `/${kind === 'show' ? 'shows' : 'movies'}/view/${id}`,
+  }
+}
+
+const REAL_MOVIES = [
+  namedItem('movie', 1, 'Inception', 2010, 8.8, ['Sci-Fi', 'Action', 'Thriller']),
+  namedItem('movie', 2, 'The Dark Knight', 2008, 9.0, ['Action', 'Crime', 'Drama']),
+  namedItem('movie', 3, 'Dune: Part Two', 2024, 8.5, ['Sci-Fi', 'Adventure']),
+  namedItem('movie', 4, 'Top Gun: Maverick', 2022, 8.3, ['Action', 'Drama']),
+  namedItem('movie', 5, 'Spider-Man: No Way Home', 2021, 8.2, ['Action', 'Adventure', 'Fantasy']),
+  namedItem('movie', 6, 'Everything Everywhere All at Once', 2022, 7.8, ['Comedy', 'Sci-Fi', 'Adventure']),
+  namedItem('movie', 7, 'Oppenheimer', 2023, 8.3, ['Drama', 'History']),
+  namedItem('movie', 8, 'Wicked', 2024, 7.5, ['Fantasy', 'Family', 'Adventure']),
+  namedItem('movie', 9, 'Superman', 2025, 7.2, ['Action', 'Adventure', 'Sci-Fi']),
+  namedItem('movie', 10, 'Interstellar', 2014, 8.7, ['Sci-Fi', 'Drama', 'Adventure']),
+]
+
+const REAL_SHOWS = [
+  namedItem('show', 1, 'Stranger Things', 2016, 8.7, ['Sci-Fi', 'Horror', 'Drama']),
+  namedItem('show', 2, 'The Last of Us', 2023, 8.8, ['Drama', 'Adventure', 'Horror']),
+  namedItem('show', 3, 'The Mandalorian', 2019, 8.6, ['Sci-Fi', 'Adventure', 'Action']),
+  namedItem('show', 4, 'The Bear', 2022, 8.6, ['Comedy', 'Drama']),
+  namedItem('show', 5, 'Severance', 2022, 8.7, ['Mystery', 'Thriller', 'Drama']),
+  namedItem('show', 6, 'Shogun', 2024, 8.6, ['Drama', 'History', 'Adventure']),
+]
+
+const MOVIES = [...REAL_MOVIES, ...Array.from({ length: 120 }, (_, index) => makeItem(index, 'movie'))]
+const SHOWS = [...REAL_SHOWS, ...Array.from({ length: 90 }, (_, index) => makeItem(index + 200, 'show'))]
+
 function seasonsFor(item, index) {
   const seasonCount = 1 + (index % 3)
   const episodeCount = 8 + (index % 5)
@@ -234,8 +275,6 @@ function seasonsFor(item, index) {
   return seasons
 }
 
-const MOVIES = Array.from({ length: 120 }, (_, index) => makeItem(index, 'movie'))
-const SHOWS = Array.from({ length: 90 }, (_, index) => makeItem(index + 200, 'show'))
 const ALL = [...MOVIES, ...SHOWS]
 const BY_ID = new Map(ALL.map((item) => [item.id, item]))
 

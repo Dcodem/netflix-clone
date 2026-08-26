@@ -872,3 +872,200 @@ a {
     max-width: 170px;
   }
 }
+
+.hero-trailer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 118%;
+  object-fit: cover;
+  border: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.92;
+}
+
+.login-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(229, 9, 20, 0.28), transparent 40%),
+    #141414;
+}
+
+.login-card {
+  width: min(420px, 100%);
+  background: rgba(0, 0, 0, 0.72);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 24px 22px;
+}
+
+.login-logo {
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.login-card h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.login-sub,
+.account-lead,
+.account-hint {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.login-form,
+.account-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.login-form input,
+.account-form input {
+  background: #111;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 12px 12px;
+  border-radius: 6px;
+}
+
+.login-error {
+  color: #ff6b6b;
+  margin: 0;
+  font-size: 14px;
+}
+
+.login-switch {
+  margin-top: 16px;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.account-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.account-form a,
+.account-hint a {
+  color: #fff;
+}
+
+.account-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.account-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 200px;
+  background: #181818;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  z-index: 80;
+  display: grid;
+  box-shadow: var(--shadow);
+}
+
+.account-dropdown-email {
+  margin: 0 8px 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.account-dropdown a,
+.account-dropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.account-dropdown a:hover,
+.account-dropdown button:hover {
+  background: #2a2a2a;
+}
+
+.taste-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 20px;
+}
+
+.taste-chip {
+  background: #222;
+  border: 1px solid #444;
+  color: #ddd;
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.taste-chip.is-on,
+.btn-ghost.is-on {
+  background: rgba(229, 9, 20, 0.28);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.taste-bars {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: grid;
+  gap: 10px;
+  max-width: 640px;
+}
+
+.taste-bars li {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 10px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.taste-bar {
+  height: 8px;
+  background: #2a2a2a;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.taste-bar div {
+  height: 100%;
+  background: var(--accent);
+}
+
+.taste-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.taste-page .section-title,
+.account-page .section-title {
+  margin-left: 0;
+}

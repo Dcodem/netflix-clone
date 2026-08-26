@@ -1,7 +1,10 @@
 # Catalog API — frontend contract
 
 This frontend consumes a REST API at `http://localhost:8090`. It never extracts
-raw video URLs. Playback uses `watch_href` from the JSON payloads.
+raw video URLs from the family catalog. Playback of a title uses `watch_href`
+from the JSON payloads. Mini trailers / extras come from a separate provider
+(Internet Video Archive / Fabric Origin — the same trailer service Plex uses),
+with optional TMDB YouTube fallback.
 
 ## Base URL
 

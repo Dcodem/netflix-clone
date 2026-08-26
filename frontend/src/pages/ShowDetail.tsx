@@ -5,8 +5,10 @@ import type { Episode, Season } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
 import { MediaImage } from '../components/MediaImage'
 import { Spinner } from '../components/Spinner'
+import { TasteButtons } from '../components/TasteButtons'
 import { useFetch } from '../hooks/useFetch'
 import { formatRating, formatRuntime, genresOf } from '../lib/media'
+import { TrailerPreview } from '../trailers/TrailerPreview'
 import { useWatch } from '../watch/WatchContext'
 
 export function ShowDetail() {
@@ -60,6 +62,7 @@ export function ShowDetail() {
       <section className="detail">
         <div className="detail-hero">
           <MediaImage src={show.backdrop_url || show.poster_url} alt="" className="detail-hero-img" />
+          <TrailerPreview title={show.title} year={show.year} kind="show" className="hero-trailer" />
           <div className="detail-hero-body">
             {show.poster_url ? (
               <MediaImage src={show.poster_url} alt="" className="detail-poster" />
@@ -80,6 +83,15 @@ export function ShowDetail() {
                 <Link className="btn btn-ghost" to="/browse">
                   ← Back
                 </Link>
+                <TasteButtons
+                  item={{
+                    id: show.id,
+                    kind: 'show',
+                    title: show.title,
+                    poster_url: show.poster_url ?? null,
+                    genres,
+                  }}
+                />
               </div>
             </div>
           </div>

@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
-import { useProfiles } from '../profiles/ProfileContext'
+import { AccountMenu } from './AccountMenu'
 
 export function Header() {
-  const { activeProfile, clearActive } = useProfiles()
   const [searchParams] = useSearchParams()
   const location = useLocation()
   const navigate = useNavigate()
@@ -53,6 +52,9 @@ export function Header() {
           <NavLink className="nav-link" to="/browse/shows">
             TV Shows
           </NavLink>
+          <NavLink className="nav-link" to="/taste">
+            Taste
+          </NavLink>
         </nav>
         <label className="search-wrap">
           <span className="search-ico" aria-hidden="true">
@@ -66,19 +68,7 @@ export function Header() {
             aria-label="Search"
           />
         </label>
-        {activeProfile ? (
-          <button
-            type="button"
-            className="profile-chip"
-            onClick={clearActive}
-            title="Switch profile"
-          >
-            <span className="avatar-dot" style={{ background: activeProfile.color }}>
-              {activeProfile.name.slice(0, 1).toUpperCase()}
-            </span>
-            <span className="profile-chip-name">{activeProfile.name}</span>
-          </button>
-        ) : null}
+        <AccountMenu />
       </div>
     </header>
   )

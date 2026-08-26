@@ -1,24 +1,54 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
-import { HISTORY_LIMIT, PROFILE_COLORS, STORAGE_KEY, type Profile, type ProfileStore, type WatchHistoryItem } from './types'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useAuth } from '../auth/AuthContext'
+import {
+  HISTORY_LIMIT,
+  PROFILE_COLORS,
+  STORAGE_KEY,
+  type LikedTitle,
+  type Profile,
+  type ProfileStore,
+  type WatchHistoryItem,
+} from './types'
 
 function emptyStore(): ProfileStore {
   return { profiles: [], activeProfileId: null }
 }
 
-function loadStore(): ProfileStore {
+function hydrateProfile(raw: Profile): Profile {
+  return {
+    ...raw,
+    history: Array.isArray(raw.history) ? raw.history : [],
+    favoriteGenres: Array.isArray(raw.favoriteGenres) ? raw.favoriteGenres : [],
+    liked: Array.isArray(raw.liked) ? raw.liked : [],
+    dislikedIds: Array.isArray(raw.dislikedIds) ? raw.dislikedIds : [],
+  }
+}
+
+function keyFor(userId: string) {
+  return `${STORAGE_KEY}.${userId}`
+}
+
+function loadStore(userId: string | null): ProfileStore {
+  if (!userId) return emptyStore()
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const scoped = localStorage.getItem(keyFor(userId))
+    const raw = scoped ?? localStorage.getItem(STORAGE_KEY)
     if (!raw) return emptyStore()
     const parsed = JSON.parse(raw) as ProfileStore
     if (!Array.isArray(parsed.profiles)) return emptyStore()
-    return parsed
+    const store = {
+      profiles: parsed.profiles.map(hydrateProfile),
+      activeProfileId: parsed.activeProfileId ?? null,
+    }
+    if (!scoped) localStorage.setItem(keyFor(userId), JSON.stringify(store))
+    return store
   } catch {
     return emptyStore()
   }
 }
 
-function persist(store: ProfileStore) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(store))
+function persist(userId: string, store: ProfileStore) {
+  localStorage.setItem(keyFor(userId), JSON.stringify(store))
 }
 
 function nextColor(profiles: Profile[]): string {
@@ -33,21 +63,32 @@ type ProfileContextValue = {
   renameProfile: (id: string, name: string) => void
   deleteProfile: (id: string) => void
   recordWatch: (item: Omit<WatchHistoryItem, 'watchedAt'>) => void
+  setFavoriteGenres: (genres: string[]) => void
+  rateTitle: (item: LikedTitle, direction: 'up' | 'down' | null) => void
   clearActive: () => void
 }
 
 const ProfileContext = createContext<ProfileContextValue | null>(null)
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
-  const [store, setStore] = useState<ProfileStore>(loadStore)
+  const { user } = useAuth()
+  const userId = user?.id ?? null
+  const [store, setStore] = useState<ProfileStore>(() => loadStore(userId))
 
-  const updateStore = useCallback((updater: (prev: ProfileStore) => ProfileStore) => {
-    setStore((prev) => {
-      const next = updater(prev)
-      persist(next)
-      return next
-    })
-  }, [])
+  useEffect(() => {
+    setStore(loadStore(userId))
+  }, [userId])
+
+  const updateStore = useCallback(
+    (updater: (prev: ProfileStore) => ProfileStore) => {
+      setStore((prev) => {
+        const next = updater(prev)
+        if (userId) persist(userId, next)
+        return next
+      })
+    },
+    [userId],
+  )
 
   const selectProfile = useCallback(
     (id: string) => {
@@ -64,6 +105,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         color: PROFILE_COLORS[0],
         createdAt: Date.now(),
         history: [],
+        favoriteGenres: [],
+        liked: [],
+        dislikedIds: [],
       }
       updateStore((prev) => ({
         profiles: [...prev.profiles, { ...profile, color: nextColor(prev.profiles) }],
@@ -116,6 +160,35 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const setFavoriteGenres = useCallback(
+    (genres: string[]) => {
+      updateStore((prev) => ({
+        ...prev,
+        profiles: prev.profiles.map((profile) =>
+          profile.id === prev.activeProfileId ? { ...profile, favoriteGenres: [...new Set(genres)] } : profile,
+        ),
+      }))
+    },
+    [updateStore],
+  )
+
+  const rateTitle = useCallback(
+    (item: LikedTitle, direction: 'up' | 'down' | null) => {
+      updateStore((prev) => ({
+        ...prev,
+        profiles: prev.profiles.map((profile) => {
+          if (profile.id !== prev.activeProfileId) return profile
+          const liked = profile.liked.filter((entry) => entry.id !== item.id)
+          const dislikedIds = profile.dislikedIds.filter((id) => id !== item.id)
+          if (direction === 'up') liked.unshift(item)
+          if (direction === 'down') dislikedIds.unshift(item.id)
+          return { ...profile, liked: liked.slice(0, HISTORY_LIMIT), dislikedIds: dislikedIds.slice(0, HISTORY_LIMIT) }
+        }),
+      }))
+    },
+    [updateStore],
+  )
+
   const clearActive = useCallback(() => {
     updateStore((prev) => ({ ...prev, activeProfileId: null }))
   }, [updateStore])
@@ -131,6 +204,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       renameProfile,
       deleteProfile,
       recordWatch,
+      setFavoriteGenres,
+      rateTitle,
       clearActive,
     }),
     [
@@ -141,6 +216,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       renameProfile,
       deleteProfile,
       recordWatch,
+      setFavoriteGenres,
+      rateTitle,
       clearActive,
     ],
   )

@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem } from '../api/types'
 import { detailPath, formatRating, genresOf, isShow } from '../lib/media'
+import { TrailerPreview } from '../trailers/TrailerPreview'
 import { useWatch } from '../watch/WatchContext'
 import { MediaImage } from './MediaImage'
+import { TasteButtons } from './TasteButtons'
 
 export function Hero({ item }: { item: MovieListItem }) {
   const { openWatch } = useWatch()
@@ -45,6 +47,7 @@ export function Hero({ item }: { item: MovieListItem }) {
   return (
     <section className="hero">
       <MediaImage src={backdrop} alt="" className="hero-img" />
+      <TrailerPreview title={item.title} year={item.year} kind={item.kind} className="hero-trailer" />
       <div className="hero-body">
         <h1 className="hero-title">{item.title}</h1>
         <div className="hero-meta">
@@ -61,6 +64,15 @@ export function Hero({ item }: { item: MovieListItem }) {
           <Link className="btn btn-ghost" to={detailPath(item)}>
             More info
           </Link>
+          <TasteButtons
+            item={{
+              id: item.id,
+              kind: item.kind ?? 'movie',
+              title: item.title,
+              poster_url: item.poster_url ?? null,
+              genres,
+            }}
+          />
         </div>
       </div>
     </section>

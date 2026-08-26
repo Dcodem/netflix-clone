@@ -8,12 +8,23 @@ export type WatchHistoryItem = {
   watch_href: string | null
 }
 
+export type LikedTitle = {
+  id: string
+  kind: string
+  title: string
+  poster_url: string | null
+  genres: string[]
+}
+
 export type Profile = {
   id: string
   name: string
   color: string
   createdAt: number
   history: WatchHistoryItem[]
+  favoriteGenres: string[]
+  liked: LikedTitle[]
+  dislikedIds: string[]
 }
 
 export type ProfileStore = {
@@ -32,3 +43,20 @@ export const PROFILE_COLORS = [
 
 export const STORAGE_KEY = 'flix.profiles.v1'
 export const HISTORY_LIMIT = 50
+
+export const TASTE_GENRES = [
+  'Action',
+  'Adventure',
+  'Animation',
+  'Comedy',
+  'Crime',
+  'Documentary',
+  'Drama',
+  'Family',
+  'Fantasy',
+  'Horror',
+  'Mystery',
+  'Romance',
+  'Sci-Fi',
+  'Thriller',
+] as const

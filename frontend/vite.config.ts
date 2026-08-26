@@ -33,6 +33,16 @@ export default defineConfig({
       '/watch': apiProxy,
       '/img': apiProxy,
       '/art': apiProxy,
+      '/iva': {
+        target: 'https://ee.iva-api.com',
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/iva/, ''),
+      },
+      '/tmdb': {
+        target: 'https://api.themoviedb.org',
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/tmdb/, ''),
+      },
     },
   },
 })

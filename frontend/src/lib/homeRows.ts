@@ -1,6 +1,6 @@
 import type { MovieListItem } from '../api/types'
-import { becauseYouWatched, rankByTaste } from '../profiles/taste'
-import type { WatchHistoryItem } from '../profiles/types'
+import { becauseYouLiked, becauseYouWatched, rankByTaste } from '../profiles/taste'
+import type { Profile, WatchHistoryItem } from '../profiles/types'
 import { genresOf, ofKind, sortByRating, sortByYear, uniqueById } from './media'
 
 export type BrowseFilter = 'home' | 'movies' | 'shows'
@@ -53,10 +53,10 @@ function pushRow(rows: HomeRow[], row: HomeRow) {
 export function buildBrowseRows(opts: {
   catalog: MovieListItem[]
   filter: BrowseFilter
-  history: WatchHistoryItem[]
-  profileName: string
+  profile: Profile | null
 }): HomeRow[] {
-  const { catalog, filter, history, profileName } = opts
+  const { catalog, filter, profile } = opts
+  const history = profile?.history ?? []
   const pool = ofKind(catalog, filter === 'home' ? 'all' : filter)
   const movies = ofKind(catalog, 'movies')
   const shows = ofKind(catalog, 'shows')
@@ -73,15 +73,21 @@ export function buildBrowseRows(opts: {
     title: 'Continue Watching',
     items: historyPool.slice(0, 18),
   })
-  pushRow(rows, {
-    id: 'picks',
-    title: `Top Picks for ${profileName}`,
-    items: rankByTaste(pool, history).slice(0, 18),
-  })
+  if (profile) {
+    pushRow(rows, {
+      id: 'picks',
+      title: `Top Picks for ${profile.name}`,
+      items: rankByTaste(pool, profile).slice(0, 18),
+    })
+  }
 
   const because = becauseYouWatched(pool, becauseHistory)
   if (because) {
     pushRow(rows, { id: 'because', title: because.title, items: because.items })
+  }
+  const liked = becauseYouLiked(pool, profile?.liked ?? [])
+  if (liked) {
+    pushRow(rows, { id: 'liked', title: liked.title, items: liked.items })
   }
 
   const trendingTitle =

@@ -3,8 +3,10 @@ import { getMovie } from '../api/client'
 import { ErrorState } from '../components/ErrorState'
 import { MediaImage } from '../components/MediaImage'
 import { Spinner } from '../components/Spinner'
+import { TasteButtons } from '../components/TasteButtons'
 import { useFetch } from '../hooks/useFetch'
 import { formatRating, formatRuntime, genresOf } from '../lib/media'
+import { TrailerPreview } from '../trailers/TrailerPreview'
 import { useWatch } from '../watch/WatchContext'
 
 export function MovieDetail() {
@@ -38,6 +40,7 @@ export function MovieDetail() {
       <section className="detail">
         <div className="detail-hero">
           <MediaImage src={data.backdrop_url || data.poster_url} alt="" className="detail-hero-img" />
+          <TrailerPreview title={data.title} year={data.year} kind={data.kind ?? 'movie'} className="hero-trailer" />
           <div className="detail-hero-body">
             {data.poster_url ? (
               <MediaImage src={data.poster_url} alt="" className="detail-poster" />
@@ -58,6 +61,15 @@ export function MovieDetail() {
                 <Link className="btn btn-ghost" to="/browse">
                   ← Back
                 </Link>
+                <TasteButtons
+                  item={{
+                    id: movie.id,
+                    kind: movie.kind ?? 'movie',
+                    title: movie.title,
+                    poster_url: movie.poster_url ?? null,
+                    genres,
+                  }}
+                />
               </div>
             </div>
           </div>

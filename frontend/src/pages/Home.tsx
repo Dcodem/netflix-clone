@@ -39,8 +39,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
       buildBrowseRows({
         catalog,
         filter,
-        history: activeProfile?.history ?? [],
-        profileName: activeProfile?.name ?? 'You',
+        profile: activeProfile,
       }),
     [catalog, filter, activeProfile],
   )

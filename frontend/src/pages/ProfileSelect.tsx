@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 
 export function ProfileSelect() {
+  const { user, logout } = useAuth()
   const { profiles, selectProfile, createProfile, renameProfile, deleteProfile, activeProfile } =
     useProfiles()
   const navigate = useNavigate()
@@ -11,6 +13,10 @@ export function ProfileSelect() {
   const [name, setName] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
+
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
 
   if (activeProfile && !managing && !adding) {
     return <Navigate to="/browse" replace />
@@ -32,7 +38,9 @@ export function ProfileSelect() {
   return (
     <main className="profiles-page">
       <h1>Who&apos;s watching?</h1>
-      <p className="profiles-sub">Profiles stay on this device. Watch history builds a taste row just for you.</p>
+      <p className="profiles-sub">
+        Hi {user.name}. Watch history, likes, and genres stay on this profile.
+      </p>
       <div className="profile-grid">
         {profiles.map((profile) => (
           <div key={profile.id} className="profile-cell">
@@ -107,6 +115,16 @@ export function ProfileSelect() {
           {managing ? 'Done' : 'Manage profiles'}
         </button>
       ) : null}
+      <button
+        type="button"
+        className="btn btn-ghost manage-btn"
+        onClick={() => {
+          logout()
+          navigate('/login')
+        }}
+      >
+        Sign out
+      </button>
     </main>
   )
 }

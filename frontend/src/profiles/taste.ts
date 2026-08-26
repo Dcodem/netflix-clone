@@ -1,10 +1,14 @@
 import type { MovieListItem } from '../api/types'
 import { genresOf } from '../lib/media'
-import type { WatchHistoryItem } from './types'
+import type { LikedTitle, Profile, WatchHistoryItem } from './types'
 
-export function genreWeights(history: WatchHistoryItem[]): Record<string, number> {
+export function genreWeights(history: WatchHistoryItem[], favoriteGenres: string[] = []): Record<string, number> {
   const now = Date.now()
   const weights: Record<string, number> = {}
+
+  for (const genre of favoriteGenres) {
+    weights[genre] = (weights[genre] ?? 0) + 3.5
+  }
 
   for (const item of history) {
     const ageDays = Math.max(0, (now - item.watchedAt) / (1000 * 60 * 60 * 24))
@@ -46,21 +50,39 @@ export function becauseYouWatched(
   return { title: `Because you watched ${seed.title}`, items: related }
 }
 
-export function rankByTaste(
+export function becauseYouLiked(
   items: MovieListItem[],
-  history: WatchHistoryItem[],
-): MovieListItem[] {
-  const weights = genreWeights(history)
-  const watched = new Set(history.map((item) => item.id))
+  liked: LikedTitle[],
+): { title: string; items: MovieListItem[] } | null {
+  const seed = liked[0]
+  if (!seed) return null
+  const genres = new Set(seed.genres)
+  const skip = new Set(liked.map((item) => item.id))
+  const related = items
+    .filter((item) => !skip.has(item.id) && genresOf(item).some((genre) => genres.has(genre)))
+    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+    .slice(0, 18)
+  if (related.length < 4) return null
+  return { title: `Because you liked ${seed.title}`, items: related }
+}
+
+export function rankByTaste(items: MovieListItem[], profile: Profile): MovieListItem[] {
+  const weights = genreWeights(profile.history, profile.favoriteGenres)
+  const watched = new Set(profile.history.map((item) => item.id))
+  const liked = new Set(profile.liked.map((item) => item.id))
+  const disliked = new Set(profile.dislikedIds)
+  const likedGenres = new Set(profile.liked.flatMap((item) => item.genres))
 
   return [...items]
-    .filter((item) => !watched.has(item.id))
+    .filter((item) => !watched.has(item.id) && !liked.has(item.id) && !disliked.has(item.id))
     .map((item) => {
-      const overlap = genresOf(item).reduce((sum, genre) => sum + (weights[genre] ?? 0), 0)
-      const score = overlap * 12 + (item.rating ?? 0)
+      const genres = genresOf(item)
+      const overlap = genres.reduce((sum, genre) => sum + (weights[genre] ?? 0), 0)
+      const likeBoost = genres.some((genre) => likedGenres.has(genre)) ? 6 : 0
+      const score = overlap * 12 + likeBoost + (item.rating ?? 0)
       return { item, overlap, score }
     })
-    .filter((entry) => entry.overlap > 0)
+    .filter((entry) => entry.overlap > 0 || entry.score > (entry.item.rating ?? 0))
     .sort((a, b) => b.score - a.score)
     .map((entry) => entry.item)
 }
