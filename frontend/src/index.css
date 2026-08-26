@@ -390,10 +390,18 @@ a {
   opacity: 1;
 }
 
+.row-scroller.is-looping {
+  scroll-snap-type: none;
+}
+
 .row-scroller .poster-wrap {
   flex: 0 0 42vw;
   max-width: 180px;
   scroll-snap-align: start;
+}
+
+.row-scroller.is-looping .poster-wrap {
+  scroll-snap-align: none;
 }
 
 .grid {
