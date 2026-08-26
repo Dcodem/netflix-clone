@@ -1,21 +1,26 @@
 import { useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { getShow } from '../api/client'
 import type { Episode, Season } from '../api/types'
+import { CatalogImage } from '../components/CatalogImage'
 import { ErrorState } from '../components/ErrorState'
 import { MediaImage } from '../components/MediaImage'
 import { Spinner } from '../components/Spinner'
 import { TasteButtons } from '../components/TasteButtons'
 import { useFetch } from '../hooks/useFetch'
 import { formatRating, formatRuntime, genresOf } from '../lib/media'
+import { isKidsSafe } from '../lib/netflix'
+import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview } from '../trailers/TrailerPreview'
 import { useWatch } from '../watch/WatchContext'
 
 export function ShowDetail() {
   const { id = '' } = useParams()
   const { openWatch } = useWatch()
+  const { activeProfile } = useProfiles()
   const { data, error, loading, retry } = useFetch(() => getShow(id), id)
-  const [seasonNumber, setSeasonNumber] = useState<number | null>(null)
+  const last = activeProfile?.history.find((entry) => entry.id === id)
+  const [seasonNumber, setSeasonNumber] = useState<number | null>(last?.seasonNumber ?? null)
 
   const seasons = useMemo(() => data?.seasons ?? [], [data])
   const activeSeason: Season | undefined = useMemo(() => {
@@ -26,13 +31,18 @@ export function ShowDetail() {
   if (loading) return <Spinner label="Loading show" />
   if (error) return <ErrorState message={error} onRetry={retry} />
   if (!data) return <ErrorState message="Show not found" onRetry={retry} />
+  if (activeProfile?.kids && !isKidsSafe(data)) return <Navigate to="/browse" replace />
 
   const show = data
   const rating = formatRating(show.rating)
   const runtime = formatRuntime(show.runtime)
   const genres = genresOf(show)
   const firstEpisode = activeSeason?.episodes?.[0]
-  const watchHref = firstEpisode?.watch_href || show.watch_href
+  const resumeEpisode = activeSeason?.episodes?.find(
+    (episode) => episode.id === last?.episodeId || episode.number === last?.episodeNumber,
+  )
+  const watchHref =
+    last?.watch_href || resumeEpisode?.watch_href || firstEpisode?.watch_href || show.watch_href
 
   const onWatchShow = () => {
     if (!watchHref) return
@@ -43,6 +53,11 @@ export function ShowDetail() {
       poster_url: show.poster_url ?? null,
       genres,
       watch_href: watchHref,
+      runtime: resumeEpisode?.duration ?? show.runtime ?? null,
+      seasonNumber: last?.seasonNumber ?? activeSeason?.season_number,
+      episodeNumber: last?.episodeNumber ?? resumeEpisode?.number ?? firstEpisode?.number,
+      episodeId: last?.episodeId ?? resumeEpisode?.id ?? firstEpisode?.id,
+      progress: last?.progress,
     })
   }
 
@@ -54,6 +69,10 @@ export function ShowDetail() {
       poster_url: show.poster_url ?? null,
       genres,
       watch_href: episode.watch_href,
+      runtime: episode.duration ?? show.runtime ?? null,
+      seasonNumber: season.season_number,
+      episodeNumber: episode.number,
+      episodeId: episode.id,
     })
   }
 
@@ -61,12 +80,10 @@ export function ShowDetail() {
     <main className="page">
       <section className="detail">
         <div className="detail-hero">
-          <MediaImage src={show.backdrop_url || show.poster_url} alt="" className="detail-hero-img" />
+          <CatalogImage item={show} alt="" className="detail-hero-img" prefer="backdrop" />
           <TrailerPreview title={show.title} year={show.year} kind="show" className="hero-trailer" />
           <div className="detail-hero-body">
-            {show.poster_url ? (
-              <MediaImage src={show.poster_url} alt="" className="detail-poster" />
-            ) : null}
+            <CatalogImage item={show} alt="" className="detail-poster" />
             <div>
               <h1 className="detail-title">{show.title}</h1>
               <div className="detail-meta">
@@ -78,7 +95,7 @@ export function ShowDetail() {
               {genres.length ? <div className="detail-genres">{genres.join(' · ')}</div> : null}
               <div className="detail-actions">
                 <button type="button" className="btn btn-primary" onClick={onWatchShow} disabled={!watchHref}>
-                  ▶ Watch
+                  {last?.progress && last.progress > 0.05 ? '▶ Resume' : '▶ Watch'}
                 </button>
                 <Link className="btn btn-ghost" to="/browse">
                   ← Back
@@ -119,7 +136,7 @@ export function ShowDetail() {
         {activeSeason?.episodes?.length ? (
           <div className="episodes">
             {activeSeason.episodes.map((episode) => (
-              <div key={episode.id} className="episode">
+              <div key={episode.id} className={`episode ${resumeEpisode?.id === episode.id ? 'is-resume' : ''}`}>
                 <MediaImage src={episode.thumb_url} alt="" className="ep-thumb" />
                 <div className="ep-info">
                   <div className="ep-label">

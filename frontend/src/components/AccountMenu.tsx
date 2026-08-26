@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
+import { avatarFor } from '../profiles/types'
 
 export function AccountMenu() {
   const { user, logout } = useAuth()
@@ -21,11 +22,13 @@ export function AccountMenu() {
 
   if (!user || !activeProfile) return null
 
+  const avatar = avatarFor(activeProfile)
+
   return (
     <div className="account-menu" ref={rootRef}>
       <button type="button" className="profile-chip" onClick={() => setOpen((value) => !value)} aria-label="Account menu">
-        <span className="avatar-dot" style={{ background: activeProfile.color }}>
-          {activeProfile.name.slice(0, 1).toUpperCase()}
+        <span className="avatar-dot" style={{ background: avatar.color }}>
+          {avatar.glyph}
         </span>
       </button>
       {open ? (

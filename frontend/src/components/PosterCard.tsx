@@ -1,19 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
 import type { MovieListItem } from '../api/types'
+import { useFineHover } from '../hooks/useFineHover'
 import { useTitleModal } from '../title/TitleModalContext'
-import { MediaImage } from './MediaImage'
+import { CatalogImage } from './CatalogImage'
 import { TitleHoverCard } from './TitleHoverCard'
 
 export function PosterCard({
   item,
   progress,
   hoverable = true,
+  continueMode = false,
 }: {
   item: MovieListItem
   progress?: number
   hoverable?: boolean
+  continueMode?: boolean
 }) {
   const { openTitle } = useTitleModal()
+  const fineHover = useFineHover()
+  const canHover = hoverable && fineHover
   const rootRef = useRef<HTMLButtonElement>(null)
   const [hover, setHover] = useState(false)
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
@@ -26,7 +31,7 @@ export function PosterCard({
   }
 
   function onEnter() {
-    if (!hoverable) return
+    if (!canHover) return
     cancelClose()
     timer.current = window.setTimeout(() => {
       const rect = rootRef.current?.getBoundingClientRect()
@@ -55,7 +60,7 @@ export function PosterCard({
         aria-label={item.title}
       >
         <div className="poster-art">
-          <MediaImage src={item.poster_url} alt={item.title} />
+          <CatalogImage item={item} alt={item.title} />
         </div>
         {progress ? (
           <div className="progress-track">
@@ -68,6 +73,7 @@ export function PosterCard({
           item={item}
           anchor={anchor}
           progress={progress}
+          continueMode={continueMode}
           onKeep={cancelClose}
           onClose={() => setHover(false)}
         />

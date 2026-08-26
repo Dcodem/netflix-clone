@@ -1,22 +1,26 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { getMovie } from '../api/client'
+import { CatalogImage } from '../components/CatalogImage'
 import { ErrorState } from '../components/ErrorState'
-import { MediaImage } from '../components/MediaImage'
 import { Spinner } from '../components/Spinner'
 import { TasteButtons } from '../components/TasteButtons'
 import { useFetch } from '../hooks/useFetch'
 import { formatRating, formatRuntime, genresOf } from '../lib/media'
+import { isKidsSafe } from '../lib/netflix'
+import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview } from '../trailers/TrailerPreview'
 import { useWatch } from '../watch/WatchContext'
 
 export function MovieDetail() {
   const { id = '' } = useParams()
   const { openWatch } = useWatch()
+  const { activeProfile } = useProfiles()
   const { data, error, loading, retry } = useFetch(() => getMovie(id), id)
 
   if (loading) return <Spinner label="Loading movie" />
   if (error) return <ErrorState message={error} onRetry={retry} />
   if (!data) return <ErrorState message="Movie not found" onRetry={retry} />
+  if (activeProfile?.kids && !isKidsSafe(data)) return <Navigate to="/browse" replace />
 
   const movie = data
   const rating = formatRating(movie.rating)
@@ -39,12 +43,10 @@ export function MovieDetail() {
     <main className="page">
       <section className="detail">
         <div className="detail-hero">
-          <MediaImage src={data.backdrop_url || data.poster_url} alt="" className="detail-hero-img" />
+          <CatalogImage item={data} alt="" className="detail-hero-img" prefer="backdrop" />
           <TrailerPreview title={data.title} year={data.year} kind={data.kind ?? 'movie'} className="hero-trailer" />
           <div className="detail-hero-body">
-            {data.poster_url ? (
-              <MediaImage src={data.poster_url} alt="" className="detail-poster" />
-            ) : null}
+            <CatalogImage item={data} alt="" className="detail-poster" />
             <div>
               <h1 className="detail-title">{data.title}</h1>
               <div className="detail-meta">

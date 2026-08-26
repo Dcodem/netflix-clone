@@ -107,10 +107,11 @@ export function buildBrowseRows(opts: {
   const rows: HomeRow[] = []
 
   if (filter === 'home') {
+    const hidden = new Set(profile?.hiddenContinueIds ?? [])
     pushRow(rows, {
       id: 'continue',
       title: 'Continue Watching',
-      items: historyPool.slice(0, 18),
+      items: historyPool.filter((item) => !hidden.has(item.id)).slice(0, 18),
       variant: 'continue',
     })
     if (profile?.myList.length) {

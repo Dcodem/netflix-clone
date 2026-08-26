@@ -6,19 +6,21 @@ import { formatRuntime, genresOf, isShow } from '../lib/media'
 import { matchPercent, maturityLabel } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview } from '../trailers/TrailerPreview'
-import { MediaImage } from './MediaImage'
+import { CatalogImage } from './CatalogImage'
 import { TitleActions } from './TitleActions'
 
 export function TitleHoverCard({
   item,
   anchor,
   progress,
+  continueMode = false,
   onClose,
   onKeep,
 }: {
   item: MovieListItem
   anchor: DOMRect
   progress?: number
+  continueMode?: boolean
   onClose: () => void
   onKeep: () => void
 }) {
@@ -43,7 +45,7 @@ export function TitleHoverCard({
   const width = Math.max(320, Math.min(380, anchor.width * 1.7))
   let left = anchor.left + anchor.width / 2 - width / 2
   left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
-  const heightGuess = width * 0.56 + 168
+  const heightGuess = width * 0.56 + 200
   let top = anchor.top - 18
   if (top + heightGuess > window.innerHeight - 12) {
     top = Math.max(12, window.innerHeight - heightGuess - 12)
@@ -53,10 +55,13 @@ export function TitleHoverCard({
   const maturity = maturityLabel(item)
   const runtime = formatRuntime(detail?.runtime)
   const genres = genresOf(detail ?? item).slice(0, 3)
-  const watchHref = isShow(item)
-    ? (detail as { seasons?: { episodes?: { watch_href: string }[] }[] })?.seasons?.[0]?.episodes?.[0]?.watch_href ||
-      detail?.watch_href
-    : detail?.watch_href
+  const last = activeProfile?.history.find((entry) => entry.id === item.id)
+  const watchHref =
+    last?.watch_href ||
+    (isShow(item)
+      ? (detail as { seasons?: { episodes?: { watch_href: string }[] }[] })?.seasons?.[0]?.episodes?.[0]?.watch_href ||
+        detail?.watch_href
+      : detail?.watch_href)
 
   return createPortal(
     <div
@@ -66,7 +71,7 @@ export function TitleHoverCard({
       onMouseLeave={onClose}
     >
       <div className="jawbone-art">
-        <MediaImage src={detail?.backdrop_url || item.poster_url} alt="" />
+        <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
         <TrailerPreview title={item.title} year={item.year} kind={item.kind} mode="mini" className="jawbone-trailer" />
         {progress ? (
           <div className="progress-track jawbone-progress">
@@ -75,7 +80,7 @@ export function TitleHoverCard({
         ) : null}
       </div>
       <div className="jawbone-body">
-        <TitleActions item={item} detail={detail} watchHref={watchHref} size="sm" />
+        <TitleActions item={item} detail={detail} watchHref={watchHref} size="sm" continueMode={continueMode} />
         <div className="jawbone-meta">
           <span className="match">{match}% Match</span>
           {item.year ? <span>{item.year}</span> : null}

@@ -1,51 +1,56 @@
-import { useRef } from 'react'
 import type { MovieListItem } from '../api/types'
+import { useRowOverflow } from '../hooks/useRowOverflow'
 import { PosterCard } from './PosterCard'
 
 export function MediaRow({
   title,
   items,
   progressById,
+  continueMode = false,
 }: {
   title: string
   items: MovieListItem[]
   progressById?: Record<string, number>
+  continueMode?: boolean
 }) {
-  const scrollerRef = useRef<HTMLDivElement>(null)
+  const { ref, canPrev, canNext, scrollByPage } = useRowOverflow()
 
   if (!items.length) return null
-
-  const scrollByPage = (direction: -1 | 1) => {
-    const el = scrollerRef.current
-    if (!el) return
-    el.scrollBy({ left: direction * el.clientWidth * 0.9, behavior: 'smooth' })
-  }
 
   return (
     <section className="media-row">
       <h2 className="section-title">{title}</h2>
       <div className="row-wrap">
-        <button
-          type="button"
-          className="row-arrow row-arrow-prev"
-          aria-label={`Scroll ${title} left`}
-          onClick={() => scrollByPage(-1)}
-        >
-          ‹
-        </button>
-        <div className="row-scroller" ref={scrollerRef}>
+        {canPrev ? (
+          <button
+            type="button"
+            className="row-arrow row-arrow-prev"
+            aria-label={`Scroll ${title} left`}
+            onClick={() => scrollByPage(-1)}
+          >
+            ‹
+          </button>
+        ) : null}
+        <div className="row-scroller" ref={ref}>
           {items.map((item) => (
-            <PosterCard key={item.id} item={item} progress={progressById?.[item.id]} />
+            <PosterCard
+              key={item.id}
+              item={item}
+              progress={progressById?.[item.id]}
+              continueMode={continueMode}
+            />
           ))}
         </div>
-        <button
-          type="button"
-          className="row-arrow row-arrow-next"
-          aria-label={`Scroll ${title} right`}
-          onClick={() => scrollByPage(1)}
-        >
-          ›
-        </button>
+        {canNext ? (
+          <button
+            type="button"
+            className="row-arrow row-arrow-next"
+            aria-label={`Scroll ${title} right`}
+            onClick={() => scrollByPage(1)}
+          >
+            ›
+          </button>
+        ) : null}
       </div>
     </section>
   )

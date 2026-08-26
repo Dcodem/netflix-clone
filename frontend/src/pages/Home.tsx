@@ -10,6 +10,7 @@ import { TopTenRow } from '../components/TopTenRow'
 import { useFetch } from '../hooks/useFetch'
 import { buildBrowseRows, catalogGenres, type BrowseFilter } from '../lib/homeRows'
 import { ofKind, pickHero, uniqueById } from '../lib/media'
+import { isKidsSafe } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 
 const HEADINGS: Record<BrowseFilter, string | null> = {
@@ -39,8 +40,9 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     const homeItems = movies.data ?? []
     const extraMovies = extras.data?.catalogMovies ?? []
     const extraShows = extras.data?.catalogShows ?? []
-    return uniqueById([...homeItems, ...extraMovies, ...extraShows])
-  }, [movies.data, extras.data])
+    const merged = uniqueById([...homeItems, ...extraMovies, ...extraShows])
+    return activeProfile?.kids ? merged.filter(isKidsSafe) : merged
+  }, [movies.data, extras.data, activeProfile?.kids])
 
   const kindPool = useMemo(
     () => ofKind(catalog, filter === 'home' || filter === 'popular' ? 'all' : filter),
@@ -82,10 +84,15 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
 
   if (!kindPool.length) {
     const label = filter === 'shows' ? 'TV shows' : filter === 'movies' ? 'movies' : 'titles'
+    const kids = Boolean(activeProfile?.kids)
     return (
       <EmptyState
-        title={`No ${label} yet`}
-        detail="The catalog API returned nothing for this view. Is it running on port 8090?"
+        title={kids ? 'No Kids titles yet' : `No ${label} yet`}
+        detail={
+          kids
+            ? 'Kids profiles only show Family and Animation titles. This catalog does not have any yet.'
+            : 'The catalog API returned nothing for this view. Is it running on port 8090?'
+        }
       />
     )
   }
@@ -138,6 +145,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
             title={row.title}
             items={row.items}
             progressById={row.variant === 'continue' ? progressById : undefined}
+            continueMode={row.variant === 'continue'}
           />
         ),
       )}

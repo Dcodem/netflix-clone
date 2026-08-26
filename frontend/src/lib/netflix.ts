@@ -11,6 +11,23 @@ export function maturityLabel(item: { kind?: string; genres?: string[] }): strin
   return isShow(item) ? 'TV-14' : '13+'
 }
 
+export function isKidsSafe(item: { kind?: string; genres?: string[] }): boolean {
+  return maturityLabel(item) === 'PG'
+}
+
+export function filterForProfile<T extends { kind?: string; genres?: string[] }>(
+  items: T[],
+  profile: { kids?: boolean } | null,
+): T[] {
+  if (!profile?.kids) return items
+  return items.filter(isKidsSafe)
+}
+
+export function needsPlaceholderArt(url?: string | null): boolean {
+  if (!url) return true
+  return url.startsWith('/art/')
+}
+
 export function matchPercent(item: MovieListItem, profile: Profile | null): number {
   if (!profile) return 72
   const weights = genreWeights(profile.history, profile.favoriteGenres)
