@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { AccountMenu } from './AccountMenu'
@@ -15,7 +15,11 @@ export function Header() {
     setQuery(urlQuery)
   }
   const [scrolled, setScrolled] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(Boolean(urlQuery))
+  const inputRef = useRef<HTMLInputElement>(null)
+  const searchRef = useRef<HTMLDivElement>(null)
   const debounced = useDebouncedValue(query.trim(), 350)
+  const open = searchOpen || Boolean(query) || location.pathname === '/search'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -36,6 +40,22 @@ export function Header() {
     }
   }, [debounced, location.pathname, navigate, searchParams])
 
+  useEffect(() => {
+    if (!open) return
+    const onDoc = (event: MouseEvent) => {
+      if (!searchRef.current?.contains(event.target as Node) && !query) {
+        setSearchOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [open, query])
+
+  function toggleSearch() {
+    setSearchOpen(true)
+    window.setTimeout(() => inputRef.current?.focus(), 20)
+  }
+
   return (
     <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
       <div className="header-inner">
@@ -46,29 +66,42 @@ export function Header() {
           <NavLink className="nav-link" to="/browse" end>
             Home
           </NavLink>
-          <NavLink className="nav-link" to="/browse/movies">
-            Movies
-          </NavLink>
           <NavLink className="nav-link" to="/browse/shows">
             TV Shows
           </NavLink>
-          <NavLink className="nav-link" to="/taste">
-            Taste
+          <NavLink className="nav-link" to="/browse/movies">
+            Movies
+          </NavLink>
+          <NavLink className="nav-link" to="/browse/latest">
+            New &amp; Popular
+          </NavLink>
+          <NavLink className="nav-link" to="/browse/my-list">
+            My List
           </NavLink>
         </nav>
-        <label className="search-wrap">
-          <span className="search-ico" aria-hidden="true">
-            ⌕
-          </span>
-          <input
-            type="search"
-            placeholder="Search titles"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            aria-label="Search"
-          />
-        </label>
-        <AccountMenu />
+        <div className="header-tools">
+          <div className={`search-wrap ${open ? 'is-open' : ''}`} ref={searchRef}>
+            <button
+              type="button"
+              className="search-toggle"
+              aria-label="Search"
+              onClick={toggleSearch}
+            >
+              ⌕
+            </button>
+            {open ? (
+              <input
+                ref={inputRef}
+                type="search"
+                placeholder="Titles, people, genres"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                aria-label="Search"
+              />
+            ) : null}
+          </div>
+          <AccountMenu />
+        </div>
       </div>
     </header>
   )

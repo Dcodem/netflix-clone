@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { resolveTrailer } from './resolve'
 import { envKeys, type TrailerHit } from './types'
@@ -9,12 +9,16 @@ export function TrailerPreview({
   kind,
   className,
   mode = 'hero',
+  muted = true,
+  onReady,
 }: {
   title: string
   year?: number | null
   kind?: string
   className?: string
   mode?: 'hero' | 'mini'
+  muted?: boolean
+  onReady?: () => void
 }) {
   const { user } = useAuth()
   const keys = {
@@ -25,6 +29,7 @@ export function TrailerPreview({
 
   useEffect(() => {
     let cancelled = false
+    setHit(null)
     if (!keys.iva && !keys.tmdb) return
     const timer = window.setTimeout(() => {
       resolveTrailer({ title, year, kind }, keys, { seconds: mode === 'mini' ? 12 : 30 })
@@ -41,12 +46,21 @@ export function TrailerPreview({
     }
   }, [title, year, kind, keys.iva, keys.tmdb, mode])
 
+  const onReadyRef = useRef(onReady)
+  useEffect(() => {
+    onReadyRef.current = onReady
+  })
+
+  useEffect(() => {
+    if (hit) onReadyRef.current?.()
+  }, [hit])
+
   if (!hit) return null
 
   if (hit.kind === 'youtube') {
     const params = new URLSearchParams({
       autoplay: '1',
-      mute: '1',
+      mute: muted ? '1' : '0',
       controls: '0',
       loop: '1',
       playlist: hit.src,
@@ -66,6 +80,14 @@ export function TrailerPreview({
   }
 
   return (
-    <video className={className} src={hit.src} autoPlay muted loop playsInline preload="metadata" />
+    <video
+      className={className}
+      src={hit.src}
+      autoPlay
+      muted={muted}
+      loop
+      playsInline
+      preload="metadata"
+    />
   )
 }

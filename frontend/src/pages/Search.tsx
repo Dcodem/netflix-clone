@@ -38,10 +38,6 @@ export function Search() {
 
   return (
     <main className="page page-pad">
-      <h1 className="section-title">Search: “{q}”</h1>
-      <p className="section-sub">
-        {data?.length ?? 0} result{(data?.length ?? 0) === 1 ? '' : 's'}
-      </p>
       {data?.length ? (
         <MediaGrid items={data} />
       ) : (

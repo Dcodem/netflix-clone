@@ -32,19 +32,25 @@ Optional trailer keys (Account screen, or env):
 ## Screens
 
 - Sign in / Sign up — local accounts on this device
-- Who's watching — create / rename / delete profiles for the signed-in account
-- Home — Netflix-style rails, including Top Picks from the taste profile
-- Taste — favorite genres, inferred weights, liked titles
+- Who's watching — large profile tiles and an outlined Manage Profiles control
+- Home — billboard hero, silent poster rails, hover previews, Top 10, Continue Watching progress
+- Movies / TV Shows — genre dropdown over the billboard
+- New & Popular — Top 10 plus new and trending rails
+- My List — titles saved on this profile
+- Taste — favorite genres, inferred weights, liked titles (account menu)
 - Account — IVA / TMDB keys for mini trailers
-- Search — debounced header search
-- Movie / show detail — metadata, Watch, Like, season tabs, episode Watch, trailer preview
-- Watch — full-screen iframe of `watch_href` (Back or Escape)
+- Search — expanding header icon, poster grid; cards open a title modal
+- Title modal — trailer, Play / My List / thumbs, similar titles, show episodes
+- Movie / show detail — still available at `/movie/:id` and `/show/:id`
+- Watch — full-screen iframe of `watch_href` (hover for Back, or press Escape)
 
-Taste rows are ranked from favorite genres, likes, and titles that profile has watched. History does not sync across phones and the TV unless they share a browser.
+Rows use silent posters. Hovering a tile opens a jawbone with a muted mini-trailer, Play, My List, thumbs, match %, maturity, and More Info. Clicking a poster opens the title modal instead of leaving Home.
 
-Mini trailers play on the hero and title pages. IVA is tried first (short GetVideo clips). If that key is missing or IVA has no match, TMDB YouTube trailers are used. Catalog playback is still only `watch_href`.
+Taste rows are ranked from favorite genres, likes, and titles that profile has watched. History, My List, and likes do not sync across phones and the TV unless they share a browser.
 
-Movies vs TV shows: the API sets `kind` to `"movie"` or `"show"` on each title. Cards route to `/movie/:id` or `/show/:id`, catalog calls use `/catalog/movies` vs `/catalog/shows`, and series posters get a SERIES badge. Show pages are the only ones with seasons and episodes.
+Mini trailers play on the billboard, hover cards, and title modal. IVA is tried first (short GetVideo clips). If that key is missing or IVA has no match, TMDB YouTube trailers are used. Catalog playback is still only `watch_href`.
+
+Movies vs TV shows: the API sets `kind` to `"movie"` or `"show"` on each title. Catalog calls use `/catalog/movies` vs `/catalog/shows`. Show modals are the ones with seasons and episodes.
 
 Episode descriptions: the UI prints `episode.synopsis` from `GET /shows/{id}`. The frontend does not look up TVMaze/TMDB itself; if the API leaves synopsis empty, that episode has no description.
 

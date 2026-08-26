@@ -1,15 +1,33 @@
+import { useEffect, useState } from 'react'
 import { useWatch } from './WatchContext'
 
 export function WatchOverlay() {
   const { session, closeWatch } = useWatch()
+  const [chrome, setChrome] = useState(true)
+
+  useEffect(() => {
+    if (!session) return
+    setChrome(true)
+    let timer = window.setTimeout(() => setChrome(false), 2400)
+    const show = () => {
+      setChrome(true)
+      window.clearTimeout(timer)
+      timer = window.setTimeout(() => setChrome(false), 2400)
+    }
+    window.addEventListener('mousemove', show)
+    return () => {
+      window.clearTimeout(timer)
+      window.removeEventListener('mousemove', show)
+    }
+  }, [session])
 
   if (!session) return null
 
   return (
     <div className="watch-overlay" role="dialog" aria-modal="true" aria-label="Player">
-      <div className="watch-topbar">
-        <button type="button" className="watch-back" onClick={closeWatch}>
-          ‹ Back
+      <div className={`watch-topbar ${chrome ? 'is-visible' : ''}`}>
+        <button type="button" className="watch-back" onClick={closeWatch} aria-label="Back">
+          ‹
         </button>
         <p className="watch-title">{session.title}</p>
       </div>

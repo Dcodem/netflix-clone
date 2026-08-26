@@ -23,14 +23,14 @@ export function AccountMenu() {
 
   return (
     <div className="account-menu" ref={rootRef}>
-      <button type="button" className="profile-chip" onClick={() => setOpen((value) => !value)}>
+      <button type="button" className="profile-chip" onClick={() => setOpen((value) => !value)} aria-label="Account menu">
         <span className="avatar-dot" style={{ background: activeProfile.color }}>
           {activeProfile.name.slice(0, 1).toUpperCase()}
         </span>
-        <span className="profile-chip-name">{activeProfile.name}</span>
       </button>
       {open ? (
         <div className="account-dropdown">
+          <p className="account-dropdown-email">{activeProfile.name}</p>
           <p className="account-dropdown-email">{user.email}</p>
           <Link to="/taste" onClick={() => setOpen(false)}>
             Taste profile

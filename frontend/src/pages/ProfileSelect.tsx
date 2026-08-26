@@ -38,15 +38,12 @@ export function ProfileSelect() {
   return (
     <main className="profiles-page">
       <h1>Who&apos;s watching?</h1>
-      <p className="profiles-sub">
-        Hi {user.name}. Watch history, likes, and genres stay on this profile.
-      </p>
       <div className="profile-grid">
         {profiles.map((profile) => (
           <div key={profile.id} className="profile-cell">
             <button
               type="button"
-              className="profile-avatar"
+              className={`profile-avatar ${managing ? 'is-managing' : ''}`}
               style={{ background: profile.color }}
               onClick={() => onSelect(profile.id)}
             >
@@ -111,8 +108,12 @@ export function ProfileSelect() {
         </form>
       ) : null}
       {profiles.length ? (
-        <button type="button" className="btn btn-ghost manage-btn" onClick={() => setManaging((v) => !v)}>
-          {managing ? 'Done' : 'Manage profiles'}
+        <button
+          type="button"
+          className="btn manage-profiles"
+          onClick={() => setManaging((value) => !value)}
+        >
+          {managing ? 'Done' : 'Manage Profiles'}
         </button>
       ) : null}
       <button

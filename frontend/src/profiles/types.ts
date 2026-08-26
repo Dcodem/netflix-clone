@@ -6,6 +6,8 @@ export type WatchHistoryItem = {
   genres: string[]
   watchedAt: number
   watch_href: string | null
+  progress?: number
+  runtime?: number | null
 }
 
 export type LikedTitle = {
@@ -25,6 +27,7 @@ export type Profile = {
   favoriteGenres: string[]
   liked: LikedTitle[]
   dislikedIds: string[]
+  myList: LikedTitle[]
 }
 
 export type ProfileStore = {

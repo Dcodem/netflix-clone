@@ -21,6 +21,7 @@ function hydrateProfile(raw: Profile): Profile {
     favoriteGenres: Array.isArray(raw.favoriteGenres) ? raw.favoriteGenres : [],
     liked: Array.isArray(raw.liked) ? raw.liked : [],
     dislikedIds: Array.isArray(raw.dislikedIds) ? raw.dislikedIds : [],
+    myList: Array.isArray(raw.myList) ? raw.myList : [],
   }
 }
 
@@ -65,6 +66,7 @@ type ProfileContextValue = {
   recordWatch: (item: Omit<WatchHistoryItem, 'watchedAt'>) => void
   setFavoriteGenres: (genres: string[]) => void
   rateTitle: (item: LikedTitle, direction: 'up' | 'down' | null) => void
+  toggleMyList: (item: LikedTitle) => void
   clearActive: () => void
 }
 
@@ -108,6 +110,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         favoriteGenres: [],
         liked: [],
         dislikedIds: [],
+        myList: [],
       }
       updateStore((prev) => ({
         profiles: [...prev.profiles, { ...profile, color: nextColor(prev.profiles) }],
@@ -150,8 +153,15 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           ...prev,
           profiles: prev.profiles.map((profile) => {
             if (profile.id !== prev.activeProfileId) return profile
+            const previous = profile.history.find((entry) => entry.id === item.id)
             const rest = profile.history.filter((entry) => entry.id !== item.id)
-            const next: WatchHistoryItem = { ...item, watchedAt: Date.now() }
+            const next: WatchHistoryItem = {
+              ...previous,
+              ...item,
+              watchedAt: Date.now(),
+              progress: item.progress ?? previous?.progress ?? 0.08,
+              runtime: item.runtime ?? previous?.runtime ?? null,
+            }
             return { ...profile, history: [next, ...rest].slice(0, HISTORY_LIMIT) }
           }),
         }
@@ -189,6 +199,23 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const toggleMyList = useCallback(
+    (item: LikedTitle) => {
+      updateStore((prev) => ({
+        ...prev,
+        profiles: prev.profiles.map((profile) => {
+          if (profile.id !== prev.activeProfileId) return profile
+          const exists = profile.myList.some((entry) => entry.id === item.id)
+          const myList = exists
+            ? profile.myList.filter((entry) => entry.id !== item.id)
+            : [item, ...profile.myList].slice(0, HISTORY_LIMIT)
+          return { ...profile, myList }
+        }),
+      }))
+    },
+    [updateStore],
+  )
+
   const clearActive = useCallback(() => {
     updateStore((prev) => ({ ...prev, activeProfileId: null }))
   }, [updateStore])
@@ -206,6 +233,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       recordWatch,
       setFavoriteGenres,
       rateTitle,
+      toggleMyList,
       clearActive,
     }),
     [
@@ -218,6 +246,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       recordWatch,
       setFavoriteGenres,
       rateTitle,
+      toggleMyList,
       clearActive,
     ],
   )

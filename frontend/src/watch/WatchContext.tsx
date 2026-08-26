@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { resolveWatchHref } from '../api/client'
 import { useProfiles } from '../profiles/ProfileContext'
 import type { WatchHistoryItem } from '../profiles/types'
@@ -6,6 +6,8 @@ import type { WatchHistoryItem } from '../profiles/types'
 export type WatchSession = {
   href: string
   title: string
+  startedAt: number
+  history?: Omit<WatchHistoryItem, 'watchedAt'>
 }
 
 type WatchContextValue = {
@@ -19,16 +21,28 @@ const WatchContext = createContext<WatchContextValue | null>(null)
 export function WatchProvider({ children }: { children: ReactNode }) {
   const { recordWatch } = useProfiles()
   const [session, setSession] = useState<WatchSession | null>(null)
+  const sessionRef = useRef(session)
+  sessionRef.current = session
 
   const closeWatch = useCallback(() => {
+    const current = sessionRef.current
+    if (current?.history) {
+      const elapsed = (Date.now() - current.startedAt) / 1000
+      const runtimeSec = Math.max(60, (current.history.runtime ?? 48) * 60)
+      const previous = current.history.progress ?? 0
+      recordWatch({
+        ...current.history,
+        progress: Math.min(0.96, Math.max(0.08, previous + elapsed / runtimeSec)),
+      })
+    }
     setSession(null)
-  }, [])
+  }, [recordWatch])
 
   const openWatch = useCallback(
     (href: string, title: string, history?: Omit<WatchHistoryItem, 'watchedAt'>) => {
       if (!href) return
-      setSession({ href: resolveWatchHref(href), title })
-      if (history) recordWatch(history)
+      if (history) recordWatch({ ...history, progress: history.progress ?? 0.08 })
+      setSession({ href: resolveWatchHref(href), title, startedAt: Date.now(), history })
     },
     [recordWatch],
   )
