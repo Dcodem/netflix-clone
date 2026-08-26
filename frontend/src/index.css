@@ -411,6 +411,22 @@ a {
   position: relative;
 }
 
+.continue-hide {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
 .poster-card {
   position: relative;
   z-index: 1;
@@ -1519,7 +1535,8 @@ a {
 .top-ten-scroller {
   align-items: flex-end;
   padding-top: 18px;
-  padding-left: 28px;
+  padding-left: 16px;
+  scroll-padding-left: 16px;
 }
 
 .top-ten-item {
@@ -1528,6 +1545,11 @@ a {
   flex: 0 0 auto;
   width: 210px;
   position: relative;
+  scroll-snap-align: start;
+}
+
+.top-ten-scroller .top-ten-item .poster-wrap {
+  scroll-snap-align: none;
 }
 
 .top-ten-rank {

@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import type { MovieListItem } from '../api/types'
-import { useFineHover } from '../hooks/useFineHover'
+import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
 import { TitleHoverCard } from './TitleHoverCard'
@@ -17,8 +17,7 @@ export function PosterCard({
   continueMode?: boolean
 }) {
   const { openTitle } = useTitleModal()
-  const fineHover = useFineHover()
-  const canHover = hoverable && fineHover
+  const { hideContinue } = useProfiles()
   const rootRef = useRef<HTMLButtonElement>(null)
   const [hover, setHover] = useState(false)
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
@@ -30,8 +29,8 @@ export function PosterCard({
     window.clearTimeout(timer.current)
   }
 
-  function onEnter() {
-    if (!canHover) return
+  function onEnter(event: PointerEvent<HTMLDivElement>) {
+    if (!hoverable || event.pointerType !== 'mouse') return
     cancelClose()
     timer.current = window.setTimeout(() => {
       const rect = rootRef.current?.getBoundingClientRect()
@@ -42,13 +41,14 @@ export function PosterCard({
     }, 380)
   }
 
-  function onLeave() {
+  function onLeave(event: PointerEvent<HTMLDivElement>) {
+    if (event.pointerType !== 'mouse') return
     cancelClose()
     timer.current = window.setTimeout(() => setHover(false), 180)
   }
 
   return (
-    <div className="poster-wrap" onMouseEnter={onEnter} onMouseLeave={onLeave}>
+    <div className="poster-wrap" onPointerEnter={onEnter} onPointerLeave={onLeave}>
       <button
         type="button"
         className="poster-card"
@@ -68,6 +68,20 @@ export function PosterCard({
           </div>
         ) : null}
       </button>
+      {continueMode ? (
+        <button
+          type="button"
+          className="continue-hide"
+          onClick={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            hideContinue(item.id)
+          }}
+          aria-label="Remove from Continue Watching"
+        >
+          ×
+        </button>
+      ) : null}
       {hover && anchor ? (
         <TitleHoverCard
           item={item}

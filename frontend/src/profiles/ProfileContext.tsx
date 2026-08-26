@@ -32,27 +32,33 @@ function hydrateProfile(raw: Profile): Profile {
   }
 }
 
+function parseStore(raw: string): ProfileStore | null {
+  try {
+    const parsed = JSON.parse(raw) as ProfileStore
+    if (!Array.isArray(parsed.profiles)) return null
+    return {
+      profiles: parsed.profiles.map(hydrateProfile),
+      activeProfileId: parsed.activeProfileId ?? null,
+    }
+  } catch {
+    return null
+  }
+}
+
 function keyFor(userId: string) {
   return `${STORAGE_KEY}.${userId}`
 }
 
 function loadStore(userId: string | null): ProfileStore {
   if (!userId) return emptyStore()
-  try {
-    const scoped = localStorage.getItem(keyFor(userId))
-    const raw = scoped ?? localStorage.getItem(STORAGE_KEY)
-    if (!raw) return emptyStore()
-    const parsed = JSON.parse(raw) as ProfileStore
-    if (!Array.isArray(parsed.profiles)) return emptyStore()
-    const store = {
-      profiles: parsed.profiles.map(hydrateProfile),
-      activeProfileId: parsed.activeProfileId ?? null,
-    }
-    if (!scoped) localStorage.setItem(keyFor(userId), JSON.stringify(store))
-    return store
-  } catch {
-    return emptyStore()
-  }
+  const scoped = localStorage.getItem(keyFor(userId))
+  if (scoped) return parseStore(scoped) ?? emptyStore()
+  const legacy = localStorage.getItem(STORAGE_KEY)
+  if (!legacy) return emptyStore()
+  const store = parseStore(legacy) ?? emptyStore()
+  persist(userId, store)
+  localStorage.removeItem(STORAGE_KEY)
+  return store
 }
 
 function persist(userId: string, store: ProfileStore) {
