@@ -18,7 +18,8 @@ npm run dev
 
 Open `http://localhost:5173`. Vite proxies API routes (`/movies`, `/shows`, `/search`, `/catalog`, `/health`, `/watch`, `/img`) to `:8090`.
 
-Optional: `VITE_API_BASE=http://localhost:8090 npm run dev` to call the API origin directly instead of the proxy.
+Optional: if `watch_href` values are relative (e.g. `/movies/play/...`), set
+`VITE_PLAYER_ORIGIN` to the player site origin so the iframe can load them.
 
 ## Screens
 

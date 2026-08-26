@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { resolveWatchHref } from '../api/client'
 import { useProfiles } from '../profiles/ProfileContext'
 import type { WatchHistoryItem } from '../profiles/types'
 
@@ -26,7 +27,7 @@ export function WatchProvider({ children }: { children: ReactNode }) {
   const openWatch = useCallback(
     (href: string, title: string, history?: Omit<WatchHistoryItem, 'watchedAt'>) => {
       if (!href) return
-      setSession({ href, title })
+      setSession({ href: resolveWatchHref(href), title })
       if (history) recordWatch(history)
     },
     [recordWatch],

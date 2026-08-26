@@ -1,7 +1,18 @@
 import react from '@vitejs/plugin-react'
+import type { IncomingMessage } from 'node:http'
 import { defineConfig } from 'vite'
 
 const API = 'http://localhost:8090'
+
+function spaBypass(req: IncomingMessage) {
+  if (req.headers.accept?.includes('text/html')) return '/index.html'
+}
+
+const apiProxy = {
+  target: API,
+  changeOrigin: true,
+  bypass: spaBypass,
+}
 
 export default defineConfig({
   plugins: [react()],
@@ -9,13 +20,13 @@ export default defineConfig({
     host: true,
     port: 5173,
     proxy: {
-      '/movies': { target: API, changeOrigin: true },
-      '/shows': { target: API, changeOrigin: true },
-      '/search': { target: API, changeOrigin: true },
-      '/catalog': { target: API, changeOrigin: true },
-      '/health': { target: API, changeOrigin: true },
-      '/watch': { target: API, changeOrigin: true },
-      '/img': { target: API, changeOrigin: true },
+      '/movies': apiProxy,
+      '/shows': apiProxy,
+      '/search': apiProxy,
+      '/catalog': apiProxy,
+      '/health': apiProxy,
+      '/watch': apiProxy,
+      '/img': apiProxy,
     },
   },
 })

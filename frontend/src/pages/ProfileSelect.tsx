@@ -24,11 +24,9 @@ export function ProfileSelect() {
 
   function onAdd(event: FormEvent) {
     event.preventDefault()
-    const profile = createProfile(name)
+    createProfile(name)
     setName('')
     setAdding(false)
-    selectProfile(profile.id)
-    navigate('/browse')
   }
 
   return (

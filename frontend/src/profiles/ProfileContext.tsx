@@ -41,16 +41,19 @@ const ProfileContext = createContext<ProfileContextValue | null>(null)
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const [store, setStore] = useState<ProfileStore>(loadStore)
 
-  const commit = useCallback((next: ProfileStore) => {
-    persist(next)
-    setStore(next)
+  const updateStore = useCallback((updater: (prev: ProfileStore) => ProfileStore) => {
+    setStore((prev) => {
+      const next = updater(prev)
+      persist(next)
+      return next
+    })
   }, [])
 
   const selectProfile = useCallback(
     (id: string) => {
-      commit({ ...store, activeProfileId: id })
+      updateStore((prev) => ({ ...prev, activeProfileId: id }))
     },
-    [commit, store],
+    [updateStore],
   )
 
   const createProfile = useCallback(
@@ -58,60 +61,64 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       const profile: Profile = {
         id: crypto.randomUUID(),
         name: name.trim() || 'Profile',
-        color: nextColor(store.profiles),
+        color: PROFILE_COLORS[0],
         createdAt: Date.now(),
         history: [],
       }
-      commit({
-        profiles: [...store.profiles, profile],
+      updateStore((prev) => ({
+        profiles: [...prev.profiles, { ...profile, color: nextColor(prev.profiles) }],
         activeProfileId: profile.id,
-      })
+      }))
       return profile
     },
-    [commit, store],
+    [updateStore],
   )
 
   const renameProfile = useCallback(
     (id: string, name: string) => {
-      commit({
-        ...store,
-        profiles: store.profiles.map((profile) =>
+      updateStore((prev) => ({
+        ...prev,
+        profiles: prev.profiles.map((profile) =>
           profile.id === id ? { ...profile, name: name.trim() || profile.name } : profile,
         ),
-      })
+      }))
     },
-    [commit, store],
+    [updateStore],
   )
 
   const deleteProfile = useCallback(
     (id: string) => {
-      const profiles = store.profiles.filter((profile) => profile.id !== id)
-      const activeProfileId =
-        store.activeProfileId === id ? (profiles[0]?.id ?? null) : store.activeProfileId
-      commit({ profiles, activeProfileId })
+      updateStore((prev) => {
+        const profiles = prev.profiles.filter((profile) => profile.id !== id)
+        const activeProfileId =
+          prev.activeProfileId === id ? (profiles[0]?.id ?? null) : prev.activeProfileId
+        return { profiles, activeProfileId }
+      })
     },
-    [commit, store],
+    [updateStore],
   )
 
   const recordWatch = useCallback(
     (item: Omit<WatchHistoryItem, 'watchedAt'>) => {
-      if (!store.activeProfileId) return
-      commit({
-        ...store,
-        profiles: store.profiles.map((profile) => {
-          if (profile.id !== store.activeProfileId) return profile
-          const rest = profile.history.filter((entry) => entry.id !== item.id)
-          const next: WatchHistoryItem = { ...item, watchedAt: Date.now() }
-          return { ...profile, history: [next, ...rest].slice(0, HISTORY_LIMIT) }
-        }),
+      updateStore((prev) => {
+        if (!prev.activeProfileId) return prev
+        return {
+          ...prev,
+          profiles: prev.profiles.map((profile) => {
+            if (profile.id !== prev.activeProfileId) return profile
+            const rest = profile.history.filter((entry) => entry.id !== item.id)
+            const next: WatchHistoryItem = { ...item, watchedAt: Date.now() }
+            return { ...profile, history: [next, ...rest].slice(0, HISTORY_LIMIT) }
+          }),
+        }
       })
     },
-    [commit, store],
+    [updateStore],
   )
 
   const clearActive = useCallback(() => {
-    commit({ ...store, activeProfileId: null })
-  }, [commit, store])
+    updateStore((prev) => ({ ...prev, activeProfileId: null }))
+  }, [updateStore])
 
   const activeProfile = store.profiles.find((profile) => profile.id === store.activeProfileId) ?? null
 

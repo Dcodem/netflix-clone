@@ -53,3 +53,11 @@ export async function getCatalog(
 export function proxyImageUrl(url: string): string {
   return `/img?u=${encodeURIComponent(url)}`
 }
+
+export function resolveWatchHref(href: string): string {
+  if (!href) return ''
+  if (/^https?:\/\//i.test(href)) return href
+  const origin = String(import.meta.env.VITE_PLAYER_ORIGIN ?? '').replace(/\/$/, '')
+  if (!origin) return href
+  return `${origin}${href.startsWith('/') ? href : `/${href}`}`
+}

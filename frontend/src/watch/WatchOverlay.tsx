@@ -11,7 +11,7 @@ export function WatchOverlay() {
         <button type="button" className="watch-back" onClick={closeWatch}>
           ‹ Back
         </button>
-        <span className="watch-title">{session.title}</span>
+        <p className="watch-title">{session.title}</p>
       </div>
       <iframe
         className="watch-frame"
