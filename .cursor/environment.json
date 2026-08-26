@@ -1,0 +1,15 @@
+{
+  "name": "Netflix clone",
+  "install": "cd frontend && npm install",
+  "terminals": [
+    {
+      "name": "mock-api",
+      "command": "node mock/server.mjs"
+    },
+    {
+      "name": "vite-dev",
+      "command": "cd frontend && npm run dev"
+    }
+  ],
+  "ports": [5173, 8090]
+}
