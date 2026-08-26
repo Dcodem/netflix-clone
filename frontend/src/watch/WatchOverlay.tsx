@@ -8,11 +8,11 @@ export function WatchOverlay() {
   useEffect(() => {
     if (!session) return
     setChrome(true)
-    let timer = window.setTimeout(() => setChrome(false), 2400)
+    let timer = window.setTimeout(() => setChrome(false), 2800)
     const show = () => {
       setChrome(true)
       window.clearTimeout(timer)
-      timer = window.setTimeout(() => setChrome(false), 2400)
+      timer = window.setTimeout(() => setChrome(false), 2800)
     }
     window.addEventListener('mousemove', show)
     return () => {

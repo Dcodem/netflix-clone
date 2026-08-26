@@ -205,7 +205,7 @@ function makeItem(index, kind) {
     rating: ratingFor(index),
     quality: qualityFor(index),
     genres: genresFor(index),
-    poster_url: `/art/poster/${id}`,
+    poster_url: `/art/poster/${id}?v=2`,
     href: `/${kind === 'show' ? 'shows' : 'movies'}/view/${id}`,
   }
 }
@@ -221,7 +221,7 @@ function namedItem(kind, n, title, year, rating, genres) {
     rating,
     quality: '4K',
     genres,
-    poster_url: `/art/poster/${id}`,
+    poster_url: `/art/poster/${id}?v=2`,
     href: `/${kind === 'show' ? 'shows' : 'movies'}/view/${id}`,
   }
 }
@@ -333,7 +333,7 @@ export function getDetail(kind, id) {
     synopsis: synopsisFor(item),
     runtime: item.kind === 'movie' ? 96 + (index % 48) : 28 + (index % 22),
     cast: castFor(index),
-    backdrop_url: `/art/backdrop/${item.id}`,
+    backdrop_url: `/art/backdrop/${item.id}?v=2`,
     watch_href: `/watch/play/${item.id}`,
   }
   if (item.kind === 'show') {

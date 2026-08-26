@@ -657,14 +657,25 @@ a {
   padding: 18px 20px;
   padding-top: calc(18px + env(safe-area-inset-top));
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.82), transparent);
+}
+
+.watch-title {
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   opacity: 0;
-  pointer-events: none;
   transition: opacity 0.2s ease;
 }
 
-.watch-topbar.is-visible {
+.watch-topbar.is-visible .watch-title {
   opacity: 1;
-  pointer-events: auto;
 }
 
 .watch-back {
