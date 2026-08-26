@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import { hashPassword, passwordsMatch } from '../auth/crypto'
 import { useAuth } from '../auth/AuthContext'
 import {
@@ -52,13 +52,8 @@ function keyFor(userId: string) {
 function loadStore(userId: string | null): ProfileStore {
   if (!userId) return emptyStore()
   const scoped = localStorage.getItem(keyFor(userId))
-  if (scoped) return parseStore(scoped) ?? emptyStore()
-  const legacy = localStorage.getItem(STORAGE_KEY)
-  if (!legacy) return emptyStore()
-  const store = parseStore(legacy) ?? emptyStore()
-  persist(userId, store)
-  localStorage.removeItem(STORAGE_KEY)
-  return store
+  if (!scoped) return emptyStore()
+  return parseStore(scoped) ?? emptyStore()
 }
 
 function persist(userId: string, store: ProfileStore) {
@@ -98,10 +93,11 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
   const userId = user?.id ?? null
   const [store, setStore] = useState<ProfileStore>(() => loadStore(userId))
-
-  useEffect(() => {
+  const [loadedFor, setLoadedFor] = useState(userId)
+  if (loadedFor !== userId) {
+    setLoadedFor(userId)
     setStore(loadStore(userId))
-  }, [userId])
+  }
 
   const updateStore = useCallback(
     (updater: (prev: ProfileStore) => ProfileStore) => {
