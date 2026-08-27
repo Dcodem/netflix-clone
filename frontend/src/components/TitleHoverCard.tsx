@@ -46,7 +46,7 @@ export function TitleHoverCard({
     }
   }, [item])
 
-  const width = Math.max(320, Math.min(380, anchor.width * 1.7))
+  const width = Math.max(340, Math.min(460, Math.round(anchor.width * 1.85)))
   let left = anchor.left + anchor.width / 2 - width / 2
   left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
   const heightGuess = width * 0.56 + 200

@@ -135,7 +135,7 @@ export function WatchOverlay() {
   const runtimeSec = Math.max(60, (session?.history?.runtime ?? 48) * 60)
   const startProgress = session?.history?.progress ?? 0
   const isShow = session?.history?.kind === 'show'
-  const keepChrome = episodesOpen || audioOpen || volOpen || barHover
+  const keepChrome = paused || episodesOpen || audioOpen || volOpen || barHover
 
   const post = useCallback((payload: Record<string, unknown>) => {
     frameRef.current?.contentWindow?.postMessage({ source: PLAYER_SOURCE, ...payload }, '*')
@@ -281,10 +281,10 @@ export function WatchOverlay() {
     const show = () => {
       setChrome(true)
       window.clearTimeout(timer)
-      if (!keepChrome) timer = window.setTimeout(() => setChrome(false), 4800)
+      if (!keepChrome) timer = window.setTimeout(() => setChrome(false), 3200)
     }
     if (keepChrome) setChrome(true)
-    else timer = window.setTimeout(() => setChrome(false), 4800)
+    else timer = window.setTimeout(() => setChrome(false), 3200)
     const onKey = (event: KeyboardEvent) => {
       const typing = (event.target as HTMLElement)?.tagName === 'INPUT' || (event.target as HTMLElement)?.tagName === 'SELECT'
       if (typing) return
@@ -471,10 +471,6 @@ export function WatchOverlay() {
           {flash === 'pause' ? <PauseIcon className="icon" /> : null}
           {flash === 'back' ? <SkipBackIcon className="icon" /> : null}
           {flash === 'fwd' ? <SkipForwardIcon className="icon" /> : null}
-        </div>
-      ) : paused ? (
-        <div className="watch-center" aria-hidden="true">
-          <PlayIcon className="icon" />
         </div>
       ) : null}
       <div
