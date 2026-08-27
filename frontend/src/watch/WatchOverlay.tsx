@@ -34,10 +34,10 @@ export function WatchOverlay() {
 
   return (
     <div className="watch-overlay" role="dialog" aria-modal="true" aria-label="Player">
+      <button type="button" className="watch-back" onClick={closeWatch} aria-label="Back">
+        <ChevronLeftIcon className="icon" />
+      </button>
       <div className={`watch-topbar ${chrome ? 'is-visible' : ''}`}>
-        <button type="button" className="watch-back" onClick={closeWatch} aria-label="Back">
-          <ChevronLeftIcon className="icon" />
-        </button>
         <p className="watch-title">{session.title}</p>
       </div>
       <div className={`watch-bottombar ${chrome ? 'is-visible' : ''}`} />

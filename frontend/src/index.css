@@ -2813,5 +2813,144 @@ select,
   }
 }
 
+.notify-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.notify-toggle {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.notify-toggle .icon {
+  width: 22px;
+  height: 22px;
+}
+
+.notify-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: min(380px, 82vw);
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-top: 2px solid #b9090b;
+  padding: 28px 20px;
+  z-index: 80;
+  color: #ccc;
+  font-size: 14px;
+  box-shadow: var(--shadow);
+}
+
+.notify-dropdown p {
+  margin: 0;
+  text-align: center;
+}
+
+.site-footer {
+  padding: 40px var(--page-gutter) 80px;
+  color: #808080;
+}
+
+.site-footer-inner {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.site-footer-social {
+  margin: 0 0 22px;
+  font-size: 16px;
+}
+
+.site-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 28px;
+}
+
+.site-footer-grid ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.site-footer-grid a {
+  color: #808080;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.site-footer-grid a:hover {
+  text-decoration: underline;
+}
+
+.service-code {
+  margin-top: 24px;
+  background: transparent;
+  border: 1px solid #808080;
+  color: #808080;
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.site-footer-copy {
+  margin: 16px 0 0;
+  font-size: 12px;
+}
+
+.watch-overlay .watch-back {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  left: 12px;
+  z-index: 2200;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  pointer-events: auto;
+}
+
+.watch-topbar {
+  padding-left: 68px;
+}
+
+@media (min-width: 768px) {
+  .site-footer-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-actions {
+    width: 100%;
+  }
+
+  .hero-actions .btn-play,
+  .hero-actions .btn-info {
+    flex: 1;
+  }
+
+  .notify-toggle {
+    width: 44px;
+    height: 44px;
+  }
+
+  .site-footer {
+    padding-bottom: calc(48px + var(--safe-bottom));
+  }
+}
+
+
 
 

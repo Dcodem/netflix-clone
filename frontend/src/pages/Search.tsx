@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { searchTitles } from '../api/client'
+import { searchTitles, getMovies } from '../api/client'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { MediaGrid } from '../components/MediaGrid'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { filterForProfile } from '../lib/netflix'
+import { sortByRating } from '../lib/media'
 import { clearRecentSearches, listRecentSearches } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 
@@ -16,8 +17,13 @@ export function Search() {
   const q = (params.get('q') ?? '').trim()
   const enabled = q.length >= 2
   const { data, error, loading, retry } = useFetch(() => searchTitles(q), q, { enabled })
+  const popular = useFetch(() => getMovies(), 'search-popular', { enabled: !enabled })
   const [recents, setRecents] = useState(listRecentSearches)
   const items = useMemo(() => filterForProfile(data ?? [], activeProfile), [data, activeProfile])
+  const popularItems = useMemo(
+    () => sortByRating(filterForProfile(popular.data ?? [], activeProfile)).slice(0, 18),
+    [popular.data, activeProfile],
+  )
 
   useEffect(() => {
     setRecents(listRecentSearches())
@@ -63,7 +69,17 @@ export function Search() {
   )
 
   if (!enabled) {
-    return <main className="page page-pad">{recentBlock}</main>
+    return (
+      <main className="page page-pad">
+        {recentBlock}
+        {popularItems.length ? (
+          <>
+            <h2 className="section-title">Popular Searches</h2>
+            <MediaGrid items={popularItems} />
+          </>
+        ) : null}
+      </main>
+    )
   }
 
   if (loading) {

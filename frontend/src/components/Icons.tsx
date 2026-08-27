@@ -150,3 +150,18 @@ export function PencilIcon({ className }: { className?: string }) {
     </svg>
   )
 }
+
+export function BellIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 3.5a5.2 5.2 0 015.2 5.2v2.4c0 .9.3 1.8.9 2.5l.8.9H5.1l.8-.9c.6-.7.9-1.6.9-2.5V8.7A5.2 5.2 0 0112 3.5z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path d="M9.2 18.6a2.8 2.8 0 005.6 0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}

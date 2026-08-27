@@ -4,6 +4,7 @@ import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { pushRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
+import { NotificationsMenu } from './NotificationsMenu'
 import { SearchIcon } from './Icons'
 
 const NAV = [
@@ -134,6 +135,7 @@ export function Header() {
               />
             ) : null}
           </div>
+          <NotificationsMenu />
           <AccountMenu />
         </div>
       </div>
