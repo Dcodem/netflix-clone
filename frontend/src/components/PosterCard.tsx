@@ -21,7 +21,7 @@ export function PosterCard({
   rank?: number
   layout?: 'landscape' | 'poster'
 }) {
-  const { openTitle } = useTitleModal()
+  const { openTitle, item: openItem } = useTitleModal()
   const { hideContinue } = useProfiles()
   const rootRef = useRef<HTMLButtonElement>(null)
   const [hover, setHover] = useState(false)
@@ -30,6 +30,10 @@ export function PosterCard({
   const ranked = typeof rank === 'number'
 
   useEffect(() => () => window.clearTimeout(timer.current), [])
+
+  useEffect(() => {
+    if (openItem) setHover(false)
+  }, [openItem])
 
   function cancelClose() {
     window.clearTimeout(timer.current)
@@ -93,7 +97,7 @@ export function PosterCard({
           <CloseIcon className="icon" />
         </button>
       ) : null}
-      {hover && anchor ? (
+      {hover && anchor && !openItem ? (
         <TitleHoverCard
           item={item}
           anchor={anchor}

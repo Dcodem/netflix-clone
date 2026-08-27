@@ -3886,6 +3886,7 @@ select,
   gap: 10px;
   right: 28px;
   bottom: 118px;
+  z-index: 2300;
   background: rgba(20, 20, 20, 0.55);
   backdrop-filter: blur(8px);
 }
@@ -4009,10 +4010,12 @@ select,
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
+  z-index: 2300;
 }
 
 .watch-vol:hover .watch-vol-rail,
-.watch-vol:focus-within .watch-vol-rail {
+.watch-vol:focus-within .watch-vol-rail,
+.watch-vol.is-open .watch-vol-rail {
   display: grid;
   opacity: 1;
   pointer-events: auto;
@@ -4192,12 +4195,6 @@ select,
   .next-ep-card {
     bottom: 108px;
     right: 16px;
-  }
-}
-
-@media (hover: none) {
-  .watch-vol-rail {
-    display: none !important;
   }
 }
 

@@ -92,12 +92,14 @@ export function WatchOverlay() {
   const [recapSkipped, setRecapSkipped] = useState(false)
   const [flash, setFlash] = useState<'play' | 'pause' | 'back' | 'fwd' | null>(null)
   const [seasonNumber, setSeasonNumber] = useState<number | null>(null)
+  const [volOpen, setVolOpen] = useState(false)
+  const [barHover, setBarHover] = useState(false)
   const flashTimer = useRef(0)
 
   const runtimeSec = Math.max(60, (session?.history?.runtime ?? 48) * 60)
   const startProgress = session?.history?.progress ?? 0
   const isShow = session?.history?.kind === 'show'
-  const keepChrome = episodesOpen || audioOpen
+  const keepChrome = episodesOpen || audioOpen || volOpen || barHover
 
   const post = useCallback((payload: Record<string, unknown>) => {
     frameRef.current?.contentWindow?.postMessage({ source: PLAYER_SOURCE, ...payload }, '*')
@@ -153,6 +155,8 @@ export function WatchOverlay() {
     setVolume(1)
     setEpisodesOpen(false)
     setAudioOpen(false)
+    setVolOpen(false)
+    setBarHover(false)
     setIntroSkipped(false)
     setRecapSkipped(false)
     setShowDetail(null)
@@ -196,10 +200,10 @@ export function WatchOverlay() {
     const show = () => {
       setChrome(true)
       window.clearTimeout(timer)
-      if (!keepChrome) timer = window.setTimeout(() => setChrome(false), 3200)
+      if (!keepChrome) timer = window.setTimeout(() => setChrome(false), 4800)
     }
     if (keepChrome) setChrome(true)
-    else timer = window.setTimeout(() => setChrome(false), 3200)
+    else timer = window.setTimeout(() => setChrome(false), 4800)
     const onKey = (event: KeyboardEvent) => {
       const typing = (event.target as HTMLElement)?.tagName === 'INPUT' || (event.target as HTMLElement)?.tagName === 'SELECT'
       if (typing) return
@@ -269,7 +273,7 @@ export function WatchOverlay() {
     session.history?.seasonNumber && session.history?.episodeNumber
       ? `S${session.history.seasonNumber}:E${session.history.episodeNumber}`
       : null
-  const showSkipIntro = isShow && !introSkipped && current < 90 && !episodesOpen && !audioOpen
+  const showSkipIntro = isShow && !introSkipped && current < 110 && !episodesOpen && !audioOpen
   const showSkipRecap = isShow && !recapSkipped && !showSkipIntro && current >= 80 && current < 155 && !episodesOpen && !audioOpen
   const showNext = Boolean(upcoming && remaining <= 28 && remaining > 0 && !episodesOpen && !audioOpen)
   const caption = subs === 'en' ? CAPTIONS[Math.floor(current / 9) % CAPTIONS.length] : null
@@ -366,7 +370,12 @@ export function WatchOverlay() {
           <PlayIcon className="icon" />
         </div>
       ) : null}
-      <div className={`watch-topbar ${chrome ? 'is-visible' : ''}`} onClick={(event) => event.stopPropagation()}>
+      <div
+        className={`watch-topbar ${chrome ? 'is-visible' : ''}`}
+        onClick={(event) => event.stopPropagation()}
+        onPointerEnter={() => setBarHover(true)}
+        onPointerLeave={() => setBarHover(false)}
+      >
         <div className="watch-title-stack">
           <p className="watch-title">{session.history?.title || session.title}</p>
           {episodeLabel ? (
@@ -414,7 +423,12 @@ export function WatchOverlay() {
         </button>
       ) : null}
       {caption ? <p className={`watch-caption ${chrome ? 'is-raised' : ''}`}>{caption}</p> : null}
-      <div className={`watch-bottombar ${chrome ? 'is-visible' : ''}`} onClick={(event) => event.stopPropagation()}>
+      <div
+        className={`watch-bottombar ${chrome ? 'is-visible' : ''}`}
+        onClick={(event) => event.stopPropagation()}
+        onPointerEnter={() => setBarHover(true)}
+        onPointerLeave={() => setBarHover(false)}
+      >
         <div className="watch-scrub">
           <div
             className="watch-progress"
@@ -448,8 +462,20 @@ export function WatchOverlay() {
             <button type="button" className="watch-ctrl" onClick={() => skip(10)} aria-label="Forward 10 seconds">
               <SkipForwardIcon className="icon" />
             </button>
-            <div className="watch-vol">
-              <button type="button" className="watch-ctrl" onClick={toggleMute} aria-label={muted ? 'Unmute' : 'Mute'}>
+            <div
+              className={`watch-vol ${volOpen ? 'is-open' : ''}`}
+              onPointerEnter={() => setVolOpen(true)}
+              onPointerLeave={() => setVolOpen(false)}
+            >
+              <button
+                type="button"
+                className="watch-ctrl"
+                onClick={() => {
+                  setVolOpen(true)
+                  toggleMute()
+                }}
+                aria-label={muted ? 'Unmute' : 'Mute'}
+              >
                 <SpeakerIcon muted={muted || volume <= 0.01} className="icon" />
               </button>
               <div className="watch-vol-rail">
