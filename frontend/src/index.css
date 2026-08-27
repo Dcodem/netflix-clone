@@ -2009,6 +2009,7 @@ select,
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .genre-select .icon {
@@ -2339,8 +2340,10 @@ select,
 .hero-logo,
 .title-modal-logo {
   display: block;
-  width: min(420px, 78%);
-  max-height: 148px;
+  width: auto;
+  max-width: min(480px, 72%);
+  max-height: 132px;
+  height: auto;
   object-fit: contain;
   object-position: left bottom;
   filter: drop-shadow(0 2px 18px rgba(0, 0, 0, 0.7));
@@ -2350,9 +2353,9 @@ select,
 }
 
 .title-modal-logo {
-  width: min(340px, 72%);
-  max-height: 112px;
-  margin: 0 0 16px;
+  max-width: min(260px, 58%);
+  max-height: 72px;
+  margin: 0 0 14px;
   transition: transform 0.9s ease;
 }
 
