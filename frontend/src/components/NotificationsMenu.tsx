@@ -1,6 +1,7 @@
 import { useHoverMenu } from '../hooks/useHoverMenu'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
+import { CatalogImage } from './CatalogImage'
 import { BellIcon } from './Icons'
 
 function timeAgo(stamp: number) {
@@ -51,22 +52,32 @@ export function NotificationsMenu() {
                     id: item.id,
                     title: item.title,
                     kind: item.kind,
+                    year: item.year,
                     genres: item.genres,
                     poster_url: item.poster_url,
                     href: item.kind === 'show' ? `/show/${item.id}` : `/movie/${item.id}`,
                   })
                 }}
               >
-                {item.poster_url ? <img src={item.poster_url} alt="" /> : <span className="notify-art-fallback" />}
+                <CatalogImage
+                  item={{
+                    title: item.title,
+                    kind: item.kind,
+                    year: item.year,
+                    poster_url: item.poster_url,
+                  }}
+                  prefer="backdrop"
+                  alt=""
+                />
                 <span>
-                  <strong>{item.progress && item.progress > 0.05 ? 'Continue Watching' : 'Recently watched'}</strong>
+                  <strong>{item.progress && item.progress > 0.05 ? 'Continue Watching' : 'Now on Flix'}</strong>
                   <em>{item.title}</em>
                   <small>{timeAgo(item.watchedAt)}</small>
                 </span>
               </button>
             ))
           ) : (
-            <p>No recent notifications</p>
+            <p>No recent notifications.</p>
           )}
         </div>
       ) : null}

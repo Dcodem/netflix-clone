@@ -105,7 +105,9 @@ export function Header() {
   }
 
   return (
-    <header className={`site-header ${scrolled ? 'is-scrolled' : ''} ${activeProfile?.kids ? 'is-kids' : ''}`}>
+    <header
+      className={`site-header ${scrolled ? 'is-scrolled' : ''} ${open ? 'is-searching' : ''} ${activeProfile?.kids ? 'is-kids' : ''}`}
+    >
       <div className="header-inner">
         <Link className="logo" to="/browse">
           FLIX
@@ -113,6 +115,13 @@ export function Header() {
         </Link>
         <details className="browse-menu">
           <summary>Browse</summary>
+          <button
+            type="button"
+            className="browse-menu-scrim"
+            aria-label="Close browse menu"
+            tabIndex={-1}
+            onClick={(event) => event.currentTarget.closest('details')?.removeAttribute('open')}
+          />
           <div className="browse-menu-list">
             {links.map((link) => (
               <NavLink

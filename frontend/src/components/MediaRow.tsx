@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { MovieListItem } from '../api/types'
 import { useFineHover } from '../hooks/useFineHover'
 import { useRowOverflow } from '../hooks/useRowOverflow'
@@ -5,6 +6,15 @@ import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons'
 import { PosterCard } from './PosterCard'
+
+function exploreHref(title: string, items: MovieListItem[], seed?: MovieListItem) {
+  if (seed?.title) return `/search?q=${encodeURIComponent(seed.title)}`
+  if (title.length <= 18 && !/for |because|watch|pick|trend|list/i.test(title)) {
+    return `/search?q=${encodeURIComponent(title)}`
+  }
+  const shows = items.filter((item) => item.kind === 'show').length
+  return shows > items.length / 2 ? '/browse/shows' : '/browse/movies'
+}
 
 function SceneCard({ item }: { item: MovieListItem }) {
   const { openTitle } = useTitleModal()
@@ -64,10 +74,10 @@ export function MediaRow({
       <div className="row-heading">
         <h2 className="section-title">{title}</h2>
         {subtitle || continueMode || ranked ? null : (
-          <span className="row-explore">
+          <Link className="row-explore" to={exploreHref(title, items, seed)}>
             Explore All
             <ChevronRightIcon className="icon" />
-          </span>
+          </Link>
         )}
         {pageCount > 1 && !ranked ? (
           <div className="row-pages" aria-hidden="true">

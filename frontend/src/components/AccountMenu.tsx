@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthContext'
 import { useHoverMenu } from '../hooks/useHoverMenu'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
-import { CaretIcon, CheckIcon } from './Icons'
+import { CaretIcon } from './Icons'
 
 export function AccountMenu() {
   const { user, logout } = useAuth()
@@ -32,13 +32,6 @@ export function AccountMenu() {
       </button>
       {open ? (
         <div className="account-dropdown">
-          <div className="account-profile-row is-current">
-            <span className="avatar-dot" style={{ background: avatar.color }}>
-              <AvatarArt avatar={avatar} alt={activeProfile.name} />
-            </span>
-            <span className="account-profile-name">{activeProfile.name}</span>
-            <CheckIcon className="account-check" />
-          </div>
           {others.map((profile) => {
             const other = avatarFor(profile)
             return (
@@ -81,9 +74,6 @@ export function AccountMenu() {
           </Link>
           <Link to="/account" onClick={() => setOpen(false)}>
             Help Center
-          </Link>
-          <Link to="/taste" onClick={() => setOpen(false)}>
-            Taste profile
           </Link>
           <button
             type="button"
