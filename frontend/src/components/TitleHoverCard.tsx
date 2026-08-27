@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem } from '../api/types'
 import { formatRuntime, genresOf, isShow } from '../lib/media'
-import { matchPercent, maturityLabel } from '../lib/netflix'
+import { matchPercent, maturityLabel, qualityBadge } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview } from '../trailers/TrailerPreview'
 import { CatalogImage } from './CatalogImage'
@@ -26,6 +26,7 @@ export function TitleHoverCard({
 }) {
   const { activeProfile } = useProfiles()
   const [detail, setDetail] = useState<MovieDetail | null>(null)
+  const [trailerReady, setTrailerReady] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -54,6 +55,7 @@ export function TitleHoverCard({
   const match = matchPercent(item, activeProfile)
   const maturity = maturityLabel(item)
   const runtime = formatRuntime(detail?.runtime)
+  const quality = qualityBadge(item.quality || detail?.quality)
   const genres = genresOf(detail ?? item).slice(0, 3)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
   const watchHref =
@@ -73,9 +75,16 @@ export function TitleHoverCard({
       onMouseEnter={onKeep}
       onMouseLeave={onClose}
     >
-      <div className="jawbone-art">
+      <div className={`jawbone-art ${trailerReady ? 'is-playing' : ''}`}>
         <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
-        <TrailerPreview title={item.title} year={item.year} kind={item.kind} mode="mini" className="jawbone-trailer" />
+        <TrailerPreview
+          title={item.title}
+          year={item.year}
+          kind={item.kind}
+          mode="mini"
+          className="jawbone-trailer"
+          onReady={() => setTrailerReady(true)}
+        />
         {progress ? (
           <div className="progress-track jawbone-progress">
             <div style={{ width: `${Math.round(progress * 100)}%` }} />
@@ -88,6 +97,7 @@ export function TitleHoverCard({
           <span className="match">{match}% Match</span>
           {item.year ? <span>{item.year}</span> : null}
           <span className="maturity">{maturity}</span>
+          {quality ? <span className="quality-badge">{quality}</span> : null}
           {runtime ? <span>{runtime}</span> : isShow(item) ? <span>Series</span> : null}
         </div>
         {genres.length ? <div className="jawbone-genres">{genres.join(' · ')}</div> : null}

@@ -139,9 +139,12 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
         <MediaRow
           key={row.id}
           title={row.title}
+          subtitle={row.subtitle}
+          seed={row.seed}
           items={row.items}
           progressById={row.variant === 'continue' ? progressById : undefined}
           continueMode={row.variant === 'continue'}
+          variant={row.variant}
           loop={row.loop}
         />
       ))}

@@ -38,15 +38,41 @@ export function topGenres(weights: Record<string, number>, limit = 3): string[] 
     .map(([genre]) => genre)
 }
 
-function asListItem(seed: { id: string; title: string; kind?: string; poster_url?: string | null; genres?: string[] }): MovieListItem {
+const GENERIC_GENRES = new Set(['Drama', 'Comedy'])
+
+function asListItem(seed: {
+  id: string
+  title: string
+  kind?: string
+  poster_url?: string | null
+  genres?: string[]
+  year?: number | null
+}): MovieListItem {
   return {
     id: seed.id,
     title: seed.title,
     kind: seed.kind,
+    year: seed.year,
     poster_url: seed.poster_url ?? null,
     genres: seed.genres ?? [],
     href: `/${seed.kind === 'show' ? 'shows' : 'movies'}/view/${seed.id}`,
   }
+}
+
+function hydrateSeed(
+  seed: { id: string; title: string; kind?: string; poster_url?: string | null; genres?: string[] },
+  catalog: MovieListItem[],
+): MovieListItem {
+  const found = catalog.find((item) => item.id === seed.id)
+  return found ? { ...asListItem(seed), ...found } : asListItem(seed)
+}
+
+export type BecauseYouWatchedRow = {
+  id: string
+  title: string
+  subtitle?: string
+  items: MovieListItem[]
+  seed: MovieListItem
 }
 
 export function becauseYouWatched(
@@ -60,18 +86,21 @@ export function becauseYouWatchedRows(
   items: MovieListItem[],
   history: WatchHistoryItem[],
   limit = 3,
-): { id: string; title: string; items: MovieListItem[] }[] {
-  const rows: { id: string; title: string; items: MovieListItem[] }[] = []
+): BecauseYouWatchedRow[] {
+  const rows: BecauseYouWatchedRow[] = []
   const seen = new Set<string>()
-  for (const seed of history) {
-    if (seen.has(seed.id)) continue
-    seen.add(seed.id)
-    const related = similarByGenres(asListItem(seed), items, 40).filter((item) => item.id !== seed.id)
+  for (const entry of history) {
+    if (seen.has(entry.id)) continue
+    seen.add(entry.id)
+    const seed = hydrateSeed(entry, items)
+    const related = recommendSimilar(items, [seed], 36).filter((item) => item.id !== seed.id)
     if (related.length < 4) continue
     rows.push({
       id: `because-${seed.id}`,
       title: `Because you watched ${seed.title}`,
+      subtitle: rows.length === 0 ? "Here's what you should watch" : undefined,
       items: related,
+      seed,
     })
     if (rows.length >= limit) break
   }
@@ -89,18 +118,20 @@ export function becauseYouLikedRows(
   items: MovieListItem[],
   liked: LikedTitle[],
   limit = 2,
-): { id: string; title: string; items: MovieListItem[] }[] {
-  const rows: { id: string; title: string; items: MovieListItem[] }[] = []
+): BecauseYouWatchedRow[] {
+  const rows: BecauseYouWatchedRow[] = []
   const seen = new Set<string>()
-  for (const seed of liked) {
-    if (seen.has(seed.id)) continue
-    seen.add(seed.id)
-    const related = similarByGenres(asListItem(seed), items, 40).filter((item) => item.id !== seed.id)
+  for (const entry of liked) {
+    if (seen.has(entry.id)) continue
+    seen.add(entry.id)
+    const seed = hydrateSeed(entry, items)
+    const related = recommendSimilar(items, [seed], 36).filter((item) => item.id !== seed.id)
     if (related.length < 4) continue
     rows.push({
       id: `liked-${seed.id}`,
       title: `More like ${seed.title}`,
       items: related,
+      seed,
     })
     if (rows.length >= limit) break
   }
@@ -166,7 +197,7 @@ export function tasteGenreRails(
     }
   }
 
-  const skip = new Set(rows.length ? ['Romance', 'Comedy'] : [])
+  const skip = new Set(rows.length ? ['Romance', 'Comedy', 'Drama'] : ['Drama'])
   const rankedGenres = Object.entries(weights)
     .filter(([genre]) => !skip.has(genre))
     .sort((a, b) => b[1] - a[1])
@@ -251,17 +282,37 @@ export function recommendSimilar(
 }
 
 export function similarByGenres(item: MovieListItem, pool: MovieListItem[], limit = 12): MovieListItem[] {
-  const seed = new Set(genresOf(item))
+  const seedGenres = genresOf(item)
+  const seed = new Set(seedGenres)
   if (!seed.size) return pool.filter((entry) => entry.id !== item.id).slice(0, limit)
+  const distinctive = seedGenres.filter((genre) => !GENERIC_GENRES.has(genre))
   return [...pool]
     .filter((entry) => entry.id !== item.id)
-    .map((entry) => ({
-      entry,
-      overlap: genresOf(entry).filter((genre) => seed.has(genre)).length,
-      rating: entry.rating ?? 0,
-    }))
-    .filter((row) => row.overlap > 0)
-    .sort((a, b) => b.overlap - a.overlap || b.rating - a.rating)
+    .map((entry) => {
+      const genres = genresOf(entry)
+      const overlap = genres.filter((genre) => seed.has(genre))
+      const distinctiveOverlap = overlap.filter((genre) => !GENERIC_GENRES.has(genre)).length
+      const union = new Set([...seed, ...genres]).size
+      const jaccard = union ? overlap.length / union : 0
+      const genericOverlap = overlap.filter((genre) => GENERIC_GENRES.has(genre)).length
+      const kindBoost = entry.kind && item.kind && entry.kind === item.kind ? 1.15 : 0
+      const yearDelta =
+        item.year && entry.year ? Math.max(0, 1 - Math.abs(item.year - entry.year) / 16) : 0
+      const score =
+        distinctiveOverlap * 3.2 +
+        genericOverlap * 0.35 +
+        jaccard * 2.4 +
+        kindBoost +
+        yearDelta * 0.6 +
+        (entry.rating ?? 0) / 18
+      return { entry, overlap: overlap.length, distinctiveOverlap, score }
+    })
+    .filter((row) => {
+      if (!row.overlap) return false
+      if (distinctive.length) return row.distinctiveOverlap > 0 || row.overlap >= 2
+      return true
+    })
+    .sort((a, b) => b.score - a.score)
     .map((row) => row.entry)
     .slice(0, limit)
 }

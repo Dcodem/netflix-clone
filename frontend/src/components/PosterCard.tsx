@@ -3,6 +3,7 @@ import type { MovieListItem } from '../api/types'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
+import { CloseIcon } from './Icons'
 import { TitleHoverCard } from './TitleHoverCard'
 
 export function PosterCard({
@@ -10,11 +11,15 @@ export function PosterCard({
   progress,
   hoverable = true,
   continueMode = false,
+  rank,
+  layout = 'landscape',
 }: {
   item: MovieListItem
   progress?: number
   hoverable?: boolean
   continueMode?: boolean
+  rank?: number
+  layout?: 'landscape' | 'poster'
 }) {
   const { openTitle } = useTitleModal()
   const { hideContinue } = useProfiles()
@@ -22,6 +27,7 @@ export function PosterCard({
   const [hover, setHover] = useState(false)
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
   const timer = useRef<number>(0)
+  const ranked = typeof rank === 'number'
 
   useEffect(() => () => window.clearTimeout(timer.current), [])
 
@@ -38,17 +44,22 @@ export function PosterCard({
         setAnchor(rect)
         setHover(true)
       }
-    }, 380)
+    }, 400)
   }
 
   function onLeave(event: PointerEvent<HTMLDivElement>) {
     if (event.pointerType !== 'mouse') return
     cancelClose()
-    timer.current = window.setTimeout(() => setHover(false), 180)
+    timer.current = window.setTimeout(() => setHover(false), 140)
   }
 
   return (
-    <div className="poster-wrap" onPointerEnter={onEnter} onPointerLeave={onLeave}>
+    <div
+      className={`poster-wrap ${ranked ? 'is-ranked' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'}`}
+      onPointerEnter={onEnter}
+      onPointerLeave={onLeave}
+    >
+      {ranked ? <span className="rank-num">{rank}</span> : null}
       <button
         type="button"
         className="poster-card"
@@ -60,7 +71,7 @@ export function PosterCard({
         aria-label={item.title}
       >
         <div className="poster-art">
-          <CatalogImage item={item} alt={item.title} />
+          <CatalogImage item={item} alt={item.title} prefer={layout === 'landscape' ? 'backdrop' : 'poster'} />
         </div>
         {progress ? (
           <div className="progress-track">
@@ -79,7 +90,7 @@ export function PosterCard({
           }}
           aria-label="Remove from Continue Watching"
         >
-          ×
+          <CloseIcon className="icon" />
         </button>
       ) : null}
       {hover && anchor ? (

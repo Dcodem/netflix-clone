@@ -325,7 +325,23 @@ const MOVIES = [...REAL_MOVIES]
 const SHOWS = [...REAL_SHOWS]
 
 function seasonsFor(item, index) {
-  const seasonCount = 1 + (index % 3)
+  const known = {
+    'The Office': 9,
+    'The Simpsons': 8,
+    "Grey's Anatomy": 7,
+    Supernatural: 6,
+    NCIS: 6,
+    'Criminal Minds': 5,
+    'Family Guy': 5,
+    "Law & Order: Special Victims Unit": 6,
+    'The Rookie': 4,
+    'Avatar: The Last Airbender': 3,
+    'House of the Dragon': 2,
+    Reacher: 3,
+    Silo: 2,
+    'Outer Banks': 4,
+  }
+  const seasonCount = known[item.title] ?? 1 + (index % 3)
   const episodeCount = 8 + (index % 5)
   const seasons = []
   for (let seasonNumber = 1; seasonNumber <= seasonCount; seasonNumber += 1) {

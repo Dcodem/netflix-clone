@@ -5,7 +5,7 @@ export function isShow(item: { kind?: string }): boolean {
 }
 
 export function isMovie(item: { kind?: string }): boolean {
-  return !isShow(item)
+  return item.kind === 'movie' || item.kind == null || item.kind === ''
 }
 
 export function ofKind(

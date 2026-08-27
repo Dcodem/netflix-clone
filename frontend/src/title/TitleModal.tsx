@@ -1,18 +1,20 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { getCatalogMany, getMovie, getShow } from '../api/client'
 import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '../api/types'
-import { ErrorState } from '../components/ErrorState'
 import { CatalogImage } from '../components/CatalogImage'
-import { MediaImage } from '../components/MediaImage'
-import { MediaRow } from '../components/MediaRow'
+import { EpisodeList } from '../components/EpisodeList'
+import { ErrorState } from '../components/ErrorState'
+import { CloseIcon, SpeakerIcon } from '../components/Icons'
+import { MoreLikeGrid } from '../components/MoreLikeGrid'
 import { Spinner } from '../components/Spinner'
 import { TitleActions } from '../components/TitleActions'
 import { useFetch } from '../hooks/useFetch'
+import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, uniqueById } from '../lib/media'
-import { filterForProfile, isKidsSafe, matchPercent, maturityLabel } from '../lib/netflix'
+import { filterForProfile, isKidsSafe, matchPercent, maturityLabel, qualityBadge } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
-import { TrailerPreview } from '../trailers/TrailerPreview'
+import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTitleModal } from './TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 
@@ -25,11 +27,14 @@ export function TitleModal() {
   const { openWatch } = useWatch()
   const { activeProfile } = useProfiles()
   const last = activeProfile?.history.find((entry) => entry.id === item?.id)
-  const [seasonNumber, setSeasonNumber] = useState<number | null>(null)
+  const trailerRef = useRef<TrailerHandle>(null)
+  const [muted, setMuted] = useState(true)
+  const [trailerReady, setTrailerReady] = useState(false)
 
   useEffect(() => {
-    setSeasonNumber(last?.seasonNumber ?? null)
-  }, [item?.id, last?.seasonNumber])
+    setMuted(true)
+    setTrailerReady(false)
+  }, [item?.id])
 
   useEffect(() => {
     if (!item) return
@@ -81,22 +86,25 @@ export function TitleModal() {
 
   const detail = detailFetch.data
   const seasons = detail && isShowDetail(detail) ? (detail.seasons ?? []) : []
-  const activeSeason: Season | undefined =
-    seasons.find((season) => season.season_number === seasonNumber) ?? seasons[0]
+  const resumeSeason =
+    seasons.find((season) => season.season_number === last?.seasonNumber) ?? seasons[0]
+  const resumeEpisode =
+    resumeSeason?.episodes?.find(
+      (episode) => episode.id === last?.episodeId || episode.number === last?.episodeNumber,
+    ) ?? resumeSeason?.episodes?.[0]
   const match = matchPercent(item, activeProfile)
   const maturity = maturityLabel(item)
   const genres = genresOf(detail ?? item)
   const runtime = formatRuntime(detail?.runtime)
-  const resumeEpisode = activeSeason?.episodes?.find(
-    (episode) => episode.id === last?.episodeId || episode.number === last?.episodeNumber,
-  )
+  const quality = qualityBadge(item.quality || detail?.quality)
   const watchHref = isShow(item)
-    ? last?.watch_href || resumeEpisode?.watch_href || activeSeason?.episodes?.[0]?.watch_href || detail?.watch_href
+    ? last?.watch_href || resumeEpisode?.watch_href || detail?.watch_href
     : detail?.watch_href
   const continueMode = Boolean(last?.progress && last.progress > 0.05)
 
   function playEpisode(episode: Episode, season: Season) {
     if (!detail) return
+    const watch = watchForEpisode(last, season.season_number, episode)
     closeTitle()
     openWatch(episode.watch_href, `${detail.title} · S${season.season_number}E${episode.number}`, {
       id: detail.id,
@@ -106,10 +114,17 @@ export function TitleModal() {
       genres,
       watch_href: episode.watch_href,
       runtime: episode.duration ?? detail.runtime ?? null,
+      progress: watch?.progress,
       seasonNumber: season.season_number,
       episodeNumber: episode.number,
       episodeId: episode.id,
     })
+  }
+
+  function toggleMute() {
+    const next = !muted
+    trailerRef.current?.setMuted(next)
+    setMuted(next)
   }
 
   return (
@@ -122,76 +137,76 @@ export function TitleModal() {
         onClick={(event) => event.stopPropagation()}
       >
         <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
-          ×
+          <CloseIcon className="icon" />
         </button>
         <div className="title-modal-hero">
           <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
-          <TrailerPreview title={item.title} year={item.year} kind={item.kind} className="title-modal-trailer" />
+          <TrailerPreview
+            ref={trailerRef}
+            title={item.title}
+            year={item.year}
+            kind={item.kind}
+            className="title-modal-trailer"
+            muted={muted}
+            onReady={() => setTrailerReady(true)}
+          />
           <div className="title-modal-hero-body">
             <h1>{item.title}</h1>
             <TitleActions item={item} detail={detail} watchHref={watchHref} showMore={false} continueMode={continueMode} />
+          </div>
+          <div className="hero-controls-right">
+            {trailerReady ? (
+              <button
+                type="button"
+                className="hero-mute"
+                onClick={toggleMute}
+                aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+              >
+                <SpeakerIcon muted={muted} className="icon" />
+              </button>
+            ) : null}
+            <span className="maturity-flag">{maturity}</span>
           </div>
         </div>
         <div className="title-modal-main">
           {detailFetch.loading && !detail ? <Spinner label="Loading" /> : null}
           {detailFetch.error ? <ErrorState message={detailFetch.error} onRetry={detailFetch.retry} /> : null}
-          <div className="jawbone-meta">
-            <span className="match">{match}% Match</span>
-            {item.year ? <span>{item.year}</span> : null}
-            <span className="maturity">{maturity}</span>
-            {runtime ? <span>{runtime}</span> : null}
-            {isShow(item) && seasons.length ? <span>{seasons.length} Seasons</span> : null}
-            {item.quality ? <span>{item.quality}</span> : null}
+          <div className="title-modal-split">
+            <div className="title-modal-split-main">
+              <div className="jawbone-meta">
+                <span className="match">{match}% Match</span>
+                {item.year ? <span>{item.year}</span> : null}
+                <span className="maturity">{maturity}</span>
+                {runtime ? <span>{runtime}</span> : null}
+                {isShow(item) && seasons.length ? (
+                  <span>
+                    {seasons.length} {seasons.length === 1 ? 'Season' : 'Seasons'}
+                  </span>
+                ) : null}
+                {quality ? <span className="quality-badge">{quality}</span> : null}
+              </div>
+              {detail?.synopsis ? <p className="title-modal-syn">{detail.synopsis}</p> : null}
+            </div>
+            <div className="title-modal-split-side">
+              {detail?.cast?.length ? (
+                <p className="title-modal-cast">
+                  <span>Cast:</span> {detail.cast.join(', ')}
+                </p>
+              ) : null}
+              {genres.length ? (
+                <p className="title-modal-cast">
+                  <span>Genres:</span> {genres.join(', ')}
+                </p>
+              ) : null}
+              <p className="title-modal-cast">
+                <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {genres.slice(0, 3).join(', ') || 'Original'}
+              </p>
+            </div>
           </div>
-          {genres.length ? <div className="jawbone-genres">{genres.join(' · ')}</div> : null}
-          {detail?.synopsis ? <p className="title-modal-syn">{detail.synopsis}</p> : null}
-          {detail?.cast?.length ? (
-            <p className="title-modal-cast">
-              <span>Cast</span> {detail.cast.join(', ')}
-            </p>
-          ) : null}
 
-          {seasons.length ? (
-            <div className="season-tabs">
-              {seasons.map((season) => (
-                <button
-                  key={season.season_number}
-                  type="button"
-                  className={`season-tab ${activeSeason?.season_number === season.season_number ? 'active' : ''}`}
-                  onClick={() => setSeasonNumber(season.season_number)}
-                >
-                  Season {season.season_number}
-                </button>
-              ))}
-            </div>
-          ) : null}
-          {activeSeason?.episodes?.length ? (
-            <div className="episodes modal-episodes">
-              {activeSeason.episodes.map((episode) => (
-                <button
-                  type="button"
-                  key={episode.id}
-                  className={`episode episode-btn ${resumeEpisode?.id === episode.id ? 'is-resume' : ''}`}
-                  onClick={() => playEpisode(episode, activeSeason)}
-                >
-                  <MediaImage src={episode.thumb_url} alt="" className="ep-thumb" />
-                  <div className="ep-info">
-                    <div className="ep-label">
-                      E{episode.number} {episode.title}
-                    </div>
-                    {episode.duration ? <div className="ep-meta">{episode.duration} min</div> : null}
-                    {episode.synopsis ? <p className="ep-syn">{episode.synopsis}</p> : null}
-                  </div>
-                </button>
-              ))}
-            </div>
-          ) : null}
+          {seasons.length ? <EpisodeList seasons={seasons} history={last} onPlay={playEpisode} /> : null}
 
-          {similar.length ? (
-            <div className="more-like">
-              <MediaRow title="More like this" items={similar.slice(0, 10)} hoverable={false} />
-            </div>
-          ) : null}
+          {similar.length ? <MoreLikeGrid items={similar} /> : null}
         </div>
       </div>
     </div>
