@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { getCatalogMany, getMovie, getMovies, getShow } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { BellIcon, InfoIcon, PlayIcon } from '../components/Icons'
@@ -7,7 +7,7 @@ import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
-import { genresOf, isShow, sortByRating, sortByYear, uniqueById } from '../lib/media'
+import { genresOf, isShow, sortByRating, uniqueById } from '../lib/media'
 import { matchPercent, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
@@ -142,18 +142,52 @@ export function NewsHot() {
   )
   const comingRef = useRef<HTMLElement>(null)
   const watchingRef = useRef<HTMLElement>(null)
+  const jumpingRef = useRef(false)
   const [chip, setChip] = useState<'coming' | 'watching' | null>(null)
-  const coming = useMemo(() => sortByYear(catalog.filter(comingSoon)).slice(0, 12), [catalog])
+  const coming = useMemo(
+    () =>
+      catalog
+        .filter(comingSoon)
+        .slice()
+        .sort((a, b) => comingDate(a.id).getTime() - comingDate(b.id).getTime())
+        .slice(0, 12),
+    [catalog],
+  )
   const watching = useMemo(() => {
     const seen = new Set(coming.map((item) => item.id))
     return sortByRating(catalog.filter((item) => !seen.has(item.id))).slice(0, 12)
   }, [catalog, coming])
   const activeChip = chip ?? (coming.length ? 'coming' : 'watching')
 
+  useEffect(() => {
+    const comingNode = comingRef.current
+    const watchingNode = watchingRef.current
+    const targets = [comingNode, watchingNode].filter(Boolean) as HTMLElement[]
+    if (!targets.length) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (jumpingRef.current) return
+        const hit = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (!hit) return
+        if (hit.target === comingNode) setChip('coming')
+        else if (hit.target === watchingNode) setChip('watching')
+      },
+      { rootMargin: '-20% 0px -55% 0px', threshold: [0.08, 0.2, 0.4] },
+    )
+    targets.forEach((node) => observer.observe(node))
+    return () => observer.disconnect()
+  }, [coming.length, watching.length])
+
   function jump(next: 'coming' | 'watching') {
     setChip(next)
+    jumpingRef.current = true
     const node = next === 'coming' ? comingRef.current : watchingRef.current
     node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    window.setTimeout(() => {
+      jumpingRef.current = false
+    }, 700)
   }
 
   if ((movies.loading || extras.loading) && !catalog.length) {
