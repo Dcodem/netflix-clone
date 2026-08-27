@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { EmptyState } from '../components/EmptyState'
@@ -126,6 +127,13 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
               </select>
             </label>
           ) : null}
+        </div>
+      ) : null}
+      {filter === 'home' && !genre ? (
+        <div className="home-pills" aria-label="Categories">
+          <Link to="/browse/shows">TV Shows</Link>
+          <Link to="/browse/movies">Movies</Link>
+          <Link to="/browse/latest">Categories</Link>
         </div>
       ) : null}
       {hero ? <Hero item={hero} /> : null}

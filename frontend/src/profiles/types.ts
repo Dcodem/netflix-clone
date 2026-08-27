@@ -51,6 +51,7 @@ export type Profile = {
   history: WatchHistoryItem[]
   favoriteGenres: string[]
   liked: LikedTitle[]
+  lovedIds: string[]
   dislikedIds: string[]
   myList: LikedTitle[]
   hiddenContinueIds: string[]

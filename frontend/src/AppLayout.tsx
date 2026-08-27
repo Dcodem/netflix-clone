@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from './auth/AuthContext'
 import { Header } from './components/Header'
+import { MobileDock } from './components/MobileDock'
 import { SiteFooter } from './components/SiteFooter'
 import { playBrowseSting } from './lib/sounds'
 import { useProfiles } from './profiles/ProfileContext'
@@ -24,6 +25,7 @@ export function AppLayout() {
       <Header />
       <Outlet />
       <SiteFooter />
+      <MobileDock />
       <TitleModal />
       <WatchOverlay />
     </div>

@@ -4,6 +4,7 @@ import { getCatalogMany, getMovies, searchTitles } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
 import { CatalogImage } from '../components/CatalogImage'
+import { ClockIcon } from '../components/Icons'
 import { MediaGrid } from '../components/MediaGrid'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
@@ -74,18 +75,16 @@ export function Search() {
           ) : null}
         </div>
         {recents.length ? (
-          <div className="search-recent-chips">
+          <ul className="search-recent-list">
             {recents.map((entry) => (
-              <button
-                type="button"
-                key={entry}
-                className="taste-chip"
-                onClick={() => setParams({ q: entry })}
-              >
-                {entry}
-              </button>
+              <li key={entry}>
+                <button type="button" onClick={() => setParams({ q: entry })}>
+                  <ClockIcon className="icon" />
+                  <span>{entry}</span>
+                </button>
+              </li>
             ))}
-          </div>
+          </ul>
         ) : (
           <p className="section-sub">Searches stay on this device. Type two characters to look up a title.</p>
         )}

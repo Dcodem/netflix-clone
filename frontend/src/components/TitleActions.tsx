@@ -9,6 +9,7 @@ import {
   CaretIcon,
   CheckIcon,
   CloseIcon,
+  DoubleThumbUpIcon,
   PlayIcon,
   PlusIcon,
   RestartIcon,
@@ -38,7 +39,8 @@ export function TitleActions({
   const { activeProfile, toggleMyList, rateTitle, hideContinue } = useProfiles()
   const likedItem = toLiked(item)
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
-  const liked = activeProfile?.liked.some((entry) => entry.id === item.id) ?? false
+  const loved = activeProfile?.lovedIds?.includes(item.id) ?? false
+  const liked = (activeProfile?.liked.some((entry) => entry.id === item.id) ?? false) && !loved
   const disliked = activeProfile?.dislikedIds.includes(item.id) ?? false
   const history = activeProfile?.history.find((entry) => entry.id === item.id)
   const href = watchHref || history?.watch_href || detail?.watch_href
@@ -101,11 +103,17 @@ export function TitleActions({
         <div className="thumbs-pop">
           <button
             type="button"
-            className={`circle-btn thumbs-face ${liked || disliked ? 'is-on' : ''}`}
-            onClick={() => rateTitle(likedItem, liked ? null : 'up')}
-            aria-label={liked ? 'Liked' : disliked ? 'Not for me' : 'Rate'}
+            className={`circle-btn thumbs-face ${liked || loved || disliked ? 'is-on' : ''}`}
+            onClick={() => rateTitle(likedItem, liked || loved ? null : 'up')}
+            aria-label={loved ? 'Loved' : liked ? 'Liked' : disliked ? 'Not for me' : 'Rate'}
           >
-            {disliked ? <ThumbDownIcon className="icon" /> : <ThumbUpIcon className="icon" />}
+            {disliked ? (
+              <ThumbDownIcon className="icon" />
+            ) : loved ? (
+              <DoubleThumbUpIcon className="icon" />
+            ) : (
+              <ThumbUpIcon className="icon" />
+            )}
           </button>
           <div className="thumbs-menu" role="group" aria-label="Rate title">
             <button
@@ -124,10 +132,26 @@ export function TitleActions({
             >
               <ThumbUpIcon className="icon" />
             </button>
+            <button
+              type="button"
+              className={`circle-btn ${loved ? 'is-on' : ''}`}
+              onClick={() => rateTitle(likedItem, loved ? null : 'love')}
+              aria-label="Love"
+            >
+              <DoubleThumbUpIcon className="icon" />
+            </button>
           </div>
         </div>
       ) : (
         <>
+          <button
+            type="button"
+            className={`circle-btn ${disliked ? 'is-on' : ''}`}
+            onClick={() => rateTitle(likedItem, disliked ? null : 'down')}
+            aria-label="Not for me"
+          >
+            <ThumbDownIcon className="icon" />
+          </button>
           <button
             type="button"
             className={`circle-btn ${liked ? 'is-on' : ''}`}
@@ -138,11 +162,11 @@ export function TitleActions({
           </button>
           <button
             type="button"
-            className={`circle-btn ${disliked ? 'is-on' : ''}`}
-            onClick={() => rateTitle(likedItem, disliked ? null : 'down')}
-            aria-label="Not for me"
+            className={`circle-btn ${loved ? 'is-on' : ''}`}
+            onClick={() => rateTitle(likedItem, loved ? null : 'love')}
+            aria-label="Love"
           >
-            <ThumbDownIcon className="icon" />
+            <DoubleThumbUpIcon className="icon" />
           </button>
         </>
       )}

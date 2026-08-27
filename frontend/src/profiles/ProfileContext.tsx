@@ -31,6 +31,7 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     history: Array.isArray(raw.history) ? raw.history.map(hydrateHistoryItem) : [],
     favoriteGenres: Array.isArray(raw.favoriteGenres) ? raw.favoriteGenres : [],
     liked: Array.isArray(raw.liked) ? raw.liked : [],
+    lovedIds: Array.isArray(raw.lovedIds) ? raw.lovedIds : [],
     dislikedIds: Array.isArray(raw.dislikedIds) ? raw.dislikedIds : [],
     myList: Array.isArray(raw.myList) ? raw.myList : [],
     hiddenContinueIds: Array.isArray(raw.hiddenContinueIds) ? raw.hiddenContinueIds : [],
@@ -99,7 +100,7 @@ type ProfileContextValue = {
   recordWatch: (item: Omit<WatchHistoryItem, 'watchedAt'>) => void
   hideContinue: (id: string) => void
   setFavoriteGenres: (genres: string[]) => void
-  rateTitle: (item: LikedTitle, direction: 'up' | 'down' | null) => void
+  rateTitle: (item: LikedTitle, direction: 'up' | 'love' | 'down' | null) => void
   toggleMyList: (item: LikedTitle) => void
   unlockProfile: (id: string, pin: string) => Promise<boolean>
   clearActive: () => void
@@ -158,6 +159,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         history: [],
         favoriteGenres: [],
         liked: [],
+        lovedIds: [],
         dislikedIds: [],
         myList: [],
         hiddenContinueIds: [],
@@ -321,16 +323,23 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   )
 
   const rateTitle = useCallback(
-    (item: LikedTitle, direction: 'up' | 'down' | null) => {
+    (item: LikedTitle, direction: 'up' | 'love' | 'down' | null) => {
       updateStore((prev) => ({
         ...prev,
         profiles: prev.profiles.map((profile) => {
           if (profile.id !== prev.activeProfileId) return profile
           const liked = profile.liked.filter((entry) => entry.id !== item.id)
+          const lovedIds = (profile.lovedIds ?? []).filter((entryId) => entryId !== item.id)
           const dislikedIds = profile.dislikedIds.filter((entryId) => entryId !== item.id)
-          if (direction === 'up') liked.unshift(item)
+          if (direction === 'up' || direction === 'love') liked.unshift(item)
+          if (direction === 'love') lovedIds.unshift(item.id)
           if (direction === 'down') dislikedIds.unshift(item.id)
-          return { ...profile, liked: liked.slice(0, HISTORY_LIMIT), dislikedIds: dislikedIds.slice(0, HISTORY_LIMIT) }
+          return {
+            ...profile,
+            liked: liked.slice(0, HISTORY_LIMIT),
+            lovedIds: lovedIds.slice(0, HISTORY_LIMIT),
+            dislikedIds: dislikedIds.slice(0, HISTORY_LIMIT),
+          }
         }),
       }))
     },

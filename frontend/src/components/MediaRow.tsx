@@ -69,16 +69,19 @@ export function MediaRow({
 
   const slides = looping ? Array.from({ length: copies }, (_, copy) => copy) : [0]
   const visible = ranked ? items.slice(0, 10) : items
+  const canExplore = !subtitle && !continueMode && !ranked
 
   return (
     <section className={`media-row ${seed ? 'has-scene' : ''} ${ranked ? 'is-top10' : ''}`}>
       <div className="row-heading">
-        <h2 className="section-title">{title}</h2>
-        {subtitle || continueMode || ranked ? null : (
-          <Link className="row-explore" to={exploreHref(title, items, seed)}>
-            Explore All
-            <ChevronRightIcon className="icon" />
+        {canExplore ? (
+          <Link className="row-heading-link" to={exploreHref(title, items, seed)}>
+            <h2 className="section-title">{title}</h2>
+            <span className="row-explore">Explore All</span>
+            <ChevronRightIcon className="icon row-heading-caret" />
           </Link>
+        ) : (
+          <h2 className="section-title">{title}</h2>
         )}
         {pageCount > 1 && !ranked ? (
           <div className="row-pages" aria-hidden="true">

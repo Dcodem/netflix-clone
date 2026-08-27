@@ -124,6 +124,64 @@ export function ThumbUpIcon({ className }: { className?: string }) {
   )
 }
 
+export function DoubleThumbUpIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        opacity="0.55"
+        d="M3.2 20.2H1.4A.8.8 0 01.6 19.4v-5.6a.8.8 0 01.8-.8h1.8v6.4zm1.3-6.6l1.6-3.5A1.2 1.2 0 017.2 9c.6 0 1.1.5 1 1.1L8 12.4h2.8c.9 0 1.6.9 1.4 1.8l-.8 4.1a1.6 1.6 0 01-1.5 1.3H4.5v-6z"
+      />
+      <path
+        fill="currentColor"
+        d="M11.2 21H8.6A1.1 1.1 0 017.5 19.9v-7.6A1.1 1.1 0 018.6 11.2h2.6V21zm1.8-10.2l2.1-4.7A1.6 1.6 0 0116.6 5c.8 0 1.4.7 1.3 1.5L17.4 10h3.8c1.2 0 2.2 1.2 1.9 2.4l-1.1 5.4A2.1 2.1 0 0120 19.6h-7V10.8z"
+      />
+    </svg>
+  )
+}
+
+export function ClockIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M12 8v4.4l3 1.8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function HomeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4.5 11.2L12 4.6l7.5 6.6V20a.8.8 0 01-.8.8h-4.4v-5.2h-4.6V20.8H5.3A.8.8 0 014.5 20v-8.8z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function NewsIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="4" y="5" width="16" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M7.5 9h9M7.5 12.5h6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function MyNetflixIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="5" y="4.5" width="14" height="15" rx="2.4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="10" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M8.2 16.4c.8-1.4 2.1-2.1 3.8-2.1s3 .7 3.8 2.1" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 export function ThumbDownIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

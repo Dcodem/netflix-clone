@@ -158,9 +158,11 @@ export function Header() {
                   onChange={(event) => setQuery(event.target.value)}
                   aria-label="Search"
                 />
-                <button type="button" className="search-close" aria-label="Close search" onClick={closeSearch}>
-                  <CloseIcon className="icon" />
-                </button>
+                {query ? (
+                  <button type="button" className="search-close" aria-label="Close search" onClick={closeSearch}>
+                    <CloseIcon className="icon" />
+                  </button>
+                ) : null}
               </>
             ) : null}
           </div>
