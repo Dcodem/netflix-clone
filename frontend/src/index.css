@@ -366,7 +366,7 @@ select,
 
 .hero.is-playing .hero-title,
 .hero.is-playing .hero-logo {
-  transform: scale(0.72);
+  transform: scale(0.62);
 }
 
 .hero-syn,
@@ -590,6 +590,7 @@ select,
   width: 42px;
   height: 42px;
   filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.8));
+  transition: transform 0.15s ease;
 }
 
 .row-arrow-prev {
@@ -609,6 +610,10 @@ select,
 
 .row-arrow:hover {
   color: #fff;
+}
+
+.row-arrow:hover .icon {
+  transform: scale(1.28);
 }
 
 .row-arrow-prev:hover {
@@ -1205,6 +1210,19 @@ select,
 
 .profile-cell {
   width: clamp(112px, 10vw, 200px);
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-cell:focus-visible {
+  outline: none;
 }
 
 .profile-avatar {
@@ -1215,14 +1233,21 @@ select,
   border: 3px solid transparent;
   font-size: 52px;
   cursor: pointer;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
 }
 
 .profile-cell:hover .profile-avatar,
+.profile-cell:focus-visible .profile-avatar,
+.profile-cell:hover .profile-add,
+.profile-cell:focus-visible .profile-add,
 .profile-add:hover {
   border-color: #fff;
 }
 
-.profile-cell:hover .profile-name {
+.profile-cell:hover .profile-name,
+.profile-cell:focus-visible .profile-name {
   color: #fff;
 }
 
@@ -1232,6 +1257,18 @@ select,
   font-size: 18px;
   font-weight: 400;
   transition: color 0.12s ease;
+}
+
+.profile-lock {
+  width: 18px;
+  height: 18px;
+  margin-top: 8px;
+  color: #808080;
+}
+
+.profile-cell:hover .profile-lock,
+.profile-cell:focus-visible .profile-lock {
+  color: #fff;
 }
 
 .profile-add {
@@ -2356,21 +2393,35 @@ select,
   margin: 4px 0 10px;
 }
 
-.title-modal-logo {
-  max-width: min(240px, 52%);
-  max-height: 64px;
-  margin: 0 0 14px;
+.title-modal-logo,
+.title-modal-title {
+  max-width: min(220px, 48%);
+  max-height: 52px;
+  margin: 0 0 16px;
   transition: transform 0.9s ease;
+}
+
+.title-modal-title {
+  margin: 0 0 16px;
+  font-family: var(--display);
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+  text-shadow: 0 2px 18px #000, 0 0 28px rgba(0, 0, 0, 0.85);
+  transform-origin: left bottom;
 }
 
 .title-modal-hero-body .title-actions {
   position: relative;
-  z-index: 2;
+  z-index: 4;
+  flex-shrink: 0;
 }
 
 .title-modal-hero.is-playing .title-modal-hero-body h1,
-.title-modal-hero.is-playing .title-modal-logo {
-  transform: scale(0.72);
+.title-modal-hero.is-playing .title-modal-logo,
+.title-modal-hero.is-playing .title-modal-title {
+  transform: scale(0.62);
 }
 
 .title-modal-main {
@@ -3096,31 +3147,47 @@ select,
   font-size: 22px;
 }
 
-.poster-wrap.is-ranked {
-  display: flex;
-  align-items: flex-end;
-  gap: 0;
+.is-top10 .row-scroller {
+  gap: 10px;
+}
+
+.poster-wrap.is-ranked .poster-card {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .rank-num {
   flex: 0 0 auto;
-  font-size: clamp(80px, 14vw, 180px);
+  font-family: var(--display);
+  font-size: clamp(96px, 16vw, 220px);
   font-weight: 900;
   line-height: 0.72;
   color: #141414;
-  -webkit-text-stroke: 5px #8b8b8b;
+  -webkit-text-stroke: 4px #8b8b8b;
   paint-order: stroke fill;
-  letter-spacing: -0.12em;
-  padding-left: 2px;
+  letter-spacing: -0.14em;
+  padding-left: 4px;
   user-select: none;
   pointer-events: none;
-  transform: translateX(18px);
+  z-index: 0;
+  transform: translateX(28%);
+  margin-right: -18%;
 }
 
 .rank-num.is-first {
-  color: #fff;
-  -webkit-text-stroke: 8px #141414;
-  paint-order: stroke fill;
+  letter-spacing: -0.02em;
+  transform: translateX(16%);
+  margin-right: -8%;
+  -webkit-text-stroke-width: 5px;
+}
+
+.rank-num.is-ten {
+  font-size: clamp(72px, 12vw, 168px);
+  letter-spacing: -0.16em;
+  transform: translateX(12%);
+  margin-right: -8%;
 }
 
 .search-heading {
@@ -3261,10 +3328,19 @@ select,
 }
 
 .ep-play .icon {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
   color: #fff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
   filter: drop-shadow(0 2px 8px #000);
+}
+
+.episode.is-watched .ep-play .icon {
+  padding: 8px;
 }
 
 .episode.is-watched .ep-play {
@@ -3337,7 +3413,9 @@ select,
   height: 36px;
 }
 
-.profile-add:hover .profile-add-plus {
+.profile-add:hover .profile-add-plus,
+.profile-cell:hover .profile-add-plus,
+.profile-cell:focus-visible .profile-add-plus {
   background: #e5e5e5;
 }
 
@@ -3443,8 +3521,12 @@ select,
   }
 
   .rank-num {
-    font-size: 72px;
-    -webkit-text-stroke-width: 2px;
+    font-size: 84px;
+    -webkit-text-stroke-width: 3px;
+  }
+
+  .rank-num.is-ten {
+    font-size: 64px;
   }
 
   .ep-num {
@@ -3998,6 +4080,20 @@ select,
 .pin-box:focus {
   outline: 0;
   border-color: #fff;
+}
+
+.pin-forgot {
+  background: none;
+  border: 0;
+  color: #808080;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+}
+
+.pin-forgot:hover {
+  color: #fff;
+  text-decoration: underline;
 }
 
 .profiles-signout {

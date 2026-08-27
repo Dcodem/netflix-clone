@@ -206,7 +206,7 @@ export function TitleModal() {
             onEnded={() => setTrailerEnded(true)}
           />
           <div className="title-modal-hero-body">
-            <TitleLogo item={item} className="title-modal-logo" />
+            <TitleLogo item={item} className="title-modal-logo" titleClassName="title-modal-title" />
             <TitleActions
               item={item}
               detail={detail}

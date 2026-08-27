@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { AvatarArt } from '../components/AvatarArt'
-import { PencilIcon, PlusIcon } from '../components/Icons'
+import { LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { PROFILE_AVATARS, avatarFor, type Profile } from '../profiles/types'
@@ -193,8 +193,15 @@ export function ProfileSelect() {
           <p className="profiles-sub">Unlock {pinTarget.name} to keep watching.</p>
           <PinBoxes value={pinGuess} onChange={setPinGuess} />
           {pinError ? <p className="login-error">{pinError}</p> : null}
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="visually-hidden">
             Continue
+          </button>
+          <button
+            type="button"
+            className="pin-forgot"
+            onClick={() => setPinError('Ask the account holder to reset this PIN from Manage Profiles.')}
+          >
+            Forgot PIN?
           </button>
           <button type="button" className="btn btn-ghost" onClick={() => setPinTarget(null)}>
             Cancel
@@ -385,32 +392,37 @@ export function ProfileSelect() {
             {profiles.map((profile) => {
               const avatar = avatarFor(profile)
               return (
-                <div key={profile.id} className="profile-cell">
-                  <button
-                    type="button"
+                <button
+                  type="button"
+                  key={profile.id}
+                  className={`profile-cell ${managing ? 'is-managing' : ''}`}
+                  onClick={() => onSelect(profile)}
+                  aria-label={managing ? `Edit ${profile.name}` : `Watch as ${profile.name}`}
+                >
+                  <span
                     className={`profile-avatar ${managing ? 'is-managing' : ''}`}
                     style={{ background: avatar.color }}
-                    onClick={() => onSelect(profile)}
                   >
-                    <AvatarArt avatar={avatar} alt={profile.name} />
+                    <AvatarArt avatar={avatar} alt="" />
                     {managing ? (
                       <span className="profile-pencil" aria-hidden="true">
                         <PencilIcon className="icon" />
                       </span>
                     ) : null}
-                  </button>
-                  <div className="profile-name">{profile.name}</div>
-                </div>
+                  </span>
+                  <span className="profile-name">{profile.name}</span>
+                  {profile.pinHash && !managing ? <LockIcon className="profile-lock" /> : null}
+                </button>
               )
             })}
-            <div className="profile-cell">
-              <button type="button" className="profile-add" onClick={() => setAdding(true)} aria-label="Add profile">
+            <button type="button" className="profile-cell" onClick={() => setAdding(true)} aria-label="Add profile">
+              <span className="profile-add">
                 <span className="profile-add-plus">
                   <PlusIcon className="icon" />
                 </span>
-              </button>
-              <div className="profile-name">Add Profile</div>
-            </div>
+              </span>
+              <span className="profile-name">Add Profile</span>
+            </button>
           </div>
           {profiles.length ? (
             <button

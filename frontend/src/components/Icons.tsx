@@ -393,14 +393,35 @@ export function SpeedIcon({ className }: { className?: string }) {
 
 export function ShuffleIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" fill="none">
       <path
-        d="M4 7h3.2l3.2 4.2L7.2 17H4M13.6 7H20m0 0l-2.6-2.6M20 7l-2.6 2.6M13.6 17H20m0 0l-2.6-2.6M20 17l-2.6 2.6"
+        d="M3.5 7h4.2l2.4 3.1M14.2 7H20.5M17.6 4.4L20.5 7l-2.9 2.6"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M3.5 17h4.2l8.6-10.8M14.2 17H20.5M17.6 14.4L20.5 17l-2.9 2.6"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function LockIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M8 11V8.2a4 4 0 018 0V11"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
-        strokeLinejoin="round"
       />
     </svg>
   )
