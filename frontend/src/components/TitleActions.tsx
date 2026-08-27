@@ -1,5 +1,5 @@
-import type { MovieDetail, MovieListItem } from '../api/types'
-import { genresOf } from '../lib/media'
+import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
+import { genresOf, isShow } from '../lib/media'
 import { toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -43,6 +43,8 @@ export function TitleActions({
   const history = activeProfile?.history.find((entry) => entry.id === item.id)
   const href = watchHref || history?.watch_href || detail?.watch_href
   const genres = genresOf(detail ?? item)
+  const seasons = isShow(item) ? ((detail as ShowDetail | undefined)?.seasons ?? []) : []
+  const firstEpisode = seasons[0]?.episodes?.[0]
 
   function play(restart = false) {
     if (!href) return
@@ -56,11 +58,11 @@ export function TitleActions({
       poster_url: item.poster_url ?? null,
       genres,
       watch_href: href,
-      runtime: detail?.runtime ?? history?.runtime ?? null,
+      runtime: firstEpisode?.duration ?? detail?.runtime ?? history?.runtime ?? null,
       progress: restart ? 0 : history?.progress,
-      seasonNumber: history?.seasonNumber,
-      episodeNumber: history?.episodeNumber,
-      episodeId: history?.episodeId,
+      seasonNumber: history?.seasonNumber ?? seasons[0]?.season_number,
+      episodeNumber: history?.episodeNumber ?? firstEpisode?.number,
+      episodeId: history?.episodeId ?? firstEpisode?.id,
     })
   }
 

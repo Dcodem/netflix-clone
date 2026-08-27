@@ -389,8 +389,9 @@ export function WatchOverlay() {
   const length = duration || runtimeSec
   const progress = length ? Math.min(1, current / length) : 0
   const remaining = Math.max(0, length - current)
-  const episodeLabel =
-    session.history?.seasonNumber && session.history?.episodeNumber
+  const episodeLabel = playing
+    ? `S${playing.season.season_number}:E${playing.episode.number}`
+    : session.history?.seasonNumber && session.history?.episodeNumber
       ? `S${session.history.seasonNumber}:E${session.history.episodeNumber}`
       : null
   const showSkipIntro = isShow && !introSkipped && current < 110 && !episodesOpen && !audioOpen
