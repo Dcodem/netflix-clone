@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { getShow } from '../api/client'
 import type { Episode, Season, ShowDetail } from '../api/types'
+import { useAuth } from '../auth/AuthContext'
 import {
   CheckIcon,
   ChevronLeftIcon,
@@ -18,6 +19,8 @@ import {
 import { MediaImage } from '../components/MediaImage'
 import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
 import { stillFocus } from '../lib/media'
+import { peekTrailer, resolveTrailer, youtubeIdFromHit } from '../trailers/resolve'
+import { envKeys } from '../trailers/types'
 import { useWatch } from './WatchContext'
 
 const PLAYER_SOURCE = 'flix-player'
@@ -39,15 +42,26 @@ function formatClock(seconds: number) {
   return `${minutes}:${String(secs).padStart(2, '0')}`
 }
 
-function playerSrc(href: string, runtimeSec: number, progress: number) {
+function playerSrc(href: string, runtimeSec: number, progress: number, yt?: string | null) {
   try {
     const url = new URL(href, window.location.origin)
     url.searchParams.set('runtime', String(Math.round(runtimeSec)))
     url.searchParams.set('t', String(Math.round(Math.max(0, progress) * runtimeSec)))
+    if (yt) url.searchParams.set('yt', yt)
+    else url.searchParams.delete('yt')
     if (/^https?:\/\//i.test(href)) return url.toString()
     return `${url.pathname}${url.search}${url.hash}`
   } catch {
     return href
+  }
+}
+
+function trailerSearch(session: { title: string; history?: { title?: string; year?: number | null; kind?: string } } | null) {
+  if (!session) return { title: '', year: null as number | null, kind: 'movie' }
+  return {
+    title: session.history?.title || session.title,
+    year: session.history?.year ?? null,
+    kind: session.history?.kind ?? 'movie',
   }
 }
 
@@ -75,9 +89,14 @@ function currentEpisode(detail: ShowDetail | null, seasonNumber?: number | null,
 
 export function WatchOverlay() {
   const { session, closeWatch, openWatch, reportProgress } = useWatch()
+  const { user } = useAuth()
   const overlayRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLIFrameElement>(null)
   const ambienceRef = useRef<ReturnType<typeof createWatchAmbience> | null>(null)
+  const sessionKey = session ? `${session.startedAt}:${session.href}` : ''
+  const peekedYt = youtubeIdFromHit(peekTrailer(trailerSearch(session)))
+  const [ytBySession, setYtBySession] = useState<{ key: string; id: string | null }>({ key: '', id: null })
+  const ytId = ytBySession.key === sessionKey ? ytBySession.id : peekedYt
   const [chrome, setChrome] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
   const [paused, setPaused] = useState(false)
@@ -96,6 +115,7 @@ export function WatchOverlay() {
   const [volOpen, setVolOpen] = useState(false)
   const [barHover, setBarHover] = useState(false)
   const flashTimer = useRef(0)
+  const audioRef = useRef({ muted: false, volume: 1 })
 
   const runtimeSec = Math.max(60, (session?.history?.runtime ?? 48) * 60)
   const startProgress = session?.history?.progress ?? 0
@@ -150,6 +170,10 @@ export function WatchOverlay() {
   }, [post])
 
   useEffect(() => {
+    audioRef.current = { muted, volume }
+  }, [muted, volume])
+
+  useEffect(() => {
     if (!session) return
     setChrome(true)
     setPaused(false)
@@ -166,11 +190,16 @@ export function WatchOverlay() {
     setCurrent(startProgress * runtimeSec)
     setDuration(runtimeSec)
     setFlash(null)
+    const hasVideo = Boolean(youtubeIdFromHit(peekTrailer(trailerSearch(session))))
     try {
-      ambienceRef.current = createWatchAmbience()
-      ambienceRef.current.setMuted(false)
-      ambienceRef.current.setPlaying(true)
-      ambienceRef.current.setVolume(1)
+      if (hasVideo) {
+        ambienceRef.current = null
+      } else {
+        ambienceRef.current = createWatchAmbience()
+        ambienceRef.current.setMuted(false)
+        ambienceRef.current.setPlaying(true)
+        ambienceRef.current.setVolume(1)
+      }
     } catch {
       ambienceRef.current = null
     }
@@ -195,6 +224,37 @@ export function WatchOverlay() {
       cancelled = true
     }
   }, [session?.history?.id, session?.history?.kind])
+
+  useEffect(() => {
+    if (!session) return
+    const key = `${session.startedAt}:${session.href}`
+    const item = trailerSearch(session)
+    const immediate = youtubeIdFromHit(peekTrailer(item))
+    setYtBySession({ key, id: immediate })
+    const keys = {
+      iva: (user?.ivaKey || envKeys().iva).trim(),
+      tmdb: (user?.tmdbKey || envKeys().tmdb).trim(),
+    }
+    if (!keys.tmdb && !keys.iva) return
+    let cancelled = false
+    resolveTrailer(item, keys)
+      .then((hit) => {
+        const id = youtubeIdFromHit(hit)
+        if (cancelled || !id) return
+        setYtBySession({ key, id })
+      })
+      .catch(() => {
+        /* keep artwork player */
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [session, user?.ivaKey, user?.tmdbKey])
+
+  useEffect(() => {
+    post({ cmd: 'mute', value: muted })
+    post({ cmd: 'volume', value: muted ? 0 : volume })
+  }, [muted, volume, ytId, post])
 
   useEffect(() => {
     if (!session) return
@@ -231,8 +291,21 @@ export function WatchOverlay() {
     }
     const onFs = () => setFullscreen(Boolean(document.fullscreenElement))
     const onMessage = (event: MessageEvent) => {
-      const data = event.data as { source?: string; type?: string; current?: number; duration?: number; paused?: boolean }
-      if (!data || data.source !== PLAYER_SOURCE || data.type !== 'time') return
+      const data = event.data as {
+        source?: string
+        type?: string
+        kind?: string
+        current?: number
+        duration?: number
+        paused?: boolean
+      }
+      if (!data || data.source !== PLAYER_SOURCE) return
+      if (data.type === 'media' && data.kind === 'youtube') {
+        ambienceRef.current?.stop()
+        ambienceRef.current = null
+        return
+      }
+      if (data.type !== 'time') return
       if (typeof data.current === 'number') setCurrent(data.current)
       if (typeof data.duration === 'number' && data.duration > 0) setDuration(data.duration)
       if (typeof data.paused === 'boolean') setPaused(data.paused)
@@ -308,6 +381,7 @@ export function WatchOverlay() {
     playClick()
     openWatch(episode.watch_href, session.history.title, {
       ...session.history,
+      year: session.history.year,
       watch_href: episode.watch_href,
       runtime: episode.duration ?? session.history.runtime,
       progress: 0,
@@ -321,9 +395,13 @@ export function WatchOverlay() {
     setVolume(next)
     if (next <= 0.01) {
       setMuted(true)
+      post({ cmd: 'mute', value: true })
+      post({ cmd: 'volume', value: 0 })
       ambienceRef.current?.setMuted(true)
     } else {
       setMuted(false)
+      post({ cmd: 'mute', value: false })
+      post({ cmd: 'volume', value: next })
       ambienceRef.current?.setMuted(false)
       ambienceRef.current?.setVolume(next)
     }
@@ -345,11 +423,17 @@ export function WatchOverlay() {
       <iframe
         ref={frameRef}
         className="watch-frame"
-        src={playerSrc(session.href, runtimeSec, startProgress)}
+        src={playerSrc(session.href, runtimeSec, startProgress, ytId)}
         title={session.title}
         allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
         allowFullScreen
         tabIndex={-1}
+        onLoad={() => {
+          const audio = audioRef.current
+          post({ cmd: 'play' })
+          post({ cmd: 'mute', value: audio.muted })
+          post({ cmd: 'volume', value: audio.muted ? 0 : audio.volume })
+        }}
       />
       <button
         type="button"

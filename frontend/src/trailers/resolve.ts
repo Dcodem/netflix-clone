@@ -54,3 +54,36 @@ export async function resolveTrailer(
   }
   return hit
 }
+
+export function peekTrailer(item: SearchItem): TrailerHit | null {
+  if (!item.title) return null
+  const kind = item.kind ?? 'movie'
+  const keys = [cacheKey(item.title, item.year, kind), cacheKey(item.title, undefined, kind)]
+  const seen = new Set<string>()
+  for (const key of keys) {
+    if (seen.has(key)) continue
+    seen.add(key)
+    if (memory.has(key)) {
+      const hit = memory.get(key)
+      if (hit) return hit
+      continue
+    }
+    try {
+      const cached = sessionStorage.getItem(key)
+      if (cached) {
+        const parsed = JSON.parse(cached) as TrailerHit
+        memory.set(key, parsed)
+        return parsed
+      }
+    } catch {
+      // ignore cache
+    }
+  }
+  return null
+}
+
+export function youtubeIdFromHit(hit: TrailerHit | null | undefined): string | null {
+  if (!hit || hit.kind !== 'youtube') return null
+  const id = String(hit.src || '').trim()
+  return /^[\w-]{6,20}$/.test(id) ? id : null
+}

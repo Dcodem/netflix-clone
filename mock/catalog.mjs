@@ -354,7 +354,7 @@ function seasonsFor(item, index) {
         number,
         title,
         duration: 24 + ((index + number) % 22),
-        synopsis: `S${seasonNumber}E${number} of ${item.title}: ${beat}`,
+        synopsis: beat,
         thumb_url: item.backdrop_url || `/art/thumb/${item.id}?s=${seasonNumber}&e=${number}`,
         watch_href: `/watch/play/${item.id}?s=${seasonNumber}&e=${number}`,
       })

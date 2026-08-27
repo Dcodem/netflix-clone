@@ -98,6 +98,8 @@ function playerPage(item, season, episode, query = {}) {
   const heading = season && episode ? `${item.title} · S${season}E${episode}` : item.title
   const runtime = Math.max(60, Number(query.runtime) || (item.runtime ? Number(item.runtime) * 60 : 48 * 60))
   const start = Math.max(0, Number(query.t) || 0)
+  const ytRaw = String(query.yt || '')
+  const ytId = /^[\w-]{6,20}$/.test(ytRaw) ? ytRaw : ''
   const h = hue(item.id)
   const color = `hsl(${h} 48% 14%)`
   const accent = `hsl(${(h + 38) % 360} 58% 42%)`
@@ -115,7 +117,7 @@ function playerPage(item, season, episode, query = {}) {
     <title>${escapeXml(heading)}</title>
     <style>
       html,body{margin:0;height:100%;background:#000;overflow:hidden}
-      .stage{position:absolute;inset:0;background:#050505}
+      .stage{position:absolute;inset:0;background:#050505;transition:opacity .55s ease}
       .plate{position:absolute;inset:-14%;background-size:cover;background-position:center;opacity:0;transition:opacity .85s ease;transform-origin:center;filter:saturate(1.05) contrast(1.06)}
       .plate.is-on{opacity:1}
       .stage.is-playing .plate.is-on{animation:ken 16s ease-in-out alternate infinite}
@@ -128,6 +130,10 @@ function playerPage(item, season, episode, query = {}) {
       .letter.top{top:0}
       .letter.bot{bottom:0}
       .wash{position:absolute;inset:0;background:radial-gradient(circle at 72% 28%, ${accent} 0%, transparent 36%), radial-gradient(circle at 18% 82%, ${color} 0%, transparent 52%);opacity:.28;mix-blend-mode:soft-light}
+      #ytwrap{position:absolute;inset:0;overflow:hidden;z-index:2;opacity:0;transition:opacity .6s ease;pointer-events:none;background:#000}
+      #ytwrap.is-on{opacity:1}
+      #yt,#yt iframe{position:absolute;left:50%;top:50%;width:177.78vh;height:100vh;min-width:100vw;min-height:56.25vw;transform:translate(-50%,-50%);border:0;pointer-events:none}
+      body.is-video .stage,body.is-video .veil,body.is-video .grain,body.is-video .flicker,body.is-video .letter{opacity:0;animation:none}
       @keyframes ken{from{transform:scale(1.02) translate3d(0,0,0)}to{transform:scale(1.14) translate3d(-3%,1.4%,0)}}
       @keyframes ken-b{from{transform:scale(1.08) translate3d(2%,-1%,0)}to{transform:scale(1.18) translate3d(-1%,2%,0)}}
       @keyframes ken-c{from{transform:scale(1.04) translate3d(-2%,1%,0)}to{transform:scale(1.16) translate3d(2%,-2%,0)}}
@@ -143,6 +149,7 @@ function playerPage(item, season, episode, query = {}) {
       <div class="plate" style="background-image:url('${plates[2]}')"></div>
       <div class="wash"></div>
     </div>
+    <div id="ytwrap" aria-hidden="true"><div id="yt"></div></div>
     <div class="veil"></div>
     <div class="grain"></div>
     <div class="flicker"></div>
@@ -150,19 +157,62 @@ function playerPage(item, season, episode, query = {}) {
     <div class="letter bot"></div>
     <script>
       const SOURCE = 'flix-player'
+      const YT_ID = ${JSON.stringify(ytId)}
       let duration = ${runtime}
       let current = ${start}
       let paused = false
       let shot = 0
+      let ytPlayer = null
+      let usingYt = false
+      let wantMute = false
+      let wantVolume = 1
       const stage = document.querySelector('.stage')
+      const wrap = document.getElementById('ytwrap')
       const plates = [...document.querySelectorAll('.plate')]
       function showShot(next) {
+        if (!plates.length) return
         shot = (next + plates.length) % plates.length
         plates.forEach((plate, index) => plate.classList.toggle('is-on', index === shot))
       }
+      function applyAudio() {
+        if (!ytPlayer || typeof ytPlayer.mute !== 'function') return
+        try {
+          ytPlayer.setVolume(Math.round(Math.max(0, Math.min(1, wantVolume)) * 100))
+          if (wantMute || wantVolume <= 0.01) ytPlayer.mute()
+          else ytPlayer.unMute()
+        } catch (err) {}
+      }
+      function applyTransport() {
+        if (!ytPlayer) return
+        try {
+          if (paused) ytPlayer.pauseVideo()
+          else ytPlayer.playVideo()
+        } catch (err) {}
+      }
+      function seekTo(seconds) {
+        current = Math.max(0, Math.min(duration, seconds))
+        if (usingYt && ytPlayer && typeof ytPlayer.seekTo === 'function') {
+          try { ytPlayer.seekTo(current, true) } catch (err) {}
+        } else {
+          showShot(shot + 1)
+        }
+      }
+      function readYt() {
+        if (!usingYt || !ytPlayer) return
+        try {
+          const ytDur = ytPlayer.getDuration()
+          if (ytDur && ytDur > 1) duration = ytDur
+          const ytCur = ytPlayer.getCurrentTime()
+          if (typeof ytCur === 'number') current = ytCur
+          const state = ytPlayer.getPlayerState()
+          if (state === 2 || state === 0) paused = true
+          else if (state === 1) paused = false
+        } catch (err) {}
+      }
       function tick(dt) {
-        if (!paused) current = Math.min(duration, current + dt)
-        parent.postMessage({ source: SOURCE, type: 'time', current, duration, paused }, '*')
+        if (usingYt) readYt()
+        else if (!paused) current = Math.min(duration, current + dt)
+        parent.postMessage({ source: SOURCE, type: 'time', current: current, duration: duration, paused: paused }, '*')
       }
       let last = performance.now()
       function loop(now) {
@@ -171,19 +221,95 @@ function playerPage(item, season, episode, query = {}) {
         requestAnimationFrame(loop)
       }
       requestAnimationFrame(loop)
-      setInterval(() => { if (!paused) showShot(shot + 1) }, 7800)
-      window.addEventListener('message', (event) => {
+      setInterval(function () { if (!paused && !usingYt) showShot(shot + 1) }, 7800)
+      function startYt() {
+        if (!window.YT || !window.YT.Player) return
+        ytPlayer = new window.YT.Player('yt', {
+          videoId: YT_ID,
+          width: '1280',
+          height: '720',
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            modestbranding: 1,
+            rel: 0,
+            iv_load_policy: 3,
+            cc_load_policy: 0,
+            playsinline: 1,
+            origin: window.location.origin
+          },
+          events: {
+            onReady: function (event) {
+              usingYt = true
+              try { event.target.playVideo() } catch (err) {}
+              applyAudio()
+              applyTransport()
+              parent.postMessage({ source: SOURCE, type: 'media', kind: 'youtube' }, '*')
+            },
+            onError: function () {
+              usingYt = false
+              document.body.classList.remove('is-video')
+              wrap.classList.remove('is-on')
+            },
+            onStateChange: function (event) {
+              if (event.data === 0) {
+                paused = true
+                current = duration
+                parent.postMessage({ source: SOURCE, type: 'time', current: current, duration: duration, paused: true }, '*')
+              }
+              if (event.data === 1) {
+                usingYt = true
+                wrap.classList.add('is-on')
+                document.body.classList.add('is-video')
+              }
+            }
+          }
+        })
+      }
+      function bootYt() {
+        if (!YT_ID) return
+        if (window.YT && window.YT.Player) {
+          startYt()
+          return
+        }
+        const tag = document.createElement('script')
+        tag.src = 'https://www.youtube.com/iframe_api'
+        const previous = window.onYouTubeIframeAPIReady
+        window.onYouTubeIframeAPIReady = function () {
+          if (typeof previous === 'function') previous()
+          startYt()
+        }
+        document.head.appendChild(tag)
+      }
+      bootYt()
+      window.addEventListener('message', function (event) {
         const data = event.data || {}
         if (data.source !== SOURCE) return
-        if (data.cmd === 'play') { paused = false; stage.classList.add('is-playing'); stage.classList.remove('is-paused') }
-        if (data.cmd === 'pause') { paused = true; stage.classList.remove('is-playing'); stage.classList.add('is-paused') }
-        if (data.cmd === 'seek' && typeof data.seconds === 'number') {
-          current = Math.max(0, Math.min(duration, data.seconds))
-          showShot(shot + 1)
+        if (data.cmd === 'play') {
+          paused = false
+          stage.classList.add('is-playing')
+          stage.classList.remove('is-paused')
+          applyTransport()
         }
-        if (data.cmd === 'skip' && typeof data.delta === 'number') {
-          current = Math.max(0, Math.min(duration, current + data.delta))
-          showShot(shot + (data.delta > 0 ? 1 : plates.length - 1))
+        if (data.cmd === 'pause') {
+          paused = true
+          stage.classList.remove('is-playing')
+          stage.classList.add('is-paused')
+          applyTransport()
+        }
+        if (data.cmd === 'seek' && typeof data.seconds === 'number') seekTo(data.seconds)
+        if (data.cmd === 'skip' && typeof data.delta === 'number') seekTo(current + data.delta)
+        if (data.cmd === 'mute') {
+          wantMute = Boolean(data.value)
+          applyAudio()
+        }
+        if (data.cmd === 'volume' && typeof data.value === 'number') {
+          wantVolume = data.value
+          wantMute = data.value <= 0.01
+          applyAudio()
         }
       })
     </script>

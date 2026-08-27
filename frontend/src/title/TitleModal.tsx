@@ -110,6 +110,7 @@ export function TitleModal() {
       id: detail.id,
       kind: 'show',
       title: detail.title,
+      year: detail.year,
       poster_url: detail.poster_url ?? null,
       genres,
       watch_href: episode.watch_href,

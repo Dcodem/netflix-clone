@@ -52,6 +52,7 @@ export function TitleActions({
       id: item.id,
       kind: item.kind ?? 'movie',
       title: item.title,
+      year: item.year,
       poster_url: item.poster_url ?? null,
       genres,
       watch_href: href,

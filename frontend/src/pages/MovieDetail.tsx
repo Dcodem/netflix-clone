@@ -39,6 +39,7 @@ export function MovieDetail() {
       id: movie.id,
       kind: movie.kind ?? 'movie',
       title: movie.title,
+      year: movie.year,
       poster_url: movie.poster_url ?? null,
       genres,
       watch_href: movie.watch_href,

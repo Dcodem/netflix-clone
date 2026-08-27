@@ -90,6 +90,7 @@ export function Hero({ item }: { item: MovieListItem }) {
       id: item.id,
       kind: item.kind ?? 'movie',
       title: item.title,
+      year: item.year,
       poster_url: item.poster_url ?? null,
       genres,
       watch_href: watchHref,
