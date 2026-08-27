@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import type { MovieDetail, MovieListItem } from '../api/types'
+import { useFineHover } from '../hooks/useFineHover'
 import { toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
@@ -36,6 +38,8 @@ export function TitleActions({
   const { openWatch } = useWatch()
   const { openTitle, closeTitle } = useTitleModal()
   const { activeProfile, toggleMyList, rateTitle } = useProfiles()
+  const fineHover = useFineHover()
+  const [rateOpen, setRateOpen] = useState(false)
   const likedItem = toLiked(item)
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
   const loved = activeProfile?.lovedIds?.includes(item.id) ?? false
@@ -85,12 +89,22 @@ export function TitleActions({
         {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
       </button>
       {size === 'sm' ? (
-        <div className="thumbs-pop">
+        <div
+          className={`thumbs-pop ${rateOpen ? 'is-open' : ''}`}
+          onMouseLeave={() => setRateOpen(false)}
+        >
           <button
             type="button"
             className={`circle-btn thumbs-face ${liked || loved || disliked ? 'is-on' : ''}`}
-            onClick={() => rateTitle(likedItem, liked || loved ? null : 'up')}
+            onClick={() => {
+              if (!fineHover) {
+                setRateOpen((value) => !value)
+                return
+              }
+              rateTitle(likedItem, liked || loved ? null : 'up')
+            }}
             aria-label={loved ? 'Loved' : liked ? 'Liked' : disliked ? 'Not for me' : 'Rate'}
+            aria-expanded={rateOpen}
           >
             {disliked ? (
               <ThumbDownIcon className="icon" />
@@ -104,7 +118,10 @@ export function TitleActions({
             <button
               type="button"
               className={`circle-btn ${disliked ? 'is-on' : ''}`}
-              onClick={() => rateTitle(likedItem, disliked ? null : 'down')}
+              onClick={() => {
+                rateTitle(likedItem, disliked ? null : 'down')
+                setRateOpen(false)
+              }}
               aria-label="Not for me"
             >
               <ThumbDownIcon className="icon" />
@@ -112,7 +129,10 @@ export function TitleActions({
             <button
               type="button"
               className={`circle-btn ${liked ? 'is-on' : ''}`}
-              onClick={() => rateTitle(likedItem, liked ? null : 'up')}
+              onClick={() => {
+                rateTitle(likedItem, liked ? null : 'up')
+                setRateOpen(false)
+              }}
               aria-label="Like"
             >
               <ThumbUpIcon className="icon" />
@@ -120,7 +140,10 @@ export function TitleActions({
             <button
               type="button"
               className={`circle-btn ${loved ? 'is-on' : ''}`}
-              onClick={() => rateTitle(likedItem, loved ? null : 'love')}
+              onClick={() => {
+                rateTitle(likedItem, loved ? null : 'love')
+                setRateOpen(false)
+              }}
               aria-label="Love"
             >
               <DoubleThumbUpIcon className="icon" />

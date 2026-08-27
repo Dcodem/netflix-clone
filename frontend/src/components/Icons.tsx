@@ -17,8 +17,23 @@ export function PauseIcon({ className }: { className?: string }) {
 export function SkipBackIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="currentColor" d="M11.2 7.2v9.6L4.8 12l6.4-4.8z" />
-      <text x="14.2" y="16.2" fill="currentColor" fontSize="8.5" fontWeight="700" fontFamily="Helvetica Neue, Arial, sans-serif">
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        d="M8.4 6.8A7.2 7.2 0 1 0 12 4.8"
+      />
+      <path fill="currentColor" d="M8.6 3.2v5.4L4.4 6.2z" />
+      <text
+        x="12"
+        y="15.8"
+        textAnchor="middle"
+        fill="currentColor"
+        fontSize="7.4"
+        fontWeight="700"
+        fontFamily="Helvetica Neue, Arial, sans-serif"
+      >
         10
       </text>
     </svg>
@@ -28,8 +43,23 @@ export function SkipBackIcon({ className }: { className?: string }) {
 export function SkipForwardIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="currentColor" d="M4.8 7.2v9.6L11.2 12 4.8 7.2z" />
-      <text x="13.4" y="16.2" fill="currentColor" fontSize="8.5" fontWeight="700" fontFamily="Helvetica Neue, Arial, sans-serif">
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        d="M15.6 6.8A7.2 7.2 0 1 1 12 4.8"
+      />
+      <path fill="currentColor" d="M15.4 3.2v5.4L19.6 6.2z" />
+      <text
+        x="12"
+        y="15.8"
+        textAnchor="middle"
+        fill="currentColor"
+        fontSize="7.4"
+        fontWeight="700"
+        fontFamily="Helvetica Neue, Arial, sans-serif"
+      >
         10
       </text>
     </svg>

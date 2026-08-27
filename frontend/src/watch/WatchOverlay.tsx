@@ -636,6 +636,17 @@ export function WatchOverlay() {
         </button>
       ) : null}
       {caption ? <p className={`watch-caption ${chrome ? 'is-raised' : ''}`}>{caption}</p> : null}
+      <div className="watch-center" onClick={(event) => event.stopPropagation()}>
+        <button type="button" className="watch-ctrl" onClick={() => skip(-10)} aria-label="Back 10 seconds">
+          <SkipBackIcon className="icon" />
+        </button>
+        <button type="button" className="watch-ctrl watch-center-play" onClick={togglePlay} aria-label={paused ? 'Play' : 'Pause'}>
+          {paused ? <PlayIcon className="icon" /> : <PauseIcon className="icon" />}
+        </button>
+        <button type="button" className="watch-ctrl" onClick={() => skip(10)} aria-label="Forward 10 seconds">
+          <SkipForwardIcon className="icon" />
+        </button>
+      </div>
       <div
         className={`watch-bottombar ${chrome ? 'is-visible' : ''}`}
         onClick={(event) => event.stopPropagation()}
@@ -675,13 +686,13 @@ export function WatchOverlay() {
         </div>
         <div className="watch-controls">
           <div className="watch-controls-left">
-            <button type="button" className="watch-ctrl" onClick={togglePlay} aria-label={paused ? 'Play' : 'Pause'}>
+            <button type="button" className="watch-ctrl watch-transport" onClick={togglePlay} aria-label={paused ? 'Play' : 'Pause'}>
               {paused ? <PlayIcon className="icon" /> : <PauseIcon className="icon" />}
             </button>
-            <button type="button" className="watch-ctrl" onClick={() => skip(-10)} aria-label="Back 10 seconds">
+            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(-10)} aria-label="Back 10 seconds">
               <SkipBackIcon className="icon" />
             </button>
-            <button type="button" className="watch-ctrl" onClick={() => skip(10)} aria-label="Forward 10 seconds">
+            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(10)} aria-label="Forward 10 seconds">
               <SkipForwardIcon className="icon" />
             </button>
             <div
