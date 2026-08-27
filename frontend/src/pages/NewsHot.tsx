@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { getCatalogMany, getMovie, getMovies, getShow } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { BellIcon, InfoIcon, PlayIcon } from '../components/Icons'
@@ -21,6 +21,19 @@ function comingSoon(item: MovieListItem) {
   return (item.year ?? 0) >= THIS_YEAR
 }
 
+function comingDate(id: string) {
+  let hash = 0
+  for (let i = 0; i < id.length; i += 1) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
+  const date = new Date()
+  date.setHours(12, 0, 0, 0)
+  date.setDate(date.getDate() + 4 + (hash % 42))
+  return date
+}
+
+function monthLabel(date: Date) {
+  return date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
+}
+
 function FeedCard({ item, kicker }: { item: MovieListItem; kicker: string }) {
   const { openTitle } = useTitleModal()
   const { openWatch } = useWatch()
@@ -29,6 +42,7 @@ function FeedCard({ item, kicker }: { item: MovieListItem; kicker: string }) {
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
   const genres = genresOf(item).slice(0, 3)
   const upcoming = comingSoon(item)
+  const date = upcoming ? comingDate(item.id) : null
   const match = matchPercent(item, activeProfile)
   const history = activeProfile?.history.find((entry) => entry.id === item.id)
 
@@ -61,17 +75,23 @@ function FeedCard({ item, kicker }: { item: MovieListItem; kicker: string }) {
   }
 
   return (
-    <article className="news-card">
+    <article className={`news-card ${upcoming ? 'is-soon' : ''}`}>
+      {date ? (
+        <div className="news-date" aria-label={date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}>
+          <em>{monthLabel(date)}</em>
+          <strong>{date.getDate()}</strong>
+        </div>
+      ) : null}
       <button type="button" className="news-card-art" onClick={() => openTitle(item)} aria-label={item.title}>
         <CatalogImage item={item} alt="" prefer="backdrop" />
       </button>
       <div className="news-card-body">
-        <p className="news-kicker">{kicker}</p>
+        {upcoming ? null : <p className="news-kicker">{kicker}</p>}
         <h2>{item.title}</h2>
         <p className="news-meta">
           {!upcoming ? <span className="match">{match}% Match</span> : null}
           {item.year ? <span>{item.year}</span> : null}
-          {genres.length ? <span>{genres.join(' · ')}</span> : null}
+          {genres.length ? <span>{genres.join(' • ')}</span> : null}
         </p>
         <div className="news-actions">
           {upcoming ? (
@@ -120,11 +140,21 @@ export function NewsHot() {
     () => uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]),
     [movies.data, extras.data],
   )
+  const comingRef = useRef<HTMLElement>(null)
+  const watchingRef = useRef<HTMLElement>(null)
+  const [chip, setChip] = useState<'coming' | 'watching' | null>(null)
   const coming = useMemo(() => sortByYear(catalog.filter(comingSoon)).slice(0, 12), [catalog])
   const watching = useMemo(() => {
     const seen = new Set(coming.map((item) => item.id))
     return sortByRating(catalog.filter((item) => !seen.has(item.id))).slice(0, 12)
   }, [catalog, coming])
+  const activeChip = chip ?? (coming.length ? 'coming' : 'watching')
+
+  function jump(next: 'coming' | 'watching') {
+    setChip(next)
+    const node = next === 'coming' ? comingRef.current : watchingRef.current
+    node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   if ((movies.loading || extras.loading) && !catalog.length) {
     return <Spinner label="Loading titles" />
@@ -138,17 +168,29 @@ export function NewsHot() {
 
   return (
     <main className="page page-pad news-hot-page">
+      <nav className="news-chips" aria-label="New & Popular">
+        {coming.length ? (
+          <button type="button" className={activeChip === 'coming' ? 'is-on' : ''} onClick={() => jump('coming')}>
+            Coming Soon
+          </button>
+        ) : null}
+        {watching.length ? (
+          <button type="button" className={activeChip === 'watching' ? 'is-on' : ''} onClick={() => jump('watching')}>
+            Everyone’s Watching
+          </button>
+        ) : null}
+      </nav>
       {coming.length ? (
-        <section className="news-feed">
-          <h1 className="page-title">Coming Soon</h1>
+        <section className="news-feed" ref={comingRef} aria-label="Coming Soon">
+          <h1 className="visually-hidden">Coming Soon</h1>
           {coming.map((item) => (
             <FeedCard key={item.id} item={item} kicker="Coming Soon" />
           ))}
         </section>
       ) : null}
       {watching.length ? (
-        <section className="news-feed">
-          <h2 className="page-title">Everyone’s Watching</h2>
+        <section className="news-feed" ref={watchingRef} aria-label="Everyone’s Watching">
+          <h2 className="visually-hidden">Everyone’s Watching</h2>
           {watching.map((item) => (
             <FeedCard key={item.id} item={item} kicker="Everyone’s Watching" />
           ))}

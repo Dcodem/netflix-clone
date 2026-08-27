@@ -133,7 +133,7 @@ export function TitleHoverCard({
             </span>
           ) : null}
         </div>
-        {genres.length ? <div className="jawbone-genres">{genres.join(' · ')}</div> : null}
+        {genres.length ? <div className="jawbone-genres">{genres.join(' • ')}</div> : null}
       </div>
     </div>,
     document.body,
