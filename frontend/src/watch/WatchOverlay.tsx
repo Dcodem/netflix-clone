@@ -12,6 +12,7 @@ import {
   SpeakerIcon,
   SubtitlesIcon,
 } from '../components/Icons'
+import { MediaImage } from '../components/MediaImage'
 import { createWatchAmbience, playClick } from '../lib/sounds'
 import { useWatch } from './WatchContext'
 
@@ -354,16 +355,18 @@ export function WatchOverlay() {
             <button type="button" className="watch-ctrl" onClick={toggleMute} aria-label={muted ? 'Unmute' : 'Mute'}>
               <SpeakerIcon muted={muted || volume <= 0.01} className="icon" />
             </button>
-            <input
-              className="watch-vol-slider"
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              value={muted ? 0 : volume}
-              aria-label="Volume"
-              onChange={(event) => onVolume(Number(event.target.value))}
-            />
+            <div className="watch-vol-rail">
+              <input
+                className="watch-vol-slider"
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                value={muted ? 0 : volume}
+                aria-label="Volume"
+                onChange={(event) => onVolume(Number(event.target.value))}
+              />
+            </div>
           </div>
           <span className="watch-time">{formatClock(remaining)}</span>
           {isShow ? (
@@ -419,8 +422,15 @@ export function WatchOverlay() {
                 className={`watch-ep ${active ? 'is-on' : ''}`}
                 onClick={() => playEpisode(season, episode)}
               >
-                <span>{episode.number}</span>
-                <em>{episode.title}</em>
+                <span className="watch-ep-num">{episode.number}</span>
+                <span className="watch-ep-thumb">
+                  <MediaImage src={episode.thumb_url} alt="" />
+                  <PlayIcon className="icon" />
+                </span>
+                <span className="watch-ep-copy">
+                  <em>{episode.title}</em>
+                  {episode.duration ? <small>{episode.duration}m</small> : null}
+                </span>
               </button>
             )
           })}

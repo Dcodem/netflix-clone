@@ -1657,6 +1657,7 @@ select,
 
 .btn-play:hover:not(:disabled) {
   background: #e6e6e6;
+  transform: scale(1.05);
 }
 
 .btn-info {
@@ -1669,6 +1670,7 @@ select,
 
 .btn-info:hover {
   background: rgba(109, 109, 110, 0.4);
+  transform: scale(1.05);
 }
 
 .hero-syn {
@@ -2588,16 +2590,17 @@ select,
 
 .rank-num {
   flex: 0 0 auto;
-  font-size: clamp(64px, 12vw, 140px);
+  font-size: clamp(72px, 13vw, 160px);
   font-weight: 900;
-  line-height: 0.75;
-  color: #000;
-  -webkit-text-stroke: 3px #595959;
-  letter-spacing: -0.08em;
-  padding-left: 4px;
+  line-height: 0.72;
+  color: var(--bg);
+  -webkit-text-stroke: 4px #888;
+  paint-order: stroke fill;
+  letter-spacing: -0.1em;
+  padding-left: 2px;
   user-select: none;
   pointer-events: none;
-  transform: translateX(10px);
+  transform: translateX(12px);
 }
 
 .search-heading {
@@ -2746,11 +2749,11 @@ select,
 }
 
 .site-header.is-kids {
-  background: linear-gradient(180deg, rgba(20, 24, 60, 0.85) 0%, transparent);
+  background: linear-gradient(180deg, rgba(16, 20, 48, 0.42) 0%, transparent 78%);
 }
 
 .site-header.is-kids.is-scrolled {
-  background: #1c2150;
+  background: #141414;
 }
 
 .progress-track {
@@ -3477,15 +3480,15 @@ select,
 
 .exit-kids {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   color: #fff;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 6px 10px;
+  padding: 5px 8px;
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: 1px;
 }
 
 .exit-kids:hover {
@@ -3494,11 +3497,11 @@ select,
 }
 
 .app-shell.is-kids {
-  background: #14162e;
+  background: var(--bg);
 }
 
 .app-shell.is-kids .browse-page {
-  background: radial-gradient(circle at 12% -10%, rgba(80, 110, 255, 0.28), transparent 42%);
+  background: none;
 }
 
 .app-shell.is-kids .poster-card {
@@ -3514,13 +3517,14 @@ select,
   position: absolute;
   right: 24px;
   z-index: 2150;
-  background: rgba(42, 42, 42, 0.72);
+  background: rgba(42, 42, 42, 0.6);
   color: #fff;
   border: 1px solid #fff;
   border-radius: 4px;
-  padding: 8px 18px;
-  font-size: 14px;
+  padding: 10px 22px;
+  font-size: 16px;
   font-weight: 700;
+  letter-spacing: 0.04em;
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
@@ -3551,23 +3555,33 @@ select,
   align-items: center;
 }
 
-.watch-vol-slider {
+.watch-vol-rail {
   display: none;
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 8px);
-  width: 16px;
-  height: 92px;
+  bottom: calc(100% + 6px);
   transform: translateX(-50%);
-  writing-mode: vertical-lr;
-  direction: rtl;
-  accent-color: #fff;
-  cursor: pointer;
+  width: 36px;
+  height: 120px;
+  background: rgba(16, 16, 16, 0.92);
+  border-radius: 4px;
+  place-items: center;
+  padding: 12px 0;
 }
 
-.watch-vol:hover .watch-vol-slider,
-.watch-vol:focus-within .watch-vol-slider {
-  display: block;
+.watch-vol:hover .watch-vol-rail,
+.watch-vol:focus-within .watch-vol-rail {
+  display: grid;
+}
+
+.watch-vol-slider {
+  appearance: slider-vertical;
+  width: 6px;
+  height: 96px;
+  accent-color: #fff;
+  cursor: pointer;
+  writing-mode: vertical-lr;
+  direction: rtl;
 }
 
 .watch-ctrl.is-on {
@@ -3623,18 +3637,72 @@ select,
 }
 
 .watch-ep {
-  display: flex !important;
+  display: grid !important;
+  grid-template-columns: 28px 112px 1fr;
   gap: 12px;
-  align-items: baseline;
+  align-items: center;
+  padding: 8px 0 !important;
 }
 
-.watch-ep span {
+.watch-ep-num {
   color: #808080;
-  width: 24px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
-.watch-ep em {
+.watch-ep-thumb {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: #222;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.watch-ep-thumb img,
+.watch-ep-thumb .media-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.watch-ep-thumb .icon {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 28px;
+  height: 28px;
+  color: #fff;
+  opacity: 0;
+  filter: drop-shadow(0 2px 8px #000);
+}
+
+.watch-ep:hover .watch-ep-thumb .icon,
+.watch-ep.is-on .watch-ep-thumb .icon {
+  opacity: 1;
+}
+
+.watch-ep-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.watch-ep-copy em {
   font-style: normal;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.watch-ep-copy small {
+  color: #808080;
+}
+
+.watch-episodes {
+  width: min(460px, calc(100% - 32px));
 }
 
 .nav-link {

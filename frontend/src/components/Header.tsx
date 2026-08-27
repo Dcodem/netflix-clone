@@ -153,8 +153,9 @@ export function Header() {
             >
               Exit Kids
             </button>
-          ) : null}
-          <NotificationsMenu />
+          ) : (
+            <NotificationsMenu />
+          )}
           <AccountMenu />
         </div>
       </div>
