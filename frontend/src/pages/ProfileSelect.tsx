@@ -82,12 +82,10 @@ export function ProfileSelect() {
   const [managing, setManaging] = useState(false)
   const [adding, setAdding] = useState(false)
   const [name, setName] = useState('')
-  const [kids, setKids] = useState(false)
   const [pin, setPin] = useState('')
   const [avatarId, setAvatarId] = useState(PROFILE_AVATARS[0].id)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
-  const [editKids, setEditKids] = useState(false)
   const [editAvatarId, setEditAvatarId] = useState(PROFILE_AVATARS[0].id)
   const [editPin, setEditPin] = useState('')
   const [removePin, setRemovePin] = useState(false)
@@ -129,7 +127,6 @@ export function ProfileSelect() {
   function startEdit(profile: Profile) {
     setEditingId(profile.id)
     setEditName(profile.name)
-    setEditKids(profile.kids)
     setEditAvatarId(profile.avatarId)
     setEditPin('')
     setRemovePin(false)
@@ -160,26 +157,23 @@ export function ProfileSelect() {
 
   async function onAdd(event: FormEvent) {
     event.preventDefault()
-    await createProfile(name, { kids, avatarId: kids ? 'kids' : avatarId, pin: kids ? undefined : pin })
+    await createProfile(name, { avatarId, pin })
     setName('')
     setPin('')
-    setKids(false)
     setAdding(false)
   }
 
   const editing = profiles.find((profile) => profile.id === editingId) ?? null
-  const picked = PROFILE_AVATARS.find((avatar) => avatar.id === (kids ? 'kids' : avatarId)) ?? PROFILE_AVATARS[0]
-  const editPicked =
-    PROFILE_AVATARS.find((avatar) => avatar.id === (editKids ? 'kids' : editAvatarId)) ?? PROFILE_AVATARS[0]
+  const picked = PROFILE_AVATARS.find((avatar) => avatar.id === avatarId) ?? PROFILE_AVATARS[0]
+  const editPicked = PROFILE_AVATARS.find((avatar) => avatar.id === editAvatarId) ?? PROFILE_AVATARS[0]
 
   async function onSaveEdit(event: FormEvent) {
     event.preventDefault()
     if (!editing) return
     await updateProfile(editing.id, {
       name: editName,
-      kids: editKids,
-      avatarId: editKids ? 'kids' : editAvatarId,
-      pin: editKids ? null : removePin ? null : editPin.length === 4 ? editPin : undefined,
+      avatarId: editAvatarId,
+      pin: removePin ? null : editPin.length === 4 ? editPin : undefined,
       autoplayNext: editAutoplayNext,
       autoplayPreview: editAutoplayPreview,
     })
@@ -219,7 +213,6 @@ export function ProfileSelect() {
               onClick={() => {
                 const next = PROFILE_AVATARS[(PROFILE_AVATARS.findIndex((a) => a.id === picked.id) + 1) % PROFILE_AVATARS.length]
                 setAvatarId(next.id)
-                setKids(next.id === 'kids')
               }}
             >
               <AvatarArt avatar={picked} alt={picked.label} />
@@ -242,7 +235,6 @@ export function ProfileSelect() {
                 style={{ background: avatar.color }}
                 onClick={() => {
                   setAvatarId(avatar.id)
-                  setKids(avatar.id === 'kids')
                 }}
                 aria-label={avatar.label}
               >
@@ -250,28 +242,14 @@ export function ProfileSelect() {
               </button>
             ))}
           </div>
-          <label className="kids-check">
-            <input
-              type="checkbox"
-              checked={kids}
-              onChange={(event) => {
-                const next = event.target.checked
-                setKids(next)
-                if (next) setAvatarId('kids')
-              }}
-            />
-            Kid?
-          </label>
-          {!kids ? (
-            <input
-              inputMode="numeric"
-              pattern="\d{4}"
-              maxLength={4}
-              value={pin}
-              onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
-              placeholder="Optional PIN"
-            />
-          ) : null}
+          <input
+            inputMode="numeric"
+            pattern="\d{4}"
+            maxLength={4}
+            value={pin}
+            onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
+            placeholder="Optional PIN"
+          />
           <div className="add-profile-actions">
             <button type="submit" className="btn btn-light">
               Continue
@@ -296,7 +274,6 @@ export function ProfileSelect() {
                     (PROFILE_AVATARS.findIndex((avatar) => avatar.id === editPicked.id) + 1) % PROFILE_AVATARS.length
                   ]
                 setEditAvatarId(next.id)
-                setEditKids(next.id === 'kids')
               }}
             >
               <AvatarArt avatar={editPicked} alt={editPicked.label} />
@@ -323,7 +300,6 @@ export function ProfileSelect() {
                 style={{ background: avatar.color }}
                 onClick={() => {
                   setEditAvatarId(avatar.id)
-                  setEditKids(avatar.id === 'kids')
                 }}
                 aria-label={avatar.label}
               >
@@ -331,47 +307,33 @@ export function ProfileSelect() {
               </button>
             ))}
           </div>
-          <label className="kids-check">
+          <div className="edit-pin-row">
             <input
-              type="checkbox"
-              checked={editKids}
+              inputMode="numeric"
+              pattern="\d{4}"
+              maxLength={4}
+              value={editPin}
               onChange={(event) => {
-                const next = event.target.checked
-                setEditKids(next)
-                if (next) setEditAvatarId('kids')
+                setRemovePin(false)
+                setEditPin(event.target.value.replace(/\D/g, '').slice(0, 4))
               }}
+              placeholder={editing.pinHash ? 'New PIN' : 'Optional PIN'}
+              aria-label="Profile PIN"
             />
-            Kid?
-          </label>
-          {!editKids ? (
-            <div className="edit-pin-row">
-              <input
-                inputMode="numeric"
-                pattern="\d{4}"
-                maxLength={4}
-                value={editPin}
-                onChange={(event) => {
-                  setRemovePin(false)
-                  setEditPin(event.target.value.replace(/\D/g, '').slice(0, 4))
-                }}
-                placeholder={editing.pinHash ? 'New PIN' : 'Optional PIN'}
-                aria-label="Profile PIN"
-              />
-              {editing.pinHash ? (
-                <label className="kids-check">
-                  <input
-                    type="checkbox"
-                    checked={removePin}
-                    onChange={(event) => {
-                      setRemovePin(event.target.checked)
-                      if (event.target.checked) setEditPin('')
-                    }}
-                  />
-                  Remove PIN
-                </label>
-              ) : null}
-            </div>
-          ) : null}
+            {editing.pinHash ? (
+              <label className="profile-check">
+                <input
+                  type="checkbox"
+                  checked={removePin}
+                  onChange={(event) => {
+                    setRemovePin(event.target.checked)
+                    if (event.target.checked) setEditPin('')
+                  }}
+                />
+                Remove PIN
+              </label>
+            ) : null}
+          </div>
           <label className="edit-toggle">
             <span>
               Autoplay next episode
@@ -426,7 +388,7 @@ export function ProfileSelect() {
                 <div key={profile.id} className="profile-cell">
                   <button
                     type="button"
-                    className={`profile-avatar ${managing ? 'is-managing' : ''} ${profile.kids ? 'is-kids' : ''}`}
+                    className={`profile-avatar ${managing ? 'is-managing' : ''}`}
                     style={{ background: avatar.color }}
                     onClick={() => onSelect(profile)}
                   >
@@ -437,10 +399,7 @@ export function ProfileSelect() {
                       </span>
                     ) : null}
                   </button>
-                  <div className="profile-name">
-                    {profile.name}
-                    {profile.kids ? <span className="kids-tag">Kids</span> : null}
-                  </div>
+                  <div className="profile-name">{profile.name}</div>
                 </div>
               )
             })}

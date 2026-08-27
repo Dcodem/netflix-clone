@@ -9,7 +9,6 @@ import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { buildBrowseRows, catalogGenres, type BrowseFilter } from '../lib/homeRows'
 import { ofKind, pickHero, uniqueById } from '../lib/media'
-import { isKidsSafe } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 
 const HEADINGS: Record<BrowseFilter, string | null> = {
@@ -40,8 +39,8 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     const extraMovies = extras.data?.catalogMovies ?? []
     const extraShows = extras.data?.catalogShows ?? []
     const merged = uniqueById([...homeItems, ...extraMovies, ...extraShows])
-    return activeProfile?.kids ? merged.filter(isKidsSafe) : merged
-  }, [movies.data, extras.data, activeProfile?.kids])
+    return merged
+  }, [movies.data, extras.data])
 
   const kindPool = useMemo(
     () => ofKind(catalog, filter === 'home' || filter === 'popular' ? 'all' : filter),
@@ -83,15 +82,10 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
 
   if (!kindPool.length) {
     const label = filter === 'shows' ? 'TV shows' : filter === 'movies' ? 'movies' : 'titles'
-    const kids = Boolean(activeProfile?.kids)
     return (
       <EmptyState
-        title={kids ? 'No Kids titles yet' : `No ${label} yet`}
-        detail={
-          kids
-            ? 'Kids profiles only show Family and Animation titles. This catalog does not have any yet.'
-            : 'The catalog API returned nothing for this view. Is it running on port 8090?'
-        }
+        title={`No ${label} yet`}
+        detail="The catalog API returned nothing for this view. Is it running on port 8090?"
       />
     )
   }
@@ -110,7 +104,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   }
 
   return (
-    <main className={`page browse-page ${heading ? 'has-browse-heading' : ''} ${activeProfile?.kids ? 'is-kids' : ''}`}>
+    <main className={`page browse-page ${heading ? 'has-browse-heading' : ''}`}>
       {heading ? (
         <div className="browse-heading">
           <h1>{heading}</h1>

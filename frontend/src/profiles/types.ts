@@ -43,7 +43,6 @@ export type Profile = {
   name: string
   color: string
   avatarId: string
-  kids: boolean
   pinSalt: string | null
   pinHash: string | null
   autoplayNext: boolean
@@ -70,7 +69,7 @@ export const PROFILE_AVATARS: ProfileAvatar[] = [
   { id: 'purple', color: '#A855F7', glyph: '▲', image: '/avatars/purple-owl.png', label: 'Purple owl' },
   { id: 'orange', color: '#F97316', glyph: '◼', image: '/avatars/orange-tiger.png', label: 'Orange tiger' },
   { id: 'teal', color: '#14B8A6', glyph: '✦', image: '/avatars/teal-narwhal.png', label: 'Teal narwhal' },
-  { id: 'kids', color: '#38BDF8', glyph: '☺', image: '/avatars/kids-sun.png', label: 'Kids sun' },
+  { id: 'kids', color: '#38BDF8', glyph: '☺', image: '/avatars/kids-sun.png', label: 'Sun' },
 ]
 
 export const PROFILE_COLORS = PROFILE_AVATARS.map((avatar) => avatar.color)

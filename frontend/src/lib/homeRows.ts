@@ -107,23 +107,16 @@ export function buildBrowseRows(opts: {
     })
   }
 
-  const kids = Boolean(profile?.kids)
-  const trendingTitle = kids
-    ? 'Popular on Kids'
-    : filter === 'movies'
-      ? 'Trending Movies'
-      : filter === 'shows'
-        ? 'Trending TV Shows'
-        : 'Trending Now'
+  const trendingTitle =
+    filter === 'movies' ? 'Trending Movies' : filter === 'shows' ? 'Trending TV Shows' : 'Trending Now'
   pushRow(rows, { id: 'trending', title: trendingTitle, items: sortByRating(pool) })
 
   const top10 = sortByRating(pool).slice(0, 10)
   if (top10.length >= 4) {
     pushRow(rows, {
       id: 'top10',
-      title: kids
-        ? 'Top 10 for Kids Today'
-        : filter === 'movies'
+      title:
+        filter === 'movies'
           ? 'Top 10 Movies'
           : filter === 'shows'
             ? 'Top 10 TV Shows'
@@ -134,13 +127,7 @@ export function buildBrowseRows(opts: {
     })
   }
 
-  const newTitle = kids
-    ? 'New on Kids'
-    : filter === 'movies'
-      ? 'New Movies'
-      : filter === 'shows'
-        ? 'New TV Shows'
-        : 'New Releases'
+  const newTitle = filter === 'movies' ? 'New Movies' : filter === 'shows' ? 'New TV Shows' : 'New Releases'
   pushRow(rows, { id: 'new', title: newTitle, items: sortByYear(pool) })
 
   if (filter === 'popular') {
@@ -168,7 +155,7 @@ export function buildBrowseRows(opts: {
   if (profile) {
     pushRow(rows, {
       id: 'picks',
-      title: kids ? 'We Think You’ll Love These' : `Top Picks for ${profile.name}`,
+      title: `Top Picks for ${profile.name}`,
       items: rankByTaste(pool, profile),
     })
   } else if (filter === 'home') {

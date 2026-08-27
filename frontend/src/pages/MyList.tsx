@@ -1,12 +1,11 @@
 import { EmptyState } from '../components/EmptyState'
 import { MediaGrid } from '../components/MediaGrid'
 import { likedToItems } from '../lib/homeRows'
-import { filterForProfile } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 
 export function MyList() {
   const { activeProfile } = useProfiles()
-  const items = filterForProfile(likedToItems(activeProfile?.myList ?? []), activeProfile)
+  const items = likedToItems(activeProfile?.myList ?? [])
 
   return (
     <main className="page page-pad my-list-page">

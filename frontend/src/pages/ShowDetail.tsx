@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { getShow } from '../api/client'
 import type { Episode, Season } from '../api/types'
 import { CatalogImage } from '../components/CatalogImage'
@@ -11,7 +11,6 @@ import { TasteButtons } from '../components/TasteButtons'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRating, formatRuntime, genresOf } from '../lib/media'
-import { isKidsSafe } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTmdbGallery } from '../trailers/useTmdbGallery'
@@ -36,7 +35,6 @@ export function ShowDetail() {
   if (loading) return <Spinner label="Loading show" />
   if (error) return <ErrorState message={error} onRetry={retry} />
   if (!data) return <ErrorState message="Show not found" onRetry={retry} />
-  if (activeProfile?.kids && !isKidsSafe(data)) return <Navigate to="/browse" replace />
 
   const show = data
   const rating = formatRating(show.rating)

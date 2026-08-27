@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { getMovie } from '../api/client'
 import { CatalogImage } from '../components/CatalogImage'
 import { ErrorState } from '../components/ErrorState'
@@ -8,7 +8,6 @@ import { Spinner } from '../components/Spinner'
 import { TasteButtons } from '../components/TasteButtons'
 import { useFetch } from '../hooks/useFetch'
 import { formatRating, formatRuntime, genresOf } from '../lib/media'
-import { isKidsSafe } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useWatch } from '../watch/WatchContext'
@@ -24,7 +23,6 @@ export function MovieDetail() {
   if (loading) return <Spinner label="Loading movie" />
   if (error) return <ErrorState message={error} onRetry={retry} />
   if (!data) return <ErrorState message="Movie not found" onRetry={retry} />
-  if (activeProfile?.kids && !isKidsSafe(data)) return <Navigate to="/browse" replace />
 
   const movie = data
   const rating = formatRating(movie.rating)

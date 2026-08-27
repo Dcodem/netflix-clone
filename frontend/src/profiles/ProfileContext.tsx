@@ -23,17 +23,18 @@ function hydrateHistoryItem(raw: WatchHistoryItem): WatchHistoryItem {
   }
 }
 
-function hydrateProfile(raw: Profile): Profile {
+function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
+  const rest = { ...raw }
+  delete rest.kids
   return {
-    ...raw,
+    ...rest,
     history: Array.isArray(raw.history) ? raw.history.map(hydrateHistoryItem) : [],
     favoriteGenres: Array.isArray(raw.favoriteGenres) ? raw.favoriteGenres : [],
     liked: Array.isArray(raw.liked) ? raw.liked : [],
     dislikedIds: Array.isArray(raw.dislikedIds) ? raw.dislikedIds : [],
     myList: Array.isArray(raw.myList) ? raw.myList : [],
     hiddenContinueIds: Array.isArray(raw.hiddenContinueIds) ? raw.hiddenContinueIds : [],
-    kids: Boolean(raw.kids),
-    avatarId: raw.avatarId || (raw.kids ? 'kids' : 'red'),
+    avatarId: raw.avatarId || 'red',
     pinSalt: raw.pinSalt ?? null,
     pinHash: raw.pinHash ?? null,
     autoplayNext: raw.autoplayNext !== false,
@@ -70,20 +71,17 @@ function persist(userId: string, store: ProfileStore) {
   localStorage.setItem(keyFor(userId), JSON.stringify(store))
 }
 
-function nextAvatar(profiles: Profile[], kids: boolean) {
-  if (kids) return PROFILE_AVATARS.find((avatar) => avatar.id === 'kids') ?? PROFILE_AVATARS[0]
+function nextAvatar(profiles: Profile[]) {
   return PROFILE_AVATARS[profiles.length % PROFILE_AVATARS.length]
 }
 
 export type CreateProfileOpts = {
-  kids?: boolean
   avatarId?: string
   pin?: string
 }
 
 export type UpdateProfileOpts = {
   name?: string
-  kids?: boolean
   avatarId?: string
   pin?: string | null
   autoplayNext?: boolean
@@ -139,29 +137,26 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
   const createProfile = useCallback(
     async (name: string, opts: CreateProfileOpts = {}) => {
-      const kids = Boolean(opts.kids)
-      const avatar =
-        PROFILE_AVATARS.find((entry) => entry.id === opts.avatarId) ?? nextAvatar([], kids)
+      const avatar = PROFILE_AVATARS.find((entry) => entry.id === opts.avatarId) ?? nextAvatar([])
       let pinSalt: string | null = null
       let pinHash: string | null = null
-      if (opts.pin && /^\d{4}$/.test(opts.pin) && !kids) {
+      if (opts.pin && /^\d{4}$/.test(opts.pin)) {
         const hashed = await hashPassword(opts.pin)
         pinSalt = hashed.salt
         pinHash = hashed.hash
       }
       const profile: Profile = {
         id: crypto.randomUUID(),
-        name: name.trim() || (kids ? 'Kids' : 'Profile'),
+        name: name.trim() || 'Profile',
         color: avatar.color,
         avatarId: avatar.id,
-        kids,
         pinSalt,
         pinHash,
         autoplayNext: true,
         autoplayPreview: true,
         createdAt: Date.now(),
         history: [],
-        favoriteGenres: kids ? ['Family', 'Animation'] : [],
+        favoriteGenres: [],
         liked: [],
         dislikedIds: [],
         myList: [],
@@ -169,7 +164,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       }
       updateStore((prev) => {
         const chosen =
-          PROFILE_AVATARS.find((entry) => entry.id === opts.avatarId) ?? nextAvatar(prev.profiles, kids)
+          PROFILE_AVATARS.find((entry) => entry.id === opts.avatarId) ?? nextAvatar(prev.profiles)
         return {
           profiles: [
             ...prev.profiles,
@@ -211,19 +206,17 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         ...prev,
         profiles: prev.profiles.map((profile) => {
           if (profile.id !== id) return profile
-          const kids = opts.kids ?? profile.kids
-          const avatarId = kids ? 'kids' : (opts.avatarId ?? profile.avatarId)
+          const avatarId = opts.avatarId ?? profile.avatarId
           const avatar = PROFILE_AVATARS.find((entry) => entry.id === avatarId)
           return {
             ...profile,
             name: opts.name?.trim() || profile.name,
-            kids,
             avatarId: avatar?.id ?? profile.avatarId,
             color: avatar?.color ?? profile.color,
             autoplayNext: opts.autoplayNext ?? profile.autoplayNext,
             autoplayPreview: opts.autoplayPreview ?? profile.autoplayPreview,
-            pinSalt: kids ? null : pinSalt !== undefined ? pinSalt : profile.pinSalt,
-            pinHash: kids ? null : pinHash !== undefined ? pinHash : profile.pinHash,
+            pinSalt: pinSalt !== undefined ? pinSalt : profile.pinSalt,
+            pinHash: pinHash !== undefined ? pinHash : profile.pinHash,
           }
         }),
       }))

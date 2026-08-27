@@ -7,7 +7,6 @@ import { MediaGrid } from '../components/MediaGrid'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { sortByRating, uniqueById } from '../lib/media'
-import { filterForProfile } from '../lib/netflix'
 import { clearRecentSearches, listRecentSearches } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { relatedSearchResults } from '../profiles/taste'
@@ -37,21 +36,18 @@ export function Search() {
   }, 'search-catalog')
   const popular = useFetch(() => getMovies(), 'search-popular', { enabled: !enabled })
   const [recents, setRecents] = useState(listRecentSearches)
-  const pool = useMemo(
-    () => filterForProfile(catalog.data ?? [], activeProfile),
-    [catalog.data, activeProfile],
-  )
+  const pool = useMemo(() => catalog.data ?? [], [catalog.data])
   const hits = useMemo(() => {
-    const fromApi = filterForProfile(data ?? [], activeProfile)
+    const fromApi = data ?? []
     return uniqueById([...fromApi, ...catalogHits(q, pool)])
-  }, [data, activeProfile, q, pool])
+  }, [data, q, pool])
   const items = useMemo(
     () => relatedSearchResults(hits, pool, activeProfile, 48),
     [hits, pool, activeProfile],
   )
   const popularItems = useMemo(
-    () => sortByRating(filterForProfile(popular.data ?? [], activeProfile)).slice(0, 18),
-    [popular.data, activeProfile],
+    () => sortByRating(popular.data ?? []).slice(0, 18),
+    [popular.data],
   )
 
   useEffect(() => {

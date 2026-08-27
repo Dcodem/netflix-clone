@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { pushRecentSearch } from '../lib/recentSearch'
@@ -15,21 +15,8 @@ const NAV = [
   { to: '/browse/my-list', label: 'My List' },
 ] as const
 
-const KIDS_NAV = [
-  { to: '/browse', label: 'Home', end: true },
-  { to: '/browse/my-list', label: 'My List' },
-] as const
-
-const KIDS_CHIPS = [
-  { to: '/browse', label: 'All', end: true, color: '#e50914' },
-  { to: '/browse/shows', label: 'TV Shows', color: '#0071eb' },
-  { to: '/browse/movies', label: 'Movies', color: '#46d369' },
-  { to: '/browse/latest', label: 'New', color: '#f5c518' },
-  { to: '/browse/my-list', label: 'My List', color: '#a855f7' },
-] as const
-
 export function Header() {
-  const { activeProfile, clearActive } = useProfiles()
+  const { activeProfile } = useProfiles()
   const [searchParams] = useSearchParams()
   const location = useLocation()
   const navigate = useNavigate()
@@ -47,7 +34,6 @@ export function Header() {
   const browseRef = useRef<HTMLDetailsElement>(null)
   const debounced = useDebouncedValue(query.trim(), 350)
   const open = searchOpen || Boolean(query) || location.pathname === '/search'
-  const links = activeProfile?.kids ? KIDS_NAV : NAV
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -119,14 +105,13 @@ export function Header() {
     root.style.setProperty('--caret-x', `${Math.round(rect.left + rect.width / 2)}px`)
   }
 
+  if (!activeProfile) return null
+
   return (
-    <header
-      className={`site-header ${scrolled ? 'is-scrolled' : ''} ${open ? 'is-searching' : ''} ${activeProfile?.kids ? 'is-kids' : ''}`}
-    >
+    <header className={`site-header ${scrolled ? 'is-scrolled' : ''} ${open ? 'is-searching' : ''}`}>
       <div className="header-inner">
         <Link className="logo" to="/browse">
           FLIX
-          {activeProfile?.kids ? <span className="kids-wordmark">KIDS</span> : null}
         </Link>
         <details className="browse-menu" ref={browseRef} onToggle={syncBrowseCaret}>
           <summary>Browse</summary>
@@ -138,7 +123,7 @@ export function Header() {
             onClick={(event) => event.currentTarget.closest('details')?.removeAttribute('open')}
           />
           <div className="browse-menu-list">
-            {links.map((link) => (
+            {NAV.map((link) => (
               <NavLink
                 key={link.to}
                 className="nav-link"
@@ -152,7 +137,7 @@ export function Header() {
           </div>
         </details>
         <nav className="primary-nav" aria-label="Browse">
-          {links.map((link) => (
+          {NAV.map((link) => (
             <NavLink key={link.to} className="nav-link" to={link.to} end={'end' in link ? link.end : false}>
               {link.label}
             </NavLink>
@@ -179,38 +164,10 @@ export function Header() {
               </>
             ) : null}
           </div>
-          {activeProfile?.kids ? (
-            <button
-              type="button"
-              className="exit-kids"
-              onClick={() => {
-                clearActive()
-                navigate('/')
-              }}
-            >
-              Exit Kids
-            </button>
-          ) : (
-            <NotificationsMenu />
-          )}
+          <NotificationsMenu />
           <AccountMenu />
         </div>
       </div>
-      {activeProfile?.kids ? (
-        <nav className="kids-chip-row" aria-label="Kids categories">
-          {KIDS_CHIPS.map((chip) => (
-            <NavLink
-              key={chip.to}
-              to={chip.to}
-              end={'end' in chip ? chip.end : false}
-              className="kids-chip"
-              style={{ '--chip': chip.color } as CSSProperties}
-            >
-              {chip.label}
-            </NavLink>
-          ))}
-        </nav>
-      ) : null}
     </header>
   )
 }

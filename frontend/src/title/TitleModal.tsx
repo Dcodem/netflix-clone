@@ -11,7 +11,7 @@ import { TitleActions } from '../components/TitleActions'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, uniqueById } from '../lib/media'
-import { filterForProfile, isKidsSafe, matchPercent, maturityLabel, moodTags, qualityBadge } from '../lib/netflix'
+import { matchPercent, maturityLabel, moodTags, qualityBadge } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
@@ -75,7 +75,7 @@ export function TitleModal() {
 
   const similar = useMemo(() => {
     if (!item || !catalog.data) return []
-    const pool = filterForProfile(catalog.data, activeProfile)
+    const pool = catalog.data
     const byGenre = similarByGenres(item, pool, 12)
     if (byGenre.length >= 12) return byGenre
     const seen = new Set([item.id, ...byGenre.map((entry) => entry.id)])
@@ -87,10 +87,6 @@ export function TitleModal() {
       : pool.filter((entry) => !seen.has(entry.id))
     return uniqueById([...byGenre, ...rest]).slice(0, 12)
   }, [item, catalog.data, activeProfile])
-
-  useEffect(() => {
-    if (item && activeProfile?.kids && !isKidsSafe(item)) closeTitle()
-  }, [item, activeProfile?.kids, closeTitle])
 
   useEffect(() => {
     if (!item) return
