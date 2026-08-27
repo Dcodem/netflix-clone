@@ -1,3 +1,10 @@
+export type EpisodeWatch = {
+  progress: number
+  seasonNumber: number
+  episodeNumber: number
+  watchedAt: number
+}
+
 export type WatchHistoryItem = {
   id: string
   kind: string
@@ -11,6 +18,7 @@ export type WatchHistoryItem = {
   seasonNumber?: number | null
   episodeNumber?: number | null
   episodeId?: string | null
+  episodeProgress?: Record<string, EpisodeWatch>
 }
 
 export type LikedTitle = {

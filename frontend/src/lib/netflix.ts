@@ -28,6 +28,13 @@ export function needsPlaceholderArt(url?: string | null): boolean {
   return url.startsWith('/art/')
 }
 
+export function qualityBadge(quality?: string | null): string | null {
+  if (!quality) return 'HD'
+  const value = quality.toUpperCase()
+  if (value.includes('4K') || value.includes('UHD')) return '4K'
+  return 'HD'
+}
+
 export function matchPercent(item: MovieListItem, profile: Profile | null): number {
   if (!profile) return 72
   const weights = genreWeights(profile.history, profile.favoriteGenres, profile.liked)

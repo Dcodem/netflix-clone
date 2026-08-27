@@ -1,17 +1,19 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { getShow } from '../api/client'
 import type { Episode, Season } from '../api/types'
 import { CatalogImage } from '../components/CatalogImage'
+import { EpisodeList } from '../components/EpisodeList'
 import { ErrorState } from '../components/ErrorState'
-import { MediaImage } from '../components/MediaImage'
+import { PlayIcon, SpeakerIcon } from '../components/Icons'
 import { Spinner } from '../components/Spinner'
 import { TasteButtons } from '../components/TasteButtons'
 import { useFetch } from '../hooks/useFetch'
+import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRating, formatRuntime, genresOf } from '../lib/media'
 import { isKidsSafe } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
-import { TrailerPreview } from '../trailers/TrailerPreview'
+import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useWatch } from '../watch/WatchContext'
 
 export function ShowDetail() {
@@ -20,13 +22,15 @@ export function ShowDetail() {
   const { activeProfile } = useProfiles()
   const { data, error, loading, retry } = useFetch(() => getShow(id), id)
   const last = activeProfile?.history.find((entry) => entry.id === id)
-  const [seasonNumber, setSeasonNumber] = useState<number | null>(last?.seasonNumber ?? null)
+  const trailerRef = useRef<TrailerHandle>(null)
+  const [muted, setMuted] = useState(true)
+  const [trailerReady, setTrailerReady] = useState(false)
 
   const seasons = useMemo(() => data?.seasons ?? [], [data])
-  const activeSeason: Season | undefined = useMemo(() => {
+  const resumeSeason = useMemo(() => {
     if (!seasons.length) return undefined
-    return seasons.find((season) => season.season_number === seasonNumber) ?? seasons[0]
-  }, [seasons, seasonNumber])
+    return seasons.find((season) => season.season_number === last?.seasonNumber) ?? seasons[0]
+  }, [seasons, last?.seasonNumber])
 
   if (loading) return <Spinner label="Loading show" />
   if (error) return <ErrorState message={error} onRetry={retry} />
@@ -37,12 +41,11 @@ export function ShowDetail() {
   const rating = formatRating(show.rating)
   const runtime = formatRuntime(show.runtime)
   const genres = genresOf(show)
-  const firstEpisode = activeSeason?.episodes?.[0]
-  const resumeEpisode = activeSeason?.episodes?.find(
-    (episode) => episode.id === last?.episodeId || episode.number === last?.episodeNumber,
-  )
-  const watchHref =
-    last?.watch_href || resumeEpisode?.watch_href || firstEpisode?.watch_href || show.watch_href
+  const resumeEpisode =
+    resumeSeason?.episodes?.find(
+      (episode) => episode.id === last?.episodeId || episode.number === last?.episodeNumber,
+    ) ?? resumeSeason?.episodes?.[0]
+  const watchHref = last?.watch_href || resumeEpisode?.watch_href || show.watch_href
 
   const onWatchShow = () => {
     if (!watchHref) return
@@ -54,14 +57,15 @@ export function ShowDetail() {
       genres,
       watch_href: watchHref,
       runtime: resumeEpisode?.duration ?? show.runtime ?? null,
-      seasonNumber: last?.seasonNumber ?? activeSeason?.season_number,
-      episodeNumber: last?.episodeNumber ?? resumeEpisode?.number ?? firstEpisode?.number,
-      episodeId: last?.episodeId ?? resumeEpisode?.id ?? firstEpisode?.id,
+      seasonNumber: last?.seasonNumber ?? resumeSeason?.season_number,
+      episodeNumber: last?.episodeNumber ?? resumeEpisode?.number,
+      episodeId: last?.episodeId ?? resumeEpisode?.id,
       progress: last?.progress,
     })
   }
 
   const onWatchEpisode = (episode: Episode, season: Season) => {
+    const watch = watchForEpisode(last, season.season_number, episode)
     openWatch(episode.watch_href, `${show.title} · S${season.season_number}E${episode.number}`, {
       id: show.id,
       kind: 'show',
@@ -73,7 +77,14 @@ export function ShowDetail() {
       seasonNumber: season.season_number,
       episodeNumber: episode.number,
       episodeId: episode.id,
+      progress: watch?.progress,
     })
+  }
+
+  function toggleMute() {
+    const next = !muted
+    trailerRef.current?.setMuted(next)
+    setMuted(next)
   }
 
   return (
@@ -81,7 +92,15 @@ export function ShowDetail() {
       <section className="detail">
         <div className="detail-hero">
           <CatalogImage item={show} alt="" className="detail-hero-img" prefer="backdrop" />
-          <TrailerPreview title={show.title} year={show.year} kind="show" className="hero-trailer" />
+          <TrailerPreview
+            ref={trailerRef}
+            title={show.title}
+            year={show.year}
+            kind="show"
+            className="hero-trailer"
+            muted={muted}
+            onReady={() => setTrailerReady(true)}
+          />
           <div className="detail-hero-body">
             <CatalogImage item={show} alt="" className="detail-poster" />
             <div>
@@ -91,14 +110,20 @@ export function ShowDetail() {
                 {rating ? <span>★ {rating}</span> : null}
                 {show.quality ? <span>{show.quality}</span> : null}
                 {runtime ? <span>{runtime}</span> : null}
+                {seasons.length ? (
+                  <span>
+                    {seasons.length} {seasons.length === 1 ? 'Season' : 'Seasons'}
+                  </span>
+                ) : null}
               </div>
               {genres.length ? <div className="detail-genres">{genres.join(' · ')}</div> : null}
               <div className="detail-actions">
-                <button type="button" className="btn btn-primary" onClick={onWatchShow} disabled={!watchHref}>
-                  {last?.progress && last.progress > 0.05 ? '▶ Resume' : '▶ Watch'}
+                <button type="button" className="btn btn-play" onClick={onWatchShow} disabled={!watchHref}>
+                  <PlayIcon className="icon" />
+                  {last?.progress && last.progress > 0.05 ? 'Resume' : 'Play'}
                 </button>
-                <Link className="btn btn-ghost" to="/browse">
-                  ← Back
+                <Link className="btn btn-info" to="/browse">
+                  Back
                 </Link>
                 <TasteButtons
                   item={{
@@ -112,6 +137,18 @@ export function ShowDetail() {
               </div>
             </div>
           </div>
+          {trailerReady ? (
+            <div className="hero-controls-right">
+              <button
+                type="button"
+                className="hero-mute"
+                onClick={toggleMute}
+                aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+              >
+                <SpeakerIcon muted={muted} className="icon" />
+              </button>
+            </div>
+          ) : null}
         </div>
         {show.synopsis ? <p className="detail-synopsis">{show.synopsis}</p> : null}
         {show.cast?.length ? (
@@ -119,46 +156,7 @@ export function ShowDetail() {
             <strong>Cast</strong> {show.cast.join(', ')}
           </p>
         ) : null}
-        {seasons.length ? (
-          <div className="season-tabs">
-            {seasons.map((season) => (
-              <button
-                key={season.season_number}
-                type="button"
-                className={`season-tab ${activeSeason?.season_number === season.season_number ? 'active' : ''}`}
-                onClick={() => setSeasonNumber(season.season_number)}
-              >
-                Season {season.season_number}
-              </button>
-            ))}
-          </div>
-        ) : null}
-        {activeSeason?.episodes?.length ? (
-          <div className="episodes">
-            {activeSeason.episodes.map((episode) => (
-              <div key={episode.id} className={`episode ${resumeEpisode?.id === episode.id ? 'is-resume' : ''}`}>
-                <MediaImage src={episode.thumb_url} alt="" className="ep-thumb" />
-                <div className="ep-info">
-                  <div className="ep-label">
-                    S{activeSeason.season_number} · E{episode.number}
-                  </div>
-                  <div className="ep-title">{episode.title}</div>
-                  {episode.duration ? <div className="ep-meta">{episode.duration} min</div> : null}
-                  {episode.synopsis ? <p className="ep-syn">{episode.synopsis}</p> : null}
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-primary ep-watch"
-                  onClick={() => onWatchEpisode(episode, activeSeason)}
-                >
-                  Watch
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : seasons.length ? (
-          <p className="state">No episodes available.</p>
-        ) : null}
+        <EpisodeList seasons={seasons} history={last} onPlay={onWatchEpisode} />
       </section>
     </main>
   )

@@ -4,6 +4,16 @@ import { toLiked } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
+import {
+  CaretIcon,
+  CheckIcon,
+  CloseIcon,
+  PlayIcon,
+  PlusIcon,
+  RestartIcon,
+  ThumbDownIcon,
+  ThumbUpIcon,
+} from './Icons'
 
 export function TitleActions({
   item,
@@ -58,11 +68,11 @@ export function TitleActions({
         disabled={!href}
         aria-label={continueMode ? 'Resume' : 'Play'}
       >
-        ▶
+        <PlayIcon className="icon" />
       </button>
       {continueMode ? (
         <button type="button" className="circle-btn" onClick={() => play(true)} disabled={!href} aria-label="Play from beginning">
-          ↺
+          <RestartIcon className="icon" />
         </button>
       ) : null}
       <button
@@ -71,7 +81,7 @@ export function TitleActions({
         onClick={() => toggleMyList(likedItem)}
         aria-label={onList ? 'Remove from My List' : 'Add to My List'}
       >
-        {onList ? '✓' : '+'}
+        {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
       </button>
       <button
         type="button"
@@ -79,7 +89,7 @@ export function TitleActions({
         onClick={() => rateTitle(likedItem, liked ? null : 'up')}
         aria-label="Like"
       >
-        👍
+        <ThumbUpIcon className="icon" />
       </button>
       <button
         type="button"
@@ -87,7 +97,7 @@ export function TitleActions({
         onClick={() => rateTitle(likedItem, disliked ? null : 'down')}
         aria-label="Not for me"
       >
-        👎
+        <ThumbDownIcon className="icon" />
       </button>
       {continueMode ? (
         <button
@@ -96,12 +106,12 @@ export function TitleActions({
           onClick={() => hideContinue(item.id)}
           aria-label="Remove from Continue Watching"
         >
-          ×
+          <CloseIcon className="icon" />
         </button>
       ) : null}
       {showMore ? (
         <button type="button" className="circle-btn circle-more" onClick={() => openTitle(item)} aria-label="More info">
-          ▾
+          <CaretIcon className="icon" />
         </button>
       ) : null}
     </div>
