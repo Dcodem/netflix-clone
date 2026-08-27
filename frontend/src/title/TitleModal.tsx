@@ -30,9 +30,11 @@ export function TitleModal() {
   const { activeProfile } = useProfiles()
   const last = activeProfile?.history.find((entry) => entry.id === item?.id)
   const trailerRef = useRef<TrailerHandle>(null)
+  const backdropRef = useRef<HTMLDivElement>(null)
   const episodesRef = useRef<HTMLDivElement>(null)
   const moreRef = useRef<HTMLDivElement>(null)
   const aboutRef = useRef<HTMLElement>(null)
+  const jumpingRef = useRef(false)
   const stills = useTmdbGallery(item)
   const [muted, setMuted] = useState(true)
   const [trailerReady, setTrailerReady] = useState(false)
@@ -90,6 +92,28 @@ export function TitleModal() {
     if (item && activeProfile?.kids && !isKidsSafe(item)) closeTitle()
   }, [item, activeProfile?.kids, closeTitle])
 
+  useEffect(() => {
+    if (!item) return
+    const root = backdropRef.current
+    const targets = [episodesRef.current, moreRef.current, aboutRef.current].filter(Boolean) as HTMLElement[]
+    if (!root || !targets.length) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (jumpingRef.current) return
+        const hit = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (!hit) return
+        if (hit.target === episodesRef.current) setTab('episodes')
+        else if (hit.target === moreRef.current) setTab('more')
+        else if (hit.target === aboutRef.current) setTab('about')
+      },
+      { root, threshold: [0.18, 0.4, 0.65], rootMargin: '-64px 0px -42% 0px' },
+    )
+    targets.forEach((node) => observer.observe(node))
+    return () => observer.disconnect()
+  }, [item, similar.length, detailFetch.data])
+
   if (!item) return null
 
   const detail = detailFetch.data
@@ -113,8 +137,12 @@ export function TitleModal() {
 
   function jump(next: 'episodes' | 'more' | 'about') {
     setTab(next)
+    jumpingRef.current = true
     const node = next === 'episodes' ? episodesRef.current : next === 'more' ? moreRef.current : aboutRef.current
     node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    window.setTimeout(() => {
+      jumpingRef.current = false
+    }, 650)
   }
 
   function playEpisode(episode: Episode, season: Season) {
@@ -145,7 +173,7 @@ export function TitleModal() {
   }
 
   return (
-    <div className="title-modal-backdrop" onClick={closeTitle} role="presentation">
+    <div className="title-modal-backdrop" onClick={closeTitle} role="presentation" ref={backdropRef}>
       <div
         className="title-modal"
         role="dialog"
