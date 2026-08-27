@@ -130,7 +130,7 @@ function playerPage(item, season, episode, query = {}) {
       .letter.top{top:0}
       .letter.bot{bottom:0}
       .wash{position:absolute;inset:0;background:radial-gradient(circle at 72% 28%, ${accent} 0%, transparent 36%), radial-gradient(circle at 18% 82%, ${color} 0%, transparent 52%);opacity:.28;mix-blend-mode:soft-light}
-      #ytwrap{position:absolute;inset:0;overflow:hidden;z-index:6;opacity:0;pointer-events:none;background:#000}
+      #ytwrap{position:absolute;inset:0;overflow:hidden;z-index:20;opacity:0;pointer-events:none;background:#000}
       #ytwrap.is-on{opacity:1}
       #yt{position:absolute;inset:0;width:100%!important;height:100%!important}
       #ytwrap iframe{position:absolute;left:50%;top:50%;width:177.78%;height:100%;min-width:100%;min-height:56.25%;transform:translate(-50%,-50%);border:0;pointer-events:none}
@@ -150,12 +150,12 @@ function playerPage(item, season, episode, query = {}) {
       <div class="plate" style="background-image:url('${plates[2]}')"></div>
       <div class="wash"></div>
     </div>
-    <div id="ytwrap" aria-hidden="true"><div id="yt"></div></div>
     <div class="veil"></div>
     <div class="grain"></div>
     <div class="flicker"></div>
     <div class="letter top"></div>
     <div class="letter bot"></div>
+    <div id="ytwrap" class="${ytId ? 'is-on' : ''}" style="${ytId ? 'opacity:1' : ''}" aria-hidden="true"><div id="yt"></div></div>
     <script>
       const SOURCE = 'flix-player'
       const YT_ID = ${JSON.stringify(ytId)}
