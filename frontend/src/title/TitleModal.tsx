@@ -3,8 +3,8 @@ import { getCatalogMany, getMovie, getShow } from '../api/client'
 import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
 import { CatalogImage } from '../components/CatalogImage'
-import { MediaGrid } from '../components/MediaGrid'
 import { MediaImage } from '../components/MediaImage'
+import { MediaRow } from '../components/MediaRow'
 import { Spinner } from '../components/Spinner'
 import { TitleActions } from '../components/TitleActions'
 import { useFetch } from '../hooks/useFetch'
@@ -189,8 +189,7 @@ export function TitleModal() {
 
           {similar.length ? (
             <div className="more-like">
-              <h2 className="section-title">More like this</h2>
-              <MediaGrid items={similar} hoverable={false} />
+              <MediaRow title="More like this" items={similar.slice(0, 10)} hoverable={false} />
             </div>
           ) : null}
         </div>

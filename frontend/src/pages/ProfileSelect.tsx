@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
+import { AvatarArt } from '../components/AvatarArt'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { PROFILE_AVATARS, avatarFor, type Profile } from '../profiles/types'
@@ -76,7 +77,7 @@ export function ProfileSelect() {
                 style={{ background: avatar.color }}
                 onClick={() => onSelect(profile)}
               >
-                <span>{avatar.glyph}</span>
+                <AvatarArt avatar={avatar} alt={profile.name} />
               </button>
               {editingId === profile.id ? (
                 <form
@@ -155,6 +156,7 @@ export function ProfileSelect() {
             autoFocus
             required
           />
+          <p className="section-sub">Pick a profile picture</p>
           <div className="avatar-picker">
             {PROFILE_AVATARS.map((avatar) => (
               <button
@@ -166,9 +168,9 @@ export function ProfileSelect() {
                   setAvatarId(avatar.id)
                   setKids(avatar.id === 'kids')
                 }}
-                aria-label={avatar.id}
+                aria-label={avatar.label}
               >
-                {avatar.glyph}
+                <AvatarArt avatar={avatar} alt={avatar.label} />
               </button>
             ))}
           </div>

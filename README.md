@@ -6,7 +6,7 @@ Sign-in, profiles, watch history, likes, and taste recommendations live in `loca
 
 ## Run
 
-The UI talks to a catalog API at `http://localhost:8090`. Use the real family API if you have it (`./run-local.sh` in that repo). If you do not, this repo includes a large mock catalog (120 movies, 90 shows, seasons, and episode synopses):
+The UI talks to a catalog API at `http://localhost:8090`. Use the real family API if you have it (`./run-local.sh` in that repo). If you do not, this repo includes a mock catalog of recognizable movies and TV shows with TMDB poster art:
 
 ```bash
 node mock/server.mjs
@@ -47,12 +47,12 @@ Accounts, profiles (including Kids and PIN), My List, Continue Watching, and tas
 ## Screens
 
 - Sign in / Sign up — local accounts; poster wall behind the card
-- Who's watching — avatar glyphs, Kids profiles (PG only), optional 4-digit PIN
-- Home — billboard hero, silent poster rails, hover previews on desktop, Top 10, Continue Watching
-- Movies / TV Shows — genre dropdown over the billboard
-- New & Popular — Top 10 plus new and trending rails
+- Who's watching — illustrated profile photos, Kids profiles (PG only), optional 4-digit PIN
+- Home — billboard hero, silent poster rails, hover previews on desktop, Continue Watching
+- Movies / TV Shows — genre dropdown over the billboard; Movies and TV rails follow this profile's taste
+- New & Popular — new and trending rails
 - My List — titles saved on this profile
-- Taste — favorite genres, inferred weights, liked titles (account menu)
+- Taste — search titles you like, favorite genres, inferred weights (account menu)
 - Account — TMDB / optional IVA keys for mini trailers
 - Search — `/` focuses search; clearing the query stays on Search with recent chips
 - Title modal — trailer, Play / Resume / My List / thumbs, similar titles, show episodes

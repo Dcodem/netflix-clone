@@ -63,10 +63,13 @@ export function TitleHoverCard({
         detail?.watch_href
       : detail?.watch_href)
 
+  const originX = Math.max(24, Math.min(width - 24, anchor.left + anchor.width / 2 - left))
+  const originY = Math.max(24, Math.min(160, anchor.top + anchor.height / 2 - top))
+
   return createPortal(
     <div
       className="jawbone"
-      style={{ top, left, width }}
+      style={{ top, left, width, transformOrigin: `${originX}px ${originY}px` }}
       onMouseEnter={onKeep}
       onMouseLeave={onClose}
     >

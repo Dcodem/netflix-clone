@@ -30,7 +30,7 @@ export function needsPlaceholderArt(url?: string | null): boolean {
 
 export function matchPercent(item: MovieListItem, profile: Profile | null): number {
   if (!profile) return 72
-  const weights = genreWeights(profile.history, profile.favoriteGenres)
+  const weights = genreWeights(profile.history, profile.favoriteGenres, profile.liked)
   const genres = genresOf(item)
   const likedGenres = new Set(profile.liked.flatMap((entry) => entry.genres))
   const overlap = genres.reduce((sum, genre) => sum + (weights[genre] ?? 0), 0)
