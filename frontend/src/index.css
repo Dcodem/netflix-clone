@@ -2447,6 +2447,8 @@ select,
   z-index: 6;
   display: flex;
   gap: 28px;
+  align-items: center;
+  flex-wrap: wrap;
   margin: 18px -28px 8px;
   padding: 0 28px;
   background: #181818;
@@ -2476,6 +2478,10 @@ select,
   bottom: -1px;
   height: 4px;
   background: #e50914;
+}
+
+.title-tabs-season {
+  margin-left: auto;
 }
 
 .title-section {
@@ -4479,15 +4485,16 @@ select,
 .watch-vol-rail {
   display: none;
   position: absolute;
-  left: 50%;
-  bottom: calc(100% + 6px);
-  transform: translateX(-50%);
-  width: 36px;
-  height: 120px;
-  background: rgba(16, 16, 16, 0.92);
+  left: 100%;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  width: 108px;
+  height: 40px;
+  background: transparent;
   border-radius: 4px;
   place-items: center;
-  padding: 12px 0;
+  padding: 0 8px 0 4px;
 }
 
 .watch-vol:hover .watch-vol-rail,
@@ -4496,10 +4503,10 @@ select,
 }
 
 .watch-vol-slider {
-  width: 112px;
-  height: 6px;
+  width: 96px;
+  height: 4px;
   margin: 0;
-  transform: rotate(-90deg);
+  transform: none;
   accent-color: #fff;
   cursor: pointer;
   appearance: none;
@@ -5025,6 +5032,25 @@ select,
   opacity: 1;
   pointer-events: auto;
   visibility: visible;
+}
+
+@media (pointer: coarse) {
+  .watch-vol-rail {
+    left: 50%;
+    top: auto;
+    bottom: calc(100% + 6px);
+    transform: translateX(-50%);
+    width: 36px;
+    height: 120px;
+    background: rgba(16, 16, 16, 0.92);
+    padding: 12px 0;
+  }
+
+  .watch-vol-slider {
+    width: 112px;
+    height: 6px;
+    transform: rotate(-90deg);
+  }
 }
 
 .watch-speed {

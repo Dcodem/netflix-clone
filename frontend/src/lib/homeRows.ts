@@ -96,7 +96,7 @@ export function buildBrowseRows(opts: {
     const hidden = new Set(profile?.hiddenContinueIds ?? [])
     pushRow(rows, {
       id: 'continue',
-      title: 'Continue Watching',
+      title: profile?.name ? `Continue Watching for ${profile.name}` : 'Continue Watching',
       items: historyPool.filter((item) => !hidden.has(item.id)),
       variant: 'continue',
       loop: false,
@@ -121,10 +121,10 @@ export function buildBrowseRows(opts: {
       id: 'top10',
       title:
         filter === 'movies'
-          ? 'Top 10 Movies'
+          ? 'Top 10 Movies in the U.S. Today'
           : filter === 'shows'
-            ? 'Top 10 TV Shows'
-            : 'Top 10 in Flix Today',
+            ? 'Top 10 TV Shows in the U.S. Today'
+            : 'Top 10 in the U.S. Today',
       items: top10,
       variant: 'top10',
       loop: false,

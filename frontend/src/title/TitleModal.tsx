@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getCatalogMany, getMovie, getShow } from '../api/client'
 import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '../api/types'
 import { CatalogImage } from '../components/CatalogImage'
-import { EpisodeList } from '../components/EpisodeList'
+import { EpisodeList, SeasonPicker } from '../components/EpisodeList'
 import { ErrorState } from '../components/ErrorState'
 import { CloseIcon, RestartIcon, SpeakerIcon } from '../components/Icons'
 import { TitleLogo } from '../components/TitleLogo'
@@ -42,13 +42,15 @@ export function TitleModal() {
   const [trailerReady, setTrailerReady] = useState(false)
   const [trailerEnded, setTrailerEnded] = useState(false)
   const [tab, setTab] = useState<'episodes' | 'more' | 'trailers' | null>(null)
+  const [seasonNumber, setSeasonNumber] = useState(1)
 
   useEffect(() => {
     setMuted(true)
     setTrailerReady(false)
     setTrailerEnded(false)
     setTab(null)
-  }, [item?.id])
+    setSeasonNumber(last?.seasonNumber ?? 1)
+  }, [item?.id, last?.seasonNumber])
 
   useEffect(() => {
     if (!item) return
@@ -286,11 +288,22 @@ export function TitleModal() {
             <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => jump('trailers')}>
               Trailers & More
             </button>
+            {seasons.length && activeTab === 'episodes' ? (
+              <SeasonPicker seasons={seasons} history={last} value={seasonNumber} onChange={setSeasonNumber} />
+            ) : null}
           </nav>
 
           {seasons.length ? (
             <div ref={episodesRef} className="title-section">
-              <EpisodeList seasons={seasons} history={last} stills={stills} onPlay={playEpisode} />
+              <EpisodeList
+                seasons={seasons}
+                history={last}
+                stills={stills}
+                onPlay={playEpisode}
+                seasonNumber={seasonNumber}
+                onSeasonNumber={setSeasonNumber}
+                hideHeader
+              />
             </div>
           ) : null}
 

@@ -98,7 +98,6 @@ export function becauseYouWatchedRows(
     rows.push({
       id: `because-${seed.id}`,
       title: `Because you watched ${seed.title}`,
-      subtitle: rows.length === 0 ? "Here's what you should watch" : undefined,
       items: related,
       seed,
     })
@@ -157,8 +156,17 @@ const GENRE_LABELS: Record<string, string> = {
 
 export function genreRailTitle(genre: string, kind: 'all' | 'movies' | 'shows' = 'all'): string {
   const label = GENRE_LABELS[genre] ?? genre
-  if (kind === 'movies') return label === 'Comedies' ? 'Comedy Movies' : `${label} Movies`
-  if (kind === 'shows') return `${label} TV Shows`
+  if (kind === 'movies') {
+    if (label === 'Comedies') return 'Comedy Movies'
+    if (label === 'Dramas') return 'Drama Movies'
+    return `${label} Movies`
+  }
+  if (kind === 'shows') {
+    if (label === 'Comedies') return 'TV Comedies'
+    if (label === 'Dramas') return 'TV Dramas'
+    if (label === 'Documentaries') return 'TV Documentaries'
+    return `${label} TV Shows`
+  }
   return label
 }
 

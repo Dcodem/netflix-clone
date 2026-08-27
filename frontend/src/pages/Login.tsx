@@ -133,7 +133,7 @@ export function Login() {
               Remember me
             </label>
             <button type="button" className="login-help" onClick={() => setHelp((value) => !value)}>
-              Need help?
+              Forgot password?
             </button>
           </div>
           {help ? (

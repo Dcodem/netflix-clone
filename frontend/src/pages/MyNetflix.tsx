@@ -150,7 +150,7 @@ export function MyNetflix() {
 
       {continueItems.length ? (
         <MediaRow
-          title="Continue Watching"
+          title={activeProfile?.name ? `Continue Watching for ${activeProfile.name}` : 'Continue Watching'}
           items={continueItems}
           progressById={progressById}
           continueMode

@@ -153,7 +153,10 @@ export function Taste() {
 
       <MediaRow title="Titles you liked" items={likedItems} />
       <MediaRow title="Similar to titles you like" items={similar} />
-      <MediaRow title="Continue Watching" items={historyToListItems(profile.history).slice(0, 18)} />
+      <MediaRow
+        title={profile.name ? `Continue Watching for ${profile.name}` : 'Continue Watching'}
+        items={historyToListItems(profile.history).slice(0, 18)}
+      />
 
       <p className="account-hint">
         <Link to="/browse">Back to Home</Link> · likes also live on each title page.
