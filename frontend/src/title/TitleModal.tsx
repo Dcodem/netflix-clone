@@ -106,24 +106,30 @@ export function TitleModal() {
 
   useEffect(() => {
     if (!item) return
-    const root = backdropRef.current
-    const targets = [episodesRef.current, moreRef.current, aboutRef.current].filter(Boolean) as HTMLElement[]
-    if (!root || !targets.length) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (jumpingRef.current) return
-        const hit = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
-        if (!hit) return
-        if (hit.target === episodesRef.current) setTab('episodes')
-        else if (hit.target === moreRef.current) setTab('more')
-        else if (hit.target === aboutRef.current) setTab('trailers')
-      },
-      { root, threshold: [0.18, 0.4, 0.65], rootMargin: '-64px 0px -42% 0px' },
-    )
-    targets.forEach((node) => observer.observe(node))
-    return () => observer.disconnect()
+    const scroller = backdropRef.current
+    if (!scroller) return
+    const root: HTMLElement = scroller
+
+    function sync() {
+      if (jumpingRef.current) return
+      const tabs = root.querySelector('.title-tabs')
+      const line = (tabs?.getBoundingClientRect().bottom ?? 80) + 8
+      const sections: Array<{ id: 'episodes' | 'more' | 'trailers'; el: HTMLElement | null }> = [
+        { id: 'episodes', el: episodesRef.current },
+        { id: 'more', el: moreRef.current },
+        { id: 'trailers', el: aboutRef.current },
+      ]
+      let current: 'episodes' | 'more' | 'trailers' | null = null
+      for (const section of sections) {
+        if (!section.el) continue
+        if (section.el.getBoundingClientRect().top <= line) current = section.id
+      }
+      if (current) setTab(current)
+    }
+
+    root.addEventListener('scroll', sync, { passive: true })
+    sync()
+    return () => root.removeEventListener('scroll', sync)
   }, [item, similar.length, detailFetch.data])
 
   if (!item) return null
@@ -223,6 +229,7 @@ export function TitleModal() {
               item={item}
               detail={detail}
               watchHref={watchHref}
+              size="sm"
               showMore={false}
               continueMode={continueMode}
               playStyle="labeled"

@@ -46,14 +46,16 @@ export function TitleHoverCard({
   }, [item])
 
   const width = Math.max(340, Math.min(460, Math.round(anchor.width * 1.85)))
+  const artH = width * (9 / 16)
   let left = anchor.left + anchor.width / 2 - width / 2
   left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
-  const heightGuess = width * 0.56 + 200
-  let top = anchor.top - 18
+  const heightGuess = artH + 196
+  let top = anchor.top + anchor.height / 2 - artH / 2
+  if (top < 12) top = 12
   if (top + heightGuess > window.innerHeight - 12) {
     top = Math.max(12, window.innerHeight - heightGuess - 12)
   }
-  const fromScale = Math.max(0.48, Math.min(0.72, (anchor.width * 1.2) / width))
+  const fromScale = Math.max(0.42, Math.min(0.82, anchor.width / width))
 
   const match = matchPercent(item, activeProfile)
   const maturity = maturityLabel(item)
