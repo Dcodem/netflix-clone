@@ -1,10 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { AvatarArt } from './AvatarArt'
 import { useAuth } from '../auth/AuthContext'
 import { useHoverMenu } from '../hooks/useHoverMenu'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
-import { CaretIcon } from './Icons'
+import { AvatarArt } from './AvatarArt'
+import { CaretIcon, CheckIcon, PencilIcon } from './Icons'
 
 export function AccountMenu() {
   const { user, logout } = useAuth()
@@ -32,6 +32,13 @@ export function AccountMenu() {
       </button>
       {open ? (
         <div className="account-dropdown">
+          <button type="button" className="account-profile-row is-current" onClick={() => setOpen(false)}>
+            <span className="avatar-dot" style={{ background: avatar.color }}>
+              <AvatarArt avatar={avatar} alt={activeProfile.name} />
+            </span>
+            <span className="account-profile-name">{activeProfile.name}</span>
+            <CheckIcon className="account-check" />
+          </button>
           {others.map((profile) => {
             const other = avatarFor(profile)
             return (
@@ -58,11 +65,13 @@ export function AccountMenu() {
           })}
           <Link
             to="/"
+            className="account-manage"
             onClick={() => {
               setOpen(false)
               clearActive()
             }}
           >
+            <PencilIcon className="icon" />
             Manage Profiles
           </Link>
           <div className="account-dropdown-rule" />

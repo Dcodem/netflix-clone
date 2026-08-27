@@ -60,7 +60,7 @@ export function Login() {
     Promise.all([
       getMovies().catch(() => [] as MovieListItem[]),
       getCatalogMany('shows', 1).catch(() => [] as MovieListItem[]),
-    ]).then(([movies, shows]) => setWall(uniqueById([...movies, ...shows]).slice(0, 18)))
+    ]).then(([movies, shows]) => setWall(uniqueById([...movies, ...shows]).slice(0, 1)))
   }, [])
 
   if (user) return <Navigate to="/" replace />
@@ -89,11 +89,9 @@ export function Login() {
 
   return (
     <main className="login-page">
-      {wall.length ? (
+      {wall[0] ? (
         <div className="login-hero" aria-hidden="true">
-          {wall.map((item) => (
-            <CatalogImage key={item.id} item={item} alt="" prefer="backdrop" />
-          ))}
+          <CatalogImage item={wall[0]} alt="" prefer="backdrop" />
         </div>
       ) : null}
       <div className="login-veil" aria-hidden="true" />

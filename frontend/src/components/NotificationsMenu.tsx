@@ -41,7 +41,9 @@ export function NotificationsMenu() {
       {open ? (
         <div className="notify-dropdown" role="menu">
           {items.length ? (
-            items.map((item) => (
+            <>
+              <p className="notify-head">Notifications</p>
+              {items.map((item) => (
               <button
                 type="button"
                 key={`${item.id}-${item.watchedAt}`}
@@ -75,7 +77,8 @@ export function NotificationsMenu() {
                   <small>{timeAgo(item.watchedAt)}</small>
                 </span>
               </button>
-            ))
+              ))}
+            </>
           ) : (
             <p>No recent notifications.</p>
           )}

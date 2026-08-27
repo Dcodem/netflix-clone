@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem } from '../api/types'
-import { isShow } from '../lib/media'
+import { genresOf, isShow } from '../lib/media'
 import { buildWatchSession } from '../lib/watchSession'
 import { maturityLabel } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
@@ -76,6 +76,7 @@ export function Hero({ item }: { item: MovieListItem }) {
   const sessionReady = buildWatchSession(item, detail, last)
   const maturity = maturityLabel(item)
   const synopsis = detail?.synopsis
+  const genres = genresOf(detail ?? item).slice(0, 3)
 
   function onWatch() {
     const next = buildWatchSession(item, detail, last)
@@ -127,6 +128,7 @@ export function Hero({ item }: { item: MovieListItem }) {
           <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
         </div>
         <TitleLogo item={item} className="hero-logo" titleClassName="hero-title" />
+        {genres.length ? <p className="hero-genre-dots">{genres.join(' • ')}</p> : null}
         {synopsis ? <p className="hero-syn">{synopsis}</p> : null}
         <div className="hero-actions">
           <button type="button" className="btn btn-play" onClick={onWatch} disabled={!sessionReady}>
