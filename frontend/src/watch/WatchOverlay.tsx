@@ -138,6 +138,7 @@ export function WatchOverlay() {
   const [seasonNumber, setSeasonNumber] = useState<number | null>(null)
   const [volOpen, setVolOpen] = useState(false)
   const [barHover, setBarHover] = useState(false)
+  const [scrubHint, setScrubHint] = useState<{ ratio: number; x: number } | null>(null)
   const flashTimer = useRef(0)
   const tapRef = useRef({ at: 0, x: 0, play: 0 })
   const audioRef = useRef({ muted: false, volume: 1 })
@@ -354,6 +355,17 @@ export function WatchOverlay() {
       } else if (event.key.toLowerCase() === 'm') {
         toggleMute()
         show()
+      } else if (event.key.toLowerCase() === 'j') {
+        event.preventDefault()
+        skip(-10)
+        show()
+      } else if (event.key.toLowerCase() === 'l') {
+        event.preventDefault()
+        skip(10)
+        show()
+      } else if (event.key === 'Escape') {
+        event.preventDefault()
+        closeWatch()
       } else if (event.key.toLowerCase() === 'f') {
         event.preventDefault()
         toggleFullscreen()
@@ -446,10 +458,13 @@ export function WatchOverlay() {
   const nextProgress = length ? Math.min(1, remaining / 48) : 0
   const caption = subs === 'en' ? CAPTIONS[Math.floor(current / 9) % CAPTIONS.length] : null
 
-  function seekFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
+  function ratioFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect()
-    const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width))
-    post({ cmd: 'seek', seconds: ratio * length })
+    return Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width))
+  }
+
+  function seekFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
+    post({ cmd: 'seek', seconds: ratioFromEvent(event) * length })
   }
 
   function skipIntro(event: { stopPropagation: () => void }) {
@@ -640,9 +655,18 @@ export function WatchOverlay() {
               seekFromEvent(event)
             }}
             onPointerMove={(event) => {
+              const ratio = ratioFromEvent(event)
+              const rect = event.currentTarget.getBoundingClientRect()
+              setScrubHint({ ratio, x: event.clientX - rect.left })
               if (event.buttons) seekFromEvent(event)
             }}
+            onPointerLeave={() => setScrubHint(null)}
           >
+            {scrubHint ? (
+              <span className="watch-scrub-hint" style={{ left: scrubHint.x }}>
+                {formatClock(scrubHint.ratio * length)}
+              </span>
+            ) : null}
             <div className="watch-progress-fill" style={{ width: `${Math.round(progress * 1000) / 10}%` }}>
               <span className="watch-knob" />
             </div>

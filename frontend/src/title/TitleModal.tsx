@@ -40,7 +40,7 @@ export function TitleModal() {
   const [muted, setMuted] = useState(true)
   const [trailerReady, setTrailerReady] = useState(false)
   const [trailerEnded, setTrailerEnded] = useState(false)
-  const [tab, setTab] = useState<'episodes' | 'more' | 'about' | null>(null)
+  const [tab, setTab] = useState<'episodes' | 'more' | 'trailers' | null>(null)
 
   useEffect(() => {
     setMuted(true)
@@ -105,7 +105,7 @@ export function TitleModal() {
         if (!hit) return
         if (hit.target === episodesRef.current) setTab('episodes')
         else if (hit.target === moreRef.current) setTab('more')
-        else if (hit.target === aboutRef.current) setTab('about')
+        else if (hit.target === aboutRef.current) setTab('trailers')
       },
       { root, threshold: [0.18, 0.4, 0.65], rootMargin: '-64px 0px -42% 0px' },
     )
@@ -134,7 +134,7 @@ export function TitleModal() {
   const continueMode = Boolean(last?.progress && last.progress > 0.05)
   const activeTab = tab ?? (isShow(item) ? 'episodes' : 'more')
 
-  function jump(next: 'episodes' | 'more' | 'about') {
+  function jump(next: 'episodes' | 'more' | 'trailers') {
     setTab(next)
     jumpingRef.current = true
     const node = next === 'episodes' ? episodesRef.current : next === 'more' ? moreRef.current : aboutRef.current
@@ -282,8 +282,8 @@ export function TitleModal() {
                 More Like This
               </button>
             ) : null}
-            <button type="button" className={activeTab === 'about' ? 'is-on' : ''} onClick={() => jump('about')}>
-              About
+            <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => jump('trailers')}>
+              Trailers & More
             </button>
           </nav>
 
@@ -300,6 +300,20 @@ export function TitleModal() {
           ) : null}
 
           <section ref={aboutRef} className="title-about title-section">
+            <h2>Trailers & More</h2>
+            {stills.length ? (
+              <div className="trailer-still-grid">
+                {stills.slice(0, 8).map((file) => (
+                  <img
+                    key={file}
+                    src={`/img?u=${encodeURIComponent(`https://image.tmdb.org/t/p/w780/${file}`)}`}
+                    alt=""
+                  />
+                ))}
+              </div>
+            ) : (
+              <p>Trailer stills appear here when TMDB art is available.</p>
+            )}
             <h2>About {item.title}</h2>
             {detail?.synopsis ? <p>{detail.synopsis}</p> : null}
             {detail?.cast?.length ? (

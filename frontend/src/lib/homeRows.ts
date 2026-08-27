@@ -30,6 +30,10 @@ export function historyToListItems(history: WatchHistoryItem[]): MovieListItem[]
     poster_url: item.poster_url,
     genres: item.genres,
     href: `/${item.kind === 'show' ? 'shows' : 'movies'}/view/${item.id}`,
+    continueLabel:
+      item.kind === 'show' && item.seasonNumber && item.episodeNumber
+        ? `S${item.seasonNumber}:E${item.episodeNumber}`
+        : undefined,
   }))
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import type { MovieListItem } from '../api/types'
 import { useProfiles } from '../profiles/ProfileContext'
+import { playWhoosh } from '../lib/sounds'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
 import { CloseIcon } from './Icons'
@@ -52,6 +53,7 @@ export function PosterCard({
       if (rect) {
         setAnchor(rect)
         setHover(true)
+        playWhoosh()
       }
       }, 400)
   }
@@ -92,6 +94,12 @@ export function PosterCard({
           </div>
         ) : null}
       </button>
+      {continueMode ? (
+        <div className="continue-meta">
+          <span className="continue-title">{item.title}</span>
+          {item.continueLabel ? <span className="continue-ep">{item.continueLabel}</span> : null}
+        </div>
+      ) : null}
       {continueMode ? (
         <button
           type="button"
