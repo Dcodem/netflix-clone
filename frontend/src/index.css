@@ -3594,8 +3594,15 @@ select,
   font-weight: 700;
 }
 
+.watch-audio {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+  width: min(420px, calc(100% - 32px));
+}
+
 .watch-audio h2 + h2 {
-  margin-top: 16px;
+  margin-top: 0;
 }
 
 .watch-panel button {

@@ -428,17 +428,21 @@ export function WatchOverlay() {
       ) : null}
       {audioOpen ? (
         <div className="watch-panel watch-audio" onClick={(event) => event.stopPropagation()}>
-          <h2>Audio</h2>
-          <button type="button" className="is-on">
-            English
-          </button>
-          <h2>Subtitles</h2>
-          <button type="button" className={subs === 'off' ? 'is-on' : ''} onClick={() => setSubs('off')}>
-            Off
-          </button>
-          <button type="button" className={subs === 'en' ? 'is-on' : ''} onClick={() => setSubs('en')}>
-            English
-          </button>
+          <div>
+            <h2>Audio</h2>
+            <button type="button" className="is-on">
+              English
+            </button>
+          </div>
+          <div>
+            <h2>Subtitles</h2>
+            <button type="button" className={subs === 'off' ? 'is-on' : ''} onClick={() => setSubs('off')}>
+              Off
+            </button>
+            <button type="button" className={subs === 'en' ? 'is-on' : ''} onClick={() => setSubs('en')}>
+              English
+            </button>
+          </div>
         </div>
       ) : null}
     </div>
