@@ -120,10 +120,9 @@ export function TitleHoverCard({
         <TitleActions item={item} detail={detail} watchHref={watchHref} size="sm" />
         <div className="jawbone-meta">
           <span className="match">{match}% Match</span>
-          {item.year ? <span>{item.year}</span> : null}
           <span className="maturity">{maturity}</span>
-          <FeatureBadges quality={quality} />
           {runtime ? <span>{runtime}</span> : null}
+          <FeatureBadges quality={quality} />
           {isShow(item) ? (
             <span>
               {seasons.length > 1

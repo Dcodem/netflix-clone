@@ -195,6 +195,26 @@ export function WatchOverlay() {
     })
   }, [post])
 
+  const setVolumeLevel = useCallback(
+    (next: number) => {
+      const clamped = Math.min(1, Math.max(0, next))
+      setVolume(clamped)
+      if (clamped <= 0.01) {
+        setMuted(true)
+        post({ cmd: 'mute', value: true })
+        post({ cmd: 'volume', value: 0 })
+        ambienceRef.current?.setMuted(true)
+      } else {
+        setMuted(false)
+        post({ cmd: 'mute', value: false })
+        post({ cmd: 'volume', value: clamped })
+        ambienceRef.current?.setMuted(false)
+        ambienceRef.current?.setVolume(clamped)
+      }
+    },
+    [post],
+  )
+
   useEffect(() => {
     audioRef.current = { muted, volume }
   }, [muted, volume])
@@ -318,6 +338,19 @@ export function WatchOverlay() {
         event.preventDefault()
         skip(10)
         show()
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        setVolumeLevel((muted ? 0 : volume) + 0.1)
+        show()
+      } else if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        setVolumeLevel((muted ? 0 : volume) - 0.1)
+        show()
+      } else if (/^[0-9]$/.test(event.key)) {
+        event.preventDefault()
+        const length = duration || runtimeSec
+        post({ cmd: 'seek', seconds: (Number(event.key) / 10) * length })
+        show()
       } else if (event.key.toLowerCase() === 'm') {
         toggleMute()
         show()
@@ -360,7 +393,7 @@ export function WatchOverlay() {
       window.removeEventListener('message', onMessage)
       document.removeEventListener('fullscreenchange', onFs)
     }
-  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome])
+  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post])
 
   useEffect(() => {
     const length = duration || runtimeSec
@@ -452,19 +485,7 @@ export function WatchOverlay() {
   }
 
   function onVolume(next: number) {
-    setVolume(next)
-    if (next <= 0.01) {
-      setMuted(true)
-      post({ cmd: 'mute', value: true })
-      post({ cmd: 'volume', value: 0 })
-      ambienceRef.current?.setMuted(true)
-    } else {
-      setMuted(false)
-      post({ cmd: 'mute', value: false })
-      post({ cmd: 'volume', value: next })
-      ambienceRef.current?.setMuted(false)
-      ambienceRef.current?.setVolume(next)
-    }
+    setVolumeLevel(next)
   }
 
   return (

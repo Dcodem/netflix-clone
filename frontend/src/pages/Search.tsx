@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { getCatalogMany, getMovies, searchTitles } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
+import { CatalogImage } from '../components/CatalogImage'
 import { MediaGrid } from '../components/MediaGrid'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
@@ -105,6 +106,9 @@ export function Search() {
                 <li key={item.id}>
                   <button type="button" onClick={() => setParams({ q: item.title })}>
                     <span className="search-top-rank">{index + 1}</span>
+                    <span className="search-top-poster">
+                      <CatalogImage item={item} alt="" prefer="poster" />
+                    </span>
                     {item.title}
                   </button>
                 </li>

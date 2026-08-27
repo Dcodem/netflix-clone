@@ -319,13 +319,14 @@ export function SpeedIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
       <path
-        d="M12 20a8 8 0 110-16 8 8 0 010 16z"
+        d="M4.8 14.2a7.2 7.2 0 1114.4 0"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.8"
+        strokeLinecap="round"
       />
-      <path fill="currentColor" d="M12 12.2l4.2-4.2-1.1 5.3z" />
-      <path d="M7 14.5h.01M17 14.5h.01M12 7h.01" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+      <path fill="currentColor" d="M12 14.4l5.2-6.4-2.2 7.2z" />
+      <circle cx="12" cy="14.6" r="1.35" fill="currentColor" />
     </svg>
   )
 }

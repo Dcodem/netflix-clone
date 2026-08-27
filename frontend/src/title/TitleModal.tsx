@@ -265,7 +265,7 @@ export function TitleModal() {
               ) : null}
               {moods.length ? (
                 <p className="title-modal-cast">
-                  <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {moods.join(', ')}
+                  <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {moods.join(' · ')}
                 </p>
               ) : null}
             </div>
@@ -314,7 +314,7 @@ export function TitleModal() {
             ) : null}
             {moods.length ? (
               <p>
-                <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {moods.join(', ')}
+                <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {moods.join(' · ')}
               </p>
             ) : null}
           </section>

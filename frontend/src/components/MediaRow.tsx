@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import type { MovieListItem } from '../api/types'
 import { useFineHover } from '../hooks/useFineHover'
 import { useRowOverflow } from '../hooks/useRowOverflow'
+import { playClick } from '../lib/sounds'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons'
@@ -94,7 +95,10 @@ export function MediaRow({
             type="button"
             className="row-arrow row-arrow-prev"
             aria-label={`Scroll ${title} left`}
-            onClick={() => scrollByPage(-1)}
+            onClick={() => {
+              playClick()
+              scrollByPage(-1)
+            }}
           >
             <ChevronLeftIcon className="icon" />
           </button>
@@ -120,7 +124,10 @@ export function MediaRow({
             type="button"
             className="row-arrow row-arrow-next"
             aria-label={`Scroll ${title} right`}
-            onClick={() => scrollByPage(1)}
+            onClick={() => {
+              playClick()
+              scrollByPage(1)
+            }}
           >
             <ChevronRightIcon className="icon" />
           </button>
