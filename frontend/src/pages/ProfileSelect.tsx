@@ -128,12 +128,14 @@ export function ProfileSelect() {
           )
         })}
         {adding ? null : (
-          <button type="button" className="profile-add" onClick={() => setAdding(true)}>
-            <span className="profile-add-plus">
-              <PlusIcon className="icon" />
-            </span>
-            Add Profile
-          </button>
+          <div className="profile-cell">
+            <button type="button" className="profile-add" onClick={() => setAdding(true)} aria-label="Add profile">
+              <span className="profile-add-plus">
+                <PlusIcon className="icon" />
+              </span>
+            </button>
+            <div className="profile-name">Add Profile</div>
+          </div>
         )}
       </div>
       {pinTarget ? (

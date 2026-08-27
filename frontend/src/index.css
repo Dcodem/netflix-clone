@@ -84,8 +84,8 @@ select,
   top: 0;
   z-index: 50;
   padding-top: var(--safe-top);
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.35) 40%, transparent);
-  transition: background 0.25s ease;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.15) 55%, transparent);
+  transition: background 0.4s ease;
 }
 
 .site-header.is-scrolled {
@@ -439,6 +439,10 @@ select,
 .media-row:hover .row-explore {
   opacity: 1;
   transform: none;
+}
+
+.media-row:hover .section-title {
+  color: #fff;
 }
 
 .section-sub {
@@ -1080,15 +1084,13 @@ select,
   width: 140px;
   height: 140px;
   border-radius: 8px;
-  border: 3px dashed #444;
-  background: transparent;
+  border: 3px solid transparent;
+  background: #141414;
   color: var(--muted);
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  display: grid;
+  place-items: center;
+  padding: 0;
 }
 
 .profile-add span {
@@ -1346,17 +1348,6 @@ select,
   font-size: 16px;
 }
 
-.login-switch {
-  margin-top: 0;
-  display: inline;
-  background: none;
-  border: 0;
-  color: #fff;
-  cursor: pointer;
-  font-weight: 600;
-  padding: 0;
-}
-
 .login-logo {
   display: inline-block;
   margin-bottom: 12px;
@@ -1368,11 +1359,22 @@ select,
   font-weight: 700;
 }
 
-.login-sub,
-.account-lead,
-.account-hint {
-  color: var(--muted);
-  font-size: 14px;
+.login-sub {
+  margin-top: 16px;
+  color: #737373;
+  font-size: 16px;
+}
+
+.login-switch {
+  margin: 0;
+  display: inline;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 16px;
 }
 
 .login-form,
@@ -1398,12 +1400,10 @@ select,
   font-size: 14px;
 }
 
-.login-switch {
-  margin-top: 16px;
-  background: none;
-  border: 0;
+.account-lead,
+.account-hint {
   color: var(--muted);
-  cursor: pointer;
+  font-size: 14px;
 }
 
 .account-form label {
