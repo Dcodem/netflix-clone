@@ -575,9 +575,9 @@ select,
   display: none;
   position: absolute;
   top: 28px;
-  bottom: 48px;
-  width: 4%;
-  min-width: 36px;
+  bottom: 56px;
+  width: 5.5%;
+  min-width: 56px;
   z-index: 3;
   border: 0;
   color: #fff;
@@ -587,20 +587,20 @@ select,
 }
 
 .row-arrow .icon {
-  width: 42px;
-  height: 42px;
-  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.8));
+  width: 56px;
+  height: 56px;
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.9));
   transition: transform 0.15s ease;
 }
 
 .row-arrow-prev {
   left: 0;
-  background: linear-gradient(90deg, rgba(20, 20, 20, 0.96), rgba(20, 20, 20, 0.55) 55%, transparent);
+  background: linear-gradient(90deg, rgba(20, 20, 20, 0.92) 0%, rgba(20, 20, 20, 0.55) 62%, transparent 100%);
 }
 
 .row-arrow-next {
   right: 0;
-  background: linear-gradient(270deg, rgba(20, 20, 20, 0.96), rgba(20, 20, 20, 0.55) 55%, transparent);
+  background: linear-gradient(270deg, rgba(20, 20, 20, 0.92) 0%, rgba(20, 20, 20, 0.55) 62%, transparent 100%);
 }
 
 .media-row:hover .row-arrow,
@@ -613,15 +613,15 @@ select,
 }
 
 .row-arrow:hover .icon {
-  transform: scale(1.28);
+  transform: scale(1.42);
 }
 
 .row-arrow-prev:hover {
-  background: linear-gradient(90deg, rgba(20, 20, 20, 1), rgba(20, 20, 20, 0.72) 55%, transparent);
+  background: linear-gradient(90deg, rgba(20, 20, 20, 1) 0%, rgba(20, 20, 20, 0.78) 62%, transparent 100%);
 }
 
 .row-arrow-next:hover {
-  background: linear-gradient(270deg, rgba(20, 20, 20, 1), rgba(20, 20, 20, 0.72) 55%, transparent);
+  background: linear-gradient(270deg, rgba(20, 20, 20, 1) 0%, rgba(20, 20, 20, 0.78) 62%, transparent 100%);
 }
 
 .row-scroller.is-looping {
@@ -2778,7 +2778,8 @@ select,
   }
 
   .hero-controls-right {
-    bottom: max(16px, calc(12% + var(--safe-bottom)));
+    bottom: max(128px, calc(116px + var(--safe-bottom)));
+    right: 0;
   }
 
   .search-wrap.is-open {
@@ -3399,24 +3400,25 @@ select,
 }
 
 .profile-add-plus {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: #808080;
-  color: #141414;
+  width: 72%;
+  height: 72%;
+  border-radius: 0;
+  background: transparent;
+  color: #808080;
   display: grid;
   place-items: center;
 }
 
 .profile-add-plus .icon {
-  width: 36px;
-  height: 36px;
+  width: 64px;
+  height: 64px;
 }
 
 .profile-add:hover .profile-add-plus,
 .profile-cell:hover .profile-add-plus,
 .profile-cell:focus-visible .profile-add-plus {
-  background: #e5e5e5;
+  background: transparent;
+  color: #e5e5e5;
 }
 
 .profile-cell:hover .profile-name,
@@ -3539,7 +3541,8 @@ select,
   }
 
   .hero-controls-right {
-    bottom: max(92px, calc(80px + var(--safe-bottom)));
+    bottom: max(128px, calc(116px + var(--safe-bottom)));
+    right: 0;
   }
 
   .more-like-grid {
@@ -3752,7 +3755,7 @@ select,
 @media (max-width: 767px) {
   .hero-actions {
     width: 100%;
-    padding-right: 72px;
+    padding-right: 16px;
   }
 
   .hero-actions .btn-play,
