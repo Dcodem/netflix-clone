@@ -2100,8 +2100,10 @@ select,
 }
 
 .title-modal-hero-body h1 {
-  margin: 0 0 14px;
-  font-size: clamp(28px, 4vw, 42px);
+  margin: 0 0 16px;
+  font-size: clamp(32px, 4.6vw, 48px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
   text-shadow: 0 2px 18px #000, 0 0 28px rgba(0, 0, 0, 0.85);
 }
 
@@ -2227,25 +2229,6 @@ select,
 .browse-menu-list .nav-link {
   display: block;
   padding: 8px 10px;
-}
-
-.login-wall {
-  position: absolute;
-  inset: -8%;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 6px;
-  opacity: 0.38;
-  filter: blur(1.5px) saturate(0.85);
-  pointer-events: none;
-}
-
-.login-wall img,
-.login-wall .media-fallback {
-  width: 100%;
-  aspect-ratio: 2 / 3;
-  object-fit: cover;
-  height: auto;
 }
 
 .search-recents {
@@ -2464,10 +2447,6 @@ select,
     width: 112px;
   }
 
-  .login-wall {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .watch-back {
     width: 44px;
     height: 44px;
@@ -2670,10 +2649,59 @@ select,
 }
 
 .search-heading {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
-  margin: 8px 0 18px;
+  margin: 4px 0 18px;
+  color: #808080;
+  letter-spacing: 0.01em;
+}
+
+.search-heading span {
   color: #fff;
+  font-weight: 700;
+}
+
+.search-page {
+  min-height: calc(100svh - 120px);
+}
+
+.search-page .grid {
+  gap: 6px 8px;
+}
+
+.search-empty {
+  max-width: 560px;
+  margin: 72px auto 40px;
+  text-align: center;
+  color: #fff;
+}
+
+.search-empty p {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 22px;
+}
+
+.search-empty-kicker {
+  font-size: 16px !important;
+  margin-bottom: 8px !important;
+}
+
+.search-empty ul {
+  display: inline-block;
+  margin: 0;
+  padding-left: 22px;
+  text-align: left;
+  color: #8c8c8c;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.page-title {
+  font-size: clamp(28px, 3.6vw, 38px);
+  font-weight: 700;
+  color: #fff;
+  margin: 8px 0 24px;
 }
 
 .ep-num {
@@ -3504,11 +3532,8 @@ select,
   margin-left: 8px;
 }
 
-.my-list-page > .section-title {
-  font-size: clamp(28px, 4vw, 38px);
-  font-weight: 700;
-  color: #fff;
-  margin: 8px 0 24px;
+.my-list-page > .page-title {
+  margin-top: 4px;
 }
 
 .service-code:hover {

@@ -1,15 +1,26 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { searchTitles, getMovies } from '../api/client'
-import { EmptyState } from '../components/EmptyState'
+import { getCatalogMany, getMovies, searchTitles } from '../api/client'
+import type { MovieListItem } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
 import { MediaGrid } from '../components/MediaGrid'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
+import { sortByRating, uniqueById } from '../lib/media'
 import { filterForProfile } from '../lib/netflix'
-import { sortByRating } from '../lib/media'
 import { clearRecentSearches, listRecentSearches } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
+import { relatedSearchResults } from '../profiles/taste'
+
+function catalogHits(query: string, catalog: MovieListItem[]): MovieListItem[] {
+  const needle = query.trim().toLowerCase()
+  if (needle.length < 2) return []
+  return catalog.filter(
+    (item) =>
+      item.title.toLowerCase().includes(needle) ||
+      (item.genres ?? []).some((genre) => genre.toLowerCase().includes(needle)),
+  )
+}
 
 export function Search() {
   const { activeProfile } = useProfiles()
@@ -17,9 +28,27 @@ export function Search() {
   const q = (params.get('q') ?? '').trim()
   const enabled = q.length >= 2
   const { data, error, loading, retry } = useFetch(() => searchTitles(q), q, { enabled })
+  const catalog = useFetch(async () => {
+    const [movies, shows] = await Promise.all([
+      getCatalogMany('movies', 5).catch(() => [] as MovieListItem[]),
+      getCatalogMany('shows', 5).catch(() => [] as MovieListItem[]),
+    ])
+    return uniqueById([...movies, ...shows])
+  }, 'search-catalog')
   const popular = useFetch(() => getMovies(), 'search-popular', { enabled: !enabled })
   const [recents, setRecents] = useState(listRecentSearches)
-  const items = useMemo(() => filterForProfile(data ?? [], activeProfile), [data, activeProfile])
+  const pool = useMemo(
+    () => filterForProfile(catalog.data ?? [], activeProfile),
+    [catalog.data, activeProfile],
+  )
+  const hits = useMemo(() => {
+    const fromApi = filterForProfile(data ?? [], activeProfile)
+    return uniqueById([...fromApi, ...catalogHits(q, pool)])
+  }, [data, activeProfile, q, pool])
+  const items = useMemo(
+    () => relatedSearchResults(hits, pool, activeProfile, 48),
+    [hits, pool, activeProfile],
+  )
   const popularItems = useMemo(
     () => sortByRating(filterForProfile(popular.data ?? [], activeProfile)).slice(0, 18),
     [popular.data, activeProfile],
@@ -33,7 +62,7 @@ export function Search() {
     () => (
       <div className="search-recents">
         <div className="search-recents-head">
-          <h2 className="section-title">Recent searches</h2>
+          <h2 className="section-title">Recent Searches</h2>
           {recents.length ? (
             <button
               type="button"
@@ -70,7 +99,7 @@ export function Search() {
 
   if (!enabled) {
     return (
-      <main className="page page-pad">
+      <main className="page page-pad search-page">
         {recentBlock}
         {popularItems.length ? (
           <>
@@ -82,9 +111,10 @@ export function Search() {
     )
   }
 
-  if (loading) {
+  const waitingRelated = !error && catalog.loading && hits.length > 0 && hits.length < 12
+  if (loading || waitingRelated) {
     return (
-      <main className="page page-pad">
+      <main className="page page-pad search-page">
         <Spinner label={`Searching “${q}”`} />
       </main>
     )
@@ -92,22 +122,33 @@ export function Search() {
 
   if (error) {
     return (
-      <main className="page page-pad">
+      <main className="page page-pad search-page">
         <ErrorState message={error} onRetry={retry} />
       </main>
     )
   }
 
   return (
-    <main className="page page-pad">
+    <main className="page page-pad search-page">
       {items.length ? (
         <>
-          <h1 className="search-heading">Explore titles related to: {q}</h1>
+          <h1 className="search-heading">
+            Explore titles related to: <span>{q}</span>
+          </h1>
           <MediaGrid items={items} />
         </>
       ) : (
         <>
-          <EmptyState title="Your search did not have any matches." detail="Try a different title, actor, or genre." />
+          <div className="search-empty">
+            <p>Your search for “{q}” did not have any matches.</p>
+            <p className="search-empty-kicker">Suggestions:</p>
+            <ul>
+              <li>Try different keywords</li>
+              <li>Looking for a movie or TV show?</li>
+              <li>Try using a movie, TV show title, an actor or director</li>
+              <li>Try a genre, like comedy, romance, sports, or drama</li>
+            </ul>
+          </div>
           {recentBlock}
         </>
       )}

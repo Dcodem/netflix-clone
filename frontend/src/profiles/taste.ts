@@ -281,6 +281,36 @@ export function recommendSimilar(
     .slice(0, limit)
 }
 
+/** Netflix search fills the page with related titles, not only exact matches. */
+export function relatedSearchResults(
+  hits: MovieListItem[],
+  catalog: MovieListItem[],
+  profile: Profile | null,
+  limit = 48,
+): MovieListItem[] {
+  if (!hits.length) return []
+  const seen = new Set<string>()
+  const out: MovieListItem[] = []
+  const add = (item?: MovieListItem) => {
+    if (!item || seen.has(item.id)) return
+    seen.add(item.id)
+    out.push(item)
+  }
+
+  hits.forEach(add)
+  recommendSimilar(catalog, hits.slice(0, 6), Math.max(24, limit)).forEach(add)
+
+  const rest = catalog.filter((item) => !seen.has(item.id))
+  if (profile) rankByTaste(rest, profile, { excludeSeen: false }).forEach(add)
+  if (out.length < 24) {
+    [...rest]
+      .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+      .forEach(add)
+  }
+
+  return out.slice(0, limit)
+}
+
 export function similarByGenres(item: MovieListItem, pool: MovieListItem[], limit = 12): MovieListItem[] {
   const seedGenres = genresOf(item)
   const seed = new Set(seedGenres)

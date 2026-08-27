@@ -34,13 +34,15 @@ const CAPTIONS = [
   'Don’t look back.',
 ]
 
-function formatClock(seconds: number) {
+function formatClock(seconds: number, remaining = false) {
   const total = Math.max(0, Math.floor(seconds))
   const hours = Math.floor(total / 3600)
   const minutes = Math.floor((total % 3600) / 60)
   const secs = total % 60
-  if (hours) return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
-  return `${minutes}:${String(secs).padStart(2, '0')}`
+  const clock = hours
+    ? `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+    : `${minutes}:${String(secs).padStart(2, '0')}`
+  return remaining ? `-${clock}` : clock
 }
 
 function playerSrc(href: string, runtimeSec: number, progress: number, yt?: string | null, gallery?: string[]) {
@@ -552,7 +554,7 @@ export function WatchOverlay() {
               <span className="watch-knob" />
             </div>
           </div>
-          <span className="watch-time">{formatClock(remaining)}</span>
+          <span className="watch-time">{formatClock(remaining, true)}</span>
         </div>
         <div className="watch-controls">
           <div className="watch-controls-left">

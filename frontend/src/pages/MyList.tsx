@@ -10,7 +10,7 @@ export function MyList() {
 
   return (
     <main className="page page-pad my-list-page">
-      <h1 className="section-title">My List</h1>
+      <h1 className="page-title">My List</h1>
       {items.length ? (
         <MediaGrid items={items} />
       ) : (
