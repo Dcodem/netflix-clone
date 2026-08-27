@@ -16,7 +16,7 @@ import {
   SubtitlesIcon,
 } from '../components/Icons'
 import { MediaImage } from '../components/MediaImage'
-import { createWatchAmbience, playClick } from '../lib/sounds'
+import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
 import { useWatch } from './WatchContext'
 
 const PLAYER_SOURCE = 'flix-player'
@@ -131,8 +131,9 @@ export function WatchOverlay() {
 
   const skip = useCallback(
     (delta: number) => {
-      playClick()
-      post({ cmd: 'skip', delta })
+    playClick()
+    playWhoosh()
+    post({ cmd: 'skip', delta })
       pulse(delta < 0 ? 'back' : 'fwd')
     },
     [post, pulse],
@@ -275,7 +276,7 @@ export function WatchOverlay() {
       : null
   const showSkipIntro = isShow && !introSkipped && current < 110 && !episodesOpen && !audioOpen
   const showSkipRecap = isShow && !recapSkipped && !showSkipIntro && current >= 80 && current < 155 && !episodesOpen && !audioOpen
-  const showNext = Boolean(upcoming && remaining <= 28 && remaining > 0 && !episodesOpen && !audioOpen)
+  const showNext = Boolean(upcoming && remaining <= 48 && remaining > 0 && !episodesOpen && !audioOpen)
   const caption = subs === 'en' ? CAPTIONS[Math.floor(current / 9) % CAPTIONS.length] : null
 
   function seekFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
@@ -287,6 +288,7 @@ export function WatchOverlay() {
   function skipIntro(event: { stopPropagation: () => void }) {
     event.stopPropagation()
     playClick()
+    playWhoosh()
     setIntroSkipped(true)
     post({ cmd: 'seek', seconds: SKIP_INTRO_AT })
   }
@@ -294,6 +296,7 @@ export function WatchOverlay() {
   function skipRecap(event: { stopPropagation: () => void }) {
     event.stopPropagation()
     playClick()
+    playWhoosh()
     setRecapSkipped(true)
     setIntroSkipped(true)
     post({ cmd: 'seek', seconds: SKIP_RECAP_AT })

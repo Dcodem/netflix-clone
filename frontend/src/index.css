@@ -326,9 +326,10 @@ select,
 .hero-title,
 .detail-title {
   margin: 0;
-  font-size: clamp(28px, 6vw, 56px);
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  font-size: clamp(32px, 6.4vw, 64px);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.92;
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
   transform-origin: left bottom;
   transition: transform 0.9s ease 0.8s;
@@ -604,7 +605,8 @@ select,
   }
 
   .poster-wrap:hover .poster-card {
-    transform: scale(1.08);
+    transform: scale(1.14);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
   }
 }
 
@@ -3702,7 +3704,7 @@ select,
 }
 
 .watch-episodes {
-  width: min(460px, calc(100% - 32px));
+  width: 100%;
 }
 
 .nav-link {
@@ -4195,6 +4197,76 @@ select,
   .next-ep-card {
     bottom: 108px;
     right: 16px;
+  }
+}
+
+.app-shell.is-kids {
+  --header-h: 118px;
+}
+
+.site-header.is-kids .primary-nav,
+.site-header.is-kids .browse-menu {
+  display: none;
+}
+
+.kids-chip-row {
+  display: flex;
+  gap: 8px;
+  padding: 2px var(--page-gutter) 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.kids-chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.kids-chip {
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--chip, #e50914) 88%, #000 12%);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 800;
+  border: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.kids-chip.active {
+  background: #fff;
+  color: #0c182c;
+  border-color: #fff;
+}
+
+.app-shell.is-kids .poster-card {
+  border-radius: 16px;
+}
+
+.app-shell.is-kids .hero {
+  min-height: min(86vw, 500px);
+}
+
+.app-shell.is-kids .btn-play,
+.app-shell.is-kids .btn-info {
+  border-radius: 999px;
+}
+
+.skip-intro {
+  font-size: 18px;
+  padding: 12px 20px 12px 24px;
+  animation: skip-in 0.28s ease;
+}
+
+@keyframes skip-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

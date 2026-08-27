@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { pushRecentSearch } from '../lib/recentSearch'
@@ -18,6 +18,14 @@ const NAV = [
 const KIDS_NAV = [
   { to: '/browse', label: 'Home', end: true },
   { to: '/browse/my-list', label: 'My List' },
+] as const
+
+const KIDS_CHIPS = [
+  { to: '/browse', label: 'All', end: true, color: '#e50914' },
+  { to: '/browse/shows', label: 'TV Shows', color: '#0071eb' },
+  { to: '/browse/movies', label: 'Movies', color: '#46d369' },
+  { to: '/browse/latest', label: 'New', color: '#f5c518' },
+  { to: '/browse/my-list', label: 'My List', color: '#a855f7' },
 ] as const
 
 export function Header() {
@@ -159,6 +167,21 @@ export function Header() {
           <AccountMenu />
         </div>
       </div>
+      {activeProfile?.kids ? (
+        <nav className="kids-chip-row" aria-label="Kids categories">
+          {KIDS_CHIPS.map((chip) => (
+            <NavLink
+              key={chip.to}
+              to={chip.to}
+              end={'end' in chip ? chip.end : false}
+              className="kids-chip"
+              style={{ '--chip': chip.color } as CSSProperties}
+            >
+              {chip.label}
+            </NavLink>
+          ))}
+        </nav>
+      ) : null}
     </header>
   )
 }

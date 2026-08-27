@@ -99,8 +99,15 @@ function playerPage(item, season, episode, query = {}) {
   const runtime = Math.max(60, Number(query.runtime) || (item.runtime ? Number(item.runtime) * 60 : 48 * 60))
   const start = Math.max(0, Number(query.t) || 0)
   const h = hue(item.id)
-  const color = `hsl(${h} 48% 18%)`
-  const accent = `hsl(${(h + 38) % 360} 55% 42%)`
+  const color = `hsl(${h} 48% 14%)`
+  const accent = `hsl(${(h + 38) % 360} 58% 42%)`
+  const backdrop = item.backdrop_url || `/art/backdrop/${encodeURIComponent(item.id)}`
+  const poster = item.poster_url || `/art/poster/${encodeURIComponent(item.id)}`
+  const thumb =
+    season && episode
+      ? `/art/thumb/${encodeURIComponent(item.id)}?s=${encodeURIComponent(season)}&e=${encodeURIComponent(episode)}`
+      : backdrop
+  const plates = [backdrop, thumb, poster].map((src) => escapeXml(src))
   return `<!doctype html>
 <html>
   <head>
@@ -108,24 +115,51 @@ function playerPage(item, season, episode, query = {}) {
     <title>${escapeXml(heading)}</title>
     <style>
       html,body{margin:0;height:100%;background:#000;overflow:hidden}
-      .stage{position:absolute;inset:-8%;width:116%;height:116%;background:
-        radial-gradient(circle at 72% 32%, ${accent} 0%, transparent 42%),
-        radial-gradient(circle at 18% 80%, ${color} 0%, #050505 70%);
-        transform-origin:center}
-      .stage.is-playing{animation:ken 42s ease-in-out alternate infinite}
-      .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 28%,transparent 58%,rgba(0,0,0,.55))}
-      @keyframes ken{from{transform:scale(1)}to{transform:scale(1.1)}}
+      .stage{position:absolute;inset:0;background:#050505}
+      .plate{position:absolute;inset:-14%;background-size:cover;background-position:center;opacity:0;transition:opacity .85s ease;transform-origin:center;filter:saturate(1.05) contrast(1.06)}
+      .plate.is-on{opacity:1}
+      .stage.is-playing .plate.is-on{animation:ken 16s ease-in-out alternate infinite}
+      .stage.is-playing .plate.is-on:nth-child(2){animation-name:ken-b}
+      .stage.is-playing .plate.is-on:nth-child(3){animation-name:ken-c}
+      .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42),transparent 22%,transparent 62%,rgba(0,0,0,.58))}
+      .grain{position:absolute;inset:-20%;pointer-events:none;opacity:.16;mix-blend-mode:overlay;background-image:repeating-radial-gradient(circle at 18% 22%, rgba(255,255,255,.55) 0 1px, transparent 1px 3px);animation:grain .28s steps(2) infinite}
+      .flicker{position:absolute;inset:0;pointer-events:none;background:rgba(255,255,255,.025);animation:flicker 6s ease-in-out infinite}
+      .letter{position:absolute;left:0;right:0;height:5.5%;background:#000;z-index:3}
+      .letter.top{top:0}
+      .letter.bot{bottom:0}
+      .wash{position:absolute;inset:0;background:radial-gradient(circle at 72% 28%, ${accent} 0%, transparent 36%), radial-gradient(circle at 18% 82%, ${color} 0%, transparent 52%);opacity:.28;mix-blend-mode:soft-light}
+      @keyframes ken{from{transform:scale(1.02) translate3d(0,0,0)}to{transform:scale(1.14) translate3d(-3%,1.4%,0)}}
+      @keyframes ken-b{from{transform:scale(1.08) translate3d(2%,-1%,0)}to{transform:scale(1.18) translate3d(-1%,2%,0)}}
+      @keyframes ken-c{from{transform:scale(1.04) translate3d(-2%,1%,0)}to{transform:scale(1.16) translate3d(2%,-2%,0)}}
+      @keyframes grain{to{transform:translate3d(-3%,4%,0)}}
+      @keyframes flicker{0%,100%{opacity:.2}40%{opacity:.05}72%{opacity:.28}}
+      .stage.is-paused .grain,.stage.is-paused .flicker{animation-play-state:paused}
     </style>
   </head>
   <body>
-    <div class="stage is-playing"></div>
+    <div class="stage is-playing">
+      <div class="plate is-on" style="background-image:url('${plates[0]}')"></div>
+      <div class="plate" style="background-image:url('${plates[1]}')"></div>
+      <div class="plate" style="background-image:url('${plates[2]}')"></div>
+      <div class="wash"></div>
+    </div>
     <div class="veil"></div>
+    <div class="grain"></div>
+    <div class="flicker"></div>
+    <div class="letter top"></div>
+    <div class="letter bot"></div>
     <script>
       const SOURCE = 'flix-player'
       let duration = ${runtime}
       let current = ${start}
       let paused = false
+      let shot = 0
       const stage = document.querySelector('.stage')
+      const plates = [...document.querySelectorAll('.plate')]
+      function showShot(next) {
+        shot = (next + plates.length) % plates.length
+        plates.forEach((plate, index) => plate.classList.toggle('is-on', index === shot))
+      }
       function tick(dt) {
         if (!paused) current = Math.min(duration, current + dt)
         parent.postMessage({ source: SOURCE, type: 'time', current, duration, paused }, '*')
@@ -137,13 +171,20 @@ function playerPage(item, season, episode, query = {}) {
         requestAnimationFrame(loop)
       }
       requestAnimationFrame(loop)
+      setInterval(() => { if (!paused) showShot(shot + 1) }, 7800)
       window.addEventListener('message', (event) => {
         const data = event.data || {}
         if (data.source !== SOURCE) return
-        if (data.cmd === 'play') { paused = false; stage.classList.add('is-playing') }
-        if (data.cmd === 'pause') { paused = true; stage.classList.remove('is-playing') }
-        if (data.cmd === 'seek' && typeof data.seconds === 'number') current = Math.max(0, Math.min(duration, data.seconds))
-        if (data.cmd === 'skip' && typeof data.delta === 'number') current = Math.max(0, Math.min(duration, current + data.delta))
+        if (data.cmd === 'play') { paused = false; stage.classList.add('is-playing'); stage.classList.remove('is-paused') }
+        if (data.cmd === 'pause') { paused = true; stage.classList.remove('is-playing'); stage.classList.add('is-paused') }
+        if (data.cmd === 'seek' && typeof data.seconds === 'number') {
+          current = Math.max(0, Math.min(duration, data.seconds))
+          showShot(shot + 1)
+        }
+        if (data.cmd === 'skip' && typeof data.delta === 'number') {
+          current = Math.max(0, Math.min(duration, current + data.delta))
+          showShot(shot + (data.delta > 0 ? 1 : plates.length - 1))
+        }
       })
     </script>
   </body>
