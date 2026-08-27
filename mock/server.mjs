@@ -253,11 +253,13 @@ function playerPage(item, season, episode, query = {}) {
         ytFrame.allow = 'autoplay; encrypted-media'
         ytFrame.tabIndex = -1
         wrap.appendChild(ytFrame)
+        revealYt()
         ytFrame.addEventListener('load', function () {
           try { ytFrame.contentWindow.postMessage(JSON.stringify({ event: 'listening' }), '*') } catch (err) {}
           postYouTube('addEventListener', ['onStateChange'])
           applyAudio()
           applyTransport()
+          revealYt()
         })
         parent.postMessage({ source: SOURCE, type: 'media', kind: 'youtube' }, '*')
       }
@@ -275,7 +277,9 @@ function playerPage(item, season, episode, query = {}) {
             if (typeof ytPayload.info.duration === 'number' && ytPayload.info.duration > 1) {
               duration = ytPayload.info.duration
               usingYt = true
+              revealYt()
             }
+            if (typeof ytPayload.info.currentTime === 'number' && ytPayload.info.currentTime > 0.1) revealYt()
           }
           const state = playerStateOf(ytPayload)
           if (state === PLAYING) {
