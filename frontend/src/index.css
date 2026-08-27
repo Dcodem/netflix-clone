@@ -4491,7 +4491,7 @@ select,
   transform: translateY(-50%);
   width: 108px;
   height: 40px;
-  background: transparent;
+  background: rgba(20, 20, 20, 0.72);
   border-radius: 4px;
   place-items: center;
   padding: 0 8px 0 4px;
@@ -5034,7 +5034,7 @@ select,
   visibility: visible;
 }
 
-@media (pointer: coarse) {
+@media (max-width: 767px) {
   .watch-vol-rail {
     left: 50%;
     top: auto;
