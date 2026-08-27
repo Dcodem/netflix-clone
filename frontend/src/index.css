@@ -212,29 +212,27 @@ select,
   outline: none;
   color: var(--text);
   font-size: 14px;
+  padding-right: 2px;
 }
 
 .search-wrap input::placeholder {
   color: var(--muted-2);
 }
 
-.search-wrap input[type="search"]::-webkit-search-cancel-button,
-.search-wrap input[type="search"]::-webkit-search-decoration {
-  -webkit-appearance: none;
-  appearance: none;
-}
-
 .search-close {
   display: none;
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   background: none;
   border: 0;
   color: #fff;
   cursor: pointer;
   padding: 0;
   place-items: center;
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .search-close.is-shown {

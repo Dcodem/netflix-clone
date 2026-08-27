@@ -160,7 +160,9 @@ export function Header() {
               <>
                 <input
                   ref={inputRef}
-                  type="search"
+                  type="text"
+                  inputMode="search"
+                  autoComplete="off"
                   placeholder="Titles, people, genres"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
