@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom'
 import { getCatalogMany, getMovies, searchTitles } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
-import { CatalogImage } from '../components/CatalogImage'
 import { ClockIcon, CloseIcon } from '../components/Icons'
 import { MediaGrid } from '../components/MediaGrid'
 import { Spinner } from '../components/Spinner'
@@ -110,20 +109,8 @@ export function Search() {
         {recentBlock}
         {popularItems.length ? (
           <>
-            <h2 className="section-title">Popular Searches</h2>
-            <ol className="search-top">
-              {popularItems.slice(0, 10).map((item, index) => (
-                <li key={item.id}>
-                  <button type="button" onClick={() => setParams({ q: item.title })}>
-                    <span className="search-top-rank">{index + 1}</span>
-                    <span className="search-top-poster">
-                      <CatalogImage item={item} alt="" prefer="poster" />
-                    </span>
-                    {item.title}
-                  </button>
-                </li>
-              ))}
-            </ol>
+            <h2 className="section-title search-recommended-title">Recommended TV Shows and Movies</h2>
+            <MediaGrid items={popularItems} layout="poster" />
           </>
         ) : null}
       </main>

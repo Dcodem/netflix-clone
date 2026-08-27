@@ -2689,6 +2689,7 @@ select,
 
 .search-recents {
   max-width: 720px;
+  margin-bottom: 36px;
 }
 
 .search-recents-head {
@@ -3335,6 +3336,12 @@ select,
 .search-heading span {
   color: #fff;
   font-weight: 700;
+}
+
+.search-recommended-title {
+  margin: 8px 0 14px;
+  font-size: 18px;
+  color: #e5e5e5;
 }
 
 .search-page {
