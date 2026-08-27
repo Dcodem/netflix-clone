@@ -130,9 +130,9 @@ function playerPage(item, season, episode, query = {}) {
       .letter.top{top:0}
       .letter.bot{bottom:0}
       .wash{position:absolute;inset:0;background:radial-gradient(circle at 72% 28%, ${accent} 0%, transparent 36%), radial-gradient(circle at 18% 82%, ${color} 0%, transparent 52%);opacity:.28;mix-blend-mode:soft-light}
-      #ytwrap{position:absolute;inset:0;overflow:hidden;z-index:2;opacity:0;transition:opacity .6s ease;pointer-events:none;background:#000}
+      #ytwrap{position:absolute;inset:0;overflow:hidden;z-index:5;opacity:0;transition:opacity .6s ease;pointer-events:none;background:#000}
       #ytwrap.is-on{opacity:1}
-      #yt,#yt iframe{position:absolute;left:50%;top:50%;width:177.78vh;height:100vh;min-width:100vw;min-height:56.25vw;transform:translate(-50%,-50%);border:0;pointer-events:none}
+      #yt,#yt iframe{position:absolute!important;left:50%!important;top:50%!important;width:177.78vh!important;height:100vh!important;min-width:100vw!important;min-height:56.25vw!important;transform:translate(-50%,-50%)!important;border:0!important;pointer-events:none!important}
       body.is-video .stage,body.is-video .veil,body.is-video .grain,body.is-video .flicker,body.is-video .letter{opacity:0;animation:none}
       @keyframes ken{from{transform:scale(1.02) translate3d(0,0,0)}to{transform:scale(1.14) translate3d(-3%,1.4%,0)}}
       @keyframes ken-b{from{transform:scale(1.08) translate3d(2%,-1%,0)}to{transform:scale(1.18) translate3d(-1%,2%,0)}}
@@ -197,6 +197,16 @@ function playerPage(item, season, episode, query = {}) {
           showShot(shot + 1)
         }
       }
+      function revealYt() {
+        if (!wrap) return
+        wrap.classList.add('is-on')
+        document.body.classList.add('is-video')
+      }
+      function hideYt() {
+        if (!wrap) return
+        wrap.classList.remove('is-on')
+        document.body.classList.remove('is-video')
+      }
       function readYt() {
         if (!usingYt || !ytPlayer) return
         try {
@@ -207,6 +217,7 @@ function playerPage(item, season, episode, query = {}) {
           const state = ytPlayer.getPlayerState()
           if (state === 2 || state === 0) paused = true
           else if (state === 1) paused = false
+          if (state === 1 || (typeof ytCur === 'number' && ytCur > 0.2)) revealYt()
         } catch (err) {}
       }
       function tick(dt) {
@@ -251,19 +262,18 @@ function playerPage(item, season, episode, query = {}) {
             },
             onError: function () {
               usingYt = false
-              document.body.classList.remove('is-video')
-              wrap.classList.remove('is-on')
+              hideYt()
             },
             onStateChange: function (event) {
-              if (event.data === 0) {
+              const state = typeof event.data === 'number' ? event.data : (event.data && event.data.playerState)
+              if (state === 0) {
                 paused = true
                 current = duration
                 parent.postMessage({ source: SOURCE, type: 'time', current: current, duration: duration, paused: true }, '*')
               }
-              if (event.data === 1) {
+              if (state === 1) {
                 usingYt = true
-                wrap.classList.add('is-on')
-                document.body.classList.add('is-video')
+                revealYt()
               }
             }
           }
