@@ -5309,6 +5309,7 @@ select,
 
   .watch-overlay.is-chrome .watch-center {
     opacity: 1;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.32) 0%, transparent 58%);
   }
 
   .watch-center .watch-ctrl {
