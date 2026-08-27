@@ -376,7 +376,6 @@ select,
 
 .hero.is-playing .hero-syn,
 .hero.is-playing .hero-meta,
-.hero.is-playing .hero-genre-dots,
 .hero.is-playing .billboard-kicker {
   opacity: 0;
   max-height: 0;
