@@ -32,6 +32,7 @@ export function Hero({ item }: { item: MovieListItem }) {
   const [muted, setMuted] = useState(true)
   const [trailerReady, setTrailerReady] = useState(false)
   const [trailerEnded, setTrailerEnded] = useState(false)
+  const [settled, setSettled] = useState(false)
   const [scale, setScale] = useState(1.45)
   const previewActive = !openItem && !session && activeProfile?.autoplayPreview !== false
   const playing = trailerReady && previewActive && !trailerEnded
@@ -71,6 +72,13 @@ export function Hero({ item }: { item: MovieListItem }) {
     if (!previewActive) setMuted(true)
   }, [previewActive])
 
+  useEffect(() => {
+    setSettled(false)
+    if (!playing) return
+    const timer = window.setTimeout(() => setSettled(true), 6000)
+    return () => window.clearTimeout(timer)
+  }, [playing, item.id])
+
   const backdrop = detail?.backdrop_url || item.poster_url
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
   const sessionReady = buildWatchSession(item, detail, last)
@@ -98,7 +106,7 @@ export function Hero({ item }: { item: MovieListItem }) {
   }
 
   return (
-    <section className={`hero ${playing ? 'is-playing' : ''}`}>
+    <section className={`hero ${playing ? 'is-playing' : ''} ${settled ? 'is-settled' : ''}`}>
       <div className={`hero-media ${playing ? 'is-playing' : ''}`} ref={mediaRef}>
         <CatalogImage item={{ ...item, backdrop_url: backdrop }} alt="" className="hero-img" prefer="backdrop" />
         {previewActive ? (

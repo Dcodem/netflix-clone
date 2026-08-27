@@ -189,8 +189,8 @@ export function ProfileSelect() {
           <div className="profile-avatar pin-avatar" style={{ background: avatarFor(pinTarget).color }}>
             <AvatarArt avatar={avatarFor(pinTarget)} alt={pinTarget.name} />
           </div>
-          <h1>Enter your PIN</h1>
-          <p className="profiles-sub">Unlock {pinTarget.name} to keep watching.</p>
+          <h1>Profile Lock is currently on.</h1>
+          <p className="profiles-sub">Enter your PIN for {pinTarget.name}.</p>
           <PinBoxes value={pinGuess} onChange={setPinGuess} />
           {pinError ? <p className="login-error">{pinError}</p> : null}
           <button type="submit" className="visually-hidden">
