@@ -143,7 +143,7 @@ export function Search() {
           <h1 className="search-heading">
             Explore titles related to: <span>{q}</span>
           </h1>
-          <MediaGrid items={items} />
+          <MediaGrid items={items} layout="poster" />
         </>
       ) : (
         <>

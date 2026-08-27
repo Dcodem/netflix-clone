@@ -11,7 +11,7 @@ export function MyList() {
     <main className="page page-pad my-list-page">
       <h1 className="page-title">My List</h1>
       {items.length ? (
-        <MediaGrid items={items} />
+        <MediaGrid items={items} layout="poster" />
       ) : (
         <EmptyState
           title="You haven't added any titles to your list yet"

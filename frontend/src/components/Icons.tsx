@@ -166,8 +166,10 @@ export function HomeIcon({ className }: { className?: string }) {
 export function NewsIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="4" y="5" width="16" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M7.5 9h9M7.5 12.5h6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M12.2 3.4c.4 2.2-.4 3.6-1.6 4.8-1.1 1.1-1.8 2.1-1.6 3.6 1.6-1 2.6-1.2 3.8-.6-1.6 2.4.2 4.6 2.4 6.2 1.4 1 2.8 1.6 4.2 1.6-2.4 2.6-6.4 3.2-9.2 1.4C7.4 18.8 6 16.2 6 13.6 6 9.8 8.6 7.2 12.2 3.4z"
+        fill="currentColor"
+      />
     </svg>
   )
 }
