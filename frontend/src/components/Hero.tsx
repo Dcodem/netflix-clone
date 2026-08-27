@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
 import { genresOf, isShow } from '../lib/media'
-import { maturityLabel, qualityBadge } from '../lib/netflix'
+import { maturityLabel } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
@@ -81,7 +81,6 @@ export function Hero({ item }: { item: MovieListItem }) {
     : detail?.watch_href
   const maturity = maturityLabel(item)
   const synopsis = detail?.synopsis
-  const quality = qualityBadge(item.quality || detail?.quality)
 
   function onWatch() {
     if (!watchHref) return
@@ -135,18 +134,6 @@ export function Hero({ item }: { item: MovieListItem }) {
           <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
         </div>
         <h1 className="hero-title">{item.title}</h1>
-        <div className="hero-meta">
-          {item.year ? <span>{item.year}</span> : null}
-          {quality ? <span className="quality-badge">{quality}</span> : null}
-          {isShow(item) ? (
-            <span>
-              {seasons.length > 1 ? `${seasons.length} Seasons` : 'Series'}
-              {last?.seasonNumber && last?.episodeNumber
-                ? ` · S${last.seasonNumber}:E${last.episodeNumber}`
-                : ''}
-            </span>
-          ) : null}
-        </div>
         {synopsis ? <p className="hero-syn">{synopsis}</p> : null}
         <div className="hero-actions">
           <button type="button" className="btn btn-play" onClick={onWatch} disabled={!watchHref}>

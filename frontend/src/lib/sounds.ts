@@ -67,7 +67,7 @@ export function playWhoosh() {
 export function playClick() {
   try {
     const ac = audio()
-    tone(ac, 920, ac.currentTime, 0.045, 0.028, 'square')
+    tone(ac, 1480, ac.currentTime, 0.04, 0.012, 'sine')
   } catch {
     /* ignore */
   }

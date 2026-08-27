@@ -12,6 +12,7 @@ import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, uniqueById } from '../lib/media'
 import { filterForProfile, isKidsSafe, matchPercent, maturityLabel, qualityBadge } from '../lib/netflix'
+import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
@@ -106,6 +107,7 @@ export function TitleModal() {
 
   function playEpisode(episode: Episode, season: Season) {
     if (!detail) return
+    playClick()
     const watch = watchForEpisode(last, season.season_number, episode)
     closeTitle()
     openWatch(episode.watch_href, `${detail.title} · S${season.season_number}E${episode.number}`, {

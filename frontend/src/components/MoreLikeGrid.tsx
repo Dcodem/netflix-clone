@@ -24,6 +24,7 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
             <article key={item.id} className="more-like-card">
               <button type="button" className="more-like-art" onClick={() => openTitle(item)} aria-label={item.title}>
                 <CatalogImage item={item} alt="" prefer="backdrop" />
+                {item.year ? <span className="more-like-runtime">{item.year}</span> : null}
               </button>
               <div className="more-like-body">
                 <div className="more-like-meta">

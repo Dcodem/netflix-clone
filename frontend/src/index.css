@@ -111,7 +111,7 @@ select,
 }
 
 .logo {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 900;
   letter-spacing: -0.04em;
   text-decoration: none;
@@ -170,7 +170,7 @@ select,
 }
 
 .search-wrap.is-open {
-  width: min(260px, 46vw);
+  width: min(280px, 52vw);
   background: rgba(0, 0, 0, 0.85);
   border-color: #fff;
 }
@@ -337,7 +337,7 @@ select,
 }
 
 .hero.is-playing .hero-title {
-  transform: scale(0.86);
+  transform: scale(0.72);
 }
 
 .hero-syn,
@@ -515,8 +515,8 @@ select,
 }
 
 .row-arrow .icon {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
 }
 
 .row-arrow-prev {
@@ -577,7 +577,7 @@ select,
   text-align: left;
   cursor: pointer;
   background: var(--card);
-  border-radius: var(--radius);
+  border-radius: 2px;
   overflow: hidden;
   transform: translateZ(0);
   transition: transform 0.4s cubic-bezier(0.33, 0, 0.2, 1);
@@ -850,9 +850,10 @@ select,
 
 .ep-progress {
   position: absolute;
-  left: 6px;
-  right: 6px;
-  bottom: 6px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
   margin: 0;
 }
 
@@ -870,18 +871,23 @@ select,
 
 .episode {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 16px 12px;
+  border-bottom: 1px solid #2f2f2f;
+  border-radius: 4px;
+}
+
+.episode-btn:hover {
+  background: #2f2f2f;
 }
 
 .ep-thumb,
 .ep-thumb.media-fallback {
-  width: 118px;
+  width: 140px;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: var(--radius);
+  border-radius: 2px;
   background: var(--surface);
   flex-shrink: 0;
 }
@@ -900,13 +906,15 @@ select,
 
 .ep-title {
   font-weight: 700;
+  font-size: 16px;
 }
 
 .ep-meta,
 .ep-syn {
-  color: var(--muted);
-  font-size: 13px;
-  margin: 4px 0 0;
+  color: #d2d2d2;
+  font-size: 14px;
+  margin: 6px 0 0;
+  line-height: 1.4;
 }
 
 .ep-syn {
@@ -1334,7 +1342,7 @@ select,
 }
 
 .login-top .logo {
-  font-size: 36px;
+  font-size: 42px;
 }
 
 .login-veil {
@@ -1814,7 +1822,7 @@ select,
 
 .progress-track {
   height: 6px;
-  background: rgba(255, 255, 255, 0.35);
+  background: #4d4d4d;
   margin: 0;
 }
 
@@ -1835,8 +1843,8 @@ select,
 
 @keyframes jaw-in {
   from {
-    transform: scale(0.86);
-    opacity: 0.4;
+    transform: scale(0.92);
+    opacity: 0.65;
   }
   to {
     transform: scale(1);
@@ -1898,7 +1906,7 @@ select,
   gap: 6px 10px;
   align-items: center;
   margin-top: 12px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: #fff;
 }
@@ -1973,10 +1981,9 @@ select,
   margin-left: auto;
 }
 
-.size-sm .circle-btn {
-  width: 36px;
-  height: 36px;
-  font-size: 15px;
+.jawbone .circle-btn {
+  width: 40px;
+  height: 40px;
 }
 
 .title-modal-backdrop {
@@ -2108,7 +2115,7 @@ select,
 }
 
 .episode-btn:hover {
-  background: #2a2a2a;
+  background: #2f2f2f;
 }
 
 .more-like {
@@ -2539,6 +2546,7 @@ select,
   border: 0;
   background: #000;
   cursor: pointer;
+  position: relative;
 }
 
 .more-like-art img,
@@ -2586,6 +2594,23 @@ select,
   padding: 0;
 }
 
+.more-like-runtime {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  z-index: 1;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 2px;
+}
+
+.more-like-card:hover {
+  outline: 1px solid rgba(255, 255, 255, 0.18);
+}
+
 .more-like .section-title {
   margin: 8px 0 0;
   font-size: 22px;
@@ -2617,9 +2642,10 @@ select,
 }
 
 .search-heading {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
   margin: 8px 0 18px;
+  color: #fff;
 }
 
 .ep-num {
@@ -2780,7 +2806,7 @@ select,
 
 .progress-track {
   height: 6px;
-  background: rgba(255, 255, 255, 0.35);
+  background: #4d4d4d;
   margin: 0;
 }
 
@@ -2790,7 +2816,7 @@ select,
   right: 0;
   bottom: 0;
   height: 8px;
-  background: rgba(255, 255, 255, 0.38);
+  background: #4d4d4d;
 }
 
 @media (min-width: 700px) {
@@ -2821,6 +2847,10 @@ select,
 
   .login-card {
     padding: 28px 22px 24px;
+  }
+
+  .login-footer-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .rank-num {
@@ -3138,7 +3168,7 @@ select,
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px 24px;
   max-width: 900px;
 }
@@ -4242,7 +4272,7 @@ select,
 .kids-chip-row {
   display: flex;
   gap: 8px;
-  padding: 2px var(--page-gutter) 12px;
+  padding: 6px var(--page-gutter) 14px;
   overflow-x: auto;
   scrollbar-width: none;
 }
