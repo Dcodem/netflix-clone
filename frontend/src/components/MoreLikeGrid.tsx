@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieListItem, ShowDetail } from '../api/types'
-import { formatRuntime, genresOf, isShow } from '../lib/media'
+import { formatRuntime, isShow } from '../lib/media'
 import { matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
-import { CheckIcon, PlusIcon } from './Icons'
+import { CheckIcon, PlayIcon, PlusIcon } from './Icons'
 
-const chipCache = new Map<string, string>()
+type LikeChip = { chip: string; synopsis: string }
 
-async function chipFor(item: MovieListItem): Promise<string> {
+const chipCache = new Map<string, LikeChip>()
+
+async function chipFor(item: MovieListItem): Promise<LikeChip> {
   const hit = chipCache.get(item.id)
   if (hit) return hit
   const detail = isShow(item) ? await getShow(item.id) : await getMovie(item.id)
@@ -18,8 +20,9 @@ async function chipFor(item: MovieListItem): Promise<string> {
   const chip = seasons
     ? `${seasons} ${seasons === 1 ? 'Season' : 'Seasons'}`
     : formatRuntime(detail.runtime) ?? (item.year ? String(item.year) : '')
-  if (chip) chipCache.set(item.id, chip)
-  return chip
+  const info = { chip, synopsis: detail.synopsis?.trim() ?? '' }
+  if (info.chip || info.synopsis) chipCache.set(item.id, info)
+  return info
 }
 
 export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
@@ -27,11 +30,11 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
   const { activeProfile, toggleMyList } = useProfiles()
   const slice = items.slice(0, 9)
   const ids = slice.map((item) => item.id).join(',')
-  const [chips, setChips] = useState<Record<string, string>>({})
+  const [chips, setChips] = useState<Record<string, LikeChip>>({})
 
   useEffect(() => {
     let cancelled = false
-    const next: Record<string, string> = {}
+    const next: Record<string, LikeChip> = {}
     const missing: MovieListItem[] = []
     for (const item of slice) {
       const hit = chipCache.get(item.id)
@@ -43,15 +46,14 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
     Promise.all(
       missing.map(async (item) => {
         try {
-          const chip = await chipFor(item)
-          return [item.id, chip] as const
+          return [item.id, await chipFor(item)] as const
         } catch {
-          return [item.id, item.year ? String(item.year) : ''] as const
+          return [item.id, { chip: item.year ? String(item.year) : '', synopsis: '' }] as const
         }
       }),
     ).then((rows) => {
       if (cancelled) return
-      setChips((prev) => ({ ...prev, ...Object.fromEntries(rows.filter(([, value]) => value)) }))
+      setChips((prev) => ({ ...prev, ...Object.fromEntries(rows) }))
     })
     return () => {
       cancelled = true
@@ -69,18 +71,21 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
         {slice.map((item) => {
           const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
           const match = matchPercent(item, activeProfile)
-          const genres = genresOf(item).slice(0, 3)
-          const chip = chips[item.id]
+          const info = chips[item.id]
           return (
             <article key={item.id} className="more-like-card">
               <button type="button" className="more-like-art" onClick={() => openTitle(item)} aria-label={item.title}>
                 <CatalogImage item={item} alt="" prefer="backdrop" />
-                {chip ? <span className="more-like-runtime">{chip}</span> : null}
+                {info?.chip ? <span className="more-like-runtime">{info.chip}</span> : null}
+                <span className="more-like-play" aria-hidden="true">
+                  <PlayIcon className="icon" />
+                </span>
               </button>
               <div className="more-like-body">
                 <div className="more-like-meta">
                   <span className="match">{match}% Match</span>
                   <span className="maturity">{maturityLabel(item)}</span>
+                  {item.year ? <span>{item.year}</span> : null}
                   <button
                     type="button"
                     className={`circle-btn ${onList ? 'is-on' : ''}`}
@@ -90,10 +95,7 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
                     {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
                   </button>
                 </div>
-                {genres.length ? <p className="more-like-genres">{genres.join(' · ')}</p> : null}
-                <button type="button" className="more-like-title" onClick={() => openTitle(item)}>
-                  {item.title}
-                </button>
+                {info?.synopsis ? <p className="more-like-syn">{info.synopsis}</p> : <p className="more-like-title">{item.title}</p>}
               </div>
             </article>
           )

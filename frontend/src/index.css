@@ -2174,6 +2174,7 @@ select,
   margin-top: 8px;
   color: #d2d2d2;
   font-size: 14px;
+  letter-spacing: 0.01em;
 }
 
 .title-actions {
@@ -3078,6 +3079,33 @@ select,
   background: #000;
   cursor: pointer;
   position: relative;
+}
+
+.more-like-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  background: rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.more-like-play .icon {
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
+}
+
+.more-like-art:hover .more-like-play,
+.more-like-art:focus-visible .more-like-play {
+  opacity: 1;
 }
 
 .more-like-art img,
