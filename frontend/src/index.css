@@ -293,13 +293,15 @@ select,
   inset: 0;
   overflow: hidden;
   opacity: 0;
+  visibility: hidden;
   z-index: 1;
   pointer-events: none;
-  transition: opacity 1.35s ease;
+  transition: opacity 1.35s ease, visibility 1.35s ease;
 }
 
 .hero-media.is-playing .hero-trailer-clip {
   opacity: 1;
+  visibility: visible;
 }
 
 .hero::after,
@@ -1297,6 +1299,12 @@ select,
   object-fit: cover;
   transform: translate(-50%, -50%) scale(var(--trailer-scale, 1.45));
   transform-origin: center center;
+}
+
+.trailer-frame.is-pending {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 .login-page {

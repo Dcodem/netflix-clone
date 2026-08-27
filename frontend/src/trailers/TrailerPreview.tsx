@@ -7,6 +7,8 @@ export type TrailerHandle = {
   setMuted: (muted: boolean) => void
 }
 
+const PLAYING = 1
+
 function postYouTube(iframe: HTMLIFrameElement, func: string, args: unknown[] = []) {
   iframe.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), '*')
 }
@@ -22,6 +24,14 @@ function parseYouTubeMessage(data: unknown): { event?: string; info?: number | {
   }
   if (!payload || typeof payload !== 'object') return null
   return payload as { event?: string; info?: number | { playerState?: number } }
+}
+
+function playerState(payload: { event?: string; info?: number | { playerState?: number } }): number | null {
+  if (payload.event === 'onStateChange' && typeof payload.info === 'number') return payload.info
+  if (payload.event === 'infoDelivery' && payload.info && typeof payload.info === 'object') {
+    return typeof payload.info.playerState === 'number' ? payload.info.playerState : null
+  }
+  return null
 }
 
 export const TrailerPreview = forwardRef<
@@ -45,6 +55,7 @@ export const TrailerPreview = forwardRef<
     tmdb: (user?.tmdbKey || envKeys().tmdb).trim(),
   }
   const [hit, setHit] = useState<TrailerHit | null>(null)
+  const [live, setLive] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const mutedRef = useRef(muted)
@@ -54,6 +65,7 @@ export const TrailerPreview = forwardRef<
   useEffect(() => {
     let cancelled = false
     setHit(null)
+    setLive(false)
     readyRef.current = false
     if (!keys.iva && !keys.tmdb) return
     const timer = window.setTimeout(() => {
@@ -96,6 +108,7 @@ export const TrailerPreview = forwardRef<
   function markReady() {
     if (readyRef.current) return
     readyRef.current = true
+    setLive(true)
     onReadyRef.current?.()
     applyMute(mutedRef.current)
   }
@@ -109,15 +122,20 @@ export const TrailerPreview = forwardRef<
       if (!iframe || event.source !== iframe.contentWindow) return
       const payload = parseYouTubeMessage(event.data)
       if (!payload) return
-      const state = typeof payload.info === 'number' ? payload.info : payload.info?.playerState
       if (payload.event === 'onReady' || payload.event === 'initialDelivery') {
         postYouTube(iframe, 'addEventListener', ['onStateChange'])
         applyMute(mutedRef.current)
       }
-      if (state === 1 || state === 3) markReady()
+      if (playerState(payload) === PLAYING) markReady()
     }
+    const fail = window.setTimeout(() => {
+      if (!readyRef.current) setHit(null)
+    }, 8000)
     window.addEventListener('message', onMessage)
-    return () => window.removeEventListener('message', onMessage)
+    return () => {
+      window.clearTimeout(fail)
+      window.removeEventListener('message', onMessage)
+    }
   }, [hit])
 
   if (!hit) return null
@@ -140,7 +158,7 @@ export const TrailerPreview = forwardRef<
     return (
       <iframe
         ref={iframeRef}
-        className={className}
+        className={`${className ?? ''} trailer-frame ${live ? 'is-live' : 'is-pending'}`}
         src={`https://www.youtube-nocookie.com/embed/${hit.src}?${params.toString()}`}
         title={`${title} trailer`}
         allow="autoplay; encrypted-media"
@@ -155,7 +173,7 @@ export const TrailerPreview = forwardRef<
   return (
     <video
       ref={videoRef}
-      className={className}
+      className={`${className ?? ''} trailer-frame ${live ? 'is-live' : 'is-pending'}`}
       src={hit.src}
       autoPlay
       muted={muted}
