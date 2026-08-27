@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem } from '../api/types'
 import { formatRuntime, genresOf, isShow } from '../lib/media'
 import { matchPercent, maturityLabel, qualityBadge } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
-import { TrailerPreview } from '../trailers/TrailerPreview'
+import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { CatalogImage } from './CatalogImage'
+import { SpeakerIcon } from './Icons'
 import { TitleActions } from './TitleActions'
 
 export function TitleHoverCard({
@@ -25,8 +26,10 @@ export function TitleHoverCard({
   onKeep: () => void
 }) {
   const { activeProfile } = useProfiles()
+  const trailerRef = useRef<TrailerHandle>(null)
   const [detail, setDetail] = useState<MovieDetail | null>(null)
   const [trailerReady, setTrailerReady] = useState(false)
+  const [muted, setMuted] = useState(true)
 
   useEffect(() => {
     let cancelled = false
@@ -68,6 +71,12 @@ export function TitleHoverCard({
   const originX = Math.max(24, Math.min(width - 24, anchor.left + anchor.width / 2 - left))
   const originY = Math.max(24, Math.min(160, anchor.top + anchor.height / 2 - top))
 
+  function toggleMute() {
+    const next = !muted
+    trailerRef.current?.setMuted(next)
+    setMuted(next)
+  }
+
   return createPortal(
     <div
       className="jawbone"
@@ -78,10 +87,12 @@ export function TitleHoverCard({
       <div className={`jawbone-art ${trailerReady ? 'is-playing' : ''}`}>
         <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
         <TrailerPreview
+          ref={trailerRef}
           title={item.title}
           year={item.year}
           kind={item.kind}
           mode="mini"
+          muted={muted}
           className="jawbone-trailer"
           onReady={() => setTrailerReady(true)}
         />
@@ -89,6 +100,16 @@ export function TitleHoverCard({
           <div className="progress-track jawbone-progress">
             <div style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
+        ) : null}
+        {trailerReady ? (
+          <button
+            type="button"
+            className="hero-mute jawbone-mute"
+            onClick={toggleMute}
+            aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+          >
+            <SpeakerIcon muted={muted} className="icon" />
+          </button>
         ) : null}
       </div>
       <div className="jawbone-body">

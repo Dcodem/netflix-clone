@@ -15,6 +15,11 @@ const NAV = [
   { to: '/browse/my-list', label: 'My List' },
 ] as const
 
+const KIDS_NAV = [
+  { to: '/browse', label: 'Home', end: true },
+  { to: '/browse/my-list', label: 'My List' },
+] as const
+
 export function Header() {
   const { activeProfile } = useProfiles()
   const [searchParams] = useSearchParams()
@@ -33,6 +38,7 @@ export function Header() {
   const searchRef = useRef<HTMLDivElement>(null)
   const debounced = useDebouncedValue(query.trim(), 350)
   const open = searchOpen || Boolean(query) || location.pathname === '/search'
+  const links = activeProfile?.kids ? KIDS_NAV : NAV
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -99,7 +105,7 @@ export function Header() {
         <details className="browse-menu">
           <summary>Browse</summary>
           <div className="browse-menu-list">
-            {NAV.map((link) => (
+            {links.map((link) => (
               <NavLink
                 key={link.to}
                 className="nav-link"
@@ -113,7 +119,7 @@ export function Header() {
           </div>
         </details>
         <nav className="primary-nav" aria-label="Browse">
-          {NAV.map((link) => (
+          {links.map((link) => (
             <NavLink key={link.to} className="nav-link" to={link.to} end={'end' in link ? link.end : false}>
               {link.label}
             </NavLink>

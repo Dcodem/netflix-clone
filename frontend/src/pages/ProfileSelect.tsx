@@ -32,7 +32,11 @@ export function ProfileSelect() {
   }
 
   async function onSelect(profile: Profile) {
-    if (managing) return
+    if (managing) {
+      setEditingId(profile.id)
+      setEditName(profile.name)
+      return
+    }
     if (profile.pinHash) {
       setPinTarget(profile)
       setPinGuess('')
@@ -48,7 +52,7 @@ export function ProfileSelect() {
     if (!pinTarget) return
     const ok = await unlockProfile(pinTarget.id, pinGuess)
     if (!ok) {
-      setPinError('That PIN does not match.')
+      setPinError('Incorrect PIN. Please try again.')
       return
     }
     setPinTarget(null)
@@ -64,84 +68,20 @@ export function ProfileSelect() {
     setAdding(false)
   }
 
+  const picked = PROFILE_AVATARS.find((avatar) => avatar.id === (kids ? 'kids' : avatarId)) ?? PROFILE_AVATARS[0]
+
   return (
     <main className="profiles-page">
       <div className="logo profiles-logo">FLIX</div>
-      <h1>{adding ? 'Add a profile' : managing ? 'Manage Profiles' : "Who's watching?"}</h1>
-      <div className="profile-grid">
-        {profiles.map((profile) => {
-          const avatar = avatarFor(profile)
-          return (
-            <div key={profile.id} className="profile-cell">
-              <button
-                type="button"
-                className={`profile-avatar ${managing ? 'is-managing' : ''} ${profile.kids ? 'is-kids' : ''}`}
-                style={{ background: avatar.color }}
-                onClick={() => onSelect(profile)}
-              >
-                <AvatarArt avatar={avatar} alt={profile.name} />
-                {managing ? (
-                  <span className="profile-pencil" aria-hidden="true">
-                    <PencilIcon className="icon" />
-                  </span>
-                ) : null}
-              </button>
-              {editingId === profile.id ? (
-                <form
-                  className="profile-edit"
-                  onSubmit={(event) => {
-                    event.preventDefault()
-                    renameProfile(profile.id, editName)
-                    setEditingId(null)
-                  }}
-                >
-                  <input
-                    value={editName}
-                    onChange={(event) => setEditName(event.target.value)}
-                    autoFocus
-                  />
-                </form>
-              ) : (
-                <div className="profile-name">
-                  {profile.name}
-                  {profile.kids ? <span className="kids-tag">Kids</span> : null}
-                  {profile.pinHash ? <span className="kids-tag">PIN</span> : null}
-                </div>
-              )}
-              {managing ? (
-                <div className="profile-manage">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingId(profile.id)
-                      setEditName(profile.name)
-                    }}
-                  >
-                    Rename
-                  </button>
-                  <button type="button" className="danger" onClick={() => deleteProfile(profile.id)}>
-                    Delete
-                  </button>
-                </div>
-              ) : null}
-            </div>
-          )
-        })}
-        {adding ? null : (
-          <div className="profile-cell">
-            <button type="button" className="profile-add" onClick={() => setAdding(true)} aria-label="Add profile">
-              <span className="profile-add-plus">
-                <PlusIcon className="icon" />
-              </span>
-            </button>
-            <div className="profile-name">Add Profile</div>
-          </div>
-        )}
-      </div>
       {pinTarget ? (
-        <form className="profile-form pin-form" onSubmit={onPin}>
-          <p>Enter the PIN for {pinTarget.name}</p>
+        <form className="pin-sheet" onSubmit={onPin}>
+          <div className="profile-avatar pin-avatar" style={{ background: avatarFor(pinTarget).color }}>
+            <AvatarArt avatar={avatarFor(pinTarget)} alt={pinTarget.name} />
+          </div>
+          <h1>Enter your PIN</h1>
+          <p className="profiles-sub">Unlock {pinTarget.name} to keep watching.</p>
           <input
+            className="pin-input"
             inputMode="numeric"
             pattern="\d{4}"
             maxLength={4}
@@ -150,6 +90,7 @@ export function ProfileSelect() {
             placeholder="••••"
             autoFocus
             required
+            aria-label="PIN"
           />
           {pinError ? <p className="login-error">{pinError}</p> : null}
           <button type="submit" className="btn btn-primary">
@@ -159,23 +100,39 @@ export function ProfileSelect() {
             Cancel
           </button>
         </form>
-      ) : null}
-      {adding ? (
-        <form className="profile-form add-profile-form" onSubmit={onAdd}>
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Name"
-            autoFocus
-            required
-          />
-          <p className="section-sub">Pick a profile picture</p>
+      ) : adding ? (
+        <form className="add-profile-sheet" onSubmit={onAdd}>
+          <h1>Add Profile</h1>
+          <p className="profiles-sub">Add a profile for another person watching Flix.</p>
+          <div className="add-profile-row">
+            <button
+              type="button"
+              className="profile-avatar"
+              style={{ background: picked.color }}
+              aria-label="Change profile picture"
+              onClick={() => {
+                const next = PROFILE_AVATARS[(PROFILE_AVATARS.findIndex((a) => a.id === picked.id) + 1) % PROFILE_AVATARS.length]
+                setAvatarId(next.id)
+                setKids(next.id === 'kids')
+              }}
+            >
+              <AvatarArt avatar={picked} alt={picked.label} />
+            </button>
+            <input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Name"
+              autoFocus
+              required
+              aria-label="Profile name"
+            />
+          </div>
           <div className="avatar-picker">
             {PROFILE_AVATARS.map((avatar) => (
               <button
                 type="button"
                 key={avatar.id}
-                className={`profile-avatar picker ${(!kids && avatarId === avatar.id) || (kids && avatar.id === 'kids') ? 'is-on' : ''}`}
+                className={`profile-avatar picker ${picked.id === avatar.id ? 'is-on' : ''}`}
                 style={{ background: avatar.color }}
                 onClick={() => {
                   setAvatarId(avatar.id)
@@ -197,7 +154,7 @@ export function ProfileSelect() {
                 if (next) setAvatarId('kids')
               }}
             />
-            Kids profile (only PG titles)
+            Kid?
           </label>
           {!kids ? (
             <input
@@ -206,36 +163,106 @@ export function ProfileSelect() {
               maxLength={4}
               value={pin}
               onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
-              placeholder="Optional 4-digit PIN"
+              placeholder="Optional PIN"
             />
           ) : null}
-          <button type="submit" className="btn btn-primary">
-            Create
-          </button>
-          <button type="button" className="btn btn-ghost" onClick={() => setAdding(false)}>
-            Cancel
-          </button>
+          <div className="add-profile-actions">
+            <button type="submit" className="btn btn-light">
+              Continue
+            </button>
+            <button type="button" className="btn manage-profiles" onClick={() => setAdding(false)}>
+              Cancel
+            </button>
+          </div>
         </form>
-      ) : null}
-      {profiles.length && !adding ? (
-        <button
-          type="button"
-          className="btn manage-profiles"
-          onClick={() => setManaging((value) => !value)}
-        >
-          {managing ? 'Done' : 'Manage Profiles'}
-        </button>
-      ) : null}
-      <button
-        type="button"
-        className="btn btn-ghost manage-btn"
-        onClick={() => {
-          logout()
-          navigate('/login')
-        }}
-      >
-        Sign out
-      </button>
+      ) : (
+        <>
+          <h1>{managing ? 'Manage Profiles' : "Who's watching?"}</h1>
+          <div className="profile-grid">
+            {profiles.map((profile) => {
+              const avatar = avatarFor(profile)
+              return (
+                <div key={profile.id} className="profile-cell">
+                  <button
+                    type="button"
+                    className={`profile-avatar ${managing ? 'is-managing' : ''} ${profile.kids ? 'is-kids' : ''}`}
+                    style={{ background: avatar.color }}
+                    onClick={() => onSelect(profile)}
+                  >
+                    <AvatarArt avatar={avatar} alt={profile.name} />
+                    {managing ? (
+                      <span className="profile-pencil" aria-hidden="true">
+                        <PencilIcon className="icon" />
+                      </span>
+                    ) : null}
+                  </button>
+                  {editingId === profile.id ? (
+                    <form
+                      className="profile-edit"
+                      onSubmit={(event) => {
+                        event.preventDefault()
+                        renameProfile(profile.id, editName)
+                        setEditingId(null)
+                      }}
+                    >
+                      <input value={editName} onChange={(event) => setEditName(event.target.value)} autoFocus />
+                    </form>
+                  ) : (
+                    <div className="profile-name">
+                      {profile.name}
+                      {profile.kids ? <span className="kids-tag">Kids</span> : null}
+                      {profile.pinHash ? <span className="kids-tag">PIN</span> : null}
+                    </div>
+                  )}
+                  {managing ? (
+                    <div className="profile-manage">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingId(profile.id)
+                          setEditName(profile.name)
+                        }}
+                      >
+                        Rename
+                      </button>
+                      <button type="button" className="danger" onClick={() => deleteProfile(profile.id)}>
+                        Delete
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              )
+            })}
+            <div className="profile-cell">
+              <button type="button" className="profile-add" onClick={() => setAdding(true)} aria-label="Add profile">
+                <span className="profile-add-plus">
+                  <PlusIcon className="icon" />
+                </span>
+              </button>
+              <div className="profile-name">Add Profile</div>
+            </div>
+          </div>
+          {profiles.length ? (
+            <button
+              type="button"
+              className="btn manage-profiles"
+              onClick={() => setManaging((value) => !value)}
+            >
+              {managing ? 'Done' : 'Manage Profiles'}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="profiles-signout"
+            onClick={() => {
+              logout()
+              navigate('/login')
+            }}
+          >
+            Sign out
+          </button>
+        </>
+      )}
     </main>
   )
 }

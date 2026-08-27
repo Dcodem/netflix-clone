@@ -22,6 +22,7 @@ export function TitleActions({
   size = 'md',
   showMore = true,
   continueMode = false,
+  playStyle = 'circle',
 }: {
   item: MovieListItem
   detail?: MovieDetail | null
@@ -29,6 +30,7 @@ export function TitleActions({
   size?: 'sm' | 'md'
   showMore?: boolean
   continueMode?: boolean
+  playStyle?: 'circle' | 'labeled'
 }) {
   const { openWatch } = useWatch()
   const { openTitle, closeTitle } = useTitleModal()
@@ -60,16 +62,23 @@ export function TitleActions({
   }
 
   return (
-    <div className={`title-actions size-${size}`}>
-      <button
-        type="button"
-        className="circle-btn circle-play"
-        onClick={() => play(false)}
-        disabled={!href}
-        aria-label={continueMode ? 'Resume' : 'Play'}
-      >
-        <PlayIcon className="icon" />
-      </button>
+    <div className={`title-actions size-${size} play-${playStyle}`}>
+      {playStyle === 'labeled' ? (
+        <button type="button" className="btn btn-play" onClick={() => play(false)} disabled={!href}>
+          <PlayIcon className="icon" />
+          {continueMode ? 'Resume' : 'Play'}
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="circle-btn circle-play"
+          onClick={() => play(false)}
+          disabled={!href}
+          aria-label={continueMode ? 'Resume' : 'Play'}
+        >
+          <PlayIcon className="icon" />
+        </button>
+      )}
       {continueMode ? (
         <button type="button" className="circle-btn" onClick={() => play(true)} disabled={!href} aria-label="Play from beginning">
           <RestartIcon className="icon" />

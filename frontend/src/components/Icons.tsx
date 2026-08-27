@@ -165,3 +165,71 @@ export function BellIcon({ className }: { className?: string }) {
     </svg>
   )
 }
+
+export function FullscreenIcon({ className, exit }: { className?: string; exit?: boolean }) {
+  if (exit) {
+    return (
+      <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M8 4H4v4M16 4h4v4M8 20H4v-4M16 20h4v-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
+    )
+  }
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+export function FacebookIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M14.5 8.5V6.8c0-.7.5-1.3 1.5-1.3h1.5V3h-2.2C12.4 3 11 4.6 11 6.8v1.7H9v2.7h2V21h3.2v-9.8h2.3l.5-2.7h-2.8z"
+      />
+    </svg>
+  )
+}
+
+export function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="4" y="4" width="16" height="16" rx="5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="3.4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="16.6" cy="7.4" r="1" fill="currentColor" />
+    </svg>
+  )
+}
+
+export function TwitterIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M4 5.2h4.1l4 5.4L16.6 5.2H20l-6.3 7.6L20.4 18.8h-4.1l-4.4-5.9-4.7 5.9H3.2l6.8-8z"
+      />
+    </svg>
+  )
+}
+
+export function YoutubeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="6.5" width="18" height="11" rx="2.4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path fill="currentColor" d="M10.4 9.4v5.2L15.4 12z" />
+    </svg>
+  )
+}

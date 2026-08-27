@@ -15,8 +15,8 @@ export function MyList() {
         <MediaGrid items={items} />
       ) : (
         <EmptyState
-          title="Your list is empty"
-          detail="Add titles from the hover preview or More Info modal."
+          title="You haven't added any titles to your list yet"
+          detail="Add titles from a hover preview or More Info to watch them later."
         />
       )}
     </main>

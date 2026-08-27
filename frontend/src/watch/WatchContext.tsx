@@ -50,7 +50,12 @@ export function WatchProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!session) return
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeWatch()
+      if (event.key !== 'Escape') return
+      if (document.fullscreenElement) {
+        void document.exitFullscreen()
+        return
+      }
+      closeWatch()
     }
     window.addEventListener('keydown', onKey)
     const previous = document.body.style.overflow

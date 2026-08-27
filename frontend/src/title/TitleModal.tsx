@@ -152,7 +152,14 @@ export function TitleModal() {
           />
           <div className="title-modal-hero-body">
             <h1>{item.title}</h1>
-            <TitleActions item={item} detail={detail} watchHref={watchHref} showMore={false} continueMode={continueMode} />
+            <TitleActions
+              item={item}
+              detail={detail}
+              watchHref={watchHref}
+              showMore={false}
+              continueMode={continueMode}
+              playStyle="labeled"
+            />
           </div>
           <div className="hero-controls-right">
             {trailerReady ? (
