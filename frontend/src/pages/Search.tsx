@@ -105,7 +105,7 @@ export function Search() {
         {popularItems.length ? (
           <>
             <h2 className="section-title search-recommended-title">Recommended TV Shows and Movies</h2>
-            <MediaGrid items={popularItems} layout="poster" />
+            <MediaGrid items={popularItems} layout="poster" hoverable={false} />
           </>
         ) : null}
       </main>
@@ -135,7 +135,7 @@ export function Search() {
           <h1 className="search-heading">
             Explore titles related to: <span>{q}</span>
           </h1>
-          <MediaGrid items={items} layout="poster" />
+          <MediaGrid items={items} layout="poster" hoverable={false} />
         </>
       ) : (
         <>
