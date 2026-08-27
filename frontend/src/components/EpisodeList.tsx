@@ -3,7 +3,7 @@ import type { Episode, Season } from '../api/types'
 import { isEpisodeStarted, isEpisodeWatched, seasonStats, watchForEpisode } from '../lib/episodeProgress'
 import type { WatchHistoryItem } from '../profiles/types'
 import { episodeStill, stillFocus } from '../lib/media'
-import { PlayIcon } from './Icons'
+import { CheckIcon, PlayIcon } from './Icons'
 import { MediaImage } from './MediaImage'
 
 export function EpisodeList({
@@ -75,7 +75,7 @@ export function EpisodeList({
                 <div className="ep-thumb-wrap" style={{ '--focal': stillFocus(episode.number) } as CSSProperties}>
                   <MediaImage src={episodeStill(stills, episode.number, episode.thumb_url)} alt="" className="ep-thumb" />
                   <span className="ep-play">
-                    <PlayIcon className="icon" />
+                    {done ? <CheckIcon className="icon" /> : <PlayIcon className="icon" />}
                   </span>
                   {started ? (
                     <div className="progress-track ep-progress">

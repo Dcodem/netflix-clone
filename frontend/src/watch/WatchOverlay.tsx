@@ -553,17 +553,6 @@ export function WatchOverlay() {
           post({ cmd: 'volume', value: audio.muted ? 0 : audio.volume })
         }}
       />
-      <button
-        type="button"
-        className="watch-back"
-        onClick={(event) => {
-          event.stopPropagation()
-          closeWatch()
-        }}
-        aria-label="Back"
-      >
-        <ChevronLeftIcon className="icon" />
-      </button>
       {flash ? (
         <div className={`watch-flash is-${flash}`} aria-hidden="true">
           {flash === 'play' ? <PlayIcon className="icon" /> : null}
@@ -578,6 +567,17 @@ export function WatchOverlay() {
         onPointerEnter={() => setBarHover(true)}
         onPointerLeave={() => setBarHover(false)}
       >
+        <button
+          type="button"
+          className="watch-back"
+          onClick={(event) => {
+            event.stopPropagation()
+            closeWatch()
+          }}
+          aria-label="Back"
+        >
+          <ChevronLeftIcon className="icon" />
+        </button>
         <div className="watch-title-stack">
           <p className="watch-title">{session.history?.title || session.title}</p>
           {episodeLabel ? (

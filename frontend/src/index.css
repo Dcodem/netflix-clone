@@ -162,7 +162,7 @@ select,
 
 .nav-link.active {
   color: #fff;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .search-wrap {
@@ -2717,6 +2717,10 @@ select,
     padding: 10px 18px;
   }
 
+  .hero-actions .btn-play {
+    flex: 1;
+  }
+
   .hero-controls-right {
     bottom: max(16px, calc(12% + var(--safe-bottom)));
   }
@@ -3258,6 +3262,11 @@ select,
   filter: drop-shadow(0 2px 8px #000);
 }
 
+.episode.is-watched .ep-play {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.45);
+}
+
 .ep-thumb-wrap img,
 .ep-thumb-wrap .media-fallback,
 .watch-ep-thumb img,
@@ -3624,18 +3633,16 @@ select,
 }
 
 .watch-overlay .watch-back {
-  position: absolute;
-  top: calc(14px + env(safe-area-inset-top, 0px));
-  left: 8px;
-  z-index: 2200;
-  width: 52px;
-  height: 52px;
+  position: static;
+  flex-shrink: 0;
+  z-index: 1;
+  width: 48px;
+  height: 48px;
   border: 0;
   border-radius: 0;
   background: transparent;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .watch-overlay.is-chrome .watch-back,
@@ -3645,7 +3652,8 @@ select,
 }
 
 .watch-topbar {
-  padding-left: 68px;
+  padding-left: 12px;
+  align-items: center;
 }
 
 @media (min-width: 768px) {
@@ -3772,10 +3780,11 @@ select,
   right: 0;
   bottom: 0;
   z-index: 2;
-  padding: 24px var(--page-gutter) 28px;
-  background: rgba(0, 0, 0, 0.72);
+  padding: 28px var(--page-gutter) 32px;
+  background: #161616;
   color: #737373;
   font-size: 13px;
+  border-top: 1px solid #2a2a2a;
 }
 
 .login-footer p {
@@ -4202,6 +4211,10 @@ select,
     justify-content: center;
   }
 
+  .watch-now-playing {
+    display: none;
+  }
+
   .title-modal {
     animation: sheet-up 0.32s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -4537,21 +4550,9 @@ select,
   min-width: 0;
 }
 
-@media (min-width: 768px) {
-  .watch-title-stack {
-    display: none;
-  }
-}
-
-@media (max-width: 767px) {
-  .watch-now-playing {
-    display: none;
-  }
-}
-
 .watch-title {
   opacity: 1;
-  font-size: 18px;
+  font-size: clamp(18px, 2.4vw, 28px);
   font-weight: 700;
   letter-spacing: 0.01em;
 }
