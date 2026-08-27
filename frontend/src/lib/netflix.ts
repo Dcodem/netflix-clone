@@ -99,9 +99,12 @@ export function moodTags(
 ): string[] {
   const seen = new Set<string>()
   const tags: string[] = []
-  for (const genre of genresOf(item)) {
-    for (const mood of MOOD_BY_GENRE[genre] ?? []) {
-      if (seen.has(mood)) continue
+  const lists = genresOf(item).map((genre) => MOOD_BY_GENRE[genre] ?? [])
+  const depth = Math.max(0, ...lists.map((list) => list.length))
+  for (let i = 0; i < depth; i += 1) {
+    for (const list of lists) {
+      const mood = list[i]
+      if (!mood || seen.has(mood)) continue
       seen.add(mood)
       tags.push(mood)
       if (tags.length >= count) return tags
