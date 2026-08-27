@@ -214,6 +214,24 @@ export function TitleModal() {
           {seasons.length ? <EpisodeList seasons={seasons} history={last} onPlay={playEpisode} /> : null}
 
           {similar.length ? <MoreLikeGrid items={similar} /> : null}
+
+          <section className="title-about">
+            <h2>About {item.title}</h2>
+            {detail?.synopsis ? <p>{detail.synopsis}</p> : null}
+            {detail?.cast?.length ? (
+              <p>
+                <span>Cast:</span> {detail.cast.join(', ')}
+              </p>
+            ) : null}
+            {genres.length ? (
+              <p>
+                <span>Genres:</span> {genres.join(', ')}
+              </p>
+            ) : null}
+            <p>
+              <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {genres.slice(0, 3).join(', ') || 'Original'}
+            </p>
+          </section>
         </div>
       </div>
     </div>

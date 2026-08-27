@@ -35,6 +35,10 @@ export function formatRuntime(mins?: number | null): string | null {
   return rest ? `${hours}h ${rest}m` : `${hours}h`
 }
 
+export function stillFocus(index: number) {
+  return `${(index * 29) % 88}% ${(index * 17) % 72}%`
+}
+
 export function uniqueById<T extends { id: string }>(items: T[]): T[] {
   const seen = new Set<string>()
   const out: T[] = []

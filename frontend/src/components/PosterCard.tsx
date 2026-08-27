@@ -63,7 +63,7 @@ export function PosterCard({
       onPointerEnter={onEnter}
       onPointerLeave={onLeave}
     >
-      {ranked ? <span className="rank-num">{rank}</span> : null}
+      {ranked ? <span className={`rank-num ${rank === 1 ? 'is-first' : ''}`}>{rank}</span> : null}
       <button
         type="button"
         className="poster-card"

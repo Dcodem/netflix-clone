@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { getShow } from '../api/client'
 import type { Episode, Season, ShowDetail } from '../api/types'
 import {
@@ -17,6 +17,7 @@ import {
 } from '../components/Icons'
 import { MediaImage } from '../components/MediaImage'
 import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
+import { stillFocus } from '../lib/media'
 import { useWatch } from './WatchContext'
 
 const PLAYER_SOURCE = 'flix-player'
@@ -576,7 +577,7 @@ export function WatchOverlay() {
                   onClick={() => playEpisode(season, episode)}
                 >
                   <span className="watch-ep-num">{episode.number}</span>
-                  <span className="watch-ep-thumb">
+                    <span className="watch-ep-thumb" style={{ '--focal': stillFocus(episode.number) } as CSSProperties}>
                     <MediaImage src={episode.thumb_url} alt="" />
                     <PlayIcon className="icon" />
                   </span>

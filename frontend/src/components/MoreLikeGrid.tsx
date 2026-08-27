@@ -40,6 +40,11 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
                   </button>
                 </div>
                 {genres.length ? <p className="more-like-genres">{genres.join(' · ')}</p> : null}
+                <p className="more-like-syn">
+                  {item.kind === 'show' ? 'TV show' : 'Film'}
+                  {item.year ? ` · ${item.year}` : ''}
+                  {genres.length ? ` · ${genres.slice(0, 2).join(', ')}` : ''}
+                </p>
                 <button type="button" className="more-like-title" onClick={() => openTitle(item)}>
                   {item.title}
                 </button>

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import type { Episode, Season } from '../api/types'
 import { isEpisodeStarted, isEpisodeWatched, seasonStats, watchForEpisode } from '../lib/episodeProgress'
 import type { WatchHistoryItem } from '../profiles/types'
+import { stillFocus } from '../lib/media'
 import { PlayIcon } from './Icons'
 import { MediaImage } from './MediaImage'
 
@@ -69,7 +70,7 @@ export function EpisodeList({
                 onClick={() => onPlay(episode, activeSeason)}
               >
                 <span className="ep-num">{episode.number}</span>
-                <div className="ep-thumb-wrap">
+                <div className="ep-thumb-wrap" style={{ '--focal': stillFocus(episode.number) } as CSSProperties}>
                   <MediaImage src={episode.thumb_url} alt="" className="ep-thumb" />
                   <span className="ep-play">
                     <PlayIcon className="icon" />

@@ -1062,12 +1062,12 @@ select,
 }
 
 .profile-cell {
-  width: 140px;
+  width: 160px;
 }
 
 .profile-avatar {
-  width: 140px;
-  height: 140px;
+  width: 160px;
+  height: 160px;
   border-radius: 8px;
   border: 3px solid transparent;
   font-size: 52px;
@@ -1080,13 +1080,14 @@ select,
 }
 
 .profile-name {
-  margin-top: 10px;
-  color: var(--muted);
+  margin-top: 12px;
+  color: #808080;
+  font-size: 18px;
 }
 
 .profile-add {
-  width: 140px;
-  height: 140px;
+  width: 160px;
+  height: 160px;
   border-radius: 8px;
   border: 3px solid transparent;
   background: #141414;
@@ -2592,17 +2593,21 @@ select,
 
 .rank-num {
   flex: 0 0 auto;
-  font-size: clamp(72px, 13vw, 160px);
+  font-size: clamp(80px, 14vw, 180px);
   font-weight: 900;
   line-height: 0.72;
-  color: var(--bg);
-  -webkit-text-stroke: 4px #888;
+  color: #141414;
+  -webkit-text-stroke: 5px #8b8b8b;
   paint-order: stroke fill;
-  letter-spacing: -0.1em;
+  letter-spacing: -0.12em;
   padding-left: 2px;
   user-select: none;
   pointer-events: none;
-  transform: translateX(12px);
+  transform: translateX(18px);
+}
+
+.rank-num.is-first {
+  -webkit-text-stroke-color: #e6e6e6;
 }
 
 .search-heading {
@@ -2642,6 +2647,14 @@ select,
   height: 36px;
   color: #fff;
   filter: drop-shadow(0 2px 8px #000);
+}
+
+.ep-thumb-wrap img,
+.ep-thumb-wrap .media-fallback,
+.watch-ep-thumb img,
+.watch-ep-thumb .media-fallback {
+  object-position: var(--focal, 50% 40%);
+  transform: scale(1.18);
 }
 
 .episode-btn:hover .ep-play,
@@ -4268,6 +4281,38 @@ select,
     opacity: 1;
     transform: none;
   }
+}
+
+.title-about {
+  margin-top: 28px;
+}
+
+.title-about h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.title-about p {
+  margin: 0 0 10px;
+  color: #d2d2d2;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.title-about span {
+  color: #777;
+}
+
+.more-like-syn {
+  margin: 6px 0 0;
+  color: #d2d2d2;
+  font-size: 13px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 
