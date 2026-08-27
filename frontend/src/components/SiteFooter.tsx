@@ -46,6 +46,11 @@ export function SiteFooter() {
             </ul>
           ))}
         </div>
+        <select className="footer-lang" defaultValue="en" aria-label="Select language">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+        </select>
         <button
           type="button"
           className="service-code"

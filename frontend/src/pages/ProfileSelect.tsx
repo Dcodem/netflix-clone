@@ -1,10 +1,71 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { AvatarArt } from '../components/AvatarArt'
 import { PencilIcon, PlusIcon } from '../components/Icons'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { PROFILE_AVATARS, avatarFor, type Profile } from '../profiles/types'
+
+function PinBoxes({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string
+  onChange: (value: string) => void
+  disabled?: boolean
+}) {
+  const refs = useRef<Array<HTMLInputElement | null>>([])
+  const digits = [0, 1, 2, 3].map((index) => value[index] ?? '')
+
+  function write(index: number, nextDigit: string) {
+    const next = digits.slice()
+    next[index] = nextDigit
+    onChange(next.join('').replace(/\D/g, '').slice(0, 4))
+    if (nextDigit && index < 3) refs.current[index + 1]?.focus()
+  }
+
+  function onKeyDown(index: number, event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Backspace' && !digits[index] && index > 0) {
+      event.preventDefault()
+      const next = digits.slice()
+      next[index - 1] = ''
+      onChange(next.join(''))
+      refs.current[index - 1]?.focus()
+    }
+  }
+
+  function onPaste(event: ClipboardEvent<HTMLInputElement>) {
+    event.preventDefault()
+    const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4)
+    if (!pasted) return
+    onChange(pasted)
+    refs.current[Math.min(3, pasted.length) - 1]?.focus()
+  }
+
+  return (
+    <div className="pin-boxes">
+      {digits.map((digit, index) => (
+        <input
+          key={index}
+          ref={(node) => {
+            refs.current[index] = node
+          }}
+          className="pin-box"
+          inputMode="numeric"
+          maxLength={1}
+          value={digit}
+          disabled={disabled}
+          autoFocus={index === 0}
+          aria-label={`PIN digit ${index + 1}`}
+          onChange={(event) => write(index, event.target.value.replace(/\D/g, '').slice(-1))}
+          onKeyDown={(event) => onKeyDown(index, event)}
+          onPaste={onPaste}
+        />
+      ))}
+    </div>
+  )
+}
 
 export function ProfileSelect() {
   const { user, logout } = useAuth()
@@ -22,6 +83,7 @@ export function ProfileSelect() {
   const [pinTarget, setPinTarget] = useState<Profile | null>(null)
   const [pinGuess, setPinGuess] = useState('')
   const [pinError, setPinError] = useState<string | null>(null)
+  const unlocking = useRef(false)
 
   if (!user) {
     return <Navigate to="/login" replace />
@@ -38,6 +100,7 @@ export function ProfileSelect() {
       return
     }
     if (profile.pinHash) {
+      unlocking.current = false
       setPinTarget(profile)
       setPinGuess('')
       setPinError(null)
@@ -47,17 +110,30 @@ export function ProfileSelect() {
     navigate('/browse')
   }
 
-  async function onPin(event: FormEvent) {
-    event.preventDefault()
-    if (!pinTarget) return
-    const ok = await unlockProfile(pinTarget.id, pinGuess)
+  async function submitPin(guess = pinGuess) {
+    if (!pinTarget || unlocking.current) return
+    unlocking.current = true
+    const ok = await unlockProfile(pinTarget.id, guess)
     if (!ok) {
+      unlocking.current = false
       setPinError('Incorrect PIN. Please try again.')
+      setPinGuess('')
       return
     }
     setPinTarget(null)
     navigate('/browse')
   }
+
+  async function onPin(event: FormEvent) {
+    event.preventDefault()
+    await submitPin()
+  }
+
+  useEffect(() => {
+    if (pinGuess.length === 4 && pinTarget) void submitPin(pinGuess)
+    // unlock when the fourth digit is entered, like Netflix
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pinGuess, pinTarget])
 
   async function onAdd(event: FormEvent) {
     event.preventDefault()
@@ -80,18 +156,7 @@ export function ProfileSelect() {
           </div>
           <h1>Enter your PIN</h1>
           <p className="profiles-sub">Unlock {pinTarget.name} to keep watching.</p>
-          <input
-            className="pin-input"
-            inputMode="numeric"
-            pattern="\d{4}"
-            maxLength={4}
-            value={pinGuess}
-            onChange={(event) => setPinGuess(event.target.value.replace(/\D/g, '').slice(0, 4))}
-            placeholder="••••"
-            autoFocus
-            required
-            aria-label="PIN"
-          />
+          <PinBoxes value={pinGuess} onChange={setPinGuess} />
           {pinError ? <p className="login-error">{pinError}</p> : null}
           <button type="submit" className="btn btn-primary">
             Continue

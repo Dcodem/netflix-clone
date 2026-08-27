@@ -44,6 +44,7 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(Boolean(urlQuery) || location.pathname === '/search')
   const inputRef = useRef<HTMLInputElement>(null)
   const searchRef = useRef<HTMLDivElement>(null)
+  const browseRef = useRef<HTMLDetailsElement>(null)
   const debounced = useDebouncedValue(query.trim(), 350)
   const open = searchOpen || Boolean(query) || location.pathname === '/search'
   const links = activeProfile?.kids ? KIDS_NAV : NAV
@@ -110,6 +111,14 @@ export function Header() {
     if (location.pathname === '/search') navigate('/browse')
   }
 
+  function syncBrowseCaret() {
+    const root = browseRef.current
+    const summary = root?.querySelector('summary')
+    if (!root?.open || !summary) return
+    const rect = summary.getBoundingClientRect()
+    root.style.setProperty('--caret-x', `${Math.round(rect.left + rect.width / 2)}px`)
+  }
+
   return (
     <header
       className={`site-header ${scrolled ? 'is-scrolled' : ''} ${open ? 'is-searching' : ''} ${activeProfile?.kids ? 'is-kids' : ''}`}
@@ -119,7 +128,7 @@ export function Header() {
           FLIX
           {activeProfile?.kids ? <span className="kids-wordmark">KIDS</span> : null}
         </Link>
-        <details className="browse-menu">
+        <details className="browse-menu" ref={browseRef} onToggle={syncBrowseCaret}>
           <summary>Browse</summary>
           <button
             type="button"

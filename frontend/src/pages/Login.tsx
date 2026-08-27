@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
-import { getMovies } from '../api/client'
+import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
+import { uniqueById } from '../lib/media'
 import { useAuth } from '../auth/AuthContext'
 import { CatalogImage } from '../components/CatalogImage'
 
@@ -56,9 +57,10 @@ export function Login() {
   const [wall, setWall] = useState<MovieListItem[]>([])
 
   useEffect(() => {
-    getMovies()
-      .then((items) => setWall(items.slice(0, 6)))
-      .catch(() => setWall([]))
+    Promise.all([
+      getMovies().catch(() => [] as MovieListItem[]),
+      getCatalogMany('shows', 1).catch(() => [] as MovieListItem[]),
+    ]).then(([movies, shows]) => setWall(uniqueById([...movies, ...shows]).slice(0, 18)))
   }, [])
 
   if (user) return <Navigate to="/" replace />
@@ -87,9 +89,11 @@ export function Login() {
 
   return (
     <main className="login-page">
-      {wall[0] ? (
+      {wall.length ? (
         <div className="login-hero" aria-hidden="true">
-          <CatalogImage item={wall[0]} alt="" prefer="backdrop" />
+          {wall.map((item) => (
+            <CatalogImage key={item.id} item={item} alt="" prefer="backdrop" />
+          ))}
         </div>
       ) : null}
       <div className="login-veil" aria-hidden="true" />

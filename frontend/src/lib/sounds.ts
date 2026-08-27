@@ -35,8 +35,10 @@ export function playBrowseSting() {
     sessionStorage.setItem(STING_KEY, '1')
     const ac = audio()
     const now = ac.currentTime
-    tone(ac, 220, now, 0.2, 0.07, 'sine')
-    tone(ac, 330, now + 0.14, 0.32, 0.08, 'triangle')
+    tone(ac, 98, now, 0.28, 0.09, 'sine')
+    tone(ac, 196, now, 0.22, 0.05, 'triangle')
+    tone(ac, 294, now + 0.16, 0.42, 0.07, 'triangle')
+    tone(ac, 440, now + 0.16, 0.36, 0.035, 'sine')
   } catch {
     /* autoplay / closed context */
   }
