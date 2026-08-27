@@ -2709,15 +2709,22 @@ select,
   max-width: 640px;
 }
 
+.search-recent-list li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .search-recent-list li + li {
   border-top: 1px solid #222;
 }
 
-.search-recent-list button {
+.search-recent-list li > button:first-child {
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   background: none;
   border: 0;
   color: #fff;
@@ -2736,6 +2743,42 @@ select,
   height: 22px;
   color: #808080;
   flex-shrink: 0;
+}
+
+.search-recent-forget {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  background: none;
+  border: 0;
+  color: #808080;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.search-recent-forget:hover {
+  color: #fff;
+}
+
+.search-recent-forget .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.search-clear-all {
+  background: none;
+  border: 0;
+  color: #808080;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.search-clear-all:hover {
+  color: #fff;
+  text-decoration: underline;
 }
 
 .avatar-picker {

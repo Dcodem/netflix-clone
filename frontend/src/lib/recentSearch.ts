@@ -25,6 +25,13 @@ export function pushRecentSearch(query: string) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
 }
 
+export function removeRecentSearch(query: string) {
+  const needle = query.trim().toLowerCase()
+  const next = listRecentSearches().filter((entry) => entry.toLowerCase() !== needle)
+  if (next.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+  else localStorage.removeItem(STORAGE_KEY)
+}
+
 export function clearRecentSearches() {
   localStorage.removeItem(STORAGE_KEY)
 }

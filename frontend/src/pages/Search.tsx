@@ -4,12 +4,12 @@ import { getCatalogMany, getMovies, searchTitles } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
 import { CatalogImage } from '../components/CatalogImage'
-import { ClockIcon } from '../components/Icons'
+import { ClockIcon, CloseIcon } from '../components/Icons'
 import { MediaGrid } from '../components/MediaGrid'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { sortByRating, uniqueById } from '../lib/media'
-import { clearRecentSearches, listRecentSearches } from '../lib/recentSearch'
+import { clearRecentSearches, listRecentSearches, removeRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { relatedSearchResults } from '../profiles/taste'
 
@@ -64,13 +64,13 @@ export function Search() {
           {recents.length ? (
             <button
               type="button"
-              className="btn btn-ghost"
+              className="search-clear-all"
               onClick={() => {
                 clearRecentSearches()
                 setRecents([])
               }}
             >
-              Clear
+              Clear All
             </button>
           ) : null}
         </div>
@@ -81,6 +81,17 @@ export function Search() {
                 <button type="button" onClick={() => setParams({ q: entry })}>
                   <ClockIcon className="icon" />
                   <span>{entry}</span>
+                </button>
+                <button
+                  type="button"
+                  className="search-recent-forget"
+                  aria-label={`Remove ${entry}`}
+                  onClick={() => {
+                    removeRecentSearch(entry)
+                    setRecents(listRecentSearches())
+                  }}
+                >
+                  <CloseIcon className="icon" />
                 </button>
               </li>
             ))}

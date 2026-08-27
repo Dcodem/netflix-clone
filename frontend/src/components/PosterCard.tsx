@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import type { MovieListItem } from '../api/types'
 import { useProfiles } from '../profiles/ProfileContext'
-import { playWhoosh } from '../lib/sounds'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
 import { CloseIcon } from './Icons'
@@ -53,7 +52,6 @@ export function PosterCard({
       if (rect) {
         setAnchor(rect)
         setHover(true)
-        playWhoosh()
       }
       }, 400)
   }
