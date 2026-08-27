@@ -6,6 +6,36 @@ export function PlayIcon({ className }: { className?: string }) {
   )
 }
 
+export function PauseIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M6 4h4.2v16H6zM13.8 4H18v16h-4.2z" />
+    </svg>
+  )
+}
+
+export function SkipBackIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M11.2 7.2v9.6L4.8 12l6.4-4.8z" />
+      <text x="14.2" y="16.2" fill="currentColor" fontSize="8.5" fontWeight="700" fontFamily="Helvetica Neue, Arial, sans-serif">
+        10
+      </text>
+    </svg>
+  )
+}
+
+export function SkipForwardIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M4.8 7.2v9.6L11.2 12 4.8 7.2z" />
+      <text x="13.4" y="16.2" fill="currentColor" fontSize="8.5" fontWeight="700" fontFamily="Helvetica Neue, Arial, sans-serif">
+        10
+      </text>
+    </svg>
+  )
+}
+
 export function InfoIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

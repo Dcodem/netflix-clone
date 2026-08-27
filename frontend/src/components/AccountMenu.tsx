@@ -74,6 +74,9 @@ export function AccountMenu() {
           </Link>
           <div className="account-dropdown-rule" />
           <Link to="/account" onClick={() => setOpen(false)}>
+            Transfer Profile
+          </Link>
+          <Link to="/account" onClick={() => setOpen(false)}>
             Account
           </Link>
           <Link to="/account" onClick={() => setOpen(false)}>

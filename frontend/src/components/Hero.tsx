@@ -3,6 +3,7 @@ import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
 import { genresOf, isShow } from '../lib/media'
 import { maturityLabel, qualityBadge } from '../lib/netflix'
+import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTitleModal } from '../title/TitleModalContext'
@@ -84,6 +85,7 @@ export function Hero({ item }: { item: MovieListItem }) {
 
   function onWatch() {
     if (!watchHref) return
+    playClick()
     openWatch(watchHref, item.title, {
       id: item.id,
       kind: item.kind ?? 'movie',

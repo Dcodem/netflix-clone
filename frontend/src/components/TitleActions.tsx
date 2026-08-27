@@ -1,6 +1,7 @@
 import type { MovieDetail, MovieListItem } from '../api/types'
 import { genresOf } from '../lib/media'
 import { toLiked } from '../lib/netflix'
+import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
@@ -45,6 +46,7 @@ export function TitleActions({
 
   function play(restart = false) {
     if (!href) return
+    playClick()
     closeTitle()
     openWatch(href, item.title, {
       id: item.id,
@@ -79,7 +81,7 @@ export function TitleActions({
           <PlayIcon className="icon" />
         </button>
       )}
-      {continueMode ? (
+      {continueMode && playStyle !== 'labeled' ? (
         <button type="button" className="circle-btn" onClick={() => play(true)} disabled={!href} aria-label="Play from beginning">
           <RestartIcon className="icon" />
         </button>
@@ -108,7 +110,7 @@ export function TitleActions({
       >
         <ThumbDownIcon className="icon" />
       </button>
-      {continueMode ? (
+      {continueMode && playStyle !== 'labeled' ? (
         <button
           type="button"
           className="circle-btn"

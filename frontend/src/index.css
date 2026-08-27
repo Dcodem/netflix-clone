@@ -3335,10 +3335,65 @@ select,
   color: #fff;
 }
 
+.watch-frame {
+  pointer-events: none;
+}
+
+.watch-center {
+  position: absolute;
+  inset: 0;
+  z-index: 2050;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.watch-center .icon {
+  width: 72px;
+  height: 72px;
+  color: #fff;
+  filter: drop-shadow(0 4px 18px #000);
+}
+
+.watch-progress {
+  height: 3px;
+  cursor: pointer;
+  transition: height 0.12s ease;
+}
+
+.watch-bottombar.is-visible .watch-progress:hover {
+  height: 7px;
+}
+
 .watch-time {
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-  margin-right: auto;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+@media (max-width: 767px) {
+  .title-actions.play-labeled {
+    flex-wrap: wrap;
+  }
+
+  .title-actions.play-labeled .btn-play {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .title-modal {
+    animation: sheet-up 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 .watch-ctrl {

@@ -94,29 +94,52 @@ function sendJson(res, status, data) {
   send(res, status, JSON.stringify(data), { 'Content-Type': 'application/json; charset=utf-8' })
 }
 
-function playerPage(item, season, episode) {
+function playerPage(item, season, episode, query = {}) {
   const heading = season && episode ? `${item.title} · S${season}E${episode}` : item.title
+  const runtime = Math.max(60, Number(query.runtime) || (item.runtime ? Number(item.runtime) * 60 : 48 * 60))
+  const start = Math.max(0, Number(query.t) || 0)
   return `<!doctype html>
 <html>
   <head>
     <meta charset="utf-8"/>
     <title>${escapeXml(heading)}</title>
     <style>
-      html,body{margin:0;height:100%;background:#050505;color:#fff;font-family:system-ui,sans-serif}
-      .stage{height:100%;display:grid;place-items:center;background:radial-gradient(circle at 20% 20%,#2a2a2a,#050505)}
-      .card{text-align:center;opacity:.9}
-      .kicker{letter-spacing:.2em;font-size:12px;color:#bbb}
-      h1{font-size:28px;margin:8px 0 0}
+      html,body{margin:0;height:100%;background:#000;overflow:hidden}
+      .art{position:absolute;inset:-8%;width:116%;height:116%;object-fit:cover;transform-origin:center}
+      .art.is-playing{animation:ken 42s ease-in-out alternate infinite}
+      .veil{position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,transparent 20%,rgba(0,0,0,.35) 100%)}
+      @keyframes ken{from{transform:scale(1)}to{transform:scale(1.12)}}
     </style>
   </head>
   <body>
-    <div class="stage">
-      <div class="card">
-        <div class="kicker">MOCK PLAYER</div>
-        <h1>${escapeXml(heading)}</h1>
-        <p>${item.kind === 'show' ? 'Series' : 'Film'} · ${item.year}</p>
-      </div>
-    </div>
+    <img class="art is-playing" src="/art/backdrop/${escapeXml(item.id)}" alt=""/>
+    <div class="veil"></div>
+    <script>
+      const SOURCE = 'flix-player'
+      let duration = ${runtime}
+      let current = ${start}
+      let paused = false
+      const art = document.querySelector('.art')
+      function tick(dt) {
+        if (!paused) current = Math.min(duration, current + dt)
+        parent.postMessage({ source: SOURCE, type: 'time', current, duration, paused }, '*')
+      }
+      let last = performance.now()
+      function loop(now) {
+        tick((now - last) / 1000)
+        last = now
+        requestAnimationFrame(loop)
+      }
+      requestAnimationFrame(loop)
+      window.addEventListener('message', (event) => {
+        const data = event.data || {}
+        if (data.source !== SOURCE) return
+        if (data.cmd === 'play') { paused = false; art.classList.add('is-playing') }
+        if (data.cmd === 'pause') { paused = true; art.classList.remove('is-playing') }
+        if (data.cmd === 'seek' && typeof data.seconds === 'number') current = Math.max(0, Math.min(duration, data.seconds))
+        if (data.cmd === 'skip' && typeof data.delta === 'number') current = Math.max(0, Math.min(duration, current + data.delta))
+      })
+    </script>
   </body>
 </html>`
 }
@@ -215,7 +238,7 @@ const server = createServer((req, res) => {
     const id = path.slice('/watch/play/'.length)
     const item = getItem(id)
     if (!item) return notFound(res)
-    return send(res, 200, playerPage(item, query.s, query.e), { 'Content-Type': 'text/html; charset=utf-8' })
+    return send(res, 200, playerPage(item, query.s, query.e, query), { 'Content-Type': 'text/html; charset=utf-8' })
   }
 
   if (path.startsWith('/watch/')) {

@@ -2,6 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from './auth/AuthContext'
 import { Header } from './components/Header'
 import { SiteFooter } from './components/SiteFooter'
+import { playBrowseSting } from './lib/sounds'
 import { useProfiles } from './profiles/ProfileContext'
 import { TitleModal } from './title/TitleModal'
 import { WatchOverlay } from './watch/WatchOverlay'
@@ -19,7 +20,7 @@ export function AppLayout() {
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" onPointerDownCapture={() => playBrowseSting()}>
       <Header />
       <Outlet />
       <SiteFooter />
