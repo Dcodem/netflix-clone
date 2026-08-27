@@ -2882,9 +2882,8 @@ select,
 
 .rank-num.is-first {
   color: #fff;
-  -webkit-text-stroke: 0;
-  paint-order: fill;
-  filter: drop-shadow(2px 2px 0 #141414);
+  -webkit-text-stroke: 8px #141414;
+  paint-order: stroke fill;
 }
 
 .search-heading {
