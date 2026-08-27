@@ -2010,7 +2010,7 @@ select,
   z-index: 1200;
   background: #181818;
   border-radius: 6px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 16px 50px rgba(0, 0, 0, 0.92);
   animation: jaw-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -2030,6 +2030,8 @@ select,
   position: relative;
   aspect-ratio: 16 / 9;
   background: #000;
+  overflow: hidden;
+  border-radius: 6px 6px 0 0;
 }
 
 .jawbone-art img,
@@ -2072,6 +2074,8 @@ select,
 
 .jawbone-body {
   padding: 14px 16px 18px;
+  overflow: visible;
+  border-radius: 0 0 6px 6px;
 }
 
 .jawbone-meta {
