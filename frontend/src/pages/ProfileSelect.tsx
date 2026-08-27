@@ -10,10 +10,12 @@ function PinBoxes({
   value,
   onChange,
   disabled,
+  error,
 }: {
   value: string
   onChange: (value: string) => void
   disabled?: boolean
+  error?: boolean
 }) {
   const refs = useRef<Array<HTMLInputElement | null>>([])
   const digits = [0, 1, 2, 3].map((index) => value[index] ?? '')
@@ -44,7 +46,7 @@ function PinBoxes({
   }
 
   return (
-    <div className="pin-boxes">
+    <div className={`pin-boxes ${error ? 'is-error' : ''}`}>
       {digits.map((digit, index) => (
         <input
           key={index}
@@ -94,6 +96,7 @@ export function ProfileSelect() {
   const [pinTarget, setPinTarget] = useState<Profile | null>(null)
   const [pinGuess, setPinGuess] = useState('')
   const [pinError, setPinError] = useState<string | null>(null)
+  const [pinShake, setPinShake] = useState(0)
   const unlocking = useRef(false)
 
   async function submitPin(guess = pinGuess) {
@@ -104,6 +107,7 @@ export function ProfileSelect() {
       unlocking.current = false
       setPinError('Incorrect PIN. Please try again.')
       setPinGuess('')
+      setPinShake((count) => count + 1)
       return
     }
     setPinTarget(null)
@@ -200,8 +204,8 @@ export function ProfileSelect() {
         <form className="pin-sheet" onSubmit={onPin}>
           <h1>Profile Lock is currently on.</h1>
           <p className="profiles-sub">Enter your PIN to access this profile.</p>
-          <PinBoxes value={pinGuess} onChange={setPinGuess} />
-          {pinError ? <p className="login-error">{pinError}</p> : null}
+          <PinBoxes key={pinShake} value={pinGuess} onChange={setPinGuess} error={Boolean(pinError)} />
+          {pinError ? <p className="pin-error">{pinError}</p> : null}
           <button type="submit" className="visually-hidden">
             Continue
           </button>

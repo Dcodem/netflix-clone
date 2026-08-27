@@ -56,11 +56,11 @@ export function Search() {
   }, [q])
 
   const recentBlock = useMemo(
-    () => (
-      <div className="search-recents">
-        <div className="search-recents-head">
-          <h2 className="section-title">Recent Searches</h2>
-          {recents.length ? (
+    () =>
+      recents.length ? (
+        <div className="search-recents">
+          <div className="search-recents-head">
+            <h2 className="section-title">Recent Searches</h2>
             <button
               type="button"
               className="search-clear-all"
@@ -71,11 +71,9 @@ export function Search() {
             >
               Clear All
             </button>
-          ) : null}
-        </div>
-        {recents.length ? (
+          </div>
           <ul className="search-recent-list">
-            {recents.map((entry) => (
+            {recents.slice(0, 5).map((entry) => (
               <li key={entry}>
                 <button type="button" onClick={() => setParams({ q: entry })}>
                   <ClockIcon className="icon" />
@@ -95,11 +93,8 @@ export function Search() {
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="section-sub">Searches stay on this device. Type two characters to look up a title.</p>
-        )}
-      </div>
-    ),
+        </div>
+      ) : null,
     [recents, setParams],
   )
 

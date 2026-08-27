@@ -1,5 +1,5 @@
 const STORAGE_KEY = 'flix.search.recent.v1'
-const LIMIT = 8
+const LIMIT = 5
 
 export function listRecentSearches(): string[] {
   try {

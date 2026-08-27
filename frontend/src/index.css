@@ -1204,17 +1204,19 @@ select,
 
 .profiles-page h1 {
   font-family: var(--display);
-  font-size: clamp(32px, 4.8vw, 54px);
+  font-size: clamp(30px, 3.6vw, 48px);
   font-weight: 400;
-  letter-spacing: 0.01em;
-  margin: 0 0 42px;
+  letter-spacing: 0;
+  margin: 0 0 36px;
   color: #fff;
 }
 
 .profiles-sub {
-  color: var(--muted);
-  max-width: 420px;
-  margin: 0 0 28px;
+  color: #cccccc;
+  max-width: 460px;
+  margin: 0 0 24px;
+  font-size: 16px;
+  font-weight: 400;
 }
 
 .profile-grid {
@@ -2689,50 +2691,64 @@ select,
 
 .search-recents {
   max-width: 720px;
-  margin-bottom: 36px;
+  margin: 0 0 18px;
 }
 
 .search-recents-head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: 12px;
+  max-width: 100%;
 }
 
 .search-recents-head .section-title {
-  margin-bottom: 0;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #e5e5e5;
 }
 
 .search-recent-list {
   list-style: none;
-  margin: 8px 0 0;
+  margin: 2px 0 0;
   padding: 0;
-  max-width: 640px;
 }
 
 .search-recent-list li {
   display: flex;
   align-items: center;
-  gap: 4px;
-}
-
-.search-recent-list li + li {
-  border-top: 1px solid #222;
+  gap: 2px;
+  border-bottom: 1px solid #222;
 }
 
 .search-recent-list li > button:first-child {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex: 1;
   min-width: 0;
   background: none;
   border: 0;
   color: #fff;
-  font-size: 16px;
-  padding: 14px 0;
+  font-size: 14px;
+  padding: 7px 0;
   text-align: left;
   cursor: pointer;
+}
+
+.search-recent-list li > button:first-child span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .search-recent-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 48px;
+  }
 }
 
 .search-recent-list button:hover {
@@ -3339,13 +3355,15 @@ select,
 }
 
 .search-recommended-title {
-  margin: 8px 0 14px;
+  margin: 4px 0 12px;
   font-size: 18px;
+  font-weight: 600;
   color: #e5e5e5;
 }
 
 .search-page {
   min-height: calc(100svh - 120px);
+  padding-top: calc(var(--header-offset) + 8px);
 }
 
 .search-page .grid {
@@ -3544,24 +3562,26 @@ select,
 }
 
 .profile-add-plus {
-  width: 72%;
-  height: 72%;
-  border-radius: 0;
+  width: 58%;
+  height: 58%;
+  border-radius: 50%;
   background: transparent;
+  border: 3px solid #808080;
   color: #808080;
   display: grid;
   place-items: center;
 }
 
 .profile-add-plus .icon {
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
 }
 
 .profile-add:hover .profile-add-plus,
 .profile-cell:hover .profile-add-plus,
 .profile-cell:focus-visible .profile-add-plus {
   background: transparent;
+  border-color: #e5e5e5;
   color: #e5e5e5;
 }
 
@@ -4064,10 +4084,6 @@ select,
   margin: 0;
 }
 
-.pin-sheet h1 {
-  font-size: clamp(24px, 3.8vw, 34px);
-}
-
 .add-profile-row {
   display: flex;
   align-items: center;
@@ -4201,7 +4217,25 @@ select,
 }
 
 .pin-sheet {
-  max-width: 360px;
+  width: min(560px, 100%);
+  max-width: 560px;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.pin-sheet h1 {
+  font-size: clamp(26px, 3.6vw, 38px);
+  font-weight: 400;
+  letter-spacing: 0;
+  margin: 0 0 6px;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.pin-sheet .profiles-sub {
+  margin: 0 0 18px;
+  color: #cccccc;
+  font-size: 17px;
 }
 
 .pin-avatar {
@@ -4223,21 +4257,45 @@ select,
 .pin-boxes {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin: 8px 0 4px;
+  gap: 12px;
+  margin: 10px 0 8px;
+}
+
+.pin-boxes.is-error {
+  animation: pin-shake 0.42s ease;
+}
+
+@keyframes pin-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-10px);
+  }
+  40% {
+    transform: translateX(10px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
 }
 
 .pin-box {
-  width: 72px;
-  height: 88px;
+  width: 80px;
+  height: 92px;
   text-align: center;
-  font-size: 36px;
-  font-weight: 700;
+  font-size: 42px;
+  font-weight: 500;
   background: transparent;
   border: 1px solid #808080;
   color: #fff;
   border-radius: 2px;
   padding: 0;
+  caret-color: transparent;
 }
 
 .pin-box:focus {
@@ -4245,18 +4303,41 @@ select,
   border-color: #fff;
 }
 
+.pin-error {
+  margin: 4px 0 0;
+  color: #e87c03;
+  font-size: 14px;
+}
+
 .pin-forgot {
   background: none;
   border: 0;
-  color: #808080;
+  color: #8c8c8c;
   cursor: pointer;
-  font-size: 14px;
-  padding: 4px;
+  font-size: 16px;
+  padding: 12px 4px 4px;
 }
 
 .pin-forgot:hover {
   color: #fff;
   text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+  .pin-boxes {
+    gap: 8px;
+  }
+
+  .pin-box {
+    width: min(64px, 20vw);
+    height: 76px;
+    font-size: 32px;
+  }
+
+  .pin-sheet h1 {
+    font-size: 24px;
+    padding: 0 12px;
+  }
 }
 
 .profiles-signout {
