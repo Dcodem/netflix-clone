@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
@@ -53,6 +53,7 @@ export function TitleHoverCard({
   if (top + heightGuess > window.innerHeight - 12) {
     top = Math.max(12, window.innerHeight - heightGuess - 12)
   }
+  const fromScale = Math.max(0.48, Math.min(0.72, (anchor.width * 1.2) / width))
 
   const match = matchPercent(item, activeProfile)
   const maturity = maturityLabel(item)
@@ -82,7 +83,15 @@ export function TitleHoverCard({
   return createPortal(
     <div
       className="jawbone"
-      style={{ top, left, width, transformOrigin: `${originX}px ${originY}px` }}
+      style={
+        {
+          top,
+          left,
+          width,
+          transformOrigin: `${originX}px ${originY}px`,
+          '--jaw-from': String(fromScale),
+        } as CSSProperties
+      }
       onMouseEnter={onKeep}
       onMouseLeave={onClose}
     >

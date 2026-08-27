@@ -15,7 +15,17 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 
+const synCache = new Map<string, string>()
 const THIS_YEAR = new Date().getFullYear()
+
+async function synopsisForItem(item: MovieListItem): Promise<string> {
+  const hit = synCache.get(item.id)
+  if (hit) return hit
+  const detail = isShow(item) ? await getShow(item.id) : await getMovie(item.id)
+  const synopsis = detail.synopsis?.trim() ?? ''
+  if (synopsis) synCache.set(item.id, synopsis)
+  return synopsis
+}
 
 function comingSoon(item: MovieListItem) {
   return (item.year ?? 0) >= THIS_YEAR
@@ -34,7 +44,15 @@ function monthLabel(date: Date) {
   return date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
 }
 
-function FeedCard({ item, kicker }: { item: MovieListItem; kicker: string }) {
+function FeedCard({
+  item,
+  kicker,
+  synopsis,
+}: {
+  item: MovieListItem
+  kicker: string
+  synopsis?: string
+}) {
   const { openTitle } = useTitleModal()
   const { openWatch } = useWatch()
   const { activeProfile, toggleMyList } = useProfiles()
@@ -93,6 +111,7 @@ function FeedCard({ item, kicker }: { item: MovieListItem; kicker: string }) {
           {item.year ? <span>{item.year}</span> : null}
           {genres.length ? <span>{genres.join(' • ')}</span> : null}
         </p>
+        {synopsis ? <p className="news-syn">{synopsis}</p> : null}
         <div className="news-actions">
           {upcoming ? (
             <button
@@ -158,6 +177,32 @@ export function NewsHot() {
     return sortByRating(catalog.filter((item) => !seen.has(item.id))).slice(0, 12)
   }, [catalog, coming])
   const activeChip = chip ?? (coming.length ? 'coming' : 'watching')
+  const [synopses, setSynopses] = useState<Record<string, string>>({})
+  const feedIds = useMemo(
+    () => [...coming, ...watching].map((item) => item.id).join(','),
+    [coming, watching],
+  )
+
+  useEffect(() => {
+    let cancelled = false
+    const feed = [...coming, ...watching]
+    const missing = feed.filter((item) => !synCache.has(item.id))
+    if (!missing.length) return
+    Promise.all(
+      missing.map(async (item) => {
+        try {
+          return [item.id, await synopsisForItem(item)] as const
+        } catch {
+          return [item.id, ''] as const
+        }
+      }),
+    ).then((rows) => {
+      if (!cancelled) setSynopses((prev) => ({ ...prev, ...Object.fromEntries(rows) }))
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [coming, watching, feedIds])
 
   useEffect(() => {
     const comingNode = comingRef.current
@@ -218,7 +263,7 @@ export function NewsHot() {
         <section className="news-feed" ref={comingRef} aria-label="Coming Soon">
           <h1 className="visually-hidden">Coming Soon</h1>
           {coming.map((item) => (
-            <FeedCard key={item.id} item={item} kicker="Coming Soon" />
+            <FeedCard key={item.id} item={item} kicker="Coming Soon" synopsis={synopses[item.id]} />
           ))}
         </section>
       ) : null}
@@ -226,7 +271,7 @@ export function NewsHot() {
         <section className="news-feed" ref={watchingRef} aria-label="Everyone’s Watching">
           <h2 className="visually-hidden">Everyone’s Watching</h2>
           {watching.map((item) => (
-            <FeedCard key={item.id} item={item} kicker="Everyone’s Watching" />
+            <FeedCard key={item.id} item={item} kicker="Everyone’s Watching" synopsis={synopses[item.id]} />
           ))}
         </section>
       ) : null}

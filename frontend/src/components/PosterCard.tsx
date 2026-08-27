@@ -122,7 +122,10 @@ export function PosterCard({
           anchor={anchor}
           progress={progress}
           onKeep={cancelClose}
-          onClose={() => setHover(false)}
+          onClose={() => {
+            setHover(false)
+            setPeek(false)
+          }}
         />
       ) : null}
     </div>

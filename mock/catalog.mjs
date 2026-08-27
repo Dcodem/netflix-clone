@@ -125,6 +125,14 @@ const EPISODE_TITLES = [
   'Second Name',
   'The Leak',
   'Last Train',
+  'Black Ice',
+  'No Witnesses',
+  'The Long Way Home',
+  'House Rules',
+  'What We Owe',
+  'Red Hour',
+  'A Clean Exit',
+  'The Quiet Room',
 ]
 
 const EPISODE_BEATS = [
@@ -140,7 +148,289 @@ const EPISODE_BEATS = [
   'The plan works, then the bill arrives.',
   'Two versions of the same night cannot both be real.',
   'A witness changes their story after a five-minute phone call.',
+  'A favor called in at dawn costs more than anyone budgeted.',
+  'The safest room on the map has a new lock — and a new owner.',
+  'A coded message arrives with a name nobody wanted to hear.',
+  'Loyalty is tested in a hallway with no cameras and one exit.',
 ]
+
+const EPISODE_BEATS_BY_GENRE = {
+  Action: [
+    'A chase that should have lasted three blocks becomes a city-wide problem.',
+    'The extraction goes clean until the getaway driver vanishes.',
+    'One bad shot turns a quiet job into an all-night siege.',
+    'Backup is promised. Backup is late. The clock is not.',
+  ],
+  Adventure: [
+    'A map with a missing fold sends everyone the wrong way on purpose.',
+    'The shortcut through the hills is older than the people using it.',
+    'A storm closes the only pass, and the prize is still moving.',
+    'What they find is not treasure. It is a reason to keep going.',
+  ],
+  Animation: [
+    'A tiny lie about a missing toy becomes a neighborhood-wide rescue.',
+    'The new kid in class has a secret that does not fit in a backpack.',
+    'A race to the festival starts with the wrong shoes and the right friends.',
+    'Home is one street over, and somehow still a whole world away.',
+  ],
+  Comedy: [
+    'A well-meant plan collapses in front of the one person who cannot laugh yet.',
+    'The office party needs a hero. It gets a volunteer with a spreadsheet.',
+    'A white lie about dinner reservations snowballs into a citywide rumor.',
+    'Everyone agrees to play it cool. Nobody does.',
+  ],
+  Crime: [
+    'A body in the wrong zip code ties two crews that were never supposed to meet.',
+    'The alibi is perfect except for the timestamp on a parking photo.',
+    'A bag of cash shows up with a note that is not a joke.',
+    'The informant wants out. The city is not finished with them.',
+  ],
+  Documentary: [
+    'A forgotten tape from the archive contradicts the official timeline.',
+    'The interview that was supposed to close the film reopens the case.',
+    'A source changes their name, then changes their story.',
+    'What the cameras were not allowed to film is the whole point.',
+  ],
+  Drama: [
+    'A conversation that should have happened years ago finally has nowhere to hide.',
+    'Someone comes home early and sees the version of the family that exists after dark.',
+    'A promotion, a funeral, and a secret share the same afternoon.',
+    'The apology is ready. The person who needs it is not.',
+  ],
+  Family: [
+    'A lost pet and a stubborn sibling turn a Saturday into an odyssey.',
+    'The school play needs a lead. The understudy has other plans.',
+    'A promise made at breakfast has to survive the long way home.',
+    'Everyone wants to be the hero. The dog already is.',
+  ],
+  Fantasy: [
+    'A door that was painted shut opens for the one person who was told not to knock.',
+    'The old rule about names turns out to be a warning, not a superstition.',
+    'A borrowed charm works once. The second time has a price.',
+    'The map of the other world was drawn by someone who never came back.',
+  ],
+  History: [
+    'A letter from the capital arrives with two seals and one impossible order.',
+    'The night before the vote, a private dinner rewrites the public story.',
+    'An heirloom is opened and the family name looks different in the light.',
+    'The official record skips an hour. That hour is the episode.',
+  ],
+  Horror: [
+    'The house is quiet in a way that means it is listening.',
+    'A rule posted on the fridge is older than the people who live there.',
+    'Something in the walls keeps the same hours as the family.',
+    'They board up the wrong window. The right one was never a window.',
+  ],
+  Mystery: [
+    'A clue hidden in a grocery list points at the last person anyone suspected.',
+    'The locked room has two keys and three versions of the night.',
+    'A missing minute on the security tape is doing more work than the rest of the hour.',
+    'The detective’s favorite witness remembers a color that was not there.',
+  ],
+  Romance: [
+    'A missed train puts two people in the same delayed night for the first time.',
+    'The text that was never sent gets read anyway.',
+    'A wedding toast goes off-script and tells the truth by accident.',
+    'They agree to keep it casual. The city does not cooperate.',
+  ],
+  'Sci-Fi': [
+    'A routine systems check returns a date that has not happened yet.',
+    'The replica is polite, helpful, and missing one childhood memory.',
+    'A signal from the dark side of the schedule should not exist.',
+    'They shut the experiment down. It keeps answering.',
+  ],
+  Thriller: [
+    'The safe word is used. Nobody on the other end recognizes it.',
+    'A tracking app shows a phone in two places at once.',
+    'The getaway is clean until a familiar song plays in the next car.',
+    'Someone has been in the apartment. They folded the towels better.',
+  ],
+  War: [
+    'A ceasefire holds long enough for a letter to arrive with the wrong name.',
+    'The supply drop lands in a field that is no longer theirs.',
+    'Orders change at dawn. The people carrying them do not get the update.',
+    'A radio goes quiet, then comes back speaking in a friend’s voice.',
+  ],
+}
+
+const SYNOPSIS_BY_TITLE = {
+  Inception:
+    'A crew that steals secrets from sleeping minds is hired to plant one instead. Every layer down, the job looks more like a confession.',
+  'The Dark Knight':
+    'A masked vigilante tries to keep a city honest while a smiling anarchist proves that rules are just costumes. Every rescue paints a bigger target.',
+  Interstellar:
+    'A pilot leaves a dying farm belt for a wormhole that may not send anyone home. Love becomes the only instrument that still reads true.',
+  'Dune: Part Two':
+    'A hunted heir walks into a desert that already has a prophecy ready. Sand, spice, and revenge argue over who gets to name the future.',
+  'Top Gun: Maverick':
+    'An aging flyer is asked to teach a suicide run to pilots who remind him of the friend he could not save. The sky is still the easy part.',
+  'Spider-Man: No Way Home':
+    'A kid in a mask asks for his secret back and tears a hole between lives he was never meant to meet. Saving everyone means choosing who stays.',
+  'Everything Everywhere All at Once':
+    'A laundromat owner is drafted into a war across every version of herself. The multiverse is loud. The laundry is due.',
+  Oppenheimer:
+    'A physicist builds a sun in the desert and spends the rest of his life arguing with the shadow it casts. Genius is not the same as permission.',
+  Wicked:
+    'Two students at a glittering school learn that green skin and perfect smiles are both costumes. Friendship is the spell nobody scheduled.',
+  Superman:
+    'A kind stranger from the stars tries to be useful on a planet that is not sure it wants a hero. Hope is treated like a threat.',
+  'The Matrix':
+    'A hacker is offered the kind of truth that does not let you clock back in. Reality was a job. Waking up is the revolt.',
+  Parasite:
+    'A hungry family folds itself into a rich household one polite lie at a time. The basement was always part of the floor plan.',
+  Whiplash:
+    'A young drummer hunts a teacher who only praises through pain. Talent is not the question. Survival of the tempo is.',
+  'Mad Max: Fury Road':
+    'A silent driver and a fugitive warrior punch a war rig through the desert toward a green place that may be a rumor. Gasoline is the plot.',
+  'Get Out':
+    'A weekend with the parents is sold as progress and runs like a hunt. The sunken place has excellent manners.',
+  'La La Land':
+    'A pianist and an actress bet their best years on a city that eats ambition for breakfast. The duet is gorgeous. The timing is not.',
+  'The Grand Budapest Hotel':
+    'A dandy concierge and his lobby boy smuggle a fortune through a crumbling Europe. Courtesy is a martial art.',
+  'Spirited Away':
+    'A sulking kid follows her parents into a bathhouse where names are currency and work is the only way home. Wonder has a time clock.',
+  Coco:
+    'A boy chasing a forbidden guitar crosses into a glowing afterlife that runs on memory. Music is the visa. Family is the border.',
+  'The Social Network':
+    'A dorm-room slight becomes a machine that maps everyone. Friendship is the first user agreement to break.',
+  'Blade Runner 2049':
+    'A quiet blade runner is sent to bury a secret that would rewrite who counts as alive. The rain does not care about the paperwork.',
+  'John Wick':
+    'A retired hitman is pulled back in over a puppy, a car, and a city of assassins with rules. Grief learns gold coin etiquette.',
+  Barbie:
+    'A perfect doll leaves the pink dreamhouse and finds that the real world has worse lighting and better questions. The smile is a plot point.',
+  Arrival:
+    'A linguist is hired to talk to visitors whose language rearranges time. The message is not a weapon until someone decides it is.',
+  'The Batman':
+    'A young vigilante follows a Riddler’s trail through a city that rewards the worst people. The cape is new. The rot is not.',
+  'Knives Out':
+    'A famous detective arrives at a mansion where everyone had a motive and a better alibi. The will is a weapon. So is the nurse.',
+  'Paddington 2':
+    'A polite bear with a marmalade habit tries to buy a gift and walks into a frame-up. Kindness turns out to be tactical.',
+  Moonlight:
+    'A quiet kid in Miami grows into three versions of himself, each one still looking for a safe place to say his name.',
+  'Spider-Man: Brand New Day':
+    'A neighborhood hero tries to start over without the old secrets, then learns the city does not do clean slates. The mask still fits.',
+  'The Odyssey':
+    'A long way home is longer when the sea keeps changing the rules. Gods, monsters, and memory all want a cut of the return.',
+  Mutiny:
+    'A crew turns on its captain in waters where the law is whatever still floats. Loyalty lasts until the next order.',
+  'Rage of Stars':
+    'A burnt-out pilot is sent to silence a signal that should not exist. Space is empty. The rage is not.',
+  'Facing El Chapo':
+    'A pursuit across borders treats a legend like a man who still has to eat. The myth is good cover. The trail is better.',
+  'Toy Story 5':
+    'The nursery changes again, and the toys have to decide what loyalty looks like when the kid is almost grown.',
+  Obsession:
+    'A crush that will not take a hint learns the locks, the schedule, and the story you tell yourself at 3 a.m.',
+  Moana:
+    'A wayfinder reads the ocean like a relative and sails toward a trouble that will not stay on the horizon.',
+  'Minions & Monsters':
+    'Tiny henchmen clock in for the wrong villain and accidentally adopt a monster who needs management. Chaos is the benefit.',
+  Colony:
+    'A settlement sold as a fresh start is already spoken for. The welcome kit does not mention the thing in the vents.',
+  'Hotel Desire':
+    'One night in a hotel that pretends not to keep records. Desire is easy. Leaving in the morning is the plot.',
+  'Evil Dead Burn':
+    'A cabin, a book, and a night that refuses to stay dead. The woods have heard this one before and still want a sequel.',
+  'Mourning Wife':
+    'A widow keeps the house exactly as it was and learns grief can be a roommate with opinions.',
+  'The Death of Robin Hood':
+    'The outlaw comes home to a forest that has new landlords. Legend is a moving target. So is he.',
+  Backrooms:
+    'Endless beige rooms, a hum in the lights, and a door that only opens behind you. Getting lost is the business model.',
+  'Pinocchio: Unstrung':
+    'A wooden boy wants to be real in a town that prefers puppets. The strings were the kind part.',
+  'Disclosure Day':
+    'The government picks a date to tell the truth about the sky. The briefing leaks. The visitors were already listening.',
+  'Rosebush Pruning':
+    'A careful gardener, a perfect hedge, and a neighborhood that prunes more than plants. Manners with a blade.',
+  'The Last House':
+    'The final address on a dead-end street still has the lights on. Whatever lives there has been waiting for company.',
+  'Greenland 2: Migration':
+    'The comet was only the opening act. A family joins a moving column of people hunting the last safe latitude.',
+  'Project Hail Mary':
+    'A lone astronaut wakes with a science problem that will eat the sun if he gets the homework wrong. The universe sent a lab partner.',
+  'The End of Oak Street':
+    'A quiet block starts forgetting its own house numbers. The cul-de-sac is a seam. Something is pulling the thread.',
+  'Shape of My Heart':
+    'Two people keep almost saying it, then choosing the safer sentence. The shape is obvious. The timing is the dare.',
+  'Scary Movie':
+    'Every slasher rule gets a pie in the face and still somehow kills the intern. Scream, then rewind for the gag you missed.',
+  'Stranger Things':
+    'A missing kid, a secret lab, and a girl with a buzz cut pull a small town into a world that was never supposed to leak.',
+  'The Last of Us':
+    'A smuggler and a girl walk a ruined country that still has opinions about who gets to be human. Infection is only one of the hungers.',
+  'The Mandalorian':
+    'A bounty hunter with a creed and a very small passenger keeps choosing the job that pays in trouble. Armor is easier than parenting.',
+  'The Bear':
+    'A fine-dining chef inherits a neighborhood sandwich shop and a family that plates grief with the Italian beef.',
+  Severance:
+    'Office workers split their memories at the elevator and call it balance. The other you has a desk, a smile, and no way home.',
+  Shogun:
+    'An English sailor washes into a war for a throne that does not know his name. Translation is survival. So is patience.',
+  'The Crown':
+    'A family that is also a country learns that duty photographs better than love. The palace has excellent acoustics for secrets.',
+  'Ted Lasso':
+    'An American football coach is hired to fail at soccer and refuses to. Kindness is the tactic nobody budgeted for.',
+  'The Boys':
+    'Corporate superheroes sell hope and deliver collateral damage. A bitter nobody and a disillusioned speedster start keeping receipts.',
+  Wednesday:
+    'A deadpan outcast at a school for outcasts treats murder like extra credit. The cello is not a personality. It is a warning.',
+  'The Witcher':
+    'A mutant swordsman takes monster contracts and keeps getting drafted into royal messes. Destiny is a pest with good timing.',
+  'Slow Horses':
+    'Britain’s worst spies are parked in a slum office until a real crisis needs people nobody will miss. Incompetence is camouflage.',
+  'Only Murders in the Building':
+    'Three neighbors launch a true-crime podcast about a death in their building and immediately become suspects. The acoustics are excellent.',
+  Bluey:
+    'A blue heeler family turns backyard games into tiny epics. The jokes are for the kids. The gut-punch is for whoever is making dinner.',
+  'Avatar: The Last Airbender':
+    'A kid who can bend the elements has to grow up fast enough to stop a war. Friends, flying bison, and a world that is already tired.',
+  'The Office':
+    'A paper company pretends the cameras are not there. They are. So is the world’s most committed regional manager.',
+  Reacher:
+    'A drifting investigator the size of a doorway walks into small towns and leaves them less crooked. Coffee, justice, next bus.',
+  'The Mentalist':
+    'A fake psychic with a real eye for tells helps a bureau catch killers while hunting the one who made it personal.',
+  Lioness:
+    'A CIA program drops ordinary-looking women into rooms where the truth is armed. The cover story has to survive the marriage too.',
+  'Outer Banks':
+    'Sunburnt teens chase a legend, a father, and a fortune while the island’s rich kids treat the law like a beach club.',
+  Lanterns:
+    'A pair of investigators follows a light that should not be on the map. The case is local. The physics are not.',
+  'Paradise Hotel':
+    'Strangers are locked in a glossy resort and asked to date, scheme, and pretend the cameras are a lifestyle.',
+  Tagesschau:
+    'The day’s events, delivered with the calm of a country that still believes in a nightly roundup.',
+  Silo:
+    'Thousands live stacked in a buried cylinder and are told the outside will kill them. Curiosity is a capital offense.',
+  'Law & Order: Special Victims Unit':
+    'Detectives take the cases nobody wants to describe at dinner. The system is slow. The squad is not done.',
+  'Gran hermano':
+    'Houseguests, cameras, and a public vote turn ordinary people into a weekly argument. Privacy was the first eviction.',
+  'Family Guy':
+    'A Rhode Island family keeps interrupting its own plot for a cutaway that should not work and somehow does.',
+  'The Rookie':
+    'The oldest newbie in the department learns patrol, paperwork, and how fast a quiet street can change its mind.',
+  "Grey's Anatomy":
+    'Surgeons fall in love, fall apart, and still have to scrub in. The hospital is the third character in every fight.',
+  'The Simpsons':
+    'Springfield stays exactly itself while a yellow family finds a new way to love, fail, and reopen the same doughnut box.',
+  'Watch What Happens Live with Andy Cohen':
+    'A late-night living room where the stories from the other shows come to gossip in person.',
+  'The Tonight Show Starring Jimmy Fallon':
+    'A desk, a house band, and a host who will play the game if you will. Celebrities clock in for bits and a song.',
+  'House of the Dragon':
+    'A dynasty with dragons treats succession like a blood sport. The iron is the easy part. The family is the fire.',
+  NCIS:
+    'Navy cops with a gut instinct and a lab that never sleeps take cases that start on a ship and end in a family secret.',
+  Supernatural:
+    'Two brothers drive a black car toward whatever is eating the town this week. The real haunt is the mileage.',
+  'Criminal Minds':
+    'Profilers fly to the worst living rooms in America and try to think like the person who got there first.',
+}
 
 export const PAGE_SIZE = 24
 
@@ -184,12 +474,116 @@ function castFor(index) {
   return [0, 1, 2, 3].map((offset) => CAST[(start + offset) % CAST.length])
 }
 
-function synopsisFor(item) {
-  const genre = item.genres[0]?.toLowerCase() ?? 'drama'
-  if (item.kind === 'show') {
-    return `${item.title} is a ${item.year} ${genre} series about people who keep choosing the harder door. Each season raises the cost of staying loyal.`
+function hashString(value) {
+  let hash = 2166136261
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
   }
-  return `${item.title} is a ${item.year} ${genre} film about a plan that only works if nobody looks too closely. Runtime is built for a Friday night watch.`
+  return hash >>> 0
+}
+
+const GENRE_LOGS = {
+  Action: [
+    'When the last clean option burns, the only way out is through the people who built the trap.',
+    'A specialist is hired for one last run and spends it rewriting the rules of the job.',
+    'The mission is simple until the target turns out to be someone they already failed.',
+  ],
+  Adventure: [
+    'A map, a dare, and a horizon that keeps moving the prize one valley farther.',
+    'The journey was sold as a shortcut. The land has older plans.',
+    'They leave home for a legend and come back carrying a different name.',
+  ],
+  Animation: [
+    'A small hero with a large problem learns that brave and loud are not the same skill.',
+    'Friendship, a slightly cursed object, and a race to get home before dinner.',
+    'The world is bigger than the backyard, and the backyard was never that small.',
+  ],
+  Comedy: [
+    'A decent plan meets the one person who cannot let it stay decent.',
+    'Everyone is pretending this is fine. The laugh track is optional. The mess is not.',
+    'Ambition, timing, and a joke that lands on the wrong night.',
+  ],
+  Crime: [
+    'A job that was supposed to stay local acquires a body and a witness with better timing.',
+    'Loyalty is the product. Betrayal is the overhead.',
+    'The crew had rules. The city had more.',
+  ],
+  Documentary: [
+    'The official story is tidy. The footage is not.',
+    'A camera follows the people who were told they were not the point.',
+    'What gets left on the archive floor is the plot.',
+  ],
+  Drama: [
+    'A family, a secret, and the afternoon that finally runs out of polite rooms.',
+    'Love is still on the table. So is the thing nobody will name.',
+    'The right choice arrives late and asks to stay.',
+  ],
+  Family: [
+    'A household learns that the smallest promise can still need a rescue.',
+    'Kids, grown-ups, and a problem that will not wait until after school.',
+    'Home is the mission. The adventure is how they get back to it.',
+  ],
+  Fantasy: [
+    'A door opens for the person who was told not to knock. The other side has terms.',
+    'Magic is real, expensive, and allergic to shortcuts.',
+    'A borrowed gift comes with a name the old world still answers.',
+  ],
+  History: [
+    'A private hour rewrites a public century.',
+    'Power photographs well. The people holding it do not always.',
+    'The record skips a page. That page is the whole story.',
+  ],
+  Horror: [
+    'The house is empty in a way that means it is full.',
+    'A rule on the fridge is older than the family and hungrier.',
+    'They came for a weekend. The dark came with a lease.',
+  ],
+  Mystery: [
+    'A locked room, two timelines, and a clue that looks like an errand.',
+    'Everyone has an alibi. One of them is a story.',
+    'The missing piece was in the photograph the whole time.',
+  ],
+  Romance: [
+    'Two people keep choosing the safer sentence. The city does not cooperate.',
+    'Timing is the antagonist. Chemistry refuses to read the schedule.',
+    'A chance meeting with a sequel nobody planned to write.',
+  ],
+  'Sci-Fi': [
+    'A system returns an answer from a day that has not happened yet.',
+    'The future arrived early and did not bring instructions.',
+    'They built a tool to save the world. It has opinions.',
+  ],
+  Thriller: [
+    'The safe word is used. The other end of the line has a new voice.',
+    'A perfect getaway leaves one fingerprint in the wrong decade.',
+    'Someone has been in the room. They were careful. Not careful enough.',
+  ],
+  War: [
+    'Orders change at dawn. The people carrying them do not get the update.',
+    'A ceasefire long enough to hear what the quiet is hiding.',
+    'The front moves. The letters home do not.',
+  ],
+}
+
+function synopsisFor(item) {
+  const named = SYNOPSIS_BY_TITLE[item.title]
+  if (named) return named
+  const genre = item.genres[0] ?? 'Drama'
+  const pool = GENRE_LOGS[genre] ?? GENRE_LOGS.Drama
+  return pool[hashString(item.id) % pool.length]
+}
+
+function episodeTitleFor(item, seasonNumber, number) {
+  const start = hashString(`${item.id}:${seasonNumber}`) % EPISODE_TITLES.length
+  return EPISODE_TITLES[(start + number - 1) % EPISODE_TITLES.length]
+}
+
+function episodeSynopsisFor(item, seasonNumber, number) {
+  const genre = item.genres[0] ?? 'Drama'
+  const pool = EPISODE_BEATS_BY_GENRE[genre] ?? EPISODE_BEATS
+  const n = hashString(`${item.id}:s${seasonNumber}e${number}`)
+  return pool[n % pool.length]
 }
 
 function makeItem(index, kind) {
@@ -347,14 +741,12 @@ function seasonsFor(item, index) {
   for (let seasonNumber = 1; seasonNumber <= seasonCount; seasonNumber += 1) {
     const episodes = []
     for (let number = 1; number <= episodeCount; number += 1) {
-      const title = EPISODE_TITLES[(index + seasonNumber + number) % EPISODE_TITLES.length]
-      const beat = EPISODE_BEATS[(index * 3 + seasonNumber * 5 + number) % EPISODE_BEATS.length]
       episodes.push({
         id: `${item.id}-s${seasonNumber}e${number}`,
         number,
-        title,
+        title: episodeTitleFor(item, seasonNumber, number),
         duration: 24 + ((index + number) % 22),
-        synopsis: beat,
+        synopsis: episodeSynopsisFor(item, seasonNumber, number),
         thumb_url: item.backdrop_url || `/art/thumb/${item.id}?s=${seasonNumber}&e=${number}`,
         watch_href: `/watch/play/${item.id}?s=${seasonNumber}&e=${number}`,
       })
