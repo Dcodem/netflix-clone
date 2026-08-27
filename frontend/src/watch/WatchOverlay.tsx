@@ -447,7 +447,6 @@ export function WatchOverlay() {
         src={playerSrc(session.href, runtimeSec, startProgress, ytId, galleryFiles)}
         title={session.title}
         allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-        allowFullScreen
         tabIndex={-1}
         onLoad={() => {
           const audio = audioRef.current
