@@ -25,6 +25,7 @@ export function PosterCard({
   const { hideContinue } = useProfiles()
   const rootRef = useRef<HTMLButtonElement>(null)
   const [hover, setHover] = useState(false)
+  const [peek, setPeek] = useState(false)
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
   const timer = useRef<number>(0)
   const ranked = typeof rank === 'number'
@@ -32,7 +33,10 @@ export function PosterCard({
   useEffect(() => () => window.clearTimeout(timer.current), [])
 
   useEffect(() => {
-    if (openItem) setHover(false)
+    if (openItem) {
+      setHover(false)
+      setPeek(false)
+    }
   }, [openItem])
 
   function cancelClose() {
@@ -42,24 +46,28 @@ export function PosterCard({
   function onEnter(event: PointerEvent<HTMLDivElement>) {
     if (!hoverable || event.pointerType !== 'mouse') return
     cancelClose()
+    setPeek(true)
     timer.current = window.setTimeout(() => {
       const rect = rootRef.current?.getBoundingClientRect()
       if (rect) {
         setAnchor(rect)
         setHover(true)
       }
-    }, 400)
+    }, 420)
   }
 
   function onLeave(event: PointerEvent<HTMLDivElement>) {
     if (event.pointerType !== 'mouse') return
     cancelClose()
-    timer.current = window.setTimeout(() => setHover(false), 140)
+    timer.current = window.setTimeout(() => {
+      setHover(false)
+      setPeek(false)
+    }, 140)
   }
 
   return (
     <div
-      className={`poster-wrap ${ranked ? 'is-ranked' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'}`}
+      className={`poster-wrap ${ranked ? 'is-ranked' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'} ${peek ? 'is-peeking' : ''} ${hover ? 'is-previewing' : ''}`}
       onPointerEnter={onEnter}
       onPointerLeave={onLeave}
     >
@@ -70,6 +78,7 @@ export function PosterCard({
         ref={rootRef}
         onClick={() => {
           setHover(false)
+          setPeek(false)
           openTitle(item)
         }}
         aria-label={item.title}

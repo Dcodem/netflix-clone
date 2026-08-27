@@ -5,7 +5,7 @@ import { pushRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
 import { NotificationsMenu } from './NotificationsMenu'
-import { SearchIcon } from './Icons'
+import { CloseIcon, SearchIcon } from './Icons'
 
 const NAV = [
   { to: '/browse', label: 'Home', end: true },
@@ -104,6 +104,12 @@ export function Header() {
     window.setTimeout(() => inputRef.current?.focus(), 20)
   }
 
+  function closeSearch() {
+    setQuery('')
+    setSearchOpen(false)
+    if (location.pathname === '/search') navigate('/browse')
+  }
+
   return (
     <header
       className={`site-header ${scrolled ? 'is-scrolled' : ''} ${open ? 'is-searching' : ''} ${activeProfile?.kids ? 'is-kids' : ''}`}
@@ -149,14 +155,19 @@ export function Header() {
               <SearchIcon className="icon" />
             </button>
             {open ? (
-              <input
-                ref={inputRef}
-                type="search"
-                placeholder="Titles, people, genres"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                aria-label="Search"
-              />
+              <>
+                <input
+                  ref={inputRef}
+                  type="search"
+                  placeholder="Titles, people, genres"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  aria-label="Search"
+                />
+                <button type="button" className="search-close" aria-label="Close search" onClick={closeSearch}>
+                  <CloseIcon className="icon" />
+                </button>
+              </>
             ) : null}
           </div>
           {activeProfile?.kids ? (
