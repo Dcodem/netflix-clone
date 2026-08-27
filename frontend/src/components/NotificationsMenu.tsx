@@ -42,7 +42,6 @@ export function NotificationsMenu() {
         <div className="notify-dropdown" role="menu">
           {items.length ? (
             <>
-              <p className="notify-head">Notifications</p>
               {items.map((item) => (
               <button
                 type="button"

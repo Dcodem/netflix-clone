@@ -120,9 +120,9 @@ select,
 
 .logo {
   font-family: var(--display);
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 900;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.06em;
   text-decoration: none;
   flex-shrink: 0;
   color: var(--accent);
@@ -410,8 +410,8 @@ select,
 .detail-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
+  gap: 12px;
+  margin-top: 18px;
 }
 
 .btn {
@@ -746,8 +746,8 @@ select,
   }
 
   .poster-wrap.is-peeking .poster-card {
-    transform: scale(1.18);
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.72);
+    transform: none;
+    box-shadow: none;
   }
 
   .poster-wrap.is-previewing .poster-card {
@@ -1450,7 +1450,11 @@ select,
 
   .hero-body {
     max-width: min(640px, 42%);
-    padding-bottom: 160px;
+    padding-bottom: 176px;
+  }
+
+  .browse-page .hero {
+    margin-bottom: -148px;
   }
 
   .row-scroller .poster-wrap {
@@ -1507,6 +1511,18 @@ select,
   .btn-info {
     font-size: 20px;
     padding: 12px 28px;
+  }
+
+  .browse-page .hero {
+    margin-bottom: -176px;
+  }
+
+  .browse-page .hero-body {
+    padding-bottom: 208px;
+  }
+
+  .hero-controls-right {
+    bottom: 176px;
   }
 }
 
@@ -2019,7 +2035,7 @@ select,
 }
 
 .browse-page .hero {
-  margin-bottom: -56px;
+  margin-bottom: -120px;
 }
 
 .browse-page .hero + .media-row {
@@ -2549,8 +2565,8 @@ select,
   margin-top: 0;
 }
 
-.title-modal .more-like {
-  margin-top: 4px;
+.title-modal .more-like .section-title {
+  display: none;
 }
 
 .title-modal .more-like-grid {
@@ -2796,7 +2812,7 @@ select,
   }
 
   .browse-page .hero {
-    margin-bottom: -28px;
+    margin-bottom: -52px;
   }
 
   .hero-body {
@@ -3048,14 +3064,15 @@ select,
 .n-mark {
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 24px;
   background: var(--accent);
   color: #fff;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 900;
   letter-spacing: 0;
-  border-radius: 2px;
+  border-radius: 1px;
+  line-height: 1;
 }
 
 .hero-genre-dots {
