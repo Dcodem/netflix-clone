@@ -6,7 +6,6 @@ import { ErrorState } from '../components/ErrorState'
 import { Hero } from '../components/Hero'
 import { MediaRow } from '../components/MediaRow'
 import { Spinner } from '../components/Spinner'
-import { TopTenRow } from '../components/TopTenRow'
 import { useFetch } from '../hooks/useFetch'
 import { buildBrowseRows, catalogGenres, type BrowseFilter } from '../lib/homeRows'
 import { ofKind, pickHero, uniqueById } from '../lib/media'
@@ -136,20 +135,16 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
         </div>
       ) : null}
       {hero ? <Hero item={hero} /> : null}
-      {rows.map((row) =>
-        row.variant === 'top10' ? (
-          <TopTenRow key={row.id} title={row.title} items={row.items} />
-        ) : (
-          <MediaRow
-            key={row.id}
-            title={row.title}
-            items={row.items}
-            progressById={row.variant === 'continue' ? progressById : undefined}
-            continueMode={row.variant === 'continue'}
-            loop={row.loop}
-          />
-        ),
-      )}
+      {rows.map((row) => (
+        <MediaRow
+          key={row.id}
+          title={row.title}
+          items={row.items}
+          progressById={row.variant === 'continue' ? progressById : undefined}
+          continueMode={row.variant === 'continue'}
+          loop={row.loop}
+        />
+      ))}
     </main>
   )
 }

@@ -14,7 +14,7 @@ export type HomeRow = {
   id: string
   title: string
   items: MovieListItem[]
-  variant?: 'default' | 'top10' | 'continue'
+  variant?: 'default' | 'continue'
   loop?: boolean
 }
 
@@ -46,12 +46,18 @@ function rail(items: MovieListItem[], cap = RAIL): MovieListItem[] {
   return uniqueById(items).slice(0, cap)
 }
 
+function recommendRail(items: MovieListItem[], profile: Profile | null): MovieListItem[] {
+  if (!profile) return sortByRating(items)
+  const ranked = rankByTaste(items, profile, { excludeSeen: false })
+  return ranked.length ? ranked : sortByRating(items)
+}
+
 function pushRow(rows: HomeRow[], row: HomeRow) {
   if (!row.items.length) return
   rows.push({
     ...row,
-    items: rail(row.items, row.variant === 'top10' ? 10 : row.variant === 'continue' ? 24 : RAIL),
-    loop: row.loop ?? (row.variant !== 'top10' && row.variant !== 'continue' && row.items.length >= 8),
+    items: rail(row.items, row.variant === 'continue' ? 24 : RAIL),
+    loop: row.loop ?? (row.variant !== 'continue' && row.items.length >= 8),
   })
 }
 
@@ -103,19 +109,9 @@ export function buildBrowseRows(opts: {
     filter === 'movies' ? 'New Movies' : filter === 'shows' ? 'New TV Shows' : 'New Releases'
   pushRow(rows, { id: 'new', title: newTitle, items: sortByYear(pool) })
 
-  const top10Title =
-    filter === 'movies' ? 'Top 10 Movies' : filter === 'shows' ? 'Top 10 TV Shows' : 'Top 10 in Your Catalog'
-  pushRow(rows, {
-    id: 'top10',
-    title: top10Title,
-    items: sortByRating(pool).slice(0, 10),
-    variant: 'top10',
-    loop: false,
-  })
-
   if (filter === 'home' || filter === 'popular') {
-    pushRow(rows, { id: 'movies', title: 'Movies', items: sortByRating(movies) })
-    pushRow(rows, { id: 'shows', title: 'TV Shows', items: sortByRating(shows) })
+    pushRow(rows, { id: 'movies', title: 'Movies', items: recommendRail(movies, profile) })
+    pushRow(rows, { id: 'shows', title: 'TV Shows', items: recommendRail(shows, profile) })
   }
 
   if (filter === 'popular') {

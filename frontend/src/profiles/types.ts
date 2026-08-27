@@ -25,6 +25,8 @@ export type ProfileAvatar = {
   id: string
   color: string
   glyph: string
+  image: string
+  label: string
 }
 
 export type Profile = {
@@ -50,14 +52,14 @@ export type ProfileStore = {
 }
 
 export const PROFILE_AVATARS: ProfileAvatar[] = [
-  { id: 'red', color: '#E50914', glyph: '▶' },
-  { id: 'blue', color: '#0071EB', glyph: '★' },
-  { id: 'green', color: '#54B535', glyph: '◆' },
-  { id: 'gold', color: '#F5C518', glyph: '●' },
-  { id: 'purple', color: '#A855F7', glyph: '▲' },
-  { id: 'orange', color: '#F97316', glyph: '◼' },
-  { id: 'teal', color: '#14B8A6', glyph: '✦' },
-  { id: 'kids', color: '#38BDF8', glyph: '☺' },
+  { id: 'red', color: '#E50914', glyph: '▶', image: '/avatars/red-panda.png', label: 'Red panda' },
+  { id: 'blue', color: '#0071EB', glyph: '★', image: '/avatars/blue-robot.png', label: 'Blue robot' },
+  { id: 'green', color: '#54B535', glyph: '◆', image: '/avatars/green-frog.png', label: 'Green frog' },
+  { id: 'gold', color: '#F5C518', glyph: '●', image: '/avatars/gold-cat.png', label: 'Gold cat' },
+  { id: 'purple', color: '#A855F7', glyph: '▲', image: '/avatars/purple-owl.png', label: 'Purple owl' },
+  { id: 'orange', color: '#F97316', glyph: '◼', image: '/avatars/orange-tiger.png', label: 'Orange tiger' },
+  { id: 'teal', color: '#14B8A6', glyph: '✦', image: '/avatars/teal-narwhal.png', label: 'Teal narwhal' },
+  { id: 'kids', color: '#38BDF8', glyph: '☺', image: '/avatars/kids-sun.png', label: 'Kids sun' },
 ]
 
 export const PROFILE_COLORS = PROFILE_AVATARS.map((avatar) => avatar.color)
@@ -88,6 +90,8 @@ export function avatarFor(profile: Pick<Profile, 'avatarId' | 'color'>): Profile
       id: 'custom',
       color: profile.color,
       glyph: '▶',
+      image: '',
+      label: 'Profile',
     }
   )
 }

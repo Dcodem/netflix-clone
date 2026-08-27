@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { AvatarArt } from './AvatarArt'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
@@ -28,7 +29,7 @@ export function AccountMenu() {
     <div className="account-menu" ref={rootRef}>
       <button type="button" className="profile-chip" onClick={() => setOpen((value) => !value)} aria-label="Account menu">
         <span className="avatar-dot" style={{ background: avatar.color }}>
-          {avatar.glyph}
+          <AvatarArt avatar={avatar} alt={activeProfile.name} />
         </span>
       </button>
       {open ? (

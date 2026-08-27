@@ -3,6 +3,7 @@
  * Local catalog API mock for UI work when the real :8090 service is not running.
  * Implements the contract in API.md. Does not scrape or proxy a real catalog site.
  */
+import { request as httpsRequest } from 'node:https'
 import { createServer } from 'node:http'
 import { parse } from 'node:url'
 import {
@@ -124,6 +125,40 @@ function notFound(res, detail = 'not found') {
   sendJson(res, 404, { detail })
 }
 
+function proxyTmdbImage(res, target, hops = 0) {
+  let parsed
+  try {
+    parsed = new URL(target)
+  } catch {
+    return notFound(res, 'no image')
+  }
+  if (parsed.protocol !== 'https:' || parsed.hostname !== 'image.tmdb.org' || hops > 3) {
+    return notFound(res, 'no image')
+  }
+  const req = httpsRequest(
+    parsed,
+    { method: 'GET', headers: { Accept: 'image/*', 'User-Agent': 'flix-mock' } },
+    (up) => {
+      if (up.statusCode && up.statusCode >= 300 && up.statusCode < 400 && up.headers.location) {
+        up.resume()
+        return proxyTmdbImage(res, up.headers.location, hops + 1)
+      }
+      if (up.statusCode !== 200) {
+        up.resume()
+        return notFound(res, 'no image')
+      }
+      res.writeHead(200, {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': up.headers['content-type'] || 'image/jpeg',
+        'Cache-Control': 'public, max-age=86400',
+      })
+      up.pipe(res)
+    },
+  )
+  req.on('error', () => notFound(res, 'no image'))
+  req.end()
+}
+
 const server = createServer((req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
@@ -219,7 +254,7 @@ const server = createServer((req, res) => {
       res.end()
       return
     }
-    return notFound(res, 'no image')
+    return proxyTmdbImage(res, target)
   }
 
   if (path === '/') {

@@ -2,12 +2,22 @@ import type { MovieListItem } from '../api/types'
 import { genresOf } from '../lib/media'
 import type { LikedTitle, Profile, WatchHistoryItem } from './types'
 
-export function genreWeights(history: WatchHistoryItem[], favoriteGenres: string[] = []): Record<string, number> {
+export function genreWeights(
+  history: WatchHistoryItem[],
+  favoriteGenres: string[] = [],
+  liked: LikedTitle[] = [],
+): Record<string, number> {
   const now = Date.now()
   const weights: Record<string, number> = {}
 
   for (const genre of favoriteGenres) {
     weights[genre] = (weights[genre] ?? 0) + 3.5
+  }
+
+  for (const item of liked) {
+    for (const genre of item.genres) {
+      weights[genre] = (weights[genre] ?? 0) + 2.4
+    }
   }
 
   for (const item of history) {
@@ -57,7 +67,7 @@ export function becauseYouWatchedRows(
     if (seen.has(seed.id)) continue
     seen.add(seed.id)
     const related = similarByGenres(asListItem(seed), items, 40).filter((item) => item.id !== seed.id)
-    if (related.length < 6) continue
+    if (related.length < 4) continue
     rows.push({
       id: `because-${seed.id}`,
       title: `Because you watched ${seed.title}`,
@@ -86,7 +96,7 @@ export function becauseYouLikedRows(
     if (seen.has(seed.id)) continue
     seen.add(seed.id)
     const related = similarByGenres(asListItem(seed), items, 40).filter((item) => item.id !== seed.id)
-    if (related.length < 6) continue
+    if (related.length < 4) continue
     rows.push({
       id: `liked-${seed.id}`,
       title: `More like ${seed.title}`,
@@ -141,7 +151,7 @@ export function tasteGenreRails(
   kind: 'all' | 'movies' | 'shows' = 'all',
   limit = 4,
 ): { id: string; title: string; items: MovieListItem[] }[] {
-  const weights = genreWeights(profile?.history ?? [], profile?.favoriteGenres ?? [])
+  const weights = genreWeights(profile?.history ?? [], profile?.favoriteGenres ?? [], profile?.liked ?? [])
   const watchedGenres = new Set((profile?.history ?? []).flatMap((item) => item.genres))
   const likedGenres = new Set((profile?.liked ?? []).flatMap((item) => item.genres))
   const personal = new Set([...watchedGenres, ...likedGenres, ...(profile?.favoriteGenres ?? [])])
@@ -188,15 +198,24 @@ export function tasteGenreRails(
   return rows
 }
 
-export function rankByTaste(items: MovieListItem[], profile: Profile): MovieListItem[] {
-  const weights = genreWeights(profile.history, profile.favoriteGenres)
+export function rankByTaste(
+  items: MovieListItem[],
+  profile: Profile,
+  opts: { excludeSeen?: boolean } = {},
+): MovieListItem[] {
+  const weights = genreWeights(profile.history, profile.favoriteGenres, profile.liked)
   const watched = new Set(profile.history.map((item) => item.id))
   const liked = new Set(profile.liked.map((item) => item.id))
   const disliked = new Set(profile.dislikedIds)
   const likedGenres = new Set(profile.liked.flatMap((item) => item.genres))
+  const excludeSeen = opts.excludeSeen !== false
 
   return [...items]
-    .filter((item) => !watched.has(item.id) && !liked.has(item.id) && !disliked.has(item.id))
+    .filter((item) => {
+      if (disliked.has(item.id)) return false
+      if (excludeSeen && (watched.has(item.id) || liked.has(item.id))) return false
+      return true
+    })
     .map((item) => {
       const genres = genresOf(item)
       const overlap = genres.reduce((sum, genre) => sum + (weights[genre] ?? 0), 0)
@@ -207,6 +226,28 @@ export function rankByTaste(items: MovieListItem[], profile: Profile): MovieList
     .filter((entry) => entry.overlap > 0 || entry.score > (entry.item.rating ?? 0))
     .sort((a, b) => b.score - a.score)
     .map((entry) => entry.item)
+}
+
+/** Client-side similar-title engine. Swap this for a backend rec service later. */
+export function recommendSimilar(
+  pool: MovieListItem[],
+  seeds: Array<{ id: string; title: string; kind?: string; poster_url?: string | null; genres?: string[] }>,
+  limit = 24,
+): MovieListItem[] {
+  const blocked = new Set(seeds.map((seed) => seed.id))
+  const scores = new Map<string, { item: MovieListItem; score: number }>()
+  for (const seed of seeds) {
+    for (const [index, item] of similarByGenres(asListItem(seed), pool, 18).entries()) {
+      if (blocked.has(item.id)) continue
+      const prev = scores.get(item.id)
+      const add = 18 - index
+      scores.set(item.id, { item, score: (prev?.score ?? 0) + add })
+    }
+  }
+  return [...scores.values()]
+    .sort((a, b) => b.score - a.score)
+    .map((row) => row.item)
+    .slice(0, limit)
 }
 
 export function similarByGenres(item: MovieListItem, pool: MovieListItem[], limit = 12): MovieListItem[] {

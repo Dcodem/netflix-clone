@@ -8,12 +8,14 @@ export function MediaRow({
   progressById,
   continueMode = false,
   loop = false,
+  hoverable = true,
 }: {
   title: string
   items: MovieListItem[]
   progressById?: Record<string, number>
   continueMode?: boolean
   loop?: boolean
+  hoverable?: boolean
 }) {
   const looping = loop && items.length >= 8
   const { ref, canPrev, canNext, copies, scrollByPage } = useRowOverflow(looping, items.length)
@@ -44,6 +46,7 @@ export function MediaRow({
                 item={item}
                 progress={progressById?.[item.id]}
                 continueMode={continueMode}
+                hoverable={hoverable}
               />
             )),
           )}
