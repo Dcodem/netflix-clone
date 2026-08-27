@@ -103,16 +103,14 @@ export function TitleHoverCard({
             <div style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
         ) : null}
-        {trailerReady ? (
-          <button
-            type="button"
-            className="hero-mute jawbone-mute"
-            onClick={toggleMute}
-            aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-          >
-            <SpeakerIcon muted={muted} className="icon" />
-          </button>
-        ) : null}
+        <button
+          type="button"
+          className="hero-mute jawbone-mute"
+          onClick={toggleMute}
+          aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+        >
+          <SpeakerIcon muted={muted} className="icon" />
+        </button>
       </div>
       <div className="jawbone-body">
         <TitleActions item={item} detail={detail} watchHref={watchHref} size="sm" continueMode={continueMode} />

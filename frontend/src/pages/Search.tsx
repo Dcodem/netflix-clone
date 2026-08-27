@@ -104,7 +104,16 @@ export function Search() {
         {popularItems.length ? (
           <>
             <h2 className="section-title">Popular Searches</h2>
-            <MediaGrid items={popularItems} />
+            <ol className="search-top">
+              {popularItems.slice(0, 10).map((item, index) => (
+                <li key={item.id}>
+                  <button type="button" onClick={() => setParams({ q: item.title })}>
+                    <span className="search-top-rank">{index + 1}</span>
+                    {item.title}
+                  </button>
+                </li>
+              ))}
+            </ol>
           </>
         ) : null}
       </main>

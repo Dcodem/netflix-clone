@@ -133,6 +133,7 @@ export function WatchOverlay() {
   const [barHover, setBarHover] = useState(false)
   const flashTimer = useRef(0)
   const audioRef = useRef({ muted: false, volume: 1 })
+  const autoNextRef = useRef('')
 
   const runtimeSec = Math.max(60, (session?.history?.runtime ?? 48) * 60)
   const startProgress = session?.history?.progress ?? 0
@@ -359,6 +360,25 @@ export function WatchOverlay() {
   const activeSeason =
     showDetail?.seasons?.find((season) => season.season_number === (seasonNumber ?? session?.history?.seasonNumber)) ??
     showDetail?.seasons?.[0]
+  const lengthNow = duration || runtimeSec
+  const remainingNow = Math.max(0, lengthNow - current)
+
+  useEffect(() => {
+    if (!upcoming || remainingNow > 0.6 || current < 30 || !session?.history) return
+    const key = upcoming.episode.id
+    if (autoNextRef.current === key) return
+    autoNextRef.current = key
+    playClick()
+    openWatch(upcoming.episode.watch_href, session.history.title, {
+      ...session.history,
+      watch_href: upcoming.episode.watch_href,
+      runtime: upcoming.episode.duration ?? session.history.runtime,
+      progress: 0,
+      seasonNumber: upcoming.season.season_number,
+      episodeNumber: upcoming.episode.number,
+      episodeId: upcoming.episode.id,
+    })
+  }, [remainingNow, current, upcoming, session, openWatch])
 
   if (!session) return null
 
@@ -371,7 +391,9 @@ export function WatchOverlay() {
       : null
   const showSkipIntro = isShow && !introSkipped && current < 110 && !episodesOpen && !audioOpen
   const showSkipRecap = isShow && !recapSkipped && !showSkipIntro && current >= 80 && current < 155 && !episodesOpen && !audioOpen
-  const showNext = Boolean(upcoming && remaining <= 48 && remaining > 0 && !episodesOpen && !audioOpen)
+  const showNext = Boolean(upcoming && remaining <= 48 && !episodesOpen && !audioOpen && length > 0)
+  const nextCount = Math.max(1, Math.ceil(remaining))
+  const nextProgress = length ? Math.min(1, remaining / 48) : 0
   const caption = subs === 'en' ? CAPTIONS[Math.floor(current / 9) % CAPTIONS.length] : null
 
   function seekFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
@@ -511,7 +533,16 @@ export function WatchOverlay() {
             playEpisode(upcoming.season, upcoming.episode)
           }}
         >
-          <span className="next-ep-kicker">Next Episode</span>
+          <span className="next-ep-kicker">
+            <span
+              className="next-ep-count"
+              style={{ '--p': String(nextProgress) } as CSSProperties}
+              aria-hidden="true"
+            >
+              <span>{nextCount}</span>
+            </span>
+            Next Episode
+          </span>
           <span className="next-ep-body">
             <span className="next-ep-thumb">
               <MediaImage src={episodeStill(galleryUrls, upcoming.episode.number, upcoming.episode.thumb_url)} alt="" />
