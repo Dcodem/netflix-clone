@@ -308,7 +308,7 @@ export function WatchOverlay() {
       ) : null}
       <div className={`watch-topbar ${chrome ? 'is-visible' : ''}`} onClick={(event) => event.stopPropagation()}>
         <p className="watch-title">
-          {session.title}
+          {session.history?.title || session.title}
           {episodeLabel ? <span> {episodeLabel}</span> : null}
         </p>
       </div>
