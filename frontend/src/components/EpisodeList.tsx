@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Episode, Season } from '../api/types'
 import { isEpisodeStarted, isEpisodeWatched, seasonStats, watchForEpisode } from '../lib/episodeProgress'
 import type { WatchHistoryItem } from '../profiles/types'
+import { PlayIcon } from './Icons'
 import { MediaImage } from './MediaImage'
 
 export function EpisodeList({
@@ -49,7 +50,7 @@ export function EpisodeList({
             </select>
           </label>
         ) : (
-          <span className="season-count">{activeSeason.episodes?.length ?? 0} episodes</span>
+          <span className="season-count">{activeSeason.episodes?.length ?? 0} Episodes</span>
         )}
       </div>
       {activeSeason?.episodes?.length ? (
@@ -67,13 +68,12 @@ export function EpisodeList({
                 className={`episode episode-btn ${isResume ? 'is-resume' : ''} ${started ? 'has-progress' : ''} ${done ? 'is-watched' : ''}`}
                 onClick={() => onPlay(episode, activeSeason)}
               >
+                <span className="ep-num">{episode.number}</span>
                 <div className="ep-thumb-wrap">
                   <MediaImage src={episode.thumb_url} alt="" className="ep-thumb" />
-                  {done ? (
-                    <span className="ep-watched-mark" aria-label="Watched">
-                      ✓
-                    </span>
-                  ) : null}
+                  <span className="ep-play">
+                    <PlayIcon className="icon" />
+                  </span>
                   {started ? (
                     <div className="progress-track ep-progress">
                       <div style={{ width: `${Math.round(Math.min(1, progress) * 100)}%` }} />
@@ -81,12 +81,10 @@ export function EpisodeList({
                   ) : null}
                 </div>
                 <div className="ep-info">
-                  <div className="ep-label">
-                    S{activeSeason.season_number} · E{episode.number}
-                    {done ? <span className="ep-status">Watched</span> : started ? <span className="ep-status">In progress</span> : null}
+                  <div className="ep-title-row">
+                    <div className="ep-title">{episode.title}</div>
+                    {episode.duration ? <div className="ep-meta">{episode.duration}m</div> : null}
                   </div>
-                  <div className="ep-title">{episode.title}</div>
-                  {episode.duration ? <div className="ep-meta">{episode.duration} min</div> : null}
                   {episode.synopsis ? <p className="ep-syn">{episode.synopsis}</p> : null}
                 </div>
               </button>

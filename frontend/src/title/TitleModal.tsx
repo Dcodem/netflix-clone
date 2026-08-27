@@ -4,13 +4,14 @@ import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '..
 import { CatalogImage } from '../components/CatalogImage'
 import { EpisodeList } from '../components/EpisodeList'
 import { ErrorState } from '../components/ErrorState'
-import { MediaRow } from '../components/MediaRow'
+import { CloseIcon, SpeakerIcon } from '../components/Icons'
+import { MoreLikeGrid } from '../components/MoreLikeGrid'
 import { Spinner } from '../components/Spinner'
 import { TitleActions } from '../components/TitleActions'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, uniqueById } from '../lib/media'
-import { filterForProfile, isKidsSafe, matchPercent, maturityLabel } from '../lib/netflix'
+import { filterForProfile, isKidsSafe, matchPercent, maturityLabel, qualityBadge } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
@@ -95,6 +96,7 @@ export function TitleModal() {
   const maturity = maturityLabel(item)
   const genres = genresOf(detail ?? item)
   const runtime = formatRuntime(detail?.runtime)
+  const quality = qualityBadge(item.quality || detail?.quality)
   const watchHref = isShow(item)
     ? last?.watch_href || resumeEpisode?.watch_href || detail?.watch_href
     : detail?.watch_href
@@ -135,7 +137,7 @@ export function TitleModal() {
         onClick={(event) => event.stopPropagation()}
       >
         <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
-          ×
+          <CloseIcon className="icon" />
         </button>
         <div className="title-modal-hero">
           <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
@@ -152,47 +154,59 @@ export function TitleModal() {
             <h1>{item.title}</h1>
             <TitleActions item={item} detail={detail} watchHref={watchHref} showMore={false} continueMode={continueMode} />
           </div>
-          {trailerReady ? (
-            <button
-              type="button"
-              className="hero-mute"
-              onClick={toggleMute}
-              aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-            >
-              {muted ? '🔇' : '🔊'}
-            </button>
-          ) : null}
+          <div className="hero-controls-right">
+            {trailerReady ? (
+              <button
+                type="button"
+                className="hero-mute"
+                onClick={toggleMute}
+                aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+              >
+                <SpeakerIcon muted={muted} className="icon" />
+              </button>
+            ) : null}
+            <span className="maturity-flag">{maturity}</span>
+          </div>
         </div>
         <div className="title-modal-main">
           {detailFetch.loading && !detail ? <Spinner label="Loading" /> : null}
           {detailFetch.error ? <ErrorState message={detailFetch.error} onRetry={detailFetch.retry} /> : null}
-          <div className="jawbone-meta">
-            <span className="match">{match}% Match</span>
-            {item.year ? <span>{item.year}</span> : null}
-            <span className="maturity">{maturity}</span>
-            {runtime ? <span>{runtime}</span> : null}
-            {isShow(item) && seasons.length ? (
-              <span>
-                {seasons.length} {seasons.length === 1 ? 'Season' : 'Seasons'}
-              </span>
-            ) : null}
-            {item.quality ? <span>{item.quality}</span> : null}
+          <div className="title-modal-split">
+            <div className="title-modal-split-main">
+              <div className="jawbone-meta">
+                <span className="match">{match}% Match</span>
+                {item.year ? <span>{item.year}</span> : null}
+                <span className="maturity">{maturity}</span>
+                {runtime ? <span>{runtime}</span> : null}
+                {isShow(item) && seasons.length ? (
+                  <span>
+                    {seasons.length} {seasons.length === 1 ? 'Season' : 'Seasons'}
+                  </span>
+                ) : null}
+                {quality ? <span className="quality-badge">{quality}</span> : null}
+              </div>
+              {detail?.synopsis ? <p className="title-modal-syn">{detail.synopsis}</p> : null}
+            </div>
+            <div className="title-modal-split-side">
+              {detail?.cast?.length ? (
+                <p className="title-modal-cast">
+                  <span>Cast:</span> {detail.cast.join(', ')}
+                </p>
+              ) : null}
+              {genres.length ? (
+                <p className="title-modal-cast">
+                  <span>Genres:</span> {genres.join(', ')}
+                </p>
+              ) : null}
+              <p className="title-modal-cast">
+                <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {genres.slice(0, 3).join(', ') || 'Original'}
+              </p>
+            </div>
           </div>
-          {genres.length ? <div className="jawbone-genres">{genres.join(' · ')}</div> : null}
-          {detail?.synopsis ? <p className="title-modal-syn">{detail.synopsis}</p> : null}
-          {detail?.cast?.length ? (
-            <p className="title-modal-cast">
-              <span>Cast</span> {detail.cast.join(', ')}
-            </p>
-          ) : null}
 
           {seasons.length ? <EpisodeList seasons={seasons} history={last} onPlay={playEpisode} /> : null}
 
-          {similar.length ? (
-            <div className="more-like">
-              <MediaRow title="More like this" items={similar.slice(0, 10)} hoverable={false} />
-            </div>
-          ) : null}
+          {similar.length ? <MoreLikeGrid items={similar} /> : null}
         </div>
       </div>
     </div>

@@ -85,10 +85,13 @@ export function Search() {
   return (
     <main className="page page-pad">
       {items.length ? (
-        <MediaGrid items={items} />
+        <>
+          <h1 className="search-heading">Explore titles related to &ldquo;{q}&rdquo;</h1>
+          <MediaGrid items={items} />
+        </>
       ) : (
         <>
-          <EmptyState title="No matches" detail="Try a different title." />
+          <EmptyState title="Your search did not have any matches." detail="Try a different title, actor, or genre." />
           {recentBlock}
         </>
       )}

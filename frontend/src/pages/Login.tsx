@@ -49,18 +49,18 @@ export function Login() {
           ))}
         </div>
       ) : null}
+      <div className="login-veil" aria-hidden="true" />
+      <header className="login-top">
+        <div className="logo">FLIX</div>
+      </header>
       <div className="login-card">
-        <div className="logo login-logo">
-          <span className="logo-accent">F</span>LIX
-        </div>
-        <h1>{mode === 'signup' ? 'Create an account' : 'Sign in'}</h1>
-        <p className="login-sub">Accounts stay on this device. After sign-in you pick a profile.</p>
+        <h1>{mode === 'signup' ? 'Sign Up' : 'Sign In'}</h1>
         <form className="login-form" onSubmit={onSubmit}>
           {mode === 'signup' ? (
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="Your name"
+              placeholder="Name"
               autoComplete="name"
               required
             />
@@ -83,20 +83,23 @@ export function Login() {
             required
           />
           {error ? <p className="login-error">{error}</p> : null}
-          <button type="submit" className="btn btn-primary" disabled={busy}>
-            {busy ? 'Please wait…' : mode === 'signup' ? 'Sign up' : 'Sign in'}
+          <button type="submit" className="btn btn-primary login-submit" disabled={busy}>
+            {busy ? 'Please wait…' : mode === 'signup' ? 'Sign Up' : 'Sign In'}
           </button>
         </form>
-        <button
-          type="button"
-          className="login-switch"
-          onClick={() => {
-            setMode(mode === 'signup' ? 'login' : 'signup')
-            setError(null)
-          }}
-        >
-          {mode === 'signup' ? 'Already have an account? Sign in' : 'New here? Create an account'}
-        </button>
+        <p className="login-sub">
+          {mode === 'signup' ? 'Already have an account?' : 'New to Flix?'}{' '}
+          <button
+            type="button"
+            className="login-switch"
+            onClick={() => {
+              setMode(mode === 'signup' ? 'login' : 'signup')
+              setError(null)
+            }}
+          >
+            {mode === 'signup' ? 'Sign in now.' : 'Sign up now.'}
+          </button>
+        </p>
       </div>
     </main>
   )

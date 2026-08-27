@@ -2,11 +2,12 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
 import { genresOf, isShow } from '../lib/media'
-import { maturityLabel } from '../lib/netflix'
+import { maturityLabel, qualityBadge } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
+import { InfoIcon, PlayIcon, SpeakerIcon } from './Icons'
 import { CatalogImage } from './CatalogImage'
 
 const VIDEO_ASPECT = 16 / 9
@@ -79,6 +80,7 @@ export function Hero({ item }: { item: MovieListItem }) {
     : detail?.watch_href
   const maturity = maturityLabel(item)
   const synopsis = detail?.synopsis
+  const quality = qualityBadge(item.quality || detail?.quality)
 
   function onWatch() {
     if (!watchHref) return
@@ -104,7 +106,7 @@ export function Hero({ item }: { item: MovieListItem }) {
   }
 
   return (
-    <section className="hero">
+    <section className={`hero ${trailerReady && previewActive ? 'is-playing' : ''}`}>
       <div className={`hero-media ${trailerReady && previewActive ? 'is-playing' : ''}`} ref={mediaRef}>
         <CatalogImage item={{ ...item, backdrop_url: backdrop }} alt="" className="hero-img" prefer="backdrop" />
         {previewActive ? (
@@ -125,10 +127,14 @@ export function Hero({ item }: { item: MovieListItem }) {
         ) : null}
       </div>
       <div className="hero-body">
+        <div className="billboard-kicker">
+          <span className="n-mark">F</span>
+          <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
+        </div>
         <h1 className="hero-title">{item.title}</h1>
         <div className="hero-meta">
           {item.year ? <span>{item.year}</span> : null}
-          <span className="maturity">{maturity}</span>
+          {quality ? <span className="quality-badge">{quality}</span> : null}
           {isShow(item) ? (
             <span>
               {seasons.length > 1 ? `${seasons.length} Seasons` : 'Series'}
@@ -139,26 +145,30 @@ export function Hero({ item }: { item: MovieListItem }) {
           ) : null}
         </div>
         {synopsis ? <p className="hero-syn">{synopsis}</p> : null}
-        {genres.length ? <div className="hero-genres">{genres.slice(0, 4).join(' · ')}</div> : null}
         <div className="hero-actions">
           <button type="button" className="btn btn-play" onClick={onWatch} disabled={!watchHref}>
-            ▶ {last?.progress && last.progress > 0.05 ? 'Resume' : 'Play'}
+            <PlayIcon className="icon" />
+            {last?.progress && last.progress > 0.05 ? 'Resume' : 'Play'}
           </button>
           <button type="button" className="btn btn-info" onClick={() => openTitle(item)}>
-            ℹ More Info
+            <InfoIcon className="icon" />
+            More Info
           </button>
         </div>
       </div>
-      {trailerReady && previewActive ? (
-        <button
-          type="button"
-          className="hero-mute"
-          onClick={toggleMute}
-          aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-        >
-          {muted ? '🔇' : '🔊'}
-        </button>
-      ) : null}
+      <div className="hero-controls-right">
+        {trailerReady && previewActive ? (
+          <button
+            type="button"
+            className="hero-mute"
+            onClick={toggleMute}
+            aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+          >
+            <SpeakerIcon muted={muted} className="icon" />
+          </button>
+        ) : null}
+        <span className="maturity-flag">{maturity}</span>
+      </div>
     </section>
   )
 }

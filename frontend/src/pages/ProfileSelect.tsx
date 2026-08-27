@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { AvatarArt } from '../components/AvatarArt'
+import { PencilIcon, PlusIcon } from '../components/Icons'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { PROFILE_AVATARS, avatarFor, type Profile } from '../profiles/types'
@@ -65,7 +66,8 @@ export function ProfileSelect() {
 
   return (
     <main className="profiles-page">
-      <h1>{adding ? 'Add a profile' : "Who's watching?"}</h1>
+      <div className="logo profiles-logo">FLIX</div>
+      <h1>{adding ? 'Add a profile' : managing ? 'Manage Profiles' : "Who's watching?"}</h1>
       <div className="profile-grid">
         {profiles.map((profile) => {
           const avatar = avatarFor(profile)
@@ -78,6 +80,11 @@ export function ProfileSelect() {
                 onClick={() => onSelect(profile)}
               >
                 <AvatarArt avatar={avatar} alt={profile.name} />
+                {managing ? (
+                  <span className="profile-pencil" aria-hidden="true">
+                    <PencilIcon className="icon" />
+                  </span>
+                ) : null}
               </button>
               {editingId === profile.id ? (
                 <form
@@ -122,8 +129,10 @@ export function ProfileSelect() {
         })}
         {adding ? null : (
           <button type="button" className="profile-add" onClick={() => setAdding(true)}>
-            <span>+</span>
-            Add profile
+            <span className="profile-add-plus">
+              <PlusIcon className="icon" />
+            </span>
+            Add Profile
           </button>
         )}
       </div>

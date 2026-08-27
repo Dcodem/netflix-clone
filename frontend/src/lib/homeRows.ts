@@ -16,7 +16,7 @@ export type HomeRow = {
   subtitle?: string
   items: MovieListItem[]
   seed?: MovieListItem
-  variant?: 'default' | 'continue'
+  variant?: 'default' | 'continue' | 'top10'
   loop?: boolean
 }
 
@@ -110,6 +110,17 @@ export function buildBrowseRows(opts: {
   const trendingTitle =
     filter === 'movies' ? 'Trending Movies' : filter === 'shows' ? 'Trending TV Shows' : 'Trending Now'
   pushRow(rows, { id: 'trending', title: trendingTitle, items: sortByRating(pool) })
+
+  const top10 = sortByRating(pool).slice(0, 10)
+  if (top10.length >= 4) {
+    pushRow(rows, {
+      id: 'top10',
+      title: filter === 'movies' ? 'Top 10 Movies' : filter === 'shows' ? 'Top 10 TV Shows' : 'Top 10 in Flix Today',
+      items: top10,
+      variant: 'top10',
+      loop: false,
+    })
+  }
 
   const newTitle =
     filter === 'movies' ? 'New Movies' : filter === 'shows' ? 'New TV Shows' : 'New Releases'

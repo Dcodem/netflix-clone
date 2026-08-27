@@ -144,6 +144,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           items={row.items}
           progressById={row.variant === 'continue' ? progressById : undefined}
           continueMode={row.variant === 'continue'}
+          variant={row.variant}
           loop={row.loop}
         />
       ))}

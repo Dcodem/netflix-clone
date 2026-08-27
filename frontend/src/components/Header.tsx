@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { pushRecentSearch } from '../lib/recentSearch'
+import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
+import { SearchIcon } from './Icons'
 
 const NAV = [
   { to: '/browse', label: 'Home', end: true },
@@ -13,6 +15,7 @@ const NAV = [
 ] as const
 
 export function Header() {
+  const { activeProfile } = useProfiles()
   const [searchParams] = useSearchParams()
   const location = useLocation()
   const navigate = useNavigate()
@@ -31,7 +34,7 @@ export function Header() {
   const open = searchOpen || Boolean(query) || location.pathname === '/search'
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
+    const onScroll = () => setScrolled(window.scrollY > 20)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
@@ -87,10 +90,10 @@ export function Header() {
   }
 
   return (
-    <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
+    <header className={`site-header ${scrolled ? 'is-scrolled' : ''} ${activeProfile?.kids ? 'is-kids' : ''}`}>
       <div className="header-inner">
         <Link className="logo" to="/browse">
-          <span className="logo-accent">F</span>LIX
+          FLIX
         </Link>
         <details className="browse-menu">
           <summary>Browse</summary>
@@ -118,7 +121,7 @@ export function Header() {
         <div className="header-tools">
           <div className={`search-wrap ${open ? 'is-open' : ''}`} ref={searchRef}>
             <button type="button" className="search-toggle" aria-label="Search" onClick={toggleSearch}>
-              ⌕
+              <SearchIcon className="icon" />
             </button>
             {open ? (
               <input

@@ -3,6 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import { getMovie } from '../api/client'
 import { CatalogImage } from '../components/CatalogImage'
 import { ErrorState } from '../components/ErrorState'
+import { PlayIcon, SpeakerIcon } from '../components/Icons'
 import { Spinner } from '../components/Spinner'
 import { TasteButtons } from '../components/TasteButtons'
 import { useFetch } from '../hooks/useFetch'
@@ -77,11 +78,12 @@ export function MovieDetail() {
               </div>
               {genres.length ? <div className="detail-genres">{genres.join(' · ')}</div> : null}
               <div className="detail-actions">
-                <button type="button" className="btn btn-primary" onClick={onWatch} disabled={!data.watch_href}>
-                  {last?.progress && last.progress > 0.05 ? '▶ Resume' : '▶ Watch'}
+                <button type="button" className="btn btn-play" onClick={onWatch} disabled={!data.watch_href}>
+                  <PlayIcon className="icon" />
+                  {last?.progress && last.progress > 0.05 ? 'Resume' : 'Play'}
                 </button>
-                <Link className="btn btn-ghost" to="/browse">
-                  ← Back
+                <Link className="btn btn-info" to="/browse">
+                  Back
                 </Link>
                 <TasteButtons
                   item={{
@@ -96,14 +98,16 @@ export function MovieDetail() {
             </div>
           </div>
           {trailerReady ? (
-            <button
-              type="button"
-              className="hero-mute"
-              onClick={toggleMute}
-              aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-            >
-              {muted ? '🔇' : '🔊'}
-            </button>
+            <div className="hero-controls-right">
+              <button
+                type="button"
+                className="hero-mute"
+                onClick={toggleMute}
+                aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+              >
+                <SpeakerIcon muted={muted} className="icon" />
+              </button>
+            </div>
           ) : null}
         </div>
         {data.synopsis ? <p className="detail-synopsis">{data.synopsis}</p> : null}
