@@ -2253,6 +2253,34 @@ select,
   letter-spacing: 0.01em;
 }
 
+.genre-dots {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #d2d2d2;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.genre-dots li {
+  display: inline-flex;
+  align-items: center;
+}
+
+.genre-dots li + li::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  margin: 0 8px;
+  border-radius: 50%;
+  background: #646464;
+  flex-shrink: 0;
+}
+
 .title-actions {
   display: flex;
   gap: 8px;
@@ -2371,7 +2399,7 @@ select,
   margin: 0 auto;
   background: #181818;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
   animation: modal-in 0.38s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2419,6 +2447,8 @@ select,
   position: relative;
   aspect-ratio: 16 / 9;
   background: #000;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
 }
 
 .title-modal-hero img,
@@ -2532,6 +2562,7 @@ select,
   padding: 0 28px;
   background: #181818;
   border-bottom: 1px solid #404040;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 .title-tabs button {
@@ -2920,7 +2951,7 @@ select,
   }
 
   .hero-genre-dots {
-    display: block;
+    display: flex;
   }
 
   .hero-actions .btn {
@@ -3040,6 +3071,7 @@ select,
 
   .title-modal-hero {
     aspect-ratio: 16 / 10;
+    border-radius: 0;
   }
 
   .title-modal-close {
@@ -3184,9 +3216,13 @@ select,
   letter-spacing: 0.04em;
 }
 
+.hero-genre-dots li + li::before {
+  background: rgba(255, 255, 255, 0.55);
+}
+
 @media (max-width: 767px) {
   .hero-genre-dots {
-    display: block;
+    display: flex;
   }
 }
 
@@ -3291,8 +3327,14 @@ select,
 
 .more-like-meta .circle-btn {
   margin-left: auto;
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+}
+
+.more-like-art:hover img,
+.more-like-art:hover .media-fallback {
+  filter: brightness(1.08);
 }
 
 .more-like-genres,
@@ -5106,13 +5148,14 @@ select,
 }
 
 .watch-time {
-  margin: 0;
-  min-width: 3.2em;
+  margin: 0 0 0 auto;
+  min-width: 3.6em;
   text-align: right;
-  font-size: 14px;
+  font-size: 16px;
   font-variant-numeric: tabular-nums;
-  color: #fff;
-  font-weight: 600;
+  color: #e6e6e6;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .watch-controls {
@@ -5615,12 +5658,12 @@ select,
 }
 
 .more-like-syn {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   color: #d2d2d2;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -6002,9 +6045,16 @@ select,
 
 .news-date strong {
   font-family: var(--display);
-  font-size: 36px;
-  font-weight: 300;
-  line-height: 1;
+  font-size: 48px;
+  font-weight: 200;
+  line-height: 0.92;
+}
+
+.news-genres {
+  margin: 0 0 10px;
+  color: #b3b3b3;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .news-card-art {

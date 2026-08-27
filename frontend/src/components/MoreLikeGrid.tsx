@@ -28,7 +28,7 @@ async function chipFor(item: MovieListItem): Promise<LikeChip> {
 export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
   const { openTitle } = useTitleModal()
   const { activeProfile, toggleMyList } = useProfiles()
-  const slice = items.slice(0, 9)
+  const slice = items.slice(0, 12)
   const ids = slice.map((item) => item.id).join(',')
   const [chips, setChips] = useState<Record<string, LikeChip>>({})
 

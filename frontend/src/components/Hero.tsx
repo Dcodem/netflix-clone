@@ -11,6 +11,7 @@ import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 import { InfoIcon, PlayIcon, RestartIcon, SpeakerIcon } from './Icons'
 import { CatalogImage } from './CatalogImage'
+import { GenreDots } from './GenreDots'
 import { TitleLogo } from './TitleLogo'
 
 const VIDEO_ASPECT = 16 / 9
@@ -75,6 +76,7 @@ export function Hero({ item }: { item: MovieListItem }) {
   useEffect(() => {
     setSettled(false)
     if (!playing) return
+    if (!window.matchMedia('(min-width: 768px)').matches) return
     const timer = window.setTimeout(() => setSettled(true), 6000)
     return () => window.clearTimeout(timer)
   }, [playing, item.id])
@@ -136,7 +138,7 @@ export function Hero({ item }: { item: MovieListItem }) {
           <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
         </div>
         <TitleLogo item={item} className="hero-logo" titleClassName="hero-title" />
-        {genres.length ? <p className="hero-genre-dots">{genres.join(' • ')}</p> : null}
+        {genres.length ? <GenreDots genres={genres} className="hero-genre-dots" /> : null}
         {synopsis ? <p className="hero-syn">{synopsis}</p> : null}
         <div className="hero-actions">
           <button type="button" className="btn btn-play" onClick={onWatch} disabled={!sessionReady}>

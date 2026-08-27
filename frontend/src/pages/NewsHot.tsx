@@ -5,8 +5,11 @@ import { BellIcon, InfoIcon, PlayIcon } from '../components/Icons'
 import { CatalogImage } from '../components/CatalogImage'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
+import { GenreDots } from '../components/GenreDots'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
+import { useMediaQuery } from '../hooks/useMediaQuery'
+import { Home } from './Home'
 import { genresOf, isShow, sortByRating, uniqueById } from '../lib/media'
 import { matchPercent, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
@@ -109,8 +112,8 @@ function FeedCard({
         <p className="news-meta">
           {!upcoming ? <span className="match">{match}% Match</span> : null}
           {item.year ? <span>{item.year}</span> : null}
-          {genres.length ? <span>{genres.join(' • ')}</span> : null}
         </p>
+        {genres.length ? <GenreDots genres={genres} className="news-genres" /> : null}
         {synopsis ? <p className="news-syn">{synopsis}</p> : null}
         <div className="news-actions">
           {upcoming ? (
@@ -146,6 +149,12 @@ function FeedCard({
 }
 
 export function NewsHot() {
+  const desktop = useMediaQuery('(min-width: 768px)')
+  if (desktop) return <Home filter="popular" />
+  return <NewsHotFeed />
+}
+
+function NewsHotFeed() {
   const movies = useFetch(() => getMovies(), 'news-movies')
   const extras = useFetch(async () => {
     const [catalogMovies, catalogShows] = await Promise.all([

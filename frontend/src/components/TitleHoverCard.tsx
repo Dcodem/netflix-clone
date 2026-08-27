@@ -8,6 +8,7 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
+import { GenreDots } from './GenreDots'
 import { SpeakerIcon } from './Icons'
 import { TitleActions } from './TitleActions'
 
@@ -144,7 +145,7 @@ export function TitleHoverCard({
             </span>
           ) : null}
         </div>
-        {genres.length ? <div className="jawbone-genres">{genres.join(' • ')}</div> : null}
+        {genres.length ? <GenreDots genres={genres} className="jawbone-genres" /> : null}
       </div>
     </div>,
     document.body,
