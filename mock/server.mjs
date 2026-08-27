@@ -98,6 +98,9 @@ function playerPage(item, season, episode, query = {}) {
   const heading = season && episode ? `${item.title} · S${season}E${episode}` : item.title
   const runtime = Math.max(60, Number(query.runtime) || (item.runtime ? Number(item.runtime) * 60 : 48 * 60))
   const start = Math.max(0, Number(query.t) || 0)
+  const h = hue(item.id)
+  const color = `hsl(${h} 48% 18%)`
+  const accent = `hsl(${(h + 38) % 360} 55% 42%)`
   return `<!doctype html>
 <html>
   <head>
@@ -105,21 +108,24 @@ function playerPage(item, season, episode, query = {}) {
     <title>${escapeXml(heading)}</title>
     <style>
       html,body{margin:0;height:100%;background:#000;overflow:hidden}
-      .art{position:absolute;inset:-8%;width:116%;height:116%;object-fit:cover;transform-origin:center}
-      .art.is-playing{animation:ken 42s ease-in-out alternate infinite}
-      .veil{position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,transparent 20%,rgba(0,0,0,.35) 100%)}
-      @keyframes ken{from{transform:scale(1)}to{transform:scale(1.12)}}
+      .stage{position:absolute;inset:-8%;width:116%;height:116%;background:
+        radial-gradient(circle at 72% 32%, ${accent} 0%, transparent 42%),
+        radial-gradient(circle at 18% 80%, ${color} 0%, #050505 70%);
+        transform-origin:center}
+      .stage.is-playing{animation:ken 42s ease-in-out alternate infinite}
+      .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 28%,transparent 58%,rgba(0,0,0,.55))}
+      @keyframes ken{from{transform:scale(1)}to{transform:scale(1.1)}}
     </style>
   </head>
   <body>
-    <img class="art is-playing" src="/art/backdrop/${escapeXml(item.id)}" alt=""/>
+    <div class="stage is-playing"></div>
     <div class="veil"></div>
     <script>
       const SOURCE = 'flix-player'
       let duration = ${runtime}
       let current = ${start}
       let paused = false
-      const art = document.querySelector('.art')
+      const stage = document.querySelector('.stage')
       function tick(dt) {
         if (!paused) current = Math.min(duration, current + dt)
         parent.postMessage({ source: SOURCE, type: 'time', current, duration, paused }, '*')
@@ -134,8 +140,8 @@ function playerPage(item, season, episode, query = {}) {
       window.addEventListener('message', (event) => {
         const data = event.data || {}
         if (data.source !== SOURCE) return
-        if (data.cmd === 'play') { paused = false; art.classList.add('is-playing') }
-        if (data.cmd === 'pause') { paused = true; art.classList.remove('is-playing') }
+        if (data.cmd === 'play') { paused = false; stage.classList.add('is-playing') }
+        if (data.cmd === 'pause') { paused = true; stage.classList.remove('is-playing') }
         if (data.cmd === 'seek' && typeof data.seconds === 'number') current = Math.max(0, Math.min(duration, data.seconds))
         if (data.cmd === 'skip' && typeof data.delta === 'number') current = Math.max(0, Math.min(duration, current + data.delta))
       })
