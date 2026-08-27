@@ -5,7 +5,7 @@ import { pushRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
 import { NotificationsMenu } from './NotificationsMenu'
-import { CloseIcon, SearchIcon } from './Icons'
+import { ChevronLeftIcon, CloseIcon, SearchIcon } from './Icons'
 
 const NAV = [
   { to: '/browse', label: 'Home', end: true },
@@ -91,7 +91,12 @@ export function Header() {
     window.setTimeout(() => inputRef.current?.focus(), 20)
   }
 
-  function closeSearch() {
+  function clearQuery() {
+    setQuery('')
+    if (location.pathname === '/search') navigate('/search')
+  }
+
+  function leaveSearch() {
     setQuery('')
     setSearchOpen(false)
     if (location.pathname === '/search') navigate('/browse')
@@ -110,6 +115,9 @@ export function Header() {
   return (
     <header className={`site-header ${scrolled ? 'is-scrolled' : ''} ${open ? 'is-searching' : ''}`}>
       <div className="header-inner">
+        <button type="button" className="search-back" onClick={leaveSearch} aria-label="Back">
+          <ChevronLeftIcon className="icon" />
+        </button>
         <Link className="logo" to="/browse">
           FLIX
         </Link>
@@ -158,11 +166,14 @@ export function Header() {
                   onChange={(event) => setQuery(event.target.value)}
                   aria-label="Search"
                 />
-                {query ? (
-                  <button type="button" className="search-close" aria-label="Close search" onClick={closeSearch}>
-                    <CloseIcon className="icon" />
-                  </button>
-                ) : null}
+                <button
+                  type="button"
+                  className={`search-close ${query ? 'is-shown' : ''}`}
+                  aria-label={query ? 'Clear search' : 'Close search'}
+                  onClick={query ? clearQuery : leaveSearch}
+                >
+                  <CloseIcon className="icon" />
+                </button>
               </>
             ) : null}
           </div>

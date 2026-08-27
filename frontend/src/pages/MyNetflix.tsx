@@ -16,6 +16,17 @@ import { avatarFor } from '../profiles/types'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 
+function timeAgo(stamp: number) {
+  const delta = Math.max(0, Date.now() - stamp)
+  const minutes = Math.round(delta / 60000)
+  if (minutes < 1) return 'Just now'
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.round(hours / 24)
+  return days === 1 ? 'Yesterday' : `${days}d ago`
+}
+
 export function MyNetflix() {
   const { user, logout } = useAuth()
   const { activeProfile, clearActive } = useProfiles()
@@ -116,6 +127,7 @@ export function MyNetflix() {
                 <span>
                   <strong>{item.progress && item.progress > 0.05 ? 'Continue Watching' : 'Now on Flix'}</strong>
                   <em>{item.title}</em>
+                  <small>{timeAgo(item.watchedAt)}</small>
                 </span>
               </button>
             ))}
