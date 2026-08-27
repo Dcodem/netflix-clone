@@ -20,7 +20,10 @@ export function AppLayout() {
   }
 
   return (
-    <div className="app-shell" onPointerDownCapture={() => playBrowseSting()}>
+    <div
+      className={`app-shell ${activeProfile.kids ? 'is-kids' : ''}`}
+      onPointerDownCapture={() => playBrowseSting()}
+    >
       <Header />
       <Outlet />
       <SiteFooter />

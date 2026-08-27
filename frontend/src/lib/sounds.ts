@@ -54,6 +54,7 @@ export function playClick() {
 export type WatchAmbience = {
   setMuted: (muted: boolean) => void
   setPlaying: (playing: boolean) => void
+  setVolume: (volume: number) => void
   stop: () => void
 }
 
@@ -73,9 +74,10 @@ export function createWatchAmbience(): WatchAmbience {
 
   let muted = false
   let playing = true
+  let volume = 1
 
   function apply() {
-    const target = muted || !playing ? 0 : 0.035
+    const target = muted || !playing ? 0 : 0.04 * volume
     gain.gain.cancelScheduledValues(ac.currentTime)
     gain.gain.linearRampToValueAtTime(target, ac.currentTime + 0.12)
   }
@@ -87,6 +89,10 @@ export function createWatchAmbience(): WatchAmbience {
     },
     setPlaying(next) {
       playing = next
+      apply()
+    },
+    setVolume(next) {
+      volume = Math.min(1, Math.max(0, next))
       apply()
     },
     stop() {

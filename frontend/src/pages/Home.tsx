@@ -110,7 +110,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   }
 
   return (
-    <main className={`page browse-page ${heading ? 'has-browse-heading' : ''}`}>
+    <main className={`page browse-page ${heading ? 'has-browse-heading' : ''} ${activeProfile?.kids ? 'is-kids' : ''}`}>
       {heading ? (
         <div className="browse-heading">
           <h1>{heading}</h1>

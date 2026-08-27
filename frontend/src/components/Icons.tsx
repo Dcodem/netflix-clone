@@ -263,3 +263,22 @@ export function YoutubeIcon({ className }: { className?: string }) {
     </svg>
   )
 }
+
+export function SubtitlesIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3.5" y="6" width="17" height="12" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M6.5 14.5h5M13.5 14.5h4M6.5 11h11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function EpisodesIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="4" y="5" width="16" height="3.2" rx="0.6" fill="currentColor" />
+      <rect x="4" y="10.4" width="16" height="3.2" rx="0.6" fill="currentColor" />
+      <rect x="4" y="15.8" width="11" height="3.2" rx="0.6" fill="currentColor" />
+    </svg>
+  )
+}

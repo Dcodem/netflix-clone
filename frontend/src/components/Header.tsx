@@ -21,7 +21,7 @@ const KIDS_NAV = [
 ] as const
 
 export function Header() {
-  const { activeProfile } = useProfiles()
+  const { activeProfile, clearActive } = useProfiles()
   const [searchParams] = useSearchParams()
   const location = useLocation()
   const navigate = useNavigate()
@@ -101,6 +101,7 @@ export function Header() {
       <div className="header-inner">
         <Link className="logo" to="/browse">
           FLIX
+          {activeProfile?.kids ? <span className="kids-wordmark">KIDS</span> : null}
         </Link>
         <details className="browse-menu">
           <summary>Browse</summary>
@@ -141,6 +142,18 @@ export function Header() {
               />
             ) : null}
           </div>
+          {activeProfile?.kids ? (
+            <button
+              type="button"
+              className="exit-kids"
+              onClick={() => {
+                clearActive()
+                navigate('/')
+              }}
+            >
+              Exit Kids
+            </button>
+          ) : null}
           <NotificationsMenu />
           <AccountMenu />
         </div>
