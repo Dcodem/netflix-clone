@@ -47,6 +47,76 @@ export function matchPercent(item: MovieListItem, profile: Profile | null): numb
   return Math.max(51, Math.min(99, Math.round(raw)))
 }
 
+const MOOD_BY_GENRE: Record<string, string[]> = {
+  Horror: ['Scary', 'Chilling', 'Ominous'],
+  Thriller: ['Suspenseful', 'Tense', 'Gritty'],
+  Crime: ['Gritty', 'Dark', 'Violent'],
+  Action: ['Exciting', 'Visceral', 'Adrenaline-Fueled'],
+  Adventure: ['Exciting', 'Epic', 'Feel-Good'],
+  'Science Fiction': ['Mind-Bending', 'Cerebral', 'Ominous'],
+  'Sci-Fi': ['Mind-Bending', 'Cerebral', 'Ominous'],
+  SciFi: ['Mind-Bending', 'Cerebral', 'Ominous'],
+  Drama: ['Emotional', 'Heartfelt', 'Intimate'],
+  Comedy: ['Witty', 'Irreverent', 'Feel-Good'],
+  Romance: ['Romantic', 'Heartfelt', 'Intimate'],
+  Fantasy: ['Nostalgic', 'Exciting', 'Epic'],
+  Mystery: ['Suspenseful', 'Mind-Bending', 'Ominous'],
+  War: ['Gritty', 'Emotional', 'Violent'],
+  Documentary: ['Cerebral', 'Intimate', 'Thought-Provoking'],
+  Animation: ['Feel-Good', 'Heartfelt', 'Offbeat'],
+  Family: ['Feel-Good', 'Heartfelt', 'Nostalgic'],
+  History: ['Emotional', 'Gritty', 'Cerebral'],
+  Music: ['Feel-Good', 'Emotional', 'Intimate'],
+  Western: ['Gritty', 'Ominous', 'Violent'],
+}
+
+const FALLBACK_MOODS = [
+  'Exciting',
+  'Suspenseful',
+  'Emotional',
+  'Witty',
+  'Dark',
+  'Heartfelt',
+  'Offbeat',
+  'Intimate',
+  'Nostalgic',
+  'Cerebral',
+]
+
+function moodSeed(value: string): number {
+  let hash = 2166136261
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  return hash >>> 0
+}
+
+/** Netflix "This show is:" uses mood tags (Scary, Witty), not a second genre list. */
+export function moodTags(
+  item: { id?: string; title?: string; genres?: string[] },
+  count = 3,
+): string[] {
+  const seen = new Set<string>()
+  const tags: string[] = []
+  for (const genre of genresOf(item)) {
+    for (const mood of MOOD_BY_GENRE[genre] ?? []) {
+      if (seen.has(mood)) continue
+      seen.add(mood)
+      tags.push(mood)
+      if (tags.length >= count) return tags
+    }
+  }
+  const fallback = FALLBACK_MOODS.filter((mood) => !seen.has(mood))
+  let n = moodSeed(item.id || item.title || 'flix')
+  while (tags.length < count && fallback.length) {
+    n = Math.imul(n, 1103515245) + 12345
+    const next = fallback.splice((n >>> 0) % fallback.length, 1)[0]
+    if (next) tags.push(next)
+  }
+  return tags
+}
+
 export function toLiked(item: {
   id: string
   kind?: string

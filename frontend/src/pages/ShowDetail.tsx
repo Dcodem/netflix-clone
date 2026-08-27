@@ -25,7 +25,6 @@ export function ShowDetail() {
   const last = activeProfile?.history.find((entry) => entry.id === id)
   const trailerRef = useRef<TrailerHandle>(null)
   const [muted, setMuted] = useState(true)
-  const [trailerReady, setTrailerReady] = useState(false)
   const stills = useTmdbGallery(data)
 
   const seasons = useMemo(() => data?.seasons ?? [], [data])
@@ -103,7 +102,6 @@ export function ShowDetail() {
             kind="show"
             className="hero-trailer"
             muted={muted}
-            onReady={() => setTrailerReady(true)}
           />
           <div className="detail-hero-body">
             <CatalogImage item={show} alt="" className="detail-poster" />
@@ -141,18 +139,16 @@ export function ShowDetail() {
               </div>
             </div>
           </div>
-          {trailerReady ? (
-            <div className="hero-controls-right">
-              <button
-                type="button"
-                className="hero-mute"
-                onClick={toggleMute}
-                aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-              >
-                <SpeakerIcon muted={muted} className="icon" />
-              </button>
-            </div>
-          ) : null}
+          <div className="hero-controls-right">
+            <button
+              type="button"
+              className="hero-mute"
+              onClick={toggleMute}
+              aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+            >
+              <SpeakerIcon muted={muted} className="icon" />
+            </button>
+          </div>
         </div>
         {show.synopsis ? <p className="detail-synopsis">{show.synopsis}</p> : null}
         {show.cast?.length ? (

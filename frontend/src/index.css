@@ -2884,9 +2884,10 @@ select,
   inset: 0;
   display: grid;
   place-items: center;
-  opacity: 0;
+  opacity: 0.88;
   transition: opacity 0.15s ease;
   background: rgba(0, 0, 0, 0.25);
+  pointer-events: none;
 }
 
 .ep-play .icon {
@@ -2904,9 +2905,15 @@ select,
   transform: scale(1.18);
 }
 
-.episode-btn:hover .ep-play,
-.episode-btn:focus-visible .ep-play {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .ep-play {
+    opacity: 0;
+  }
+
+  .episode-btn:hover .ep-play,
+  .episode-btn:focus-visible .ep-play {
+    opacity: 1;
+  }
 }
 
 .profiles-logo {

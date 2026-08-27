@@ -11,7 +11,7 @@ import { TitleActions } from '../components/TitleActions'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, uniqueById } from '../lib/media'
-import { filterForProfile, isKidsSafe, matchPercent, maturityLabel, qualityBadge } from '../lib/netflix'
+import { filterForProfile, isKidsSafe, matchPercent, maturityLabel, moodTags, qualityBadge } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
@@ -127,6 +127,7 @@ export function TitleModal() {
   const match = matchPercent(item, activeProfile)
   const maturity = maturityLabel(item)
   const genres = genresOf(detail ?? item)
+  const moods = moodTags(detail ?? item)
   const runtime = formatRuntime(detail?.runtime)
   const quality = qualityBadge(item.quality || detail?.quality)
   const watchHref = isShow(item)
@@ -207,16 +208,14 @@ export function TitleModal() {
             />
           </div>
           <div className="hero-controls-right">
-            {trailerReady ? (
-              <button
-                type="button"
-                className="hero-mute"
-                onClick={toggleMute}
-                aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-              >
-                <SpeakerIcon muted={muted} className="icon" />
-              </button>
-            ) : null}
+            <button
+              type="button"
+              className="hero-mute"
+              onClick={toggleMute}
+              aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+            >
+              <SpeakerIcon muted={muted} className="icon" />
+            </button>
             <span className="maturity-flag">{maturity}</span>
           </div>
         </div>
@@ -250,9 +249,11 @@ export function TitleModal() {
                   <span>Genres:</span> {genres.join(', ')}
                 </p>
               ) : null}
-              <p className="title-modal-cast">
-                <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {genres.slice(0, 3).join(', ') || 'Original'}
-              </p>
+              {moods.length ? (
+                <p className="title-modal-cast">
+                  <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {moods.join(', ')}
+                </p>
+              ) : null}
             </div>
           </div>
 
@@ -297,9 +298,11 @@ export function TitleModal() {
                 <span>Genres:</span> {genres.join(', ')}
               </p>
             ) : null}
-            <p>
-              <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {genres.slice(0, 3).join(', ') || 'Original'}
-            </p>
+            {moods.length ? (
+              <p>
+                <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {moods.join(', ')}
+              </p>
+            ) : null}
           </section>
         </div>
       </div>

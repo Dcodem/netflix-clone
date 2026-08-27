@@ -147,7 +147,7 @@ export function Hero({ item }: { item: MovieListItem }) {
         </div>
       </div>
       <div className="hero-controls-right">
-        {trailerReady && previewActive ? (
+        {previewActive ? (
           <button
             type="button"
             className="hero-mute"

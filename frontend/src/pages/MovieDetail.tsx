@@ -20,7 +20,6 @@ export function MovieDetail() {
   const { data, error, loading, retry } = useFetch(() => getMovie(id), id)
   const trailerRef = useRef<TrailerHandle>(null)
   const [muted, setMuted] = useState(true)
-  const [trailerReady, setTrailerReady] = useState(false)
 
   if (loading) return <Spinner label="Loading movie" />
   if (error) return <ErrorState message={error} onRetry={retry} />
@@ -65,7 +64,6 @@ export function MovieDetail() {
             kind={data.kind ?? 'movie'}
             className="hero-trailer"
             muted={muted}
-            onReady={() => setTrailerReady(true)}
           />
           <div className="detail-hero-body">
             <CatalogImage item={data} alt="" className="detail-poster" />
@@ -98,18 +96,16 @@ export function MovieDetail() {
               </div>
             </div>
           </div>
-          {trailerReady ? (
-            <div className="hero-controls-right">
-              <button
-                type="button"
-                className="hero-mute"
-                onClick={toggleMute}
-                aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-              >
-                <SpeakerIcon muted={muted} className="icon" />
-              </button>
-            </div>
-          ) : null}
+          <div className="hero-controls-right">
+            <button
+              type="button"
+              className="hero-mute"
+              onClick={toggleMute}
+              aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+            >
+              <SpeakerIcon muted={muted} className="icon" />
+            </button>
+          </div>
         </div>
         {data.synopsis ? <p className="detail-synopsis">{data.synopsis}</p> : null}
         {data.cast?.length ? (
