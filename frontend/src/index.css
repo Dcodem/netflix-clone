@@ -2273,12 +2273,14 @@ select,
 
 .genre-dots li + li::before {
   content: '';
-  width: 4px;
-  height: 4px;
+  display: inline-block;
+  width: 5px;
+  height: 5px;
   margin: 0 8px;
   border-radius: 50%;
   background: #646464;
   flex-shrink: 0;
+  transform: translateY(-1px);
 }
 
 .title-actions {
@@ -6124,14 +6126,15 @@ select,
 
 .news-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 10px;
 }
 
 .news-actions .btn {
+  flex: 1;
   min-height: 42px;
   font-size: 16px;
-  padding: 8px 18px;
+  padding: 8px 12px;
 }
 
 .btn-info.is-on {
