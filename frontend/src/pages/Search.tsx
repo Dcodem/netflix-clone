@@ -8,7 +8,7 @@ import { ClockIcon } from '../components/Icons'
 import { MediaGrid } from '../components/MediaGrid'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
-import { isMovie, isShow, sortByRating, uniqueById } from '../lib/media'
+import { sortByRating, uniqueById } from '../lib/media'
 import { clearRecentSearches, listRecentSearches } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { relatedSearchResults } from '../profiles/taste'
@@ -27,7 +27,6 @@ export function Search() {
   const { activeProfile } = useProfiles()
   const [params, setParams] = useSearchParams()
   const q = (params.get('q') ?? '').trim()
-  const kind = params.get('kind') ?? 'all'
   const enabled = q.length >= 2
   const { data, error, loading, retry } = useFetch(() => searchTitles(q), q, { enabled })
   const catalog = useFetch(async () => {
@@ -48,15 +47,6 @@ export function Search() {
     () => relatedSearchResults(hits, pool, activeProfile, 48),
     [hits, pool, activeProfile],
   )
-  const filtered = useMemo(() => {
-    if (kind === 'shows') return items.filter(isShow)
-    if (kind === 'movies') return items.filter(isMovie)
-    if (kind === 'list') {
-      const ids = new Set(activeProfile?.myList.map((entry) => entry.id) ?? [])
-      return items.filter((item) => ids.has(item.id))
-    }
-    return items
-  }, [items, kind, activeProfile])
   const popularItems = useMemo(
     () => sortByRating(popular.data ?? []).slice(0, 18),
     [popular.data],
@@ -129,8 +119,7 @@ export function Search() {
     )
   }
 
-  const waitingRelated = !error && catalog.loading && hits.length > 0 && hits.length < 12
-  if (loading || waitingRelated) {
+  if (loading && !hits.length) {
     return (
       <main className="page page-pad search-page">
         <Spinner label={`Searching “${q}”`} />
@@ -153,35 +142,7 @@ export function Search() {
           <h1 className="search-heading">
             Explore titles related to: <span>{q}</span>
           </h1>
-          <div className="search-filters" role="tablist" aria-label="Filter results">
-            {[
-              { id: 'all', label: 'All' },
-              { id: 'shows', label: 'TV Shows' },
-              { id: 'movies', label: 'Movies' },
-              { id: 'list', label: 'My List' },
-            ].map((filter) => (
-              <button
-                type="button"
-                key={filter.id}
-                role="tab"
-                aria-selected={kind === filter.id}
-                className={kind === filter.id ? 'is-on' : ''}
-                onClick={() => {
-                  const next = new URLSearchParams(params)
-                  if (filter.id === 'all') next.delete('kind')
-                  else next.set('kind', filter.id)
-                  setParams(next, { replace: true })
-                }}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
-          {filtered.length ? (
-            <MediaGrid items={filtered} layout="poster" />
-          ) : (
-            <p className="section-sub">No titles in this filter. Try All, or another category.</p>
-          )}
+          <MediaGrid items={items} layout="poster" />
         </>
       ) : (
         <>

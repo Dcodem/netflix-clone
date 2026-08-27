@@ -8,7 +8,6 @@ import { useWatch } from '../watch/WatchContext'
 import {
   CaretIcon,
   CheckIcon,
-  CloseIcon,
   DoubleThumbUpIcon,
   PlayIcon,
   PlusIcon,
@@ -36,7 +35,7 @@ export function TitleActions({
 }) {
   const { openWatch } = useWatch()
   const { openTitle, closeTitle } = useTitleModal()
-  const { activeProfile, toggleMyList, rateTitle, hideContinue } = useProfiles()
+  const { activeProfile, toggleMyList, rateTitle } = useProfiles()
   const likedItem = toLiked(item)
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
   const loved = activeProfile?.lovedIds?.includes(item.id) ?? false
@@ -156,16 +155,6 @@ export function TitleActions({
           </button>
         </>
       )}
-      {continueMode && playStyle !== 'labeled' ? (
-        <button
-          type="button"
-          className="circle-btn"
-          onClick={() => hideContinue(item.id)}
-          aria-label="Remove from Continue Watching"
-        >
-          <CloseIcon className="icon" />
-        </button>
-      ) : null}
       {showMore ? (
         <button type="button" className="circle-btn circle-more" onClick={() => openTitle(item)} aria-label="More info">
           <CaretIcon className="icon" />

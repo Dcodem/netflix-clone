@@ -694,18 +694,19 @@ select,
   position: absolute;
   top: 6px;
   right: 6px;
-  z-index: 2;
-  width: 28px;
-  height: 28px;
+  z-index: 5;
+  width: 24px;
+  height: 24px;
   border: 0;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.72);
+  border-radius: 0;
+  background: transparent;
   color: #fff;
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.9));
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .poster-wrap:hover .continue-hide,
@@ -714,9 +715,16 @@ select,
   opacity: 1;
 }
 
+.continue-hide:hover,
+.continue-hide:focus-visible {
+  transform: scale(1.14);
+}
+
 @media (pointer: coarse) {
   .continue-hide {
     opacity: 1;
+    width: 36px;
+    height: 36px;
   }
 }
 
@@ -2027,7 +2035,7 @@ select,
 
 .browse-heading h1 {
   margin: 0;
-  font-size: clamp(24px, 4vw, 38px);
+  font-size: clamp(28px, 4.2vw, 44px);
   font-weight: 700;
   pointer-events: auto;
 }
@@ -3515,8 +3523,8 @@ select,
 }
 
 .continue-hide .icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 .progress-track {
@@ -3638,11 +3646,11 @@ select,
   position: absolute;
   right: 0;
   top: calc(100% + 14px);
-  width: min(380px, 82vw);
+  width: min(408px, 82vw);
   background: rgba(0, 0, 0, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-top: 2px solid #b9090b;
-  padding: 28px 20px;
+  padding: 0;
   z-index: 80;
   color: #ccc;
   font-size: 14px;
@@ -5767,31 +5775,6 @@ select,
   .news-card.is-soon .news-card-body {
     grid-column: 3;
   }
-}
-
-.search-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 18px;
-}
-
-.search-filters button {
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background: transparent;
-  color: #fff;
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.search-filters button.is-on {
-  background: #fff;
-  color: #000;
-  border-color: #fff;
 }
 
 .categories-sheet {
