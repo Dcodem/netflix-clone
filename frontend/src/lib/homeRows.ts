@@ -13,7 +13,9 @@ export type BrowseFilter = 'home' | 'movies' | 'shows' | 'popular'
 export type HomeRow = {
   id: string
   title: string
+  subtitle?: string
   items: MovieListItem[]
+  seed?: MovieListItem
   variant?: 'default' | 'continue'
   loop?: boolean
 }
@@ -57,7 +59,7 @@ function pushRow(rows: HomeRow[], row: HomeRow) {
   rows.push({
     ...row,
     items: rail(row.items, row.variant === 'continue' ? 24 : RAIL),
-    loop: row.loop ?? (row.variant !== 'continue' && row.items.length >= 8),
+    loop: row.loop ?? (row.variant !== 'continue' && !row.seed && row.items.length >= 8),
   })
 }
 
@@ -73,21 +75,17 @@ export function buildBrowseRows(opts: {
 }): HomeRow[] {
   const { catalog, filter, profile } = opts
   const history = profile?.history ?? []
-  let pool = ofKind(catalog, filter === 'home' || filter === 'popular' ? 'all' : filter)
+  const kind: 'all' | 'movies' | 'shows' =
+    filter === 'movies' ? 'movies' : filter === 'shows' ? 'shows' : 'all'
+  let pool = ofKind(catalog, kind)
   if (opts.genre) {
     pool = pool.filter((item) => genresOf(item).includes(opts.genre!))
   }
   const movies = ofKind(pool, 'movies')
   const shows = ofKind(pool, 'shows')
-  const historyPool = ofKind(
-    historyToListItems(history),
-    filter === 'shows' ? 'shows' : filter === 'movies' ? 'movies' : 'all',
-  )
+  const historyPool = ofKind(historyToListItems(history), kind)
   const becauseHistory =
-    filter === 'home'
-      ? history
-      : history.filter((item) => (filter === 'shows' ? item.kind === 'show' : item.kind !== 'show'))
-  const kind = filter === 'movies' ? 'movies' : filter === 'shows' ? 'shows' : 'all'
+    kind === 'all' ? history : history.filter((item) => (kind === 'shows' ? item.kind === 'show' : item.kind !== 'show'))
   const rows: HomeRow[] = []
 
   if (filter !== 'popular') {
@@ -101,22 +99,42 @@ export function buildBrowseRows(opts: {
     })
   }
 
-  if (filter === 'home' && profile?.myList.length) {
-    pushRow(rows, { id: 'mylist', title: 'My List', items: likedToItems(profile.myList) })
+  if (profile?.myList.length) {
+    pushRow(rows, {
+      id: 'mylist',
+      title: 'My List',
+      items: ofKind(likedToItems(profile.myList), kind),
+    })
   }
+
+  const trendingTitle =
+    filter === 'movies' ? 'Trending Movies' : filter === 'shows' ? 'Trending TV Shows' : 'Trending Now'
+  pushRow(rows, { id: 'trending', title: trendingTitle, items: sortByRating(pool) })
 
   const newTitle =
     filter === 'movies' ? 'New Movies' : filter === 'shows' ? 'New TV Shows' : 'New Releases'
   pushRow(rows, { id: 'new', title: newTitle, items: sortByYear(pool) })
 
-  if (filter === 'home' || filter === 'popular') {
-    pushRow(rows, { id: 'movies', title: 'Movies', items: recommendRail(movies, profile) })
-    pushRow(rows, { id: 'shows', title: 'TV Shows', items: recommendRail(shows, profile) })
+  if (filter === 'popular') {
+    pushRow(rows, { id: 'new-movies', title: 'New Movies', items: sortByYear(movies) })
+    pushRow(rows, { id: 'new-shows', title: 'New TV Shows', items: sortByYear(shows) })
+    return rows
   }
 
-  if (filter === 'popular') {
-    pushRow(rows, { id: 'trending', title: "Everyone's Watching", items: sortByRating(pool) })
-    return rows
+  for (const row of becauseYouWatchedRows(pool, becauseHistory, filter === 'home' ? 3 : 4)) {
+    pushRow(rows, {
+      id: row.id,
+      title: row.title,
+      subtitle: row.subtitle,
+      items: row.items,
+      seed: row.seed,
+      loop: false,
+    })
+  }
+
+  if (filter === 'home') {
+    pushRow(rows, { id: 'new-movies', title: 'New Movies', items: sortByYear(movies) })
+    pushRow(rows, { id: 'new-shows', title: 'New TV Shows', items: sortByYear(shows) })
   }
 
   if (profile) {
@@ -125,16 +143,22 @@ export function buildBrowseRows(opts: {
       title: `Top Picks for ${profile.name}`,
       items: rankByTaste(pool, profile),
     })
+  } else if (filter === 'home') {
+    pushRow(rows, { id: 'movies', title: 'Movies', items: recommendRail(movies, profile) })
+    pushRow(rows, { id: 'shows', title: 'TV Shows', items: recommendRail(shows, profile) })
   }
 
-  for (const row of becauseYouWatchedRows(pool, becauseHistory, 3)) {
-    pushRow(rows, { id: row.id, title: row.title, items: row.items })
-  }
   for (const row of becauseYouLikedRows(pool, profile?.liked ?? [], 2)) {
-    pushRow(rows, { id: row.id, title: row.title, items: row.items })
+    pushRow(rows, {
+      id: row.id,
+      title: row.title,
+      items: row.items,
+      seed: row.seed,
+      loop: false,
+    })
   }
 
-  const genreLimit = filter === 'home' ? 4 : 5
+  const genreLimit = filter === 'home' ? 2 : 3
   for (const row of tasteGenreRails(pool, profile, kind, genreLimit)) {
     pushRow(rows, { id: row.id, title: row.title, items: row.items })
   }

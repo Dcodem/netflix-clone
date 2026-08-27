@@ -14,11 +14,11 @@ export function AccountMenu() {
 
   useEffect(() => {
     if (!open) return
-    const onDoc = (event: MouseEvent) => {
+    const onDoc = (event: PointerEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
     }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
+    document.addEventListener('pointerdown', onDoc)
+    return () => document.removeEventListener('pointerdown', onDoc)
   }, [open])
 
   if (!user || !activeProfile) return null

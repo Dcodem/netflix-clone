@@ -52,13 +52,13 @@ export function Header() {
 
   useEffect(() => {
     if (!open) return
-    const onDoc = (event: MouseEvent) => {
+    const onDoc = (event: PointerEvent) => {
       if (!searchRef.current?.contains(event.target as Node) && !query && location.pathname !== '/search') {
         setSearchOpen(false)
       }
     }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
+    document.addEventListener('pointerdown', onDoc)
+    return () => document.removeEventListener('pointerdown', onDoc)
   }, [open, query, location.pathname])
 
   useEffect(() => {

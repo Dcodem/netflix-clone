@@ -15,10 +15,18 @@ function emptyStore(): ProfileStore {
   return { profiles: [], activeProfileId: null }
 }
 
+function hydrateHistoryItem(raw: WatchHistoryItem): WatchHistoryItem {
+  return {
+    ...raw,
+    episodeProgress:
+      raw.episodeProgress && typeof raw.episodeProgress === 'object' ? raw.episodeProgress : {},
+  }
+}
+
 function hydrateProfile(raw: Profile): Profile {
   return {
     ...raw,
-    history: Array.isArray(raw.history) ? raw.history : [],
+    history: Array.isArray(raw.history) ? raw.history.map(hydrateHistoryItem) : [],
     favoriteGenres: Array.isArray(raw.favoriteGenres) ? raw.favoriteGenres : [],
     liked: Array.isArray(raw.liked) ? raw.liked : [],
     dislikedIds: Array.isArray(raw.dislikedIds) ? raw.dislikedIds : [],
@@ -196,15 +204,40 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             const previous = profile.history.find((entry) => entry.id === item.id)
             const rest = profile.history.filter((entry) => entry.id !== item.id)
             const restart = item.progress === 0
+            const episodeId = item.episodeId ?? previous?.episodeId ?? null
+            const previousMap = previous?.episodeProgress ?? {}
+            const prevEpisode = episodeId ? previousMap[episodeId] : undefined
+            const switchedEpisode = Boolean(episodeId && previous?.episodeId && previous.episodeId !== episodeId)
+            const progress = restart
+              ? 0.01
+              : (item.progress ??
+                prevEpisode?.progress ??
+                (switchedEpisode ? 0.08 : previous?.progress) ??
+                0.08)
+            const seasonNumber = item.seasonNumber ?? previous?.seasonNumber ?? null
+            const episodeNumber = item.episodeNumber ?? previous?.episodeNumber ?? null
+            const episodeProgress =
+              episodeId && seasonNumber != null && episodeNumber != null
+                ? {
+                    ...previousMap,
+                    [episodeId]: {
+                      progress,
+                      seasonNumber,
+                      episodeNumber,
+                      watchedAt: Date.now(),
+                    },
+                  }
+                : previousMap
             const next: WatchHistoryItem = {
               ...previous,
               ...item,
               watchedAt: Date.now(),
-              progress: restart ? 0.01 : (item.progress ?? previous?.progress ?? 0.08),
+              progress,
               runtime: item.runtime ?? previous?.runtime ?? null,
-              seasonNumber: item.seasonNumber ?? previous?.seasonNumber ?? null,
-              episodeNumber: item.episodeNumber ?? previous?.episodeNumber ?? null,
-              episodeId: item.episodeId ?? previous?.episodeId ?? null,
+              seasonNumber,
+              episodeNumber,
+              episodeId,
+              episodeProgress,
             }
             return {
               ...profile,

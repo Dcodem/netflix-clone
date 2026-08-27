@@ -65,7 +65,7 @@ export function ProfileSelect() {
 
   return (
     <main className="profiles-page">
-      <h1>Who&apos;s watching?</h1>
+      <h1>{adding ? 'Add a profile' : "Who's watching?"}</h1>
       <div className="profile-grid">
         {profiles.map((profile) => {
           const avatar = avatarFor(profile)
@@ -120,10 +120,12 @@ export function ProfileSelect() {
             </div>
           )
         })}
-        <button type="button" className="profile-add" onClick={() => setAdding(true)}>
-          <span>+</span>
-          Add profile
-        </button>
+        {adding ? null : (
+          <button type="button" className="profile-add" onClick={() => setAdding(true)}>
+            <span>+</span>
+            Add profile
+          </button>
+        )}
       </div>
       {pinTarget ? (
         <form className="profile-form pin-form" onSubmit={onPin}>
@@ -204,7 +206,7 @@ export function ProfileSelect() {
           </button>
         </form>
       ) : null}
-      {profiles.length ? (
+      {profiles.length && !adding ? (
         <button
           type="button"
           className="btn manage-profiles"
