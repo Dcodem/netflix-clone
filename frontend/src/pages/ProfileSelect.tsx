@@ -183,14 +183,23 @@ export function ProfileSelect() {
 
   return (
     <main className="profiles-page">
-      <div className="logo profiles-logo">FLIX</div>
+      <button
+        type="button"
+        className="logo profiles-logo"
+        onClick={() => {
+          setPinTarget(null)
+          setAdding(false)
+          setEditingId(null)
+          setManaging(false)
+        }}
+        aria-label="Flix"
+      >
+        FLIX
+      </button>
       {pinTarget ? (
         <form className="pin-sheet" onSubmit={onPin}>
-          <div className="profile-avatar pin-avatar" style={{ background: avatarFor(pinTarget).color }}>
-            <AvatarArt avatar={avatarFor(pinTarget)} alt={pinTarget.name} />
-          </div>
           <h1>Profile Lock is currently on.</h1>
-          <p className="profiles-sub">Enter your PIN for {pinTarget.name}.</p>
+          <p className="profiles-sub">Enter your PIN to access this profile.</p>
           <PinBoxes value={pinGuess} onChange={setPinGuess} />
           {pinError ? <p className="login-error">{pinError}</p> : null}
           <button type="submit" className="visually-hidden">
@@ -202,9 +211,6 @@ export function ProfileSelect() {
             onClick={() => setPinError('Ask the account holder to reset this PIN from Manage Profiles.')}
           >
             Forgot PIN?
-          </button>
-          <button type="button" className="btn btn-ghost" onClick={() => setPinTarget(null)}>
-            Cancel
           </button>
         </form>
       ) : adding ? (

@@ -143,6 +143,7 @@ export function WatchOverlay() {
   const tapRef = useRef({ at: 0, x: 0, play: 0 })
   const audioRef = useRef({ muted: false, volume: 1 })
   const autoNextRef = useRef('')
+  const showChromeRef = useRef<() => void>(() => setChrome(true))
 
   const runtimeSec = Math.max(60, (session?.history?.runtime ?? 48) * 60)
   const startProgress = session?.history?.progress ?? 0
@@ -322,6 +323,8 @@ export function WatchOverlay() {
       window.clearTimeout(timer)
       if (!keepChrome) timer = window.setTimeout(() => setChrome(false), 3200)
     }
+    showChromeRef.current = show
+    const coarse = window.matchMedia('(pointer: coarse)').matches
     if (keepChrome) setChrome(true)
     else timer = window.setTimeout(() => setChrome(false), 3200)
     const onKey = (event: KeyboardEvent) => {
@@ -392,8 +395,10 @@ export function WatchOverlay() {
       if (typeof data.duration === 'number' && data.duration > 0) setDuration(data.duration)
       if (typeof data.paused === 'boolean') setPaused(data.paused)
     }
-    window.addEventListener('mousemove', show)
-    window.addEventListener('pointerdown', show)
+    if (!coarse) {
+      window.addEventListener('mousemove', show)
+      window.addEventListener('pointerdown', show)
+    }
     window.addEventListener('keydown', onKey)
     window.addEventListener('message', onMessage)
     document.addEventListener('fullscreenchange', onFs)
@@ -524,14 +529,17 @@ export function WatchOverlay() {
           event.preventDefault()
           if (x < width * 0.38 || tapRef.current.x < width * 0.38) skip(-10)
           else if (x > width * 0.62 || tapRef.current.x > width * 0.62) skip(10)
+          showChromeRef.current()
           tapRef.current = { at: 0, x: 0, play: 0 }
           return
         }
-        tapRef.current = {
-          at: now,
-          x,
-          play: window.setTimeout(() => togglePlay(), 260),
+        tapRef.current = { at: now, x, play: 0 }
+        if (keepChrome) {
+          showChromeRef.current()
+          return
         }
+        if (chrome) setChrome(false)
+        else showChromeRef.current()
       }}
       onDoubleClick={(event) => {
         if (window.matchMedia('(pointer: coarse)').matches) return
@@ -636,14 +644,38 @@ export function WatchOverlay() {
         </button>
       ) : null}
       {caption ? <p className={`watch-caption ${chrome ? 'is-raised' : ''}`}>{caption}</p> : null}
-      <div className="watch-center" onClick={(event) => event.stopPropagation()}>
-        <button type="button" className="watch-ctrl" onClick={() => skip(-10)} aria-label="Back 10 seconds">
+      <div className="watch-center">
+        <button
+          type="button"
+          className="watch-ctrl"
+          onClick={(event) => {
+            event.stopPropagation()
+            skip(-10)
+          }}
+          aria-label="Back 10 seconds"
+        >
           <SkipBackIcon className="icon" />
         </button>
-        <button type="button" className="watch-ctrl watch-center-play" onClick={togglePlay} aria-label={paused ? 'Play' : 'Pause'}>
+        <button
+          type="button"
+          className="watch-ctrl watch-center-play"
+          onClick={(event) => {
+            event.stopPropagation()
+            togglePlay()
+          }}
+          aria-label={paused ? 'Play' : 'Pause'}
+        >
           {paused ? <PlayIcon className="icon" /> : <PauseIcon className="icon" />}
         </button>
-        <button type="button" className="watch-ctrl" onClick={() => skip(10)} aria-label="Forward 10 seconds">
+        <button
+          type="button"
+          className="watch-ctrl"
+          onClick={(event) => {
+            event.stopPropagation()
+            skip(10)
+          }}
+          aria-label="Forward 10 seconds"
+        >
           <SkipForwardIcon className="icon" />
         </button>
       </div>
