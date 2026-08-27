@@ -4483,27 +4483,31 @@ select,
 }
 
 .watch-vol-rail {
-  display: none;
-  position: absolute;
-  left: 100%;
-  top: 50%;
-  bottom: auto;
-  transform: translateY(-50%);
-  width: 108px;
-  height: 40px;
-  background: rgba(20, 20, 20, 0.72);
-  border-radius: 4px;
+  display: grid;
   place-items: center;
-  padding: 0 8px 0 4px;
+  position: static;
+  width: 0;
+  height: 40px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: none;
+  background: transparent;
+  padding: 0;
+  transition: width 0.16s ease, opacity 0.16s ease, padding 0.16s ease;
 }
 
 .watch-vol:hover .watch-vol-rail,
-.watch-vol:focus-within .watch-vol-rail {
-  display: grid;
+.watch-vol:focus-within .watch-vol-rail,
+.watch-vol.is-open .watch-vol-rail {
+  width: 108px;
+  opacity: 1;
+  padding: 0 10px 0 4px;
+  pointer-events: auto;
 }
 
 .watch-vol-slider {
-  width: 96px;
+  width: 88px;
   height: 4px;
   margin: 0;
   transform: none;
@@ -5017,32 +5021,26 @@ select,
   bottom: 128px;
 }
 
-.watch-vol-rail {
-  display: grid;
-  opacity: 0;
-  pointer-events: none;
-  visibility: hidden;
-  z-index: 2300;
-}
-
-.watch-vol:hover .watch-vol-rail,
-.watch-vol:focus-within .watch-vol-rail,
-.watch-vol.is-open .watch-vol-rail {
-  display: grid;
-  opacity: 1;
-  pointer-events: auto;
-  visibility: visible;
-}
-
 @media (max-width: 767px) {
   .watch-vol-rail {
+    position: absolute;
     left: 50%;
     top: auto;
     bottom: calc(100% + 6px);
     transform: translateX(-50%);
     width: 36px;
-    height: 120px;
+    height: 0;
+    overflow: hidden;
     background: rgba(16, 16, 16, 0.92);
+    padding: 0;
+    border-radius: 4px;
+  }
+
+  .watch-vol:hover .watch-vol-rail,
+  .watch-vol:focus-within .watch-vol-rail,
+  .watch-vol.is-open .watch-vol-rail {
+    width: 36px;
+    height: 120px;
     padding: 12px 0;
   }
 
