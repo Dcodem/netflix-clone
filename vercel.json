@@ -1,0 +1,35 @@
+{
+  "framework": null,
+  "installCommand": "npm --prefix frontend install",
+  "buildCommand": "npm --prefix frontend run build",
+  "outputDirectory": "frontend/dist",
+  "functions": {
+    "api/catalog.js": {
+      "includeFiles": "mock/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/health", "destination": "/api/catalog?__p=/health" },
+    { "source": "/movies", "destination": "/api/catalog?__p=/movies" },
+    { "source": "/movies/:id*", "destination": "/api/catalog?__p=/movies/:id*" },
+    { "source": "/shows/:id*", "destination": "/api/catalog?__p=/shows/:id*" },
+    { "source": "/catalog/:kind*", "destination": "/api/catalog?__p=/catalog/:kind*" },
+    { "source": "/watch/:path*", "destination": "/api/catalog?__p=/watch/:path*" },
+    { "source": "/img", "destination": "/api/catalog?__p=/img" },
+    { "source": "/art/:path*", "destination": "/api/catalog?__p=/art/:path*" },
+    { "source": "/tmdb/:path*", "destination": "/api/tmdb?__p=/:path*" },
+    { "source": "/iva/:path*", "destination": "/api/iva?__p=/:path*" },
+    {
+      "source": "/search",
+      "has": [{ "type": "header", "key": "accept", "value": "(?i).*text/html.*" }],
+      "destination": "/index.html"
+    },
+    { "source": "/search", "destination": "/api/catalog?__p=/search" },
+    { "source": "/browse/:path*", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/taste", "destination": "/index.html" },
+    { "source": "/account", "destination": "/index.html" },
+    { "source": "/movie/:path*", "destination": "/index.html" },
+    { "source": "/show/:path*", "destination": "/index.html" }
+  ]
+}

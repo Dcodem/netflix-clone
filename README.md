@@ -24,6 +24,18 @@ Open `http://localhost:5173`. Vite proxies API routes (`/movies`, `/shows`, `/se
 
 Do not run the mock and the real API on 8090 at the same time. Set `MOCK_PORT` if you need the mock on another port.
 
+## Host on Vercel
+
+This repo is set up as one Vercel project: the Vite UI in `frontend/dist`, plus serverless routes for the mock catalog (`/movies`, `/shows`, `/search`, `/catalog`, `/watch`, `/img`, `/art`) and TMDB/IVA proxies. Leave `VITE_API_BASE` empty so the UI talks to the same origin.
+
+Import the GitHub repo at [vercel.com/new](https://vercel.com/new), or from the repo root:
+
+```bash
+npx vercel --yes
+```
+
+Optional: set `VITE_TMDB_API_KEY` in the Vercel project so mini trailers work without pasting a key on Account. Do not commit `.env.local`.
+
 Copy `frontend/.env.example` to `frontend/.env.local` for keys and origin overrides. `.env.local` is gitignored.
 
 Optional trailer keys (Account screen, or env):
