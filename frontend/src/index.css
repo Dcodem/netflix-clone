@@ -216,6 +216,12 @@ select,
   color: var(--muted-2);
 }
 
+.search-wrap input[type="search"]::-webkit-search-cancel-button,
+.search-wrap input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 .search-close {
   display: grid;
   flex-shrink: 0;
