@@ -111,7 +111,6 @@ export function PosterCard({
           item={item}
           anchor={anchor}
           progress={progress}
-          continueMode={continueMode}
           onKeep={cancelClose}
           onClose={() => setHover(false)}
         />

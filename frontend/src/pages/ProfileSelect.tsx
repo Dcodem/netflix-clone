@@ -69,8 +69,15 @@ function PinBoxes({
 
 export function ProfileSelect() {
   const { user, logout } = useAuth()
-  const { profiles, selectProfile, createProfile, renameProfile, deleteProfile, unlockProfile, activeProfile } =
-    useProfiles()
+  const {
+    profiles,
+    selectProfile,
+    createProfile,
+    updateProfile,
+    deleteProfile,
+    unlockProfile,
+    activeProfile,
+  } = useProfiles()
   const navigate = useNavigate()
   const [managing, setManaging] = useState(false)
   const [adding, setAdding] = useState(false)
@@ -80,35 +87,16 @@ export function ProfileSelect() {
   const [avatarId, setAvatarId] = useState(PROFILE_AVATARS[0].id)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
+  const [editKids, setEditKids] = useState(false)
+  const [editAvatarId, setEditAvatarId] = useState(PROFILE_AVATARS[0].id)
+  const [editPin, setEditPin] = useState('')
+  const [removePin, setRemovePin] = useState(false)
+  const [editAutoplayNext, setEditAutoplayNext] = useState(true)
+  const [editAutoplayPreview, setEditAutoplayPreview] = useState(true)
   const [pinTarget, setPinTarget] = useState<Profile | null>(null)
   const [pinGuess, setPinGuess] = useState('')
   const [pinError, setPinError] = useState<string | null>(null)
   const unlocking = useRef(false)
-
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
-
-  if (activeProfile && !managing && !adding && !pinTarget) {
-    return <Navigate to="/browse" replace />
-  }
-
-  async function onSelect(profile: Profile) {
-    if (managing) {
-      setEditingId(profile.id)
-      setEditName(profile.name)
-      return
-    }
-    if (profile.pinHash) {
-      unlocking.current = false
-      setPinTarget(profile)
-      setPinGuess('')
-      setPinError(null)
-      return
-    }
-    selectProfile(profile.id)
-    navigate('/browse')
-  }
 
   async function submitPin(guess = pinGuess) {
     if (!pinTarget || unlocking.current) return
@@ -124,16 +112,51 @@ export function ProfileSelect() {
     navigate('/browse')
   }
 
-  async function onPin(event: FormEvent) {
-    event.preventDefault()
-    await submitPin()
-  }
-
   useEffect(() => {
     if (pinGuess.length === 4 && pinTarget) void submitPin(pinGuess)
     // unlock when the fourth digit is entered, like Netflix
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pinGuess, pinTarget])
+
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (activeProfile && !managing && !adding && !pinTarget && !editingId) {
+    return <Navigate to="/browse" replace />
+  }
+
+  function startEdit(profile: Profile) {
+    setEditingId(profile.id)
+    setEditName(profile.name)
+    setEditKids(profile.kids)
+    setEditAvatarId(profile.avatarId)
+    setEditPin('')
+    setRemovePin(false)
+    setEditAutoplayNext(profile.autoplayNext !== false)
+    setEditAutoplayPreview(profile.autoplayPreview !== false)
+  }
+
+  async function onSelect(profile: Profile) {
+    if (managing) {
+      startEdit(profile)
+      return
+    }
+    if (profile.pinHash) {
+      unlocking.current = false
+      setPinTarget(profile)
+      setPinGuess('')
+      setPinError(null)
+      return
+    }
+    selectProfile(profile.id)
+    navigate('/browse')
+  }
+
+  async function onPin(event: FormEvent) {
+    event.preventDefault()
+    await submitPin()
+  }
 
   async function onAdd(event: FormEvent) {
     event.preventDefault()
@@ -144,7 +167,25 @@ export function ProfileSelect() {
     setAdding(false)
   }
 
+  const editing = profiles.find((profile) => profile.id === editingId) ?? null
   const picked = PROFILE_AVATARS.find((avatar) => avatar.id === (kids ? 'kids' : avatarId)) ?? PROFILE_AVATARS[0]
+  const editPicked =
+    PROFILE_AVATARS.find((avatar) => avatar.id === (editKids ? 'kids' : editAvatarId)) ?? PROFILE_AVATARS[0]
+
+  async function onSaveEdit(event: FormEvent) {
+    event.preventDefault()
+    if (!editing) return
+    await updateProfile(editing.id, {
+      name: editName,
+      kids: editKids,
+      avatarId: editKids ? 'kids' : editAvatarId,
+      pin: editKids ? null : removePin ? null : editPin.length === 4 ? editPin : undefined,
+      autoplayNext: editAutoplayNext,
+      autoplayPreview: editAutoplayPreview,
+    })
+    setEditingId(null)
+    setManaging(true)
+  }
 
   return (
     <main className="profiles-page">
@@ -240,6 +281,141 @@ export function ProfileSelect() {
             </button>
           </div>
         </form>
+      ) : editing ? (
+        <form className="add-profile-sheet edit-profile-sheet" onSubmit={onSaveEdit}>
+          <h1>Edit Profile</h1>
+          <div className="add-profile-row">
+            <button
+              type="button"
+              className="profile-avatar is-managing"
+              style={{ background: editPicked.color }}
+              aria-label="Change profile picture"
+              onClick={() => {
+                const next =
+                  PROFILE_AVATARS[
+                    (PROFILE_AVATARS.findIndex((avatar) => avatar.id === editPicked.id) + 1) % PROFILE_AVATARS.length
+                  ]
+                setEditAvatarId(next.id)
+                setEditKids(next.id === 'kids')
+              }}
+            >
+              <AvatarArt avatar={editPicked} alt={editPicked.label} />
+              <span className="profile-pencil" aria-hidden="true">
+                <PencilIcon className="icon" />
+              </span>
+            </button>
+            <input
+              value={editName}
+              onChange={(event) => setEditName(event.target.value)}
+              placeholder="Name"
+              autoFocus
+              required
+              maxLength={20}
+              aria-label="Profile name"
+            />
+          </div>
+          <div className="avatar-picker">
+            {PROFILE_AVATARS.map((avatar) => (
+              <button
+                type="button"
+                key={avatar.id}
+                className={`profile-avatar picker ${editPicked.id === avatar.id ? 'is-on' : ''}`}
+                style={{ background: avatar.color }}
+                onClick={() => {
+                  setEditAvatarId(avatar.id)
+                  setEditKids(avatar.id === 'kids')
+                }}
+                aria-label={avatar.label}
+              >
+                <AvatarArt avatar={avatar} alt={avatar.label} />
+              </button>
+            ))}
+          </div>
+          <label className="kids-check">
+            <input
+              type="checkbox"
+              checked={editKids}
+              onChange={(event) => {
+                const next = event.target.checked
+                setEditKids(next)
+                if (next) setEditAvatarId('kids')
+              }}
+            />
+            Kid?
+          </label>
+          {!editKids ? (
+            <div className="edit-pin-row">
+              <input
+                inputMode="numeric"
+                pattern="\d{4}"
+                maxLength={4}
+                value={editPin}
+                onChange={(event) => {
+                  setRemovePin(false)
+                  setEditPin(event.target.value.replace(/\D/g, '').slice(0, 4))
+                }}
+                placeholder={editing.pinHash ? 'New PIN' : 'Optional PIN'}
+                aria-label="Profile PIN"
+              />
+              {editing.pinHash ? (
+                <label className="kids-check">
+                  <input
+                    type="checkbox"
+                    checked={removePin}
+                    onChange={(event) => {
+                      setRemovePin(event.target.checked)
+                      if (event.target.checked) setEditPin('')
+                    }}
+                  />
+                  Remove PIN
+                </label>
+              ) : null}
+            </div>
+          ) : null}
+          <label className="edit-toggle">
+            <span>
+              Autoplay next episode
+              <small>Play the next episode automatically on all devices.</small>
+            </span>
+            <input
+              type="checkbox"
+              checked={editAutoplayNext}
+              onChange={(event) => setEditAutoplayNext(event.target.checked)}
+            />
+          </label>
+          <label className="edit-toggle">
+            <span>
+              Autoplay previews
+              <small>Play previews while browsing on all devices.</small>
+            </span>
+            <input
+              type="checkbox"
+              checked={editAutoplayPreview}
+              onChange={(event) => setEditAutoplayPreview(event.target.checked)}
+            />
+          </label>
+          <div className="add-profile-actions">
+            <button type="submit" className="btn btn-light">
+              Save
+            </button>
+            <button type="button" className="btn manage-profiles" onClick={() => setEditingId(null)}>
+              Cancel
+            </button>
+            {profiles.length > 1 ? (
+              <button
+                type="button"
+                className="btn manage-profiles is-danger"
+                onClick={() => {
+                  const id = editing.id
+                  setEditingId(null)
+                  deleteProfile(id)
+                }}
+              >
+                Delete Profile
+              </button>
+            ) : null}
+          </div>
+        </form>
       ) : (
         <>
           <h1>{managing ? 'Manage Profiles' : "Who's watching?"}</h1>
@@ -261,40 +437,10 @@ export function ProfileSelect() {
                       </span>
                     ) : null}
                   </button>
-                  {editingId === profile.id ? (
-                    <form
-                      className="profile-edit"
-                      onSubmit={(event) => {
-                        event.preventDefault()
-                        renameProfile(profile.id, editName)
-                        setEditingId(null)
-                      }}
-                    >
-                      <input value={editName} onChange={(event) => setEditName(event.target.value)} autoFocus />
-                    </form>
-                  ) : (
-                    <div className="profile-name">
-                      {profile.name}
-                      {profile.kids ? <span className="kids-tag">Kids</span> : null}
-                      {profile.pinHash ? <span className="kids-tag">PIN</span> : null}
-                    </div>
-                  )}
-                  {managing ? (
-                    <div className="profile-manage">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingId(profile.id)
-                          setEditName(profile.name)
-                        }}
-                      >
-                        Rename
-                      </button>
-                      <button type="button" className="danger" onClick={() => deleteProfile(profile.id)}>
-                        Delete
-                      </button>
-                    </div>
-                  ) : null}
+                  <div className="profile-name">
+                    {profile.name}
+                    {profile.kids ? <span className="kids-tag">Kids</span> : null}
+                  </div>
                 </div>
               )
             })}
@@ -310,7 +456,7 @@ export function ProfileSelect() {
           {profiles.length ? (
             <button
               type="button"
-              className="btn manage-profiles"
+              className={`btn manage-profiles ${managing ? 'is-done' : ''}`}
               onClick={() => setManaging((value) => !value)}
             >
               {managing ? 'Done' : 'Manage Profiles'}

@@ -95,22 +95,55 @@ export function TitleActions({
       >
         {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
       </button>
-      <button
-        type="button"
-        className={`circle-btn ${liked ? 'is-on' : ''}`}
-        onClick={() => rateTitle(likedItem, liked ? null : 'up')}
-        aria-label="Like"
-      >
-        <ThumbUpIcon className="icon" />
-      </button>
-      <button
-        type="button"
-        className={`circle-btn ${disliked ? 'is-on' : ''}`}
-        onClick={() => rateTitle(likedItem, disliked ? null : 'down')}
-        aria-label="Not for me"
-      >
-        <ThumbDownIcon className="icon" />
-      </button>
+      {size === 'sm' ? (
+        <div className="thumbs-pop">
+          <button
+            type="button"
+            className={`circle-btn thumbs-face ${liked || disliked ? 'is-on' : ''}`}
+            onClick={() => rateTitle(likedItem, liked ? null : 'up')}
+            aria-label={liked ? 'Liked' : disliked ? 'Not for me' : 'Rate'}
+          >
+            {disliked ? <ThumbDownIcon className="icon" /> : <ThumbUpIcon className="icon" />}
+          </button>
+          <div className="thumbs-menu" role="group" aria-label="Rate title">
+            <button
+              type="button"
+              className={`circle-btn ${disliked ? 'is-on' : ''}`}
+              onClick={() => rateTitle(likedItem, disliked ? null : 'down')}
+              aria-label="Not for me"
+            >
+              <ThumbDownIcon className="icon" />
+            </button>
+            <button
+              type="button"
+              className={`circle-btn ${liked ? 'is-on' : ''}`}
+              onClick={() => rateTitle(likedItem, liked ? null : 'up')}
+              aria-label="Like"
+            >
+              <ThumbUpIcon className="icon" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <button
+            type="button"
+            className={`circle-btn ${liked ? 'is-on' : ''}`}
+            onClick={() => rateTitle(likedItem, liked ? null : 'up')}
+            aria-label="Like"
+          >
+            <ThumbUpIcon className="icon" />
+          </button>
+          <button
+            type="button"
+            className={`circle-btn ${disliked ? 'is-on' : ''}`}
+            onClick={() => rateTitle(likedItem, disliked ? null : 'down')}
+            aria-label="Not for me"
+          >
+            <ThumbDownIcon className="icon" />
+          </button>
+        </>
+      )}
       {continueMode && playStyle !== 'labeled' ? (
         <button
           type="button"

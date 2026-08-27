@@ -18,6 +18,7 @@ import {
 } from '../components/Icons'
 import { MediaImage } from '../components/MediaImage'
 import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
+import { useProfiles } from '../profiles/ProfileContext'
 import { stillFocus, episodeStill } from '../lib/media'
 import { peekTrailer, resolveTrailer, youtubeIdFromHit } from '../trailers/resolve'
 import { findTmdbGallery, tmdbFileName } from '../trailers/tmdb'
@@ -95,6 +96,7 @@ function currentEpisode(detail: ShowDetail | null, seasonNumber?: number | null,
 export function WatchOverlay() {
   const { session, closeWatch, openWatch, reportProgress } = useWatch()
   const { user } = useAuth()
+  const { activeProfile } = useProfiles()
   const overlayRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLIFrameElement>(null)
   const ambienceRef = useRef<ReturnType<typeof createWatchAmbience> | null>(null)
@@ -125,6 +127,7 @@ export function WatchOverlay() {
   const [episodesOpen, setEpisodesOpen] = useState(false)
   const [audioOpen, setAudioOpen] = useState(false)
   const [subs, setSubs] = useState<'off' | 'en'>('off')
+  const [audioTrack, setAudioTrack] = useState<'en' | 'ad'>('en')
   const [introSkipped, setIntroSkipped] = useState(false)
   const [recapSkipped, setRecapSkipped] = useState(false)
   const [flash, setFlash] = useState<'play' | 'pause' | 'back' | 'fwd' | null>(null)
@@ -365,6 +368,7 @@ export function WatchOverlay() {
 
   useEffect(() => {
     if (!upcoming || remainingNow > 0.6 || current < 30 || !session?.history) return
+    if (activeProfile?.autoplayNext === false) return
     const key = upcoming.episode.id
     if (autoNextRef.current === key) return
     autoNextRef.current = key
@@ -378,7 +382,7 @@ export function WatchOverlay() {
       episodeNumber: upcoming.episode.number,
       episodeId: upcoming.episode.id,
     })
-  }, [remainingNow, current, upcoming, session, openWatch])
+  }, [remainingNow, current, upcoming, session, openWatch, activeProfile?.autoplayNext])
 
   if (!session) return null
 
@@ -534,13 +538,15 @@ export function WatchOverlay() {
           }}
         >
           <span className="next-ep-kicker">
-            <span
-              className="next-ep-count"
-              style={{ '--p': String(nextProgress) } as CSSProperties}
-              aria-hidden="true"
-            >
-              <span>{nextCount}</span>
-            </span>
+            {activeProfile?.autoplayNext !== false ? (
+              <span
+                className="next-ep-count"
+                style={{ '--p': String(nextProgress) } as CSSProperties}
+                aria-hidden="true"
+              >
+                <span>{nextCount}</span>
+              </span>
+            ) : null}
             Next Episode
           </span>
           <span className="next-ep-body">
@@ -626,6 +632,15 @@ export function WatchOverlay() {
                 />
               </div>
             </div>
+          </div>
+          <div className="watch-now-playing">
+            <p className="watch-now-title">{session.history?.title || session.title}</p>
+            {episodeLabel ? (
+              <p className="watch-now-ep">
+                {episodeLabel}
+                {playing?.episode.title ? ` ${playing.episode.title}` : ''}
+              </p>
+            ) : null}
           </div>
           <div className="watch-controls-right">
             {isShow && upcoming ? (
@@ -729,11 +744,12 @@ export function WatchOverlay() {
         <div className="watch-panel watch-audio" onClick={(event) => event.stopPropagation()}>
           <div>
             <h2>Audio</h2>
-            <button type="button" className="is-on">
-              <CheckIcon className="icon" />
+            <button type="button" className={audioTrack === 'en' ? 'is-on' : ''} onClick={() => setAudioTrack('en')}>
+              {audioTrack === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English
             </button>
-            <button type="button">
+            <button type="button" className={audioTrack === 'ad' ? 'is-on' : ''} onClick={() => setAudioTrack('ad')}>
+              {audioTrack === 'ad' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English [Audio Description]
             </button>
           </div>

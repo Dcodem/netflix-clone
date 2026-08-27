@@ -14,14 +14,12 @@ export function TitleHoverCard({
   item,
   anchor,
   progress,
-  continueMode = false,
   onClose,
   onKeep,
 }: {
   item: MovieListItem
   anchor: DOMRect
   progress?: number
-  continueMode?: boolean
   onClose: () => void
   onKeep: () => void
 }) {
@@ -63,6 +61,7 @@ export function TitleHoverCard({
   const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
   const episodeCount = seasons.reduce((count, season) => count + (season.episodes?.length ?? 0), 0)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
+  const previewOn = activeProfile?.autoplayPreview !== false
   const watchHref =
     last?.watch_href ||
     (isShow(item)
@@ -88,32 +87,36 @@ export function TitleHoverCard({
     >
       <div className={`jawbone-art ${trailerReady ? 'is-playing' : ''}`}>
         <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
-        <TrailerPreview
-          ref={trailerRef}
-          title={item.title}
-          year={item.year}
-          kind={item.kind}
-          mode="mini"
-          muted={muted}
-          className="jawbone-trailer"
-          onReady={() => setTrailerReady(true)}
-        />
+        {previewOn ? (
+          <TrailerPreview
+            ref={trailerRef}
+            title={item.title}
+            year={item.year}
+            kind={item.kind}
+            mode="mini"
+            muted={muted}
+            className="jawbone-trailer"
+            onReady={() => setTrailerReady(true)}
+          />
+        ) : null}
         {progress ? (
           <div className="progress-track jawbone-progress">
             <div style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
         ) : null}
-        <button
-          type="button"
-          className="hero-mute jawbone-mute"
-          onClick={toggleMute}
-          aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-        >
-          <SpeakerIcon muted={muted} className="icon" />
-        </button>
+        {previewOn ? (
+          <button
+            type="button"
+            className={`hero-mute jawbone-mute ${progress ? 'has-progress' : ''}`}
+            onClick={toggleMute}
+            aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+          >
+            <SpeakerIcon muted={muted} className="icon" />
+          </button>
+        ) : null}
       </div>
       <div className="jawbone-body">
-        <TitleActions item={item} detail={detail} watchHref={watchHref} size="sm" continueMode={continueMode} />
+        <TitleActions item={item} detail={detail} watchHref={watchHref} size="sm" />
         <div className="jawbone-meta">
           <span className="match">{match}% Match</span>
           {item.year ? <span>{item.year}</span> : null}

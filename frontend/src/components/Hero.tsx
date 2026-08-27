@@ -30,7 +30,7 @@ export function Hero({ item }: { item: MovieListItem }) {
   const [muted, setMuted] = useState(true)
   const [trailerReady, setTrailerReady] = useState(false)
   const [scale, setScale] = useState(1.45)
-  const previewActive = !openItem && !session
+  const previewActive = !openItem && !session && activeProfile?.autoplayPreview !== false
 
   useEffect(() => {
     let cancelled = false

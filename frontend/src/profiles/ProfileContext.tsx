@@ -36,6 +36,8 @@ function hydrateProfile(raw: Profile): Profile {
     avatarId: raw.avatarId || (raw.kids ? 'kids' : 'red'),
     pinSalt: raw.pinSalt ?? null,
     pinHash: raw.pinHash ?? null,
+    autoplayNext: raw.autoplayNext !== false,
+    autoplayPreview: raw.autoplayPreview !== false,
     color: raw.color || PROFILE_AVATARS[0].color,
   }
 }
@@ -79,12 +81,22 @@ export type CreateProfileOpts = {
   pin?: string
 }
 
+export type UpdateProfileOpts = {
+  name?: string
+  kids?: boolean
+  avatarId?: string
+  pin?: string | null
+  autoplayNext?: boolean
+  autoplayPreview?: boolean
+}
+
 type ProfileContextValue = {
   profiles: Profile[]
   activeProfile: Profile | null
   selectProfile: (id: string) => void
   createProfile: (name: string, opts?: CreateProfileOpts) => Promise<Profile>
   renameProfile: (id: string, name: string) => void
+  updateProfile: (id: string, opts: UpdateProfileOpts) => Promise<void>
   deleteProfile: (id: string) => void
   recordWatch: (item: Omit<WatchHistoryItem, 'watchedAt'>) => void
   hideContinue: (id: string) => void
@@ -145,6 +157,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         kids,
         pinSalt,
         pinHash,
+        autoplayNext: true,
+        autoplayPreview: true,
         createdAt: Date.now(),
         history: [],
         favoriteGenres: kids ? ['Family', 'Animation'] : [],
@@ -176,6 +190,42 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         profiles: prev.profiles.map((profile) =>
           profile.id === id ? { ...profile, name: name.trim() || profile.name } : profile,
         ),
+      }))
+    },
+    [updateStore],
+  )
+
+  const updateProfile = useCallback(
+    async (id: string, opts: UpdateProfileOpts) => {
+      let pinSalt: string | null | undefined
+      let pinHash: string | null | undefined
+      if (opts.pin === null || opts.pin === '') {
+        pinSalt = null
+        pinHash = null
+      } else if (opts.pin && /^\d{4}$/.test(opts.pin)) {
+        const hashed = await hashPassword(opts.pin)
+        pinSalt = hashed.salt
+        pinHash = hashed.hash
+      }
+      updateStore((prev) => ({
+        ...prev,
+        profiles: prev.profiles.map((profile) => {
+          if (profile.id !== id) return profile
+          const kids = opts.kids ?? profile.kids
+          const avatarId = kids ? 'kids' : (opts.avatarId ?? profile.avatarId)
+          const avatar = PROFILE_AVATARS.find((entry) => entry.id === avatarId)
+          return {
+            ...profile,
+            name: opts.name?.trim() || profile.name,
+            kids,
+            avatarId: avatar?.id ?? profile.avatarId,
+            color: avatar?.color ?? profile.color,
+            autoplayNext: opts.autoplayNext ?? profile.autoplayNext,
+            autoplayPreview: opts.autoplayPreview ?? profile.autoplayPreview,
+            pinSalt: kids ? null : pinSalt !== undefined ? pinSalt : profile.pinSalt,
+            pinHash: kids ? null : pinHash !== undefined ? pinHash : profile.pinHash,
+          }
+        }),
       }))
     },
     [updateStore],
@@ -332,6 +382,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       selectProfile,
       createProfile,
       renameProfile,
+      updateProfile,
       deleteProfile,
       recordWatch,
       hideContinue,
@@ -347,6 +398,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       selectProfile,
       createProfile,
       renameProfile,
+      updateProfile,
       deleteProfile,
       recordWatch,
       hideContinue,

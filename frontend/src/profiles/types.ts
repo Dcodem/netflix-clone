@@ -46,6 +46,8 @@ export type Profile = {
   kids: boolean
   pinSalt: string | null
   pinHash: string | null
+  autoplayNext: boolean
+  autoplayPreview: boolean
   createdAt: number
   history: WatchHistoryItem[]
   favoriteGenres: string[]
