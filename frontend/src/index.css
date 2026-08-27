@@ -319,7 +319,7 @@ select,
 .detail-hero-body {
   position: relative;
   z-index: 3;
-  padding: 28px var(--page-gutter) 96px;
+  padding: calc(var(--header-offset) + 8px) var(--page-gutter) 96px;
   max-width: 640px;
 }
 
