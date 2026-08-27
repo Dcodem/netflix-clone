@@ -5284,6 +5284,16 @@ select,
     height: 40px;
   }
 
+  .watch-topbar {
+    z-index: 2250;
+  }
+
+  .watch-topbar.is-visible .watch-back {
+    width: 56px;
+    height: 56px;
+    z-index: 2260;
+  }
+
   .watch-center {
     position: absolute;
     inset: 0;
