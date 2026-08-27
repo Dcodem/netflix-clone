@@ -390,3 +390,33 @@ export function SpeedIcon({ className }: { className?: string }) {
     </svg>
   )
 }
+
+export function ShuffleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4 7h3.2l3.2 4.2L7.2 17H4M13.6 7H20m0 0l-2.6-2.6M20 7l-2.6 2.6M13.6 17H20m0 0l-2.6-2.6M20 17l-2.6 2.6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function DownloadIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 4v11M7.5 11.5L12 16l4.5-4.5M5 19h14"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}

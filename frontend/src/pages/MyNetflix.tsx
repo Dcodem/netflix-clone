@@ -1,21 +1,26 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { getMovies } from '../api/client'
+import { getMovie, getMovies, getShow } from '../api/client'
 import { AvatarArt } from '../components/AvatarArt'
+import { CatalogImage } from '../components/CatalogImage'
 import { EmptyState } from '../components/EmptyState'
+import { CaretIcon, DownloadIcon, ShuffleIcon } from '../components/Icons'
 import { MediaRow } from '../components/MediaRow'
 import { useAuth } from '../auth/AuthContext'
 import { useFetch } from '../hooks/useFetch'
 import { historyToListItems, likedToItems } from '../lib/homeRows'
+import { isShow } from '../lib/media'
+import { playClick } from '../lib/sounds'
+import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { useTitleModal } from '../title/TitleModalContext'
-import { CatalogImage } from '../components/CatalogImage'
-import { CaretIcon } from '../components/Icons'
+import { useWatch } from '../watch/WatchContext'
 
 export function MyNetflix() {
   const { user, logout } = useAuth()
   const { activeProfile, clearActive } = useProfiles()
   const { openTitle } = useTitleModal()
+  const { openWatch } = useWatch()
   const navigate = useNavigate()
   const movies = useFetch(() => getMovies(), 'my-netflix-movies')
   const continueItems = historyToListItems(
@@ -37,6 +42,25 @@ export function MyNetflix() {
     return <EmptyState title="Choose a profile" detail="Pick who’s watching to see My Netflix." />
   }
 
+  async function playSomething() {
+    const pool = movies.data ?? []
+    if (!pool.length) return
+    const item = pool[Math.floor(Math.random() * pool.length)]
+    playClick()
+    try {
+      const detail = isShow(item) ? await getShow(item.id) : await getMovie(item.id)
+      const history = activeProfile?.history.find((entry) => entry.id === item.id)
+      const session = buildWatchSession(item, detail, history)
+      if (session) {
+        openWatch(session.href, item.title, session.payload)
+        return
+      }
+    } catch {
+      /* fall through */
+    }
+    openTitle(item)
+  }
+
   return (
     <main className="page page-pad my-netflix-page">
       <header className="my-netflix-head">
@@ -56,6 +80,10 @@ export function MyNetflix() {
             <em>Switch profiles</em>
           </span>
           <CaretIcon className="icon" />
+        </button>
+        <button type="button" className="play-something" onClick={() => void playSomething()}>
+          <ShuffleIcon className="icon" />
+          Play Something
         </button>
       </header>
 
@@ -107,6 +135,17 @@ export function MyNetflix() {
         ) : (
           <p className="section-sub">No recent notifications.</p>
         )}
+      </section>
+
+      <section className="my-netflix-downloads">
+        <h2 className="section-title">Downloads</h2>
+        <div className="downloads-empty">
+          <DownloadIcon className="icon" />
+          <div>
+            <strong>Introducing Downloads for You</strong>
+            <p>Featured downloads for {activeProfile.name} will appear here on phones and tablets.</p>
+          </div>
+        </div>
       </section>
 
       {continueItems.length ? (
