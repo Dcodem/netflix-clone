@@ -2838,7 +2838,7 @@ select,
   }
 
   .hero-controls-right {
-    bottom: max(80px, calc(72px + var(--safe-bottom)));
+    bottom: max(92px, calc(80px + var(--safe-bottom)));
   }
 
   .more-like-grid {
@@ -3008,6 +3008,7 @@ select,
 @media (max-width: 767px) {
   .hero-actions {
     width: 100%;
+    padding-right: 72px;
   }
 
   .hero-actions .btn-play,
