@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { getCatalogMany, getMovies } from '../api/client'
+import { useMemo, useState } from 'react'
+import { getCatalogMany, getMovie, getMovies, getShow } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { BellIcon, InfoIcon, PlayIcon } from '../components/Icons'
 import { CatalogImage } from '../components/CatalogImage'
@@ -7,9 +7,10 @@ import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
-import { genresOf, sortByRating, sortByYear, uniqueById } from '../lib/media'
-import { toLiked } from '../lib/netflix'
+import { genresOf, isShow, sortByRating, sortByYear, uniqueById } from '../lib/media'
+import { matchPercent, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
+import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
@@ -24,13 +25,39 @@ function FeedCard({ item, kicker }: { item: MovieListItem; kicker: string }) {
   const { openTitle } = useTitleModal()
   const { openWatch } = useWatch()
   const { activeProfile, toggleMyList } = useProfiles()
+  const [playing, setPlaying] = useState(false)
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
   const genres = genresOf(item).slice(0, 3)
   const upcoming = comingSoon(item)
+  const match = matchPercent(item, activeProfile)
+  const history = activeProfile?.history.find((entry) => entry.id === item.id)
 
-  function play() {
+  async function playNow() {
+    if (playing) return
     playClick()
-    openTitle(item)
+    setPlaying(true)
+    try {
+      const detail = isShow(item) ? await getShow(item.id) : await getMovie(item.id)
+      const session = buildWatchSession(item, detail, history)
+      if (session) {
+        openWatch(session.href, item.title, session.payload)
+        return
+      }
+    } catch {
+      /* fall through to constructed play href */
+    } finally {
+      setPlaying(false)
+    }
+    const href = `/watch/play/${item.id}`
+    openWatch(href, item.title, {
+      id: item.id,
+      kind: item.kind ?? 'movie',
+      title: item.title,
+      year: item.year,
+      poster_url: item.poster_url ?? null,
+      genres: item.genres ?? [],
+      watch_href: href,
+    })
   }
 
   return (
@@ -42,6 +69,7 @@ function FeedCard({ item, kicker }: { item: MovieListItem; kicker: string }) {
         <p className="news-kicker">{kicker}</p>
         <h2>{item.title}</h2>
         <p className="news-meta">
+          {!upcoming ? <span className="match">{match}% Match</span> : null}
           {item.year ? <span>{item.year}</span> : null}
           {genres.length ? <span>{genres.join(' · ')}</span> : null}
         </p>
@@ -56,28 +84,19 @@ function FeedCard({ item, kicker }: { item: MovieListItem; kicker: string }) {
               {onList ? 'Reminded' : 'Remind Me'}
             </button>
           ) : (
-            <button
-              type="button"
-              className="btn btn-play"
-              onClick={() => {
-                playClick()
-                const href = item.href?.startsWith('/') ? `/watch/play/${item.id}` : item.href
-                openWatch(`/watch/play/${item.id}`, item.title, {
-                  id: item.id,
-                  kind: item.kind ?? 'movie',
-                  title: item.title,
-                  year: item.year,
-                  poster_url: item.poster_url ?? null,
-                  genres: item.genres ?? [],
-                  watch_href: href,
-                })
-              }}
-            >
+            <button type="button" className="btn btn-play" onClick={() => void playNow()} disabled={playing}>
               <PlayIcon className="icon" />
               Play
             </button>
           )}
-          <button type="button" className="btn btn-info" onClick={play}>
+          <button
+            type="button"
+            className="btn btn-info"
+            onClick={() => {
+              playClick()
+              openTitle(item)
+            }}
+          >
             <InfoIcon className="icon" />
             More Info
           </button>

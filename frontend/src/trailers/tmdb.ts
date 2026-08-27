@@ -97,6 +97,43 @@ export function tmdbFileName(url: string): string | null {
 
 type TmdbImages = {
   backdrops?: Array<{ file_path?: string | null; iso_639_1?: string | null; vote_average?: number }>
+  logos?: Array<{
+    file_path?: string | null
+    iso_639_1?: string | null
+    vote_average?: number
+    aspect_ratio?: number
+  }>
+}
+
+export async function findTmdbLogo(item: SearchItem, key: string): Promise<string | null> {
+  const match = await findTmdbMatch(item, key)
+  if (!match) return null
+  const isTv = item.kind === 'show'
+  const images = await tmdbJson<TmdbImages>(
+    isTv ? `/3/tv/${match.id}/images` : `/3/movie/${match.id}/images`,
+    key,
+    { include_image_language: 'en,null' },
+  )
+  const ranked = [...(images.logos ?? [])]
+    .filter((entry) => entry.file_path)
+    .sort((a, b) => {
+      const lang = (value?: string | null) => (value === 'en' ? 3 : value == null || value === '' ? 1 : 0)
+      const png = (path?: string | null) => (path?.toLowerCase().endsWith('.png') ? 1 : 0)
+      const ratio = (value?: number) => {
+        if (!value) return 0
+        if (value >= 1.6 && value <= 5.5) return 2
+        if (value >= 1.2) return 1
+        return 0
+      }
+      return (
+        png(b.file_path) - png(a.file_path) ||
+        lang(b.iso_639_1) - lang(a.iso_639_1) ||
+        ratio(b.aspect_ratio) - ratio(a.aspect_ratio) ||
+        (b.vote_average ?? 0) - (a.vote_average ?? 0)
+      )
+    })
+  const path = ranked[0]?.file_path
+  return path ? `${TMDB_IMG}/w500${path}` : null
 }
 
 export async function findTmdbGallery(item: SearchItem, key: string): Promise<string[]> {

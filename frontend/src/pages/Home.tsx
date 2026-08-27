@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
+import { CategoriesSheet } from '../components/CategoriesSheet'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { Hero } from '../components/Hero'
+import { CaretIcon } from '../components/Icons'
 import { MediaRow } from '../components/MediaRow'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
@@ -21,7 +23,9 @@ const HEADINGS: Record<BrowseFilter, string | null> = {
 
 export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   const { activeProfile } = useProfiles()
-  const [genre, setGenre] = useState('')
+  const [params, setParams] = useSearchParams()
+  const [categoriesOpen, setCategoriesOpen] = useState(false)
+  const genre = params.get('genre') ?? ''
   const movies = useFetch(() => getMovies(), 'home-movies')
   const extras = useFetch(async () => {
     const [catalogMovies, catalogShows] = await Promise.all([
@@ -31,9 +35,12 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     return { catalogMovies, catalogShows }
   }, 'home-catalog')
 
-  useEffect(() => {
-    setGenre('')
-  }, [filter])
+  function setGenre(next: string) {
+    const nextParams = new URLSearchParams(params)
+    if (next) nextParams.set('genre', next)
+    else nextParams.delete('genre')
+    setParams(nextParams, { replace: true })
+  }
 
   const catalog = useMemo(() => {
     const homeItems = movies.data ?? []
@@ -52,7 +59,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     () => (genre ? kindPool.filter((item) => (item.genres ?? []).includes(genre)) : kindPool),
     [kindPool, genre],
   )
-  const hero = useMemo(() => (genre ? null : pickHero(pool)), [pool, genre])
+  const hero = useMemo(() => pickHero(pool), [pool])
   const rows = useMemo(
     () =>
       buildBrowseRows({
@@ -100,6 +107,14 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           </div>
         ) : null}
         <EmptyState title="No titles in this genre" detail="Pick another genre from the menu." />
+        <CategoriesSheet
+          open={categoriesOpen}
+          onClose={() => setCategoriesOpen(false)}
+          genres={genres}
+          selected={genre}
+          onSelect={setGenre}
+          variant={filter === 'home' ? 'categories' : 'genres'}
+        />
       </main>
     )
   }
@@ -110,30 +125,32 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
         <div className="browse-heading">
           <h1>{heading}</h1>
           {filter === 'movies' || filter === 'shows' ? (
-            <label className="genre-select-wrap">
-              <span className="visually-hidden">Genres</span>
-              <select
-                className="genre-select"
-                value={genre}
-                onChange={(event) => setGenre(event.target.value)}
-                aria-label="Genres"
-              >
-                <option value="">Genres</option>
-                {genres.map((name) => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <button
+              type="button"
+              className={`genre-select ${genre ? 'is-on' : ''}`}
+              onClick={() => setCategoriesOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={categoriesOpen}
+            >
+              {genre || 'Genres'}
+              <CaretIcon className="icon" />
+            </button>
           ) : null}
         </div>
       ) : null}
-      {filter === 'home' && !genre ? (
+      {filter === 'home' ? (
         <div className="home-pills" aria-label="Categories">
+          {genre ? (
+            <button type="button" className="is-on" onClick={() => setCategoriesOpen(true)}>
+              {genre}
+              <CaretIcon className="icon" />
+            </button>
+          ) : null}
           <Link to="/browse/shows">TV Shows</Link>
           <Link to="/browse/movies">Movies</Link>
-          <Link to="/browse/latest">Categories</Link>
+          <button type="button" onClick={() => setCategoriesOpen(true)}>
+            Categories
+          </button>
         </div>
       ) : null}
       {hero ? <Hero item={hero} /> : null}
@@ -150,6 +167,14 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           loop={row.loop}
         />
       ))}
+      <CategoriesSheet
+        open={categoriesOpen}
+        onClose={() => setCategoriesOpen(false)}
+        genres={genres}
+        selected={genre}
+        onSelect={setGenre}
+        variant={filter === 'home' ? 'categories' : 'genres'}
+      />
     </main>
   )
 }

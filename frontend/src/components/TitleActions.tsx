@@ -1,7 +1,7 @@
-import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
-import { genresOf, isShow } from '../lib/media'
+import type { MovieDetail, MovieListItem } from '../api/types'
 import { toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
+import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
@@ -43,29 +43,15 @@ export function TitleActions({
   const liked = (activeProfile?.liked.some((entry) => entry.id === item.id) ?? false) && !loved
   const disliked = activeProfile?.dislikedIds.includes(item.id) ?? false
   const history = activeProfile?.history.find((entry) => entry.id === item.id)
-  const href = watchHref || history?.watch_href || detail?.watch_href
-  const genres = genresOf(detail ?? item)
-  const seasons = isShow(item) ? ((detail as ShowDetail | undefined)?.seasons ?? []) : []
-  const firstEpisode = seasons[0]?.episodes?.[0]
+  const session = buildWatchSession(item, detail, history, false, watchHref)
+  const href = session?.href
 
   function play(restart = false) {
-    if (!href) return
+    const next = buildWatchSession(item, detail, history, restart, watchHref)
+    if (!next) return
     playClick()
     closeTitle()
-    openWatch(href, item.title, {
-      id: item.id,
-      kind: item.kind ?? 'movie',
-      title: item.title,
-      year: item.year,
-      poster_url: item.poster_url ?? null,
-      genres,
-      watch_href: href,
-      runtime: firstEpisode?.duration ?? detail?.runtime ?? history?.runtime ?? null,
-      progress: restart ? 0 : history?.progress,
-      seasonNumber: history?.seasonNumber ?? seasons[0]?.season_number,
-      episodeNumber: history?.episodeNumber ?? firstEpisode?.number,
-      episodeId: history?.episodeId ?? firstEpisode?.id,
-    })
+    openWatch(next.href, item.title, next.payload)
   }
 
   return (

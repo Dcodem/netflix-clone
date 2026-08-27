@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { getMovie, getShow } from '../api/client'
-import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
-import { genresOf, isShow } from '../lib/media'
+import type { MovieDetail, MovieListItem } from '../api/types'
+import { isShow } from '../lib/media'
+import { buildWatchSession } from '../lib/watchSession'
 import { maturityLabel } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -10,6 +11,7 @@ import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 import { InfoIcon, PlayIcon, RestartIcon, SpeakerIcon } from './Icons'
 import { CatalogImage } from './CatalogImage'
+import { TitleLogo } from './TitleLogo'
 
 const VIDEO_ASPECT = 16 / 9
 
@@ -70,38 +72,16 @@ export function Hero({ item }: { item: MovieListItem }) {
   }, [previewActive])
 
   const backdrop = detail?.backdrop_url || item.poster_url
-  const genres = genresOf(detail ?? item)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
-  const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
-  const resumeSeason =
-    seasons.find((season) => season.season_number === last?.seasonNumber) ?? seasons[0]
-  const resumeEpisode =
-    resumeSeason?.episodes?.find(
-      (episode) => episode.id === last?.episodeId || episode.number === last?.episodeNumber,
-    ) ?? resumeSeason?.episodes?.[0]
-  const watchHref = isShow(item)
-    ? last?.watch_href || resumeEpisode?.watch_href || detail?.watch_href
-    : detail?.watch_href
+  const sessionReady = buildWatchSession(item, detail, last)
   const maturity = maturityLabel(item)
   const synopsis = detail?.synopsis
 
   function onWatch() {
-    if (!watchHref) return
+    const next = buildWatchSession(item, detail, last)
+    if (!next) return
     playClick()
-    openWatch(watchHref, item.title, {
-      id: item.id,
-      kind: item.kind ?? 'movie',
-      title: item.title,
-      year: item.year,
-      poster_url: item.poster_url ?? null,
-      genres,
-      watch_href: watchHref,
-      runtime: resumeEpisode?.duration ?? detail?.runtime ?? last?.runtime ?? null,
-      progress: last?.progress,
-      seasonNumber: last?.seasonNumber ?? resumeSeason?.season_number,
-      episodeNumber: last?.episodeNumber ?? resumeEpisode?.number,
-      episodeId: last?.episodeId ?? resumeEpisode?.id,
-    })
+    openWatch(next.href, item.title, next.payload)
   }
 
   function toggleMute() {
@@ -146,10 +126,10 @@ export function Hero({ item }: { item: MovieListItem }) {
           <span className="n-mark">F</span>
           <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
         </div>
-        <h1 className="hero-title">{item.title}</h1>
+        <TitleLogo item={item} className="hero-logo" titleClassName="hero-title" />
         {synopsis ? <p className="hero-syn">{synopsis}</p> : null}
         <div className="hero-actions">
-          <button type="button" className="btn btn-play" onClick={onWatch} disabled={!watchHref}>
+          <button type="button" className="btn btn-play" onClick={onWatch} disabled={!sessionReady}>
             <PlayIcon className="icon" />
             {last?.progress && last.progress > 0.05 ? 'Resume' : 'Play'}
           </button>

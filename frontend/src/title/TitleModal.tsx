@@ -5,6 +5,7 @@ import { CatalogImage } from '../components/CatalogImage'
 import { EpisodeList } from '../components/EpisodeList'
 import { ErrorState } from '../components/ErrorState'
 import { CloseIcon, RestartIcon, SpeakerIcon } from '../components/Icons'
+import { TitleLogo } from '../components/TitleLogo'
 import { MoreLikeGrid } from '../components/MoreLikeGrid'
 import { Spinner } from '../components/Spinner'
 import { TitleActions } from '../components/TitleActions'
@@ -205,7 +206,7 @@ export function TitleModal() {
             onEnded={() => setTrailerEnded(true)}
           />
           <div className="title-modal-hero-body">
-            <h1>{item.title}</h1>
+            <TitleLogo item={item} className="title-modal-logo" />
             <TitleActions
               item={item}
               detail={detail}

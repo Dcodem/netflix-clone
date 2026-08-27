@@ -846,6 +846,7 @@ export function WatchOverlay() {
                     <em>
                       {episode.title}
                       {episode.duration ? <small>{episode.duration}m</small> : null}
+                      {active ? <small className="watch-ep-playing">Playing</small> : null}
                     </em>
                     {episode.synopsis ? <span>{episode.synopsis}</span> : null}
                   </span>
