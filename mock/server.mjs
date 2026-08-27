@@ -155,7 +155,7 @@ function playerPage(item, season, episode, query = {}) {
     <div class="flicker"></div>
     <div class="letter top"></div>
     <div class="letter bot"></div>
-    <div id="ytwrap" class="${ytId ? 'is-on' : ''}" style="${ytId ? 'opacity:1' : ''}" aria-hidden="true"><div id="yt"></div></div>
+    <div id="ytwrap" aria-hidden="true"><div id="yt"></div></div>
     <script>
       const SOURCE = 'flix-player'
       const YT_ID = ${JSON.stringify(ytId)}
@@ -222,7 +222,7 @@ function playerPage(item, season, episode, query = {}) {
           const state = ytPlayer.getPlayerState()
           if (state === 2 || state === 0) paused = true
           else if (state === PLAYING) paused = false
-          if (state === PLAYING || (typeof ytCur === 'number' && ytCur > 0.2)) revealYt()
+          if (state === PLAYING || (state === PLAYING && typeof ytCur === 'number' && ytCur > 0.2)) revealYt()
         } catch (err) {}
       }
       function tick(dt) {
