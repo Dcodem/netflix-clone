@@ -130,9 +130,9 @@ function playerPage(item, season, episode, query = {}) {
       .letter.top{top:0}
       .letter.bot{bottom:0}
       .wash{position:absolute;inset:0;background:radial-gradient(circle at 72% 28%, ${accent} 0%, transparent 36%), radial-gradient(circle at 18% 82%, ${color} 0%, transparent 52%);opacity:.28;mix-blend-mode:soft-light}
-      #ytwrap{position:absolute;inset:0;overflow:hidden;z-index:5;opacity:0;transition:opacity .6s ease;pointer-events:none;background:#000}
+      #ytwrap{position:absolute;inset:0;overflow:hidden;z-index:6;opacity:0;pointer-events:none;background:#000}
       #ytwrap.is-on{opacity:1}
-      #yt,#yt iframe{position:absolute!important;left:50%!important;top:50%!important;width:177.78vh!important;height:100vh!important;min-width:100vw!important;min-height:56.25vw!important;transform:translate(-50%,-50%)!important;border:0!important;pointer-events:none!important}
+      #ytwrap iframe{position:absolute;left:50%;top:50%;width:177.78%;height:100%;min-width:100%;min-height:56.25%;transform:translate(-50%,-50%);border:0;pointer-events:none}
       body.is-video .stage,body.is-video .veil,body.is-video .grain,body.is-video .flicker,body.is-video .letter{opacity:0;animation:none}
       @keyframes ken{from{transform:scale(1.02) translate3d(0,0,0)}to{transform:scale(1.14) translate3d(-3%,1.4%,0)}}
       @keyframes ken-b{from{transform:scale(1.08) translate3d(2%,-1%,0)}to{transform:scale(1.18) translate3d(-1%,2%,0)}}
@@ -149,7 +149,7 @@ function playerPage(item, season, episode, query = {}) {
       <div class="plate" style="background-image:url('${plates[2]}')"></div>
       <div class="wash"></div>
     </div>
-    <div id="ytwrap" aria-hidden="true"><div id="yt"></div></div>
+    <div id="ytwrap" aria-hidden="true"></div>
     <div class="veil"></div>
     <div class="grain"></div>
     <div class="flicker"></div>
@@ -162,10 +162,11 @@ function playerPage(item, season, episode, query = {}) {
       let current = ${start}
       let paused = false
       let shot = 0
-      let ytPlayer = null
+      let ytFrame = null
       let usingYt = false
       let wantMute = false
       let wantVolume = 1
+      const PLAYING = 1
       const stage = document.querySelector('.stage')
       const wrap = document.getElementById('ytwrap')
       const plates = [...document.querySelectorAll('.plate')]
@@ -174,55 +175,53 @@ function playerPage(item, season, episode, query = {}) {
         shot = (next + plates.length) % plates.length
         plates.forEach((plate, index) => plate.classList.toggle('is-on', index === shot))
       }
+      function postYouTube(func, args) {
+        if (!ytFrame || !ytFrame.contentWindow) return
+        ytFrame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: args || [] }), '*')
+      }
       function applyAudio() {
-        if (!ytPlayer || typeof ytPlayer.mute !== 'function') return
-        try {
-          ytPlayer.setVolume(Math.round(Math.max(0, Math.min(1, wantVolume)) * 100))
-          if (wantMute || wantVolume <= 0.01) ytPlayer.mute()
-          else ytPlayer.unMute()
-        } catch (err) {}
+        if (!usingYt) return
+        postYouTube(wantMute || wantVolume <= 0.01 ? 'mute' : 'unMute')
+        postYouTube('setVolume', [Math.round(Math.max(0, Math.min(1, wantVolume)) * 100)])
       }
       function applyTransport() {
-        if (!ytPlayer) return
-        try {
-          if (paused) ytPlayer.pauseVideo()
-          else ytPlayer.playVideo()
-        } catch (err) {}
+        if (!usingYt) return
+        postYouTube(paused ? 'pauseVideo' : 'playVideo')
       }
       function seekTo(seconds) {
         current = Math.max(0, Math.min(duration, seconds))
-        if (usingYt && ytPlayer && typeof ytPlayer.seekTo === 'function') {
-          try { ytPlayer.seekTo(current, true) } catch (err) {}
-        } else {
-          showShot(shot + 1)
-        }
+        if (usingYt) postYouTube('seekTo', [current, true])
+        else showShot(shot + 1)
       }
       function revealYt() {
         if (!wrap) return
         wrap.classList.add('is-on')
+        wrap.style.opacity = '1'
         document.body.classList.add('is-video')
       }
       function hideYt() {
         if (!wrap) return
         wrap.classList.remove('is-on')
+        wrap.style.opacity = ''
         document.body.classList.remove('is-video')
       }
-      function readYt() {
-        if (!usingYt || !ytPlayer) return
-        try {
-          const ytDur = ytPlayer.getDuration()
-          if (ytDur && ytDur > 1) duration = ytDur
-          const ytCur = ytPlayer.getCurrentTime()
-          if (typeof ytCur === 'number') current = ytCur
-          const state = ytPlayer.getPlayerState()
-          if (state === 2 || state === 0) paused = true
-          else if (state === 1) paused = false
-          if (state === 1 || (typeof ytCur === 'number' && ytCur > 0.2)) revealYt()
-        } catch (err) {}
+      function parseYouTube(data) {
+        var payload = data
+        if (typeof payload === 'string') {
+          try { payload = JSON.parse(payload) } catch (err) { return null }
+        }
+        if (!payload || typeof payload !== 'object') return null
+        return payload
+      }
+      function playerStateOf(payload) {
+        if (payload.event === 'onStateChange' && typeof payload.info === 'number') return payload.info
+        if (payload.event === 'infoDelivery' && payload.info && typeof payload.info.playerState === 'number') return payload.info.playerState
+        return null
       }
       function tick(dt) {
-        if (usingYt) readYt()
-        else if (!paused) current = Math.min(duration, current + dt)
+        if (usingYt) {
+          if (!paused) current = Math.min(duration, current + dt)
+        } else if (!paused) current = Math.min(duration, current + dt)
         parent.postMessage({ source: SOURCE, type: 'time', current: current, duration: duration, paused: paused }, '*')
       }
       let last = performance.now()
@@ -233,69 +232,65 @@ function playerPage(item, season, episode, query = {}) {
       }
       requestAnimationFrame(loop)
       setInterval(function () { if (!paused && !usingYt) showShot(shot + 1) }, 7800)
-      function startYt() {
-        if (!window.YT || !window.YT.Player) return
-        ytPlayer = new window.YT.Player('yt', {
-          videoId: YT_ID,
-          width: '1280',
-          height: '720',
-          playerVars: {
-            autoplay: 1,
-            mute: 1,
-            controls: 0,
-            disablekb: 1,
-            fs: 0,
-            modestbranding: 1,
-            rel: 0,
-            iv_load_policy: 3,
-            cc_load_policy: 0,
-            playsinline: 1,
-            origin: window.location.origin
-          },
-          events: {
-            onReady: function (event) {
-              usingYt = true
-              try { event.target.playVideo() } catch (err) {}
-              applyAudio()
-              applyTransport()
-              parent.postMessage({ source: SOURCE, type: 'media', kind: 'youtube' }, '*')
-            },
-            onError: function () {
-              usingYt = false
-              hideYt()
-            },
-            onStateChange: function (event) {
-              const state = typeof event.data === 'number' ? event.data : (event.data && event.data.playerState)
-              if (state === 0) {
-                paused = true
-                current = duration
-                parent.postMessage({ source: SOURCE, type: 'time', current: current, duration: duration, paused: true }, '*')
-              }
-              if (state === 1) {
-                usingYt = true
-                revealYt()
-              }
-            }
-          }
-        })
-      }
       function bootYt() {
-        if (!YT_ID) return
-        if (window.YT && window.YT.Player) {
-          startYt()
-          return
-        }
-        const tag = document.createElement('script')
-        tag.src = 'https://www.youtube.com/iframe_api'
-        const previous = window.onYouTubeIframeAPIReady
-        window.onYouTubeIframeAPIReady = function () {
-          if (typeof previous === 'function') previous()
-          startYt()
-        }
-        document.head.appendChild(tag)
+        if (!YT_ID || !wrap) return
+        const params = new URLSearchParams({
+          autoplay: '1',
+          mute: '1',
+          controls: '0',
+          disablekb: '1',
+          fs: '0',
+          modestbranding: '1',
+          rel: '0',
+          iv_load_policy: '3',
+          playsinline: '1',
+          enablejsapi: '1',
+          origin: window.location.origin
+        })
+        ytFrame = document.createElement('iframe')
+        ytFrame.id = 'yt'
+        ytFrame.src = 'https://www.youtube.com/embed/' + YT_ID + '?' + params.toString()
+        ytFrame.allow = 'autoplay; encrypted-media'
+        ytFrame.tabIndex = -1
+        wrap.appendChild(ytFrame)
+        ytFrame.addEventListener('load', function () {
+          try { ytFrame.contentWindow.postMessage(JSON.stringify({ event: 'listening' }), '*') } catch (err) {}
+          postYouTube('addEventListener', ['onStateChange'])
+          applyAudio()
+          applyTransport()
+        })
+        parent.postMessage({ source: SOURCE, type: 'media', kind: 'youtube' }, '*')
       }
       bootYt()
       window.addEventListener('message', function (event) {
+        const ytPayload = parseYouTube(event.data)
+        if (ytPayload && (ytPayload.event === 'onReady' || ytPayload.event === 'initialDelivery' || ytPayload.event === 'onStateChange' || ytPayload.event === 'infoDelivery')) {
+          if (ytPayload.event === 'onReady' || ytPayload.event === 'initialDelivery') {
+            postYouTube('addEventListener', ['onStateChange'])
+            applyAudio()
+            applyTransport()
+          }
+          if (ytPayload.event === 'infoDelivery' && ytPayload.info) {
+            if (typeof ytPayload.info.currentTime === 'number') current = ytPayload.info.currentTime
+            if (typeof ytPayload.info.duration === 'number' && ytPayload.info.duration > 1) {
+              duration = ytPayload.info.duration
+              usingYt = true
+            }
+          }
+          const state = playerStateOf(ytPayload)
+          if (state === PLAYING) {
+            paused = false
+            usingYt = true
+            revealYt()
+            applyAudio()
+            applyTransport()
+          } else if (state === 2) paused = true
+          else if (state === 0) {
+            paused = true
+            current = duration
+          }
+          return
+        }
         const data = event.data || {}
         if (data.source !== SOURCE) return
         if (data.cmd === 'play') {
@@ -421,7 +416,10 @@ const server = createServer((req, res) => {
     const id = path.slice('/watch/play/'.length)
     const item = getItem(id)
     if (!item) return notFound(res)
-    return send(res, 200, playerPage(item, query.s, query.e, query), { 'Content-Type': 'text/html; charset=utf-8' })
+    return send(res, 200, playerPage(item, query.s, query.e, query), {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+    })
   }
 
   if (path.startsWith('/watch/')) {
