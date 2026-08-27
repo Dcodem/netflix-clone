@@ -282,3 +282,35 @@ export function EpisodesIcon({ className }: { className?: string }) {
     </svg>
   )
 }
+
+export function SkipIntroIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M5 6l6.5 6L5 18"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 6l6.5 6-6.5 6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function NextEpisodeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M4 5.4v13.2L15.2 12 4 5.4z" />
+      <path fill="currentColor" d="M16.4 5.4h2.6v13.2h-2.6z" />
+    </svg>
+  )
+}

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { getMovie, getShow } from '../api/client'
-import type { MovieDetail, MovieListItem } from '../api/types'
+import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
 import { formatRuntime, genresOf, isShow } from '../lib/media'
 import { matchPercent, maturityLabel, qualityBadge } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -60,6 +60,8 @@ export function TitleHoverCard({
   const runtime = formatRuntime(detail?.runtime)
   const quality = qualityBadge(item.quality || detail?.quality)
   const genres = genresOf(detail ?? item).slice(0, 3)
+  const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
+  const episodeCount = seasons.reduce((count, season) => count + (season.episodes?.length ?? 0), 0)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
   const watchHref =
     last?.watch_href ||
@@ -119,7 +121,16 @@ export function TitleHoverCard({
           {item.year ? <span>{item.year}</span> : null}
           <span className="maturity">{maturity}</span>
           {quality ? <span className="quality-badge">{quality}</span> : null}
-          {runtime ? <span>{runtime}</span> : isShow(item) ? <span>Series</span> : null}
+          {runtime ? <span>{runtime}</span> : null}
+          {isShow(item) ? (
+            <span>
+              {seasons.length > 1
+                ? `${seasons.length} Seasons`
+                : episodeCount
+                  ? `${episodeCount} Episodes`
+                  : 'TV Show'}
+            </span>
+          ) : null}
         </div>
         {genres.length ? <div className="jawbone-genres">{genres.join(' · ')}</div> : null}
       </div>

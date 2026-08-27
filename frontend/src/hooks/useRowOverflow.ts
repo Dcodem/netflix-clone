@@ -6,6 +6,8 @@ export function useRowOverflow(loop = false, itemCount = 0) {
   const ref = useRef<HTMLDivElement>(null)
   const [canPrev, setCanPrev] = useState(false)
   const [canNext, setCanNext] = useState(false)
+  const [pageIndex, setPageIndex] = useState(0)
+  const [pageCount, setPageCount] = useState(1)
   const copies = loop ? 2 : 1
 
   useEffect(() => {
@@ -18,15 +20,23 @@ export function useRowOverflow(loop = false, itemCount = 0) {
         if (width < el.clientWidth + 8) {
           setCanPrev(false)
           setCanNext(false)
+          setPageCount(1)
+          setPageIndex(0)
           return
         }
         if (el.scrollLeft >= width) el.scrollLeft -= width
         setCanPrev(true)
         setCanNext(true)
+        const pages = Math.max(1, Math.round(width / Math.max(1, el.clientWidth)))
+        setPageCount(pages)
+        setPageIndex(Math.min(pages - 1, Math.round((el.scrollLeft % width) / Math.max(1, el.clientWidth))))
         return
       }
       setCanPrev(el.scrollLeft > 12)
       setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 12)
+      const pages = Math.max(1, Math.ceil(el.scrollWidth / Math.max(1, el.clientWidth)))
+      setPageCount(pages)
+      setPageIndex(Math.min(pages - 1, Math.round(el.scrollLeft / Math.max(1, el.clientWidth))))
     }
 
     update()
@@ -62,6 +72,8 @@ export function useRowOverflow(loop = false, itemCount = 0) {
     canPrev: fineHover && canPrev,
     canNext: fineHover && canNext,
     copies,
+    pageIndex,
+    pageCount,
     scrollByPage,
   }
 }
