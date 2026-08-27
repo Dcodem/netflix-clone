@@ -53,7 +53,7 @@ export function PosterCard({
         setAnchor(rect)
         setHover(true)
       }
-      }, 300)
+      }, 400)
   }
 
   function onLeave(event: PointerEvent<HTMLDivElement>) {

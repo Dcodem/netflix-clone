@@ -4,14 +4,15 @@ import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '..
 import { CatalogImage } from '../components/CatalogImage'
 import { EpisodeList } from '../components/EpisodeList'
 import { ErrorState } from '../components/ErrorState'
-import { CloseIcon, SpeakerIcon } from '../components/Icons'
+import { CloseIcon, RestartIcon, SpeakerIcon } from '../components/Icons'
 import { MoreLikeGrid } from '../components/MoreLikeGrid'
 import { Spinner } from '../components/Spinner'
 import { TitleActions } from '../components/TitleActions'
+import { FeatureBadges } from '../components/FeatureBadges'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, uniqueById } from '../lib/media'
-import { matchPercent, maturityLabel, moodTags, qualityBadge } from '../lib/netflix'
+import { matchPercent, maturityLabel, moodTags } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
@@ -38,11 +39,13 @@ export function TitleModal() {
   const stills = useTmdbGallery(item)
   const [muted, setMuted] = useState(true)
   const [trailerReady, setTrailerReady] = useState(false)
+  const [trailerEnded, setTrailerEnded] = useState(false)
   const [tab, setTab] = useState<'episodes' | 'more' | 'about' | null>(null)
 
   useEffect(() => {
     setMuted(true)
     setTrailerReady(false)
+    setTrailerEnded(false)
     setTab(null)
   }, [item?.id])
 
@@ -125,7 +128,6 @@ export function TitleModal() {
   const genres = genresOf(detail ?? item)
   const moods = moodTags(detail ?? item)
   const runtime = formatRuntime(detail?.runtime)
-  const quality = qualityBadge(item.quality || detail?.quality)
   const watchHref = isShow(item)
     ? last?.watch_href || resumeEpisode?.watch_href || detail?.watch_href
     : detail?.watch_href
@@ -169,6 +171,12 @@ export function TitleModal() {
     setMuted(next)
   }
 
+  function replayTrailer() {
+    setTrailerEnded(false)
+    setTrailerReady(true)
+    trailerRef.current?.replay()
+  }
+
   return (
     <div className="title-modal-backdrop" onClick={closeTitle} role="presentation" ref={backdropRef}>
       <div
@@ -181,7 +189,7 @@ export function TitleModal() {
         <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
           <CloseIcon className="icon" />
         </button>
-        <div className={`title-modal-hero ${trailerReady ? 'is-playing' : ''}`}>
+        <div className={`title-modal-hero ${trailerReady && !trailerEnded ? 'is-playing' : ''}`}>
           <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
           <TrailerPreview
             ref={trailerRef}
@@ -190,7 +198,11 @@ export function TitleModal() {
             kind={item.kind}
             className="title-modal-trailer"
             muted={muted}
-            onReady={() => setTrailerReady(true)}
+            onReady={() => {
+              setTrailerEnded(false)
+              setTrailerReady(true)
+            }}
+            onEnded={() => setTrailerEnded(true)}
           />
           <div className="title-modal-hero-body">
             <h1>{item.title}</h1>
@@ -204,14 +216,20 @@ export function TitleModal() {
             />
           </div>
           <div className="hero-controls-right">
-            <button
-              type="button"
-              className="hero-mute"
-              onClick={toggleMute}
-              aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-            >
-              <SpeakerIcon muted={muted} className="icon" />
-            </button>
+            {trailerEnded ? (
+              <button type="button" className="hero-mute" onClick={replayTrailer} aria-label="Replay">
+                <RestartIcon className="icon" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="hero-mute"
+                onClick={toggleMute}
+                aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+              >
+                <SpeakerIcon muted={muted} className="icon" />
+              </button>
+            )}
             <span className="maturity-flag">{maturity}</span>
           </div>
         </div>
@@ -230,7 +248,7 @@ export function TitleModal() {
                     {seasons.length} {seasons.length === 1 ? 'Season' : 'Seasons'}
                   </span>
                 ) : null}
-                {quality ? <span className="quality-badge">{quality}</span> : null}
+                <FeatureBadges quality={item.quality || detail?.quality} />
               </div>
               {detail?.synopsis ? <p className="title-modal-syn">{detail.synopsis}</p> : null}
             </div>

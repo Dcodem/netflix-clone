@@ -5,9 +5,11 @@ import { envKeys, type TrailerHit } from './types'
 
 export type TrailerHandle = {
   setMuted: (muted: boolean) => void
+  replay: () => void
 }
 
 const PLAYING = 1
+const ENDED = 0
 
 function postYouTube(iframe: HTMLIFrameElement, func: string, args: unknown[] = []) {
   iframe.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), '*')
@@ -44,9 +46,10 @@ export const TrailerPreview = forwardRef<
     mode?: 'hero' | 'mini'
     muted?: boolean
     onReady?: () => void
+    onEnded?: () => void
   }
 >(function TrailerPreview(
-  { title, year, kind, className, mode = 'hero', muted = true, onReady },
+  { title, year, kind, className, mode = 'hero', muted = true, onReady, onEnded },
   ref,
 ) {
   const { user } = useAuth()
@@ -61,6 +64,7 @@ export const TrailerPreview = forwardRef<
   const mutedRef = useRef(muted)
   const readyRef = useRef(false)
   mutedRef.current = muted
+  const loop = mode === 'mini'
 
   useEffect(() => {
     let cancelled = false
@@ -84,8 +88,10 @@ export const TrailerPreview = forwardRef<
   }, [title, year, kind, keys.iva, keys.tmdb, mode])
 
   const onReadyRef = useRef(onReady)
+  const onEndedRef = useRef(onEnded)
   useEffect(() => {
     onReadyRef.current = onReady
+    onEndedRef.current = onEnded
   })
 
   function applyMute(next: boolean) {
@@ -113,7 +119,29 @@ export const TrailerPreview = forwardRef<
     applyMute(mutedRef.current)
   }
 
-  useImperativeHandle(ref, () => ({ setMuted: applyMute }))
+  function markEnded() {
+    if (loop) return
+    readyRef.current = false
+    setLive(false)
+    onEndedRef.current?.()
+  }
+
+  function replay() {
+    readyRef.current = false
+    const iframe = iframeRef.current
+    if (iframe) {
+      postYouTube(iframe, 'seekTo', [0, true])
+      postYouTube(iframe, 'playVideo')
+    }
+    const video = videoRef.current
+    if (video) {
+      video.currentTime = 0
+      void video.play()
+    }
+    applyMute(mutedRef.current)
+  }
+
+  useImperativeHandle(ref, () => ({ setMuted: applyMute, replay }))
 
   useEffect(() => {
     if (!hit || hit.kind !== 'youtube') return
@@ -126,7 +154,9 @@ export const TrailerPreview = forwardRef<
         postYouTube(iframe, 'addEventListener', ['onStateChange'])
         applyMute(mutedRef.current)
       }
-      if (playerState(payload) === PLAYING) markReady()
+      const state = playerState(payload)
+      if (state === PLAYING) markReady()
+      if (state === ENDED) markEnded()
     }
     const fail = window.setTimeout(() => {
       if (!readyRef.current) setHit(null)
@@ -136,7 +166,7 @@ export const TrailerPreview = forwardRef<
       window.clearTimeout(fail)
       window.removeEventListener('message', onMessage)
     }
-  }, [hit])
+  }, [hit, loop])
 
   if (!hit) return null
 
@@ -145,8 +175,6 @@ export const TrailerPreview = forwardRef<
       autoplay: '1',
       mute: '1',
       controls: '0',
-      loop: '1',
-      playlist: hit.src,
       playsinline: '1',
       rel: '0',
       modestbranding: '1',
@@ -155,6 +183,10 @@ export const TrailerPreview = forwardRef<
       enablejsapi: '1',
       origin: window.location.origin,
     })
+    if (loop) {
+      params.set('loop', '1')
+      params.set('playlist', hit.src)
+    }
     return (
       <iframe
         ref={iframeRef}
@@ -177,10 +209,11 @@ export const TrailerPreview = forwardRef<
       src={hit.src}
       autoPlay
       muted={muted}
-      loop
+      loop={loop}
       playsInline
       preload="metadata"
       onPlaying={markReady}
+      onEnded={markEnded}
     />
   )
 })

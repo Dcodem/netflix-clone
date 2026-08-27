@@ -3,10 +3,11 @@ import { createPortal } from 'react-dom'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
 import { formatRuntime, genresOf, isShow } from '../lib/media'
-import { matchPercent, maturityLabel, qualityBadge } from '../lib/netflix'
+import { matchPercent, maturityLabel } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { CatalogImage } from './CatalogImage'
+import { FeatureBadges } from './FeatureBadges'
 import { SpeakerIcon } from './Icons'
 import { TitleActions } from './TitleActions'
 
@@ -56,7 +57,7 @@ export function TitleHoverCard({
   const match = matchPercent(item, activeProfile)
   const maturity = maturityLabel(item)
   const runtime = formatRuntime(detail?.runtime)
-  const quality = qualityBadge(item.quality || detail?.quality)
+  const quality = item.quality || detail?.quality
   const genres = genresOf(detail ?? item).slice(0, 3)
   const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
   const episodeCount = seasons.reduce((count, season) => count + (season.episodes?.length ?? 0), 0)
@@ -121,7 +122,7 @@ export function TitleHoverCard({
           <span className="match">{match}% Match</span>
           {item.year ? <span>{item.year}</span> : null}
           <span className="maturity">{maturity}</span>
-          {quality ? <span className="quality-badge">{quality}</span> : null}
+          <FeatureBadges quality={quality} />
           {runtime ? <span>{runtime}</span> : null}
           {isShow(item) ? (
             <span>

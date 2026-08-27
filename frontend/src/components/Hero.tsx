@@ -8,7 +8,7 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
-import { InfoIcon, PlayIcon, SpeakerIcon } from './Icons'
+import { InfoIcon, PlayIcon, RestartIcon, SpeakerIcon } from './Icons'
 import { CatalogImage } from './CatalogImage'
 
 const VIDEO_ASPECT = 16 / 9
@@ -29,12 +29,15 @@ export function Hero({ item }: { item: MovieListItem }) {
   const [detail, setDetail] = useState<MovieDetail | null>(null)
   const [muted, setMuted] = useState(true)
   const [trailerReady, setTrailerReady] = useState(false)
+  const [trailerEnded, setTrailerEnded] = useState(false)
   const [scale, setScale] = useState(1.45)
   const previewActive = !openItem && !session && activeProfile?.autoplayPreview !== false
+  const playing = trailerReady && previewActive && !trailerEnded
 
   useEffect(() => {
     let cancelled = false
     setTrailerReady(false)
+    setTrailerEnded(false)
     setMuted(true)
     const load = isShow(item) ? getShow(item.id) : getMovie(item.id)
     load
@@ -107,9 +110,15 @@ export function Hero({ item }: { item: MovieListItem }) {
     setMuted(next)
   }
 
+  function replayTrailer() {
+    setTrailerEnded(false)
+    setTrailerReady(true)
+    trailerRef.current?.replay()
+  }
+
   return (
-    <section className={`hero ${trailerReady && previewActive ? 'is-playing' : ''}`}>
-      <div className={`hero-media ${trailerReady && previewActive ? 'is-playing' : ''}`} ref={mediaRef}>
+    <section className={`hero ${playing ? 'is-playing' : ''}`}>
+      <div className={`hero-media ${playing ? 'is-playing' : ''}`} ref={mediaRef}>
         <CatalogImage item={{ ...item, backdrop_url: backdrop }} alt="" className="hero-img" prefer="backdrop" />
         {previewActive ? (
           <div
@@ -123,7 +132,11 @@ export function Hero({ item }: { item: MovieListItem }) {
               kind={item.kind}
               className="hero-trailer"
               muted={muted}
-              onReady={() => setTrailerReady(true)}
+              onReady={() => {
+                setTrailerEnded(false)
+                setTrailerReady(true)
+              }}
+              onEnded={() => setTrailerEnded(true)}
             />
           </div>
         ) : null}
@@ -147,7 +160,11 @@ export function Hero({ item }: { item: MovieListItem }) {
         </div>
       </div>
       <div className="hero-controls-right">
-        {previewActive ? (
+        {previewActive && trailerEnded ? (
+          <button type="button" className="hero-mute" onClick={replayTrailer} aria-label="Replay">
+            <RestartIcon className="icon" />
+          </button>
+        ) : previewActive ? (
           <button
             type="button"
             className="hero-mute"

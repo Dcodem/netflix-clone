@@ -314,3 +314,18 @@ export function NextEpisodeIcon({ className }: { className?: string }) {
     </svg>
   )
 }
+
+export function SpeedIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 20a8 8 0 110-16 8 8 0 010 16z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path fill="currentColor" d="M12 12.2l4.2-4.2-1.1 5.3z" />
+      <path d="M7 14.5h.01M17 14.5h.01M12 7h.01" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
+  )
+}

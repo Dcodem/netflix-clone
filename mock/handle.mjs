@@ -167,6 +167,7 @@ function playerPage(item, season, episode, query = {}) {
       let usingYt = false
       let wantMute = false
       let wantVolume = 1
+      let wantRate = 1
       const PLAYING = 1
       const stage = document.querySelector('.stage')
       const wrap = document.getElementById('ytwrap')
@@ -192,6 +193,7 @@ function playerPage(item, season, episode, query = {}) {
       function applyTransport() {
         if (!ytPlayer) return
         try {
+          if (typeof ytPlayer.setPlaybackRate === 'function') ytPlayer.setPlaybackRate(wantRate)
           if (paused) ytPlayer.pauseVideo()
           else ytPlayer.playVideo()
         } catch (err) {}
@@ -227,7 +229,7 @@ function playerPage(item, season, episode, query = {}) {
       }
       function tick(dt) {
         if (usingYt) readYt()
-        else if (!paused) current = Math.min(duration, current + dt)
+        else if (!paused) current = Math.min(duration, current + dt * wantRate)
         parent.postMessage({ source: SOURCE, type: 'time', current: current, duration: duration, paused: paused }, '*')
       }
       let last = performance.now()
@@ -325,6 +327,10 @@ function playerPage(item, season, episode, query = {}) {
           wantVolume = data.value
           wantMute = data.value <= 0.01
           applyAudio()
+        }
+        if (data.cmd === 'rate' && typeof data.value === 'number') {
+          wantRate = Math.max(0.25, Math.min(2, data.value))
+          applyTransport()
         }
       })
     </script>

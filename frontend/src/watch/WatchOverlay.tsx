@@ -14,6 +14,7 @@ import {
   SkipForwardIcon,
   SkipIntroIcon,
   SpeakerIcon,
+  SpeedIcon,
   SubtitlesIcon,
 } from '../components/Icons'
 import { MediaImage } from '../components/MediaImage'
@@ -28,6 +29,7 @@ import { useWatch } from './WatchContext'
 const PLAYER_SOURCE = 'flix-player'
 const SKIP_INTRO_AT = 80
 const SKIP_RECAP_AT = 148
+const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5] as const
 const CAPTIONS = [
   'The city never really sleeps.',
   'Stay close. We move on my mark.',
@@ -126,6 +128,8 @@ export function WatchOverlay() {
   const [showDetail, setShowDetail] = useState<ShowDetail | null>(null)
   const [episodesOpen, setEpisodesOpen] = useState(false)
   const [audioOpen, setAudioOpen] = useState(false)
+  const [speedOpen, setSpeedOpen] = useState(false)
+  const [speed, setSpeed] = useState(1)
   const [subs, setSubs] = useState<'off' | 'en'>('off')
   const [audioTrack, setAudioTrack] = useState<'en' | 'ad'>('en')
   const [introSkipped, setIntroSkipped] = useState(false)
@@ -135,13 +139,14 @@ export function WatchOverlay() {
   const [volOpen, setVolOpen] = useState(false)
   const [barHover, setBarHover] = useState(false)
   const flashTimer = useRef(0)
+  const tapRef = useRef({ at: 0, x: 0, play: 0 })
   const audioRef = useRef({ muted: false, volume: 1 })
   const autoNextRef = useRef('')
 
   const runtimeSec = Math.max(60, (session?.history?.runtime ?? 48) * 60)
   const startProgress = session?.history?.progress ?? 0
   const isShow = session?.history?.kind === 'show'
-  const keepChrome = paused || episodesOpen || audioOpen || volOpen || barHover
+  const keepChrome = paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover
 
   const post = useCallback((payload: Record<string, unknown>) => {
     frameRef.current?.contentWindow?.postMessage({ source: PLAYER_SOURCE, ...payload }, '*')
@@ -202,6 +207,8 @@ export function WatchOverlay() {
     setVolume(1)
     setEpisodesOpen(false)
     setAudioOpen(false)
+    setSpeedOpen(false)
+    setSpeed(1)
     setVolOpen(false)
     setBarHover(false)
     setIntroSkipped(false)
@@ -228,6 +235,7 @@ export function WatchOverlay() {
       ambienceRef.current?.stop()
       ambienceRef.current = null
       window.clearTimeout(flashTimer.current)
+      window.clearTimeout(tapRef.current.play)
     }
   }, [session, runtimeSec, startProgress])
 
@@ -280,6 +288,10 @@ export function WatchOverlay() {
     post({ cmd: 'mute', value: muted })
     post({ cmd: 'volume', value: muted ? 0 : volume })
   }, [muted, volume, ytId, post])
+
+  useEffect(() => {
+    post({ cmd: 'rate', value: speed })
+  }, [speed, ytId, post])
 
   useEffect(() => {
     if (!session) return
@@ -394,9 +406,9 @@ export function WatchOverlay() {
     : session.history?.seasonNumber && session.history?.episodeNumber
       ? `S${session.history.seasonNumber}:E${session.history.episodeNumber}`
       : null
-  const showSkipIntro = isShow && !introSkipped && current < 110 && !episodesOpen && !audioOpen
-  const showSkipRecap = isShow && !recapSkipped && !showSkipIntro && current >= 80 && current < 155 && !episodesOpen && !audioOpen
-  const showNext = Boolean(upcoming && remaining <= 48 && !episodesOpen && !audioOpen && length > 0)
+  const showSkipIntro = isShow && !introSkipped && current < 110 && !episodesOpen && !audioOpen && !speedOpen
+  const showSkipRecap = isShow && !recapSkipped && !showSkipIntro && current >= 80 && current < 155 && !episodesOpen && !audioOpen && !speedOpen
+  const showNext = Boolean(upcoming && remaining <= 48 && !episodesOpen && !audioOpen && !speedOpen && length > 0)
   const nextCount = Math.max(1, Math.ceil(remaining))
   const nextProgress = length ? Math.min(1, remaining / 48) : 0
   const caption = subs === 'en' ? CAPTIONS[Math.floor(current / 9) % CAPTIONS.length] : null
@@ -462,8 +474,31 @@ export function WatchOverlay() {
       role="dialog"
       aria-modal="true"
       aria-label="Player"
-      onClick={togglePlay}
+      onClick={(event) => {
+        const coarse = window.matchMedia('(pointer: coarse)').matches
+        if (!coarse) {
+          togglePlay()
+          return
+        }
+        const now = performance.now()
+        const x = event.clientX
+        const width = overlayRef.current?.clientWidth || window.innerWidth
+        window.clearTimeout(tapRef.current.play)
+        if (now - tapRef.current.at < 280) {
+          event.preventDefault()
+          if (x < width * 0.38 || tapRef.current.x < width * 0.38) skip(-10)
+          else if (x > width * 0.62 || tapRef.current.x > width * 0.62) skip(10)
+          tapRef.current = { at: 0, x: 0, play: 0 }
+          return
+        }
+        tapRef.current = {
+          at: now,
+          x,
+          play: window.setTimeout(() => togglePlay(), 260),
+        }
+      }}
       onDoubleClick={(event) => {
+        if (window.matchMedia('(pointer: coarse)').matches) return
         event.preventDefault()
         toggleFullscreen()
       }}
@@ -661,6 +696,7 @@ export function WatchOverlay() {
                 onClick={() => {
                   setEpisodesOpen((value) => !value)
                   setAudioOpen(false)
+                  setSpeedOpen(false)
                 }}
                 aria-label="Episodes"
               >
@@ -673,11 +709,44 @@ export function WatchOverlay() {
               onClick={() => {
                 setAudioOpen((value) => !value)
                 setEpisodesOpen(false)
+                setSpeedOpen(false)
               }}
               aria-label="Audio and subtitles"
             >
               <SubtitlesIcon className="icon" />
             </button>
+            <div className={`watch-speed ${speedOpen ? 'is-open' : ''}`}>
+              <button
+                type="button"
+                className={`watch-ctrl ${speedOpen || speed !== 1 ? 'is-on' : ''}`}
+                onClick={() => {
+                  setSpeedOpen((value) => !value)
+                  setAudioOpen(false)
+                  setEpisodesOpen(false)
+                }}
+                aria-label="Playback speed"
+              >
+                <SpeedIcon className="icon" />
+              </button>
+              {speedOpen ? (
+                <div className="watch-speed-menu" role="menu" aria-label="Playback speed">
+                  {SPEEDS.map((rate) => (
+                    <button
+                      type="button"
+                      key={rate}
+                      className={speed === rate ? 'is-on' : ''}
+                      onClick={() => {
+                        setSpeed(rate)
+                        post({ cmd: 'rate', value: rate })
+                        setSpeedOpen(false)
+                      }}
+                    >
+                      {rate === 1 ? 'Normal' : `${rate}x`}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
             <button
               type="button"
               className="watch-ctrl"
