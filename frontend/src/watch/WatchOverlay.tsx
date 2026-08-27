@@ -18,8 +18,9 @@ import {
 } from '../components/Icons'
 import { MediaImage } from '../components/MediaImage'
 import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
-import { stillFocus } from '../lib/media'
+import { stillFocus, episodeStill } from '../lib/media'
 import { peekTrailer, resolveTrailer, youtubeIdFromHit } from '../trailers/resolve'
+import { findTmdbGallery, tmdbFileName } from '../trailers/tmdb'
 import { envKeys } from '../trailers/types'
 import { useWatch } from './WatchContext'
 
@@ -42,13 +43,15 @@ function formatClock(seconds: number) {
   return `${minutes}:${String(secs).padStart(2, '0')}`
 }
 
-function playerSrc(href: string, runtimeSec: number, progress: number, yt?: string | null) {
+function playerSrc(href: string, runtimeSec: number, progress: number, yt?: string | null, gallery?: string[]) {
   try {
     const url = new URL(href, window.location.origin)
     url.searchParams.set('runtime', String(Math.round(runtimeSec)))
     url.searchParams.set('t', String(Math.round(Math.max(0, progress) * runtimeSec)))
     if (yt) url.searchParams.set('yt', yt)
     else url.searchParams.delete('yt')
+    if (gallery?.length) url.searchParams.set('g', gallery.join(','))
+    else url.searchParams.delete('g')
     if (/^https?:\/\//i.test(href)) return url.toString()
     return `${url.pathname}${url.search}${url.hash}`
   } catch {
@@ -95,8 +98,20 @@ export function WatchOverlay() {
   const ambienceRef = useRef<ReturnType<typeof createWatchAmbience> | null>(null)
   const sessionKey = session ? `${session.startedAt}:${session.href}` : ''
   const peekedYt = youtubeIdFromHit(peekTrailer(trailerSearch(session)))
-  const [ytBySession, setYtBySession] = useState<{ key: string; id: string | null }>({ key: '', id: null })
-  const ytId = ytBySession.key === sessionKey ? ytBySession.id : peekedYt
+  const [mediaBySession, setMediaBySession] = useState<{
+    key: string
+    yt: string | null
+    files: string[]
+    urls: string[]
+  }>({
+    key: '',
+    yt: null,
+    files: [],
+    urls: [],
+  })
+  const ytId = mediaBySession.key === sessionKey ? mediaBySession.yt : peekedYt
+  const galleryFiles = mediaBySession.key === sessionKey ? mediaBySession.files : []
+  const galleryUrls = mediaBySession.key === sessionKey ? mediaBySession.urls : []
   const [chrome, setChrome] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
   const [paused, setPaused] = useState(false)
@@ -230,18 +245,22 @@ export function WatchOverlay() {
     const key = `${session.startedAt}:${session.href}`
     const item = trailerSearch(session)
     const immediate = youtubeIdFromHit(peekTrailer(item))
-    setYtBySession({ key, id: immediate })
+    setMediaBySession({ key, yt: immediate, files: [], urls: [] })
     const keys = {
       iva: (user?.ivaKey || envKeys().iva).trim(),
       tmdb: (user?.tmdbKey || envKeys().tmdb).trim(),
     }
     if (!keys.tmdb && !keys.iva) return
     let cancelled = false
-    resolveTrailer(item, keys)
-      .then((hit) => {
+    Promise.all([
+      resolveTrailer(item, keys).catch(() => null),
+      keys.tmdb ? findTmdbGallery(item, keys.tmdb).catch(() => [] as string[]) : Promise.resolve([] as string[]),
+    ])
+      .then(([hit, gallery]) => {
+        if (cancelled) return
         const id = youtubeIdFromHit(hit)
-        if (cancelled || !id) return
-        setYtBySession({ key, id })
+        const files = gallery.map((url) => tmdbFileName(url)).filter((file): file is string => Boolean(file))
+        setMediaBySession({ key, yt: id ?? immediate, files, urls: gallery })
       })
       .catch(() => {
         /* keep artwork player */
@@ -423,7 +442,7 @@ export function WatchOverlay() {
       <iframe
         ref={frameRef}
         className="watch-frame"
-        src={playerSrc(session.href, runtimeSec, startProgress, ytId)}
+        src={playerSrc(session.href, runtimeSec, startProgress, ytId, galleryFiles)}
         title={session.title}
         allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
         allowFullScreen
@@ -498,7 +517,7 @@ export function WatchOverlay() {
           <span className="next-ep-kicker">Next Episode</span>
           <span className="next-ep-body">
             <span className="next-ep-thumb">
-              <MediaImage src={upcoming.episode.thumb_url} alt="" />
+              <MediaImage src={episodeStill(galleryUrls, upcoming.episode.number, upcoming.episode.thumb_url)} alt="" />
               <PlayIcon className="icon" />
             </span>
             <span className="next-ep-copy">
@@ -662,7 +681,7 @@ export function WatchOverlay() {
                 >
                   <span className="watch-ep-num">{episode.number}</span>
                     <span className="watch-ep-thumb" style={{ '--focal': stillFocus(episode.number) } as CSSProperties}>
-                    <MediaImage src={episode.thumb_url} alt="" />
+                    <MediaImage src={episodeStill(galleryUrls, episode.number, episode.thumb_url)} alt="" />
                     <PlayIcon className="icon" />
                   </span>
                   <span className="watch-ep-copy">

@@ -39,6 +39,11 @@ export function stillFocus(index: number) {
   return `${(index * 29) % 88}% ${(index * 17) % 72}%`
 }
 
+export function episodeStill(stills: string[] | undefined, number: number, fallback?: string | null) {
+  if (stills?.length) return stills[(Math.max(1, number) - 1) % stills.length]
+  return fallback ?? null
+}
+
 export function uniqueById<T extends { id: string }>(items: T[]): T[] {
   const seen = new Set<string>()
   const out: T[] = []

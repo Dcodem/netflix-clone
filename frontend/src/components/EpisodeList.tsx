@@ -2,17 +2,19 @@ import { useEffect, useState, type CSSProperties } from 'react'
 import type { Episode, Season } from '../api/types'
 import { isEpisodeStarted, isEpisodeWatched, seasonStats, watchForEpisode } from '../lib/episodeProgress'
 import type { WatchHistoryItem } from '../profiles/types'
-import { stillFocus } from '../lib/media'
+import { episodeStill, stillFocus } from '../lib/media'
 import { PlayIcon } from './Icons'
 import { MediaImage } from './MediaImage'
 
 export function EpisodeList({
   seasons,
   history,
+  stills,
   onPlay,
 }: {
   seasons: Season[]
   history?: WatchHistoryItem
+  stills?: string[]
   onPlay: (episode: Episode, season: Season) => void
 }) {
   const [seasonNumber, setSeasonNumber] = useState(history?.seasonNumber ?? seasons[0]?.season_number ?? 1)
@@ -71,7 +73,7 @@ export function EpisodeList({
               >
                 <span className="ep-num">{episode.number}</span>
                 <div className="ep-thumb-wrap" style={{ '--focal': stillFocus(episode.number) } as CSSProperties}>
-                  <MediaImage src={episode.thumb_url} alt="" className="ep-thumb" />
+                  <MediaImage src={episodeStill(stills, episode.number, episode.thumb_url)} alt="" className="ep-thumb" />
                   <span className="ep-play">
                     <PlayIcon className="icon" />
                   </span>

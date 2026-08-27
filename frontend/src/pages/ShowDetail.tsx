@@ -14,6 +14,7 @@ import { formatRating, formatRuntime, genresOf } from '../lib/media'
 import { isKidsSafe } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
+import { useTmdbGallery } from '../trailers/useTmdbGallery'
 import { useWatch } from '../watch/WatchContext'
 
 export function ShowDetail() {
@@ -25,6 +26,7 @@ export function ShowDetail() {
   const trailerRef = useRef<TrailerHandle>(null)
   const [muted, setMuted] = useState(true)
   const [trailerReady, setTrailerReady] = useState(false)
+  const stills = useTmdbGallery(data)
 
   const seasons = useMemo(() => data?.seasons ?? [], [data])
   const resumeSeason = useMemo(() => {
@@ -158,7 +160,7 @@ export function ShowDetail() {
             <strong>Cast</strong> {show.cast.join(', ')}
           </p>
         ) : null}
-        <EpisodeList seasons={seasons} history={last} onPlay={onWatchEpisode} />
+        <EpisodeList seasons={seasons} history={last} stills={stills} onPlay={onWatchEpisode} />
       </section>
     </main>
   )

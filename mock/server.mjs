@@ -109,7 +109,16 @@ function playerPage(item, season, episode, query = {}) {
     season && episode
       ? `/art/thumb/${encodeURIComponent(item.id)}?s=${encodeURIComponent(season)}&e=${encodeURIComponent(episode)}`
       : backdrop
-  const plates = [backdrop, thumb, poster].map((src) => escapeXml(src))
+  const gallery = String(query.g || '')
+    .split(',')
+    .map((file) => file.trim())
+    .filter((file) => /^[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|webp)$/i.test(file))
+    .map((file) => `/img?u=${encodeURIComponent(`https://image.tmdb.org/t/p/w1280/${file}`)}`)
+  const sources = gallery.length ? gallery : [backdrop, thumb, poster]
+  const plates = sources.map((src) => escapeXml(src))
+  const plateMarkup = plates
+    .map((src, index) => `<div class="plate${index === 0 ? ' is-on' : ''}" style="background-image:url('${src}')"></div>`)
+    .join('')
   return `<!doctype html>
 <html>
   <head>
@@ -118,15 +127,15 @@ function playerPage(item, season, episode, query = {}) {
     <style>
       html,body{margin:0;height:100%;background:#000;overflow:hidden}
       .stage{position:absolute;inset:0;background:#050505;transition:opacity .55s ease}
-      .plate{position:absolute;inset:-14%;background-size:cover;background-position:center;opacity:0;transition:opacity .85s ease;transform-origin:center;filter:saturate(1.05) contrast(1.06)}
+      .plate{position:absolute;inset:-18%;background-size:cover;background-position:center;opacity:0;transition:opacity .32s ease;transform-origin:center;filter:saturate(1.08) contrast(1.08)}
       .plate.is-on{opacity:1}
-      .stage.is-playing .plate.is-on{animation:ken 16s ease-in-out alternate infinite}
-      .stage.is-playing .plate.is-on:nth-child(2){animation-name:ken-b}
-      .stage.is-playing .plate.is-on:nth-child(3){animation-name:ken-c}
+      .stage.is-playing .plate.is-on{animation:ken 6.2s ease-in-out alternate infinite}
+      .stage.is-playing .plate.is-on:nth-child(3n+2){animation-name:ken-b}
+      .stage.is-playing .plate.is-on:nth-child(3n){animation-name:ken-c}
       .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42),transparent 22%,transparent 62%,rgba(0,0,0,.58))}
       .grain{position:absolute;inset:-20%;pointer-events:none;opacity:.16;mix-blend-mode:overlay;background-image:repeating-radial-gradient(circle at 18% 22%, rgba(255,255,255,.55) 0 1px, transparent 1px 3px);animation:grain .28s steps(2) infinite}
       .flicker{position:absolute;inset:0;pointer-events:none;background:rgba(255,255,255,.025);animation:flicker 6s ease-in-out infinite}
-      .letter{position:absolute;left:0;right:0;height:5.5%;background:#000;z-index:3}
+      .letter{position:absolute;left:0;right:0;height:0;background:#000;z-index:3}
       .letter.top{top:0}
       .letter.bot{bottom:0}
       .wash{position:absolute;inset:0;background:radial-gradient(circle at 72% 28%, ${accent} 0%, transparent 36%), radial-gradient(circle at 18% 82%, ${color} 0%, transparent 52%);opacity:.28;mix-blend-mode:soft-light}
@@ -135,9 +144,9 @@ function playerPage(item, season, episode, query = {}) {
       #yt{position:absolute;inset:0;width:100%!important;height:100%!important}
       #ytwrap iframe{position:absolute;left:50%;top:50%;width:177.78%;height:100%;min-width:100%;min-height:56.25%;transform:translate(-50%,-50%);border:0;pointer-events:none}
       body.is-video .stage,body.is-video .veil,body.is-video .grain,body.is-video .flicker,body.is-video .letter{opacity:0;animation:none}
-      @keyframes ken{from{transform:scale(1.02) translate3d(0,0,0)}to{transform:scale(1.14) translate3d(-3%,1.4%,0)}}
-      @keyframes ken-b{from{transform:scale(1.08) translate3d(2%,-1%,0)}to{transform:scale(1.18) translate3d(-1%,2%,0)}}
-      @keyframes ken-c{from{transform:scale(1.04) translate3d(-2%,1%,0)}to{transform:scale(1.16) translate3d(2%,-2%,0)}}
+      @keyframes ken{from{transform:scale(1.04) translate3d(0,0,0)}to{transform:scale(1.16) translate3d(-2.4%,1.2%,0)}}
+      @keyframes ken-b{from{transform:scale(1.1) translate3d(1.6%,-1%,0)}to{transform:scale(1.2) translate3d(-1.2%,1.8%,0)}}
+      @keyframes ken-c{from{transform:scale(1.06) translate3d(-1.8%,1%,0)}to{transform:scale(1.18) translate3d(1.8%,-1.6%,0)}}
       @keyframes grain{to{transform:translate3d(-3%,4%,0)}}
       @keyframes flicker{0%,100%{opacity:.2}40%{opacity:.05}72%{opacity:.28}}
       .stage.is-paused .grain,.stage.is-paused .flicker{animation-play-state:paused}
@@ -145,9 +154,7 @@ function playerPage(item, season, episode, query = {}) {
   </head>
   <body>
     <div class="stage is-playing">
-      <div class="plate is-on" style="background-image:url('${plates[0]}')"></div>
-      <div class="plate" style="background-image:url('${plates[1]}')"></div>
-      <div class="plate" style="background-image:url('${plates[2]}')"></div>
+      ${plateMarkup}
       <div class="wash"></div>
     </div>
     <div class="veil"></div>
@@ -222,11 +229,11 @@ function playerPage(item, season, episode, query = {}) {
           const state = ytPlayer.getPlayerState()
           if (state === 2 || state === 0) paused = true
           else if (state === PLAYING) paused = false
-          if (state === PLAYING || (state === PLAYING && typeof ytCur === 'number' && ytCur > 0.2)) revealYt()
+          if (state === PLAYING) revealYt()
         } catch (err) {}
       }
       function tick(dt) {
-        if (ytPlayer) readYt()
+        if (usingYt) readYt()
         else if (!paused) current = Math.min(duration, current + dt)
         parent.postMessage({ source: SOURCE, type: 'time', current: current, duration: duration, paused: paused }, '*')
       }
@@ -237,7 +244,7 @@ function playerPage(item, season, episode, query = {}) {
         requestAnimationFrame(loop)
       }
       requestAnimationFrame(loop)
-      setInterval(function () { if (!paused && !usingYt) showShot(shot + 1) }, 7800)
+      setInterval(function () { if (!paused && !usingYt) showShot(shot + 1) }, 2600)
       function startYt() {
         if (!window.YT || !window.YT.Player) return
         ytPlayer = new window.YT.Player('yt', {
@@ -259,12 +266,10 @@ function playerPage(item, season, episode, query = {}) {
           },
           events: {
             onReady: function (event) {
-              usingYt = true
               sizeYt()
               try { event.target.mute(); event.target.playVideo() } catch (err) {}
               applyAudio()
               applyTransport()
-              parent.postMessage({ source: SOURCE, type: 'media', kind: 'youtube' }, '*')
             },
             onError: function () {
               usingYt = false
@@ -274,6 +279,7 @@ function playerPage(item, season, episode, query = {}) {
                 usingYt = true
                 paused = false
                 revealYt()
+                parent.postMessage({ source: SOURCE, type: 'media', kind: 'youtube' }, '*')
               }
               if (event.data === 2) paused = true
               if (event.data === 0) {

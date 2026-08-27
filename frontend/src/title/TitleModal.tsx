@@ -15,6 +15,7 @@ import { filterForProfile, isKidsSafe, matchPercent, maturityLabel, qualityBadge
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
+import { useTmdbGallery } from '../trailers/useTmdbGallery'
 import { useTitleModal } from './TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 
@@ -28,6 +29,7 @@ export function TitleModal() {
   const { activeProfile } = useProfiles()
   const last = activeProfile?.history.find((entry) => entry.id === item?.id)
   const trailerRef = useRef<TrailerHandle>(null)
+  const stills = useTmdbGallery(item)
   const [muted, setMuted] = useState(true)
   const [trailerReady, setTrailerReady] = useState(false)
 
@@ -212,7 +214,7 @@ export function TitleModal() {
             </div>
           </div>
 
-          {seasons.length ? <EpisodeList seasons={seasons} history={last} onPlay={playEpisode} /> : null}
+          {seasons.length ? <EpisodeList seasons={seasons} history={last} stills={stills} onPlay={playEpisode} /> : null}
 
           {similar.length ? <MoreLikeGrid items={similar} /> : null}
 
