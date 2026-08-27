@@ -2326,7 +2326,7 @@ select,
 
   .hero-body {
     max-width: none;
-    padding: calc(var(--header-offset) + 12px) 16px 80px;
+    padding: calc(var(--header-offset) + 20px) 16px 88px;
   }
 
   .hero-syn {
@@ -2789,6 +2789,8 @@ select,
   left: 0;
   right: 0;
   bottom: 0;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.38);
 }
 
 @media (min-width: 700px) {
@@ -3361,14 +3363,10 @@ select,
 }
 
 .watch-progress {
-  height: 5px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 2px;
   overflow: visible;
 }
 
 .watch-progress > div {
-  height: 100%;
   background: var(--accent);
 }
 
@@ -3382,16 +3380,6 @@ select,
 
 .watch-frame {
   pointer-events: none;
-}
-
-.watch-progress {
-  height: 5px;
-  cursor: pointer;
-  transition: height 0.12s ease;
-}
-
-.watch-bottombar.is-visible .watch-progress:hover {
-  height: 8px;
 }
 
 .watch-time {
@@ -3589,7 +3577,6 @@ select,
 }
 
 .watch-vol-slider {
-  appearance: slider-vertical;
   width: 6px;
   height: 96px;
   accent-color: #fff;
@@ -3819,18 +3806,31 @@ select,
 
 .watch-progress {
   flex: 1;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 2px;
+  position: relative;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  background: transparent;
   overflow: visible;
   cursor: pointer;
 }
 
+.watch-progress::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
 .watch-progress-fill {
   position: relative;
-  height: 100%;
+  height: 5px;
   background: var(--accent);
-  border-radius: inherit;
+  border-radius: 2px;
 }
 
 .watch-knob {
@@ -3846,8 +3846,13 @@ select,
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
-.watch-progress:hover,
-.watch-bottombar.is-visible .watch-progress:hover {
+.watch-progress:hover::before,
+.watch-progress:focus-visible::before {
+  height: 8px;
+}
+
+.watch-progress:hover .watch-progress-fill,
+.watch-progress:focus-visible .watch-progress-fill {
   height: 8px;
 }
 
@@ -3857,7 +3862,8 @@ select,
 }
 
 @media (pointer: coarse) {
-  .watch-progress {
+  .watch-progress::before,
+  .watch-progress-fill {
     height: 6px;
   }
 
