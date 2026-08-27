@@ -43,17 +43,19 @@ export function Header() {
   }, [])
 
   useEffect(() => {
-    if (debounced.length >= 2) {
-      pushRecentSearch(debounced)
-      if (location.pathname !== '/search' || searchParams.get('q') !== debounced) {
-        navigate(`/search?q=${encodeURIComponent(debounced)}`)
+    const live = query.trim()
+    if (live.length < 2) {
+      if (location.pathname === '/search' && searchParams.get('q')) {
+        navigate('/search')
       }
       return
     }
-    if (location.pathname === '/search' && searchParams.get('q')) {
-      navigate('/search')
+    if (debounced !== live) return
+    pushRecentSearch(debounced)
+    if (location.pathname !== '/search' || searchParams.get('q') !== debounced) {
+      navigate(`/search?q=${encodeURIComponent(debounced)}`)
     }
-  }, [debounced, location.pathname, navigate, searchParams])
+  }, [debounced, query, location.pathname, navigate, searchParams])
 
   useEffect(() => {
     if (!open) return
