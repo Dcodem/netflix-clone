@@ -30,13 +30,18 @@ export function TitleModal() {
   const { activeProfile } = useProfiles()
   const last = activeProfile?.history.find((entry) => entry.id === item?.id)
   const trailerRef = useRef<TrailerHandle>(null)
+  const episodesRef = useRef<HTMLDivElement>(null)
+  const moreRef = useRef<HTMLDivElement>(null)
+  const aboutRef = useRef<HTMLElement>(null)
   const stills = useTmdbGallery(item)
   const [muted, setMuted] = useState(true)
   const [trailerReady, setTrailerReady] = useState(false)
+  const [tab, setTab] = useState<'episodes' | 'more' | 'about' | null>(null)
 
   useEffect(() => {
     setMuted(true)
     setTrailerReady(false)
+    setTab(null)
   }, [item?.id])
 
   useEffect(() => {
@@ -104,6 +109,13 @@ export function TitleModal() {
     ? last?.watch_href || resumeEpisode?.watch_href || detail?.watch_href
     : detail?.watch_href
   const continueMode = Boolean(last?.progress && last.progress > 0.05)
+  const activeTab = tab ?? (isShow(item) ? 'episodes' : 'more')
+
+  function jump(next: 'episodes' | 'more' | 'about') {
+    setTab(next)
+    const node = next === 'episodes' ? episodesRef.current : next === 'more' ? moreRef.current : aboutRef.current
+    node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   function playEpisode(episode: Episode, season: Season) {
     if (!detail) return
@@ -144,7 +156,7 @@ export function TitleModal() {
         <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
           <CloseIcon className="icon" />
         </button>
-        <div className="title-modal-hero">
+        <div className={`title-modal-hero ${trailerReady ? 'is-playing' : ''}`}>
           <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
           <TrailerPreview
             ref={trailerRef}
@@ -216,11 +228,35 @@ export function TitleModal() {
             </div>
           </div>
 
-          {seasons.length ? <EpisodeList seasons={seasons} history={last} stills={stills} onPlay={playEpisode} /> : null}
+          <nav className="title-tabs" aria-label="Title sections">
+            {seasons.length ? (
+              <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => jump('episodes')}>
+                Episodes
+              </button>
+            ) : null}
+            {similar.length ? (
+              <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => jump('more')}>
+                More Like This
+              </button>
+            ) : null}
+            <button type="button" className={activeTab === 'about' ? 'is-on' : ''} onClick={() => jump('about')}>
+              About
+            </button>
+          </nav>
 
-          {similar.length ? <MoreLikeGrid items={similar} /> : null}
+          {seasons.length ? (
+            <div ref={episodesRef} className="title-section">
+              <EpisodeList seasons={seasons} history={last} stills={stills} onPlay={playEpisode} />
+            </div>
+          ) : null}
 
-          <section className="title-about">
+          {similar.length ? (
+            <div ref={moreRef} className="title-section">
+              <MoreLikeGrid items={similar} />
+            </div>
+          ) : null}
+
+          <section ref={aboutRef} className="title-about title-section">
             <h2>About {item.title}</h2>
             {detail?.synopsis ? <p>{detail.synopsis}</p> : null}
             {detail?.cast?.length ? (

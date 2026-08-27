@@ -544,6 +544,18 @@ select,
   opacity: 1;
 }
 
+.row-arrow:hover {
+  color: #fff;
+}
+
+.row-arrow-prev:hover {
+  background: linear-gradient(90deg, rgba(20, 20, 20, 1), rgba(20, 20, 20, 0.72) 55%, transparent);
+}
+
+.row-arrow-next:hover {
+  background: linear-gradient(270deg, rgba(20, 20, 20, 1), rgba(20, 20, 20, 0.72) 55%, transparent);
+}
+
 .row-scroller.is-looping {
   scroll-snap-type: none;
 }
@@ -2115,10 +2127,49 @@ select,
   font-weight: 800;
   letter-spacing: -0.03em;
   text-shadow: 0 2px 18px #000, 0 0 28px rgba(0, 0, 0, 0.85);
+  transform-origin: left bottom;
+  transition: transform 0.9s ease;
+}
+
+.title-modal-hero.is-playing .title-modal-hero-body h1 {
+  transform: scale(0.72);
 }
 
 .title-modal-main {
   padding: 8px 28px 36px;
+}
+
+.title-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  display: flex;
+  gap: 28px;
+  margin: 18px -28px 8px;
+  padding: 0 28px;
+  background: #181818;
+  border-bottom: 1px solid #404040;
+}
+
+.title-tabs button {
+  background: none;
+  border: 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 14px 0 10px;
+  margin-bottom: -1px;
+  border-bottom: 4px solid transparent;
+  cursor: pointer;
+}
+
+.title-tabs button.is-on {
+  font-weight: 700;
+  border-bottom-color: var(--accent);
+}
+
+.title-section {
+  scroll-margin-top: 52px;
 }
 
 .title-modal-syn {
@@ -2483,6 +2534,18 @@ select,
   .title-modal-main {
     padding-left: 16px;
     padding-right: 16px;
+  }
+
+  .title-tabs {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    gap: 18px;
+  }
+
+  .title-tabs button {
+    font-size: 14px;
   }
 
   .title-actions .circle-btn {

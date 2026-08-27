@@ -29,7 +29,6 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
               <div className="more-like-body">
                 <div className="more-like-meta">
                   <span className="match">{match}% Match</span>
-                  {item.year ? <span>{item.year}</span> : null}
                   <span className="maturity">{maturityLabel(item)}</span>
                   <button
                     type="button"
