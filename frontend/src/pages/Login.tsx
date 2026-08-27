@@ -57,7 +57,7 @@ export function Login() {
 
   useEffect(() => {
     getMovies()
-      .then((items) => setWall(items.slice(0, 18)))
+      .then((items) => setWall(items.slice(0, 6)))
       .catch(() => setWall([]))
   }, [])
 
@@ -87,11 +87,9 @@ export function Login() {
 
   return (
     <main className="login-page">
-      {wall.length ? (
-        <div className="login-wall" aria-hidden="true">
-          {wall.map((item) => (
-            <CatalogImage key={item.id} item={item} alt="" />
-          ))}
+      {wall[0] ? (
+        <div className="login-hero" aria-hidden="true">
+          <CatalogImage item={wall[0]} alt="" prefer="backdrop" />
         </div>
       ) : null}
       <div className="login-veil" aria-hidden="true" />

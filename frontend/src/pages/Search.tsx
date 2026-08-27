@@ -102,7 +102,7 @@ export function Search() {
     <main className="page page-pad">
       {items.length ? (
         <>
-          <h1 className="search-heading">Explore titles related to &ldquo;{q}&rdquo;</h1>
+          <h1 className="search-heading">Explore titles related to: {q}</h1>
           <MediaGrid items={items} />
         </>
       ) : (
