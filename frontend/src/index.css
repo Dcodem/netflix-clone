@@ -3860,11 +3860,13 @@ select,
   .hero-actions {
     width: 100%;
     padding-right: 16px;
+    flex-wrap: nowrap;
   }
 
   .hero-actions .btn-play,
   .hero-actions .btn-info {
     flex: 1;
+    min-width: 0;
   }
 
   .notify-toggle {
