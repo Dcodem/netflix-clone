@@ -4343,7 +4343,8 @@ select,
   pointer-events: none;
 }
 
-.watch-bottombar.is-visible {
+.watch-bottombar.is-visible .watch-scrub,
+.watch-bottombar.is-visible .watch-controls {
   pointer-events: auto;
 }
 
@@ -4352,18 +4353,19 @@ select,
 }
 
 .watch-controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 12px;
-  justify-content: flex-end;
   color: #fff;
 }
 
 .watch-now-playing {
-  flex: 1;
   min-width: 0;
-  text-align: left;
+  max-width: 42vw;
+  text-align: center;
   pointer-events: none;
+  justify-self: center;
 }
 
 .watch-now-title,
@@ -4750,6 +4752,12 @@ select,
   min-width: 0;
 }
 
+@media (min-width: 768px) {
+  .watch-title-stack {
+    display: none;
+  }
+}
+
 .watch-title {
   opacity: 1;
   font-size: clamp(18px, 2.4vw, 28px);
@@ -4890,9 +4898,9 @@ select,
 }
 
 .watch-controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
 }
 
@@ -4902,6 +4910,14 @@ select,
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+}
+
+.watch-controls-left {
+  justify-self: start;
+}
+
+.watch-controls-right {
+  justify-self: end;
 }
 
 .watch-ctrl {
