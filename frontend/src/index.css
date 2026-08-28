@@ -7018,7 +7018,8 @@ img.is-logo-pending {
     z-index: 2280;
   }
 
-  .watch-overlay.is-panel .watch-center {
+  .watch-overlay.is-panel .watch-center,
+  .watch-overlay.is-speed .watch-center {
     opacity: 0 !important;
     pointer-events: none;
   }

@@ -661,7 +661,7 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
