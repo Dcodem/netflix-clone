@@ -5569,6 +5569,7 @@ img.is-logo-pending {
 
 .edit-toggle input {
   appearance: none;
+  -webkit-appearance: none;
   width: 42px;
   height: 24px;
   margin: 2px 0 0;
@@ -5576,10 +5577,10 @@ img.is-logo-pending {
   flex-shrink: 0;
   border: 0;
   border-radius: 99px;
-  background: #4d4d4d;
+  background-color: #4d4d4d;
   position: relative;
   cursor: pointer;
-  transition: background 0.16s ease;
+  transition: background-color 0.16s ease;
 }
 
 .edit-toggle input::after {
@@ -5595,7 +5596,7 @@ img.is-logo-pending {
 }
 
 .edit-toggle input:checked {
-  background: #fff;
+  background-color: #fff;
 }
 
 .edit-toggle input:checked::after {
@@ -7664,6 +7665,7 @@ img.is-logo-pending {
 .my-netflix-head {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   margin: 8px 0 28px;
 }
@@ -7702,10 +7704,11 @@ img.is-logo-pending {
 }
 
 .my-netflix-profile .icon {
-  margin-left: auto;
+  margin-left: 6px;
   width: 18px;
   height: 18px;
   color: #808080;
+  flex-shrink: 0;
 }
 
 .play-something {
