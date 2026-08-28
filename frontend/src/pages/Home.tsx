@@ -206,7 +206,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           </button>
         </div>
       ) : null}
-      {hero ? <Hero item={hero} /> : null}
+      {hero && filter !== 'popular' ? <Hero item={hero} /> : null}
       {rows.map((row) => (
         <MediaRow
           key={row.id}

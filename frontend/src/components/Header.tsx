@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
-import { useMediaQuery } from '../hooks/useMediaQuery'
 import { pushRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
@@ -35,13 +34,11 @@ export function Header() {
   const searchRef = useRef<HTMLDivElement>(null)
   const browseRef = useRef<HTMLDetailsElement>(null)
   const debounced = useDebouncedValue(query.trim(), 140)
-  const desktop = useMediaQuery('(min-width: 768px)')
   const open = searchOpen || Boolean(query) || location.pathname === '/search'
   const heroPath =
     location.pathname === '/browse' ||
     location.pathname === '/browse/shows' ||
-    location.pathname === '/browse/movies' ||
-    (location.pathname === '/browse/latest' && desktop)
+    location.pathname === '/browse/movies'
   const opaque = scrolled || open || !heroPath
 
   useEffect(() => {

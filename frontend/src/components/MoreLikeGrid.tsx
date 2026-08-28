@@ -7,7 +7,7 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
-import { CheckIcon, PlayIcon, PlusIcon } from './Icons'
+import { CheckIcon, PlusIcon } from './Icons'
 
 type LikeChip = { chip: string; synopsis: string }
 
@@ -74,19 +74,32 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
           const match = matchPercent(item, activeProfile)
           const info = chips[item.id]
           return (
-            <article key={item.id} className="more-like-card">
+            <article
+              key={item.id}
+              className="more-like-card"
+              onClick={() => openTitle(item)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  openTitle(item)
+                }
+              }}
+              role="link"
+              tabIndex={0}
+              aria-label={item.title}
+            >
               <div className="more-like-art-wrap">
-                <button type="button" className="more-like-art" onClick={() => openTitle(item)} aria-label={item.title}>
+                <div className="more-like-art">
                   <CatalogImage item={item} alt="" prefer="backdrop" />
                   {info?.chip ? <span className="more-like-runtime">{info.chip}</span> : null}
-                  <span className="more-like-play" aria-hidden="true">
-                    <PlayIcon className="icon" />
-                  </span>
-                </button>
+                </div>
                 <button
                   type="button"
                   className={`circle-btn more-like-add ${onList ? 'is-on' : ''}`}
-                  onClick={() => toggleMyList(toLiked(item))}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    toggleMyList(toLiked(item))
+                  }}
                   aria-label={onList ? 'Remove from My List' : 'Add to My List'}
                 >
                   {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
