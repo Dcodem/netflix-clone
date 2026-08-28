@@ -6392,10 +6392,13 @@ img.is-logo-pending {
     bottom: 108px;
     padding: 8px 4px;
     font-size: 15px;
+    z-index: 2300;
+    white-space: nowrap;
   }
 
   .next-ep-card {
     width: min(248px, calc(100% - 132px));
+    z-index: 2300;
   }
 
   .watch-panel.watch-audio,
