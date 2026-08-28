@@ -518,7 +518,7 @@ export function WatchOverlay() {
     if (!upcoming || !session?.history) return
     if (nextDismissed || stillWatching) return
     if (activeProfile?.autoplayNext === false) return
-    const ended = lengthNow > 0 && (remainingNow <= 2.2 || playhead / lengthNow >= 0.99)
+    const ended = lengthNow > 0 && remainingNow <= 2.2
     const nearStart = playhead < 8 && remainingNow > 8
     if (!ended || nearStart) return
     const href = upcoming.episode.watch_href
