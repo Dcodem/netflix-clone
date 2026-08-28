@@ -854,7 +854,7 @@ export function WatchOverlay() {
             event.stopPropagation()
             skip(-10)
           }}
-          aria-label="Back 10 seconds"
+          aria-label="Back 10 Seconds"
         >
           <SkipBackIcon className="icon" />
         </button>
@@ -876,7 +876,7 @@ export function WatchOverlay() {
             event.stopPropagation()
             skip(10)
           }}
-          aria-label="Forward 10 seconds"
+          aria-label="Forward 10 Seconds"
         >
           <SkipForwardIcon className="icon" />
         </button>
@@ -929,10 +929,10 @@ export function WatchOverlay() {
             <button type="button" className="watch-ctrl watch-transport" onClick={togglePlay} aria-label={paused ? 'Play' : 'Pause'}>
               {paused ? <PlayIcon className="icon" /> : <PauseIcon className="icon" />}
             </button>
-            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(-10)} aria-label="Back 10 seconds">
+            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(-10)} aria-label="Back 10 Seconds">
               <SkipBackIcon className="icon" />
             </button>
-            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(10)} aria-label="Forward 10 seconds">
+            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(10)} aria-label="Forward 10 Seconds">
               <SkipForwardIcon className="icon" />
             </button>
             <div
@@ -1025,7 +1025,7 @@ export function WatchOverlay() {
                 setEpisodesOpen(false)
                 setSpeedOpen(false)
               }}
-              aria-label="Audio and subtitles"
+              aria-label="Audio & Subtitles"
             >
               <SubtitlesIcon className="icon" />
             </button>
@@ -1038,7 +1038,7 @@ export function WatchOverlay() {
                   setAudioOpen(false)
                   setEpisodesOpen(false)
                 }}
-                aria-label="Playback speed"
+                aria-label="Playback Speed"
               >
                 <SpeedIcon className="icon" />
               </button>
@@ -1046,7 +1046,7 @@ export function WatchOverlay() {
                 <div
                   className="watch-speed-menu"
                   role="menu"
-                  aria-label="Playback speed"
+                  aria-label="Playback Speed"
                   onClick={(event) => event.stopPropagation()}
                 >
                   <span className="watch-sheet-handle" aria-hidden="true" />
@@ -1073,7 +1073,7 @@ export function WatchOverlay() {
               type="button"
               className="watch-ctrl"
               onClick={toggleFullscreen}
-              aria-label={fullscreen ? 'Exit full screen' : 'Full screen'}
+              aria-label={fullscreen ? 'Exit Full Screen' : 'Full Screen'}
             >
               <FullscreenIcon exit={fullscreen} className="icon" />
             </button>

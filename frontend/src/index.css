@@ -3994,6 +3994,19 @@ img.is-logo-pending {
   object-fit: cover;
 }
 
+.more-like-art-wrap {
+  position: relative;
+}
+
+.more-like-add {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+}
+
 .more-like-body {
   padding: 12px 14px 16px;
 }
@@ -4003,13 +4016,6 @@ img.is-logo-pending {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-}
-
-.more-like-meta .circle-btn {
-  margin-left: auto;
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
 }
 
 .more-like-art:hover img,
@@ -7230,7 +7236,7 @@ img.is-logo-pending {
   font-size: 14px;
   line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

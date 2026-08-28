@@ -75,27 +75,29 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
           const info = chips[item.id]
           return (
             <article key={item.id} className="more-like-card">
-              <button type="button" className="more-like-art" onClick={() => openTitle(item)} aria-label={item.title}>
-                <CatalogImage item={item} alt="" prefer="backdrop" />
-                {info?.chip ? <span className="more-like-runtime">{info.chip}</span> : null}
-                <span className="more-like-play" aria-hidden="true">
-                  <PlayIcon className="icon" />
-                </span>
-              </button>
+              <div className="more-like-art-wrap">
+                <button type="button" className="more-like-art" onClick={() => openTitle(item)} aria-label={item.title}>
+                  <CatalogImage item={item} alt="" prefer="backdrop" />
+                  {info?.chip ? <span className="more-like-runtime">{info.chip}</span> : null}
+                  <span className="more-like-play" aria-hidden="true">
+                    <PlayIcon className="icon" />
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className={`circle-btn more-like-add ${onList ? 'is-on' : ''}`}
+                  onClick={() => toggleMyList(toLiked(item))}
+                  aria-label={onList ? 'Remove from My List' : 'Add to My List'}
+                >
+                  {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
+                </button>
+              </div>
               <div className="more-like-body">
                 <div className="more-like-meta">
                   <span className="match">{match}% Match</span>
                   <span className="maturity">{maturityLabel(item)}</span>
                   {item.year ? <span>{item.year}</span> : null}
                   <FeatureBadges quality={item.quality} />
-                  <button
-                    type="button"
-                    className={`circle-btn ${onList ? 'is-on' : ''}`}
-                    onClick={() => toggleMyList(toLiked(item))}
-                    aria-label={onList ? 'Remove from My List' : 'Add to My List'}
-                  >
-                    {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
-                  </button>
                 </div>
                 {info?.synopsis ? <p className="more-like-syn">{info.synopsis}</p> : <p className="more-like-title">{item.title}</p>}
               </div>
