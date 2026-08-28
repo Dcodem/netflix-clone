@@ -722,9 +722,9 @@ export function WatchOverlay() {
         </div>
       ) : null}
       {stillWatching ? null : (
-        <div className={`watch-ident ${chrome ? 'is-raised' : ''} ${identOn ? 'is-on' : ''}`} aria-hidden="true">
+        <div className={`watch-ident ${chrome && !identOn ? 'is-raised' : ''} ${identOn ? 'is-on' : ''}`} aria-hidden="true">
           <p className="watch-ident-title">{session.history?.title || session.title}</p>
-          {episodeLabel ? (
+          {isShow ? (
             <p className="watch-ident-ep">
               {episodeLabel}
               {playing?.episode.title ? ` ${playing.episode.title}` : ''}
