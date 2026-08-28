@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import { pushRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
@@ -34,7 +35,14 @@ export function Header() {
   const searchRef = useRef<HTMLDivElement>(null)
   const browseRef = useRef<HTMLDetailsElement>(null)
   const debounced = useDebouncedValue(query.trim(), 350)
+  const desktop = useMediaQuery('(min-width: 768px)')
   const open = searchOpen || Boolean(query) || location.pathname === '/search'
+  const heroPath =
+    location.pathname === '/browse' ||
+    location.pathname === '/browse/shows' ||
+    location.pathname === '/browse/movies' ||
+    (location.pathname === '/browse/latest' && desktop)
+  const opaque = scrolled || open || !heroPath
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -116,7 +124,7 @@ export function Header() {
   if (!activeProfile) return null
 
   return (
-    <header className={`site-header ${scrolled ? 'is-scrolled' : ''} ${open ? 'is-searching' : ''}`}>
+    <header className={`site-header ${opaque ? 'is-scrolled' : ''} ${open ? 'is-searching' : ''}`}>
       <div className="header-inner">
         <button type="button" className="search-back" onClick={leaveSearch} aria-label="Back">
           <ChevronLeftIcon className="icon" />
