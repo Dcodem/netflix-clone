@@ -7,6 +7,7 @@ import { ClockIcon, CloseIcon } from '../components/Icons'
 import { MediaGrid } from '../components/MediaGrid'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import { sortByRating, uniqueById } from '../lib/media'
 import { clearRecentSearches, listRecentSearches, removeRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -50,6 +51,7 @@ export function Search() {
     () => sortByRating(popular.data ?? []).slice(0, 18),
     [popular.data],
   )
+  const phone = useMediaQuery('(max-width: 767px)')
 
   useEffect(() => {
     setRecents(listRecentSearches())
@@ -104,7 +106,9 @@ export function Search() {
         {recentBlock}
         {popularItems.length ? (
           <>
-            <h2 className="section-title search-recommended-title">Recommended TV Shows and Movies</h2>
+            <h2 className="section-title search-recommended-title">
+              {phone ? 'Top Searches' : 'Recommended TV Shows and Movies'}
+            </h2>
             <MediaGrid items={popularItems} layout="poster" hoverable={false} />
           </>
         ) : null}

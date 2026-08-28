@@ -2441,6 +2441,39 @@ select,
   opacity: 1;
 }
 
+.jawbone-logo {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 3;
+  max-width: 58%;
+  pointer-events: none;
+}
+
+.jawbone-logo.has-progress {
+  bottom: 28px;
+}
+
+.jawbone-wordmark {
+  display: block;
+  max-height: 52px;
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: left bottom;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.85));
+}
+
+.jawbone-wordmark-text {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(18px, 2.2vw, 26px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-shadow: 0 2px 14px #000;
+}
+
 .jawbone-progress {
   position: absolute;
   left: 0;
@@ -2642,6 +2675,16 @@ select,
   justify-content: center;
   align-items: flex-start;
   padding: 36px 12px 0;
+  animation: title-dim 0.22s ease;
+}
+
+@keyframes title-dim {
+  from {
+    background: rgba(0, 0, 0, 0);
+  }
+  to {
+    background: rgba(0, 0, 0, 0.72);
+  }
 }
 
 .title-modal {
@@ -4900,6 +4943,16 @@ select,
   border-bottom: 1px solid #222;
 }
 
+.notify-group h3 {
+  margin: 0;
+  padding: 10px 16px 6px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .notify-row {
   display: grid;
   grid-template-columns: 126px 1fr;
@@ -5701,6 +5754,42 @@ select,
   transform: scale(1.08);
 }
 
+.watch-controls .watch-ctrl {
+  position: relative;
+}
+
+.watch-controls .watch-ctrl[aria-label]::after {
+  content: attr(aria-label);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%);
+  background: #fff;
+  color: #141414;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  padding: 7px 10px;
+  border-radius: 2px;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  z-index: 5;
+}
+
+.watch-controls .watch-ctrl:hover::after,
+.watch-controls .watch-ctrl:focus-visible::after {
+  opacity: 1;
+}
+
+.watch-controls .watch-ctrl.is-on::after,
+.watch-vol.is-open .watch-ctrl::after,
+.watch-speed.is-open .watch-ctrl::after {
+  opacity: 0;
+}
+
 .skip-intro,
 .next-episode {
   display: inline-flex;
@@ -6155,6 +6244,10 @@ select,
 
   .watch-credits {
     display: none;
+  }
+
+  .watch-controls .watch-ctrl[aria-label]::after {
+    content: none;
   }
 
   .watch-ep {

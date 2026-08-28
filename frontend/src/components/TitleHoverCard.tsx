@@ -11,6 +11,7 @@ import { FeatureBadges } from './FeatureBadges'
 import { GenreDots } from './GenreDots'
 import { SpeakerIcon } from './Icons'
 import { TitleActions } from './TitleActions'
+import { TitleLogo } from './TitleLogo'
 
 export function TitleHoverCard({
   item,
@@ -112,6 +113,9 @@ export function TitleHoverCard({
             onReady={() => setTrailerReady(true)}
           />
         ) : null}
+        <div className={`jawbone-logo ${progress ? 'has-progress' : ''}`}>
+          <TitleLogo item={item} className="jawbone-wordmark" titleClassName="jawbone-wordmark-text" />
+        </div>
         {progress ? (
           <div className="progress-track jawbone-progress">
             <div style={{ width: `${Math.round(progress * 100)}%` }} />
