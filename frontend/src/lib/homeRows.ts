@@ -6,7 +6,7 @@ import {
   tasteGenreRails,
 } from '../profiles/taste'
 import type { LikedTitle, Profile, WatchHistoryItem } from '../profiles/types'
-import { genresOf, ofKind, sortByRating, sortByYear, uniqueById } from './media'
+import { genresOf, ofKind, remainingLabel, sortByRating, sortByYear, uniqueById } from './media'
 
 export type BrowseFilter = 'home' | 'movies' | 'shows' | 'popular'
 
@@ -33,7 +33,7 @@ export function historyToListItems(history: WatchHistoryItem[]): MovieListItem[]
     continueLabel:
       item.kind === 'show' && item.seasonNumber && item.episodeNumber
         ? `S${item.seasonNumber}:E${item.episodeNumber}`
-        : undefined,
+        : remainingLabel(item.progress, item.runtime) ?? undefined,
   }))
 }
 

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
-import { formatRuntime, genresOf, isShow } from '../lib/media'
-import { matchPercent, maturityLabel } from '../lib/netflix'
+import { formatRuntime, genresOf, isShow, remainingLabel } from '../lib/media'
+import { isNewEpisodes, matchPercent, maturityLabel } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { CatalogImage } from './CatalogImage'
@@ -11,6 +11,7 @@ import { FeatureBadges } from './FeatureBadges'
 import { GenreDots } from './GenreDots'
 import { SpeakerIcon } from './Icons'
 import { TitleActions } from './TitleActions'
+import { TitleLogo } from './TitleLogo'
 
 export function TitleHoverCard({
   item,
@@ -46,7 +47,7 @@ export function TitleHoverCard({
     }
   }, [item])
 
-  const width = Math.max(340, Math.min(460, Math.round(anchor.width * 1.85)))
+  const width = Math.max(340, Math.min(430, Math.round(anchor.width * 1.65)))
   const artH = width * (9 / 16)
   let left = anchor.left + anchor.width / 2 - width / 2
   left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
@@ -112,6 +113,9 @@ export function TitleHoverCard({
             onReady={() => setTrailerReady(true)}
           />
         ) : null}
+        <div className={`jawbone-logo ${progress ? 'has-progress' : ''}`}>
+          <TitleLogo item={item} className="jawbone-wordmark" titleClassName="jawbone-wordmark-text" />
+        </div>
         {progress ? (
           <div className="progress-track jawbone-progress">
             <div style={{ width: `${Math.round(progress * 100)}%` }} />
@@ -132,8 +136,13 @@ export function TitleHoverCard({
         <TitleActions item={item} detail={detail} watchHref={watchHref} size="sm" />
         <div className="jawbone-meta">
           <span className="match">{match}% Match</span>
+          {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
+          {item.year ? <span>{item.year}</span> : null}
           <span className="maturity">{maturity}</span>
           {runtime ? <span>{runtime}</span> : null}
+          {remainingLabel(progress, detail?.runtime) ? (
+            <span>{remainingLabel(progress, detail?.runtime)}</span>
+          ) : null}
           <FeatureBadges quality={quality} />
           {isShow(item) ? (
             <span>

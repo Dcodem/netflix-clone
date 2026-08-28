@@ -35,6 +35,13 @@ export function formatRuntime(mins?: number | null): string | null {
   return rest ? `${hours}h ${rest}m` : `${hours}h`
 }
 
+export function remainingLabel(progress?: number, runtimeMins?: number | null): string | null {
+  if (progress == null || progress < 0.05 || !runtimeMins) return null
+  const left = Math.max(1, Math.round((1 - Math.min(0.99, progress)) * runtimeMins))
+  const formatted = formatRuntime(left)
+  return formatted ? `${formatted} left` : null
+}
+
 export function stillFocus(index: number) {
   return `${(index * 29) % 88}% ${(index * 17) % 72}%`
 }

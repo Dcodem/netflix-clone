@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext'
 import {
   CheckIcon,
   ChevronLeftIcon,
+  CloseIcon,
   EpisodesIcon,
   FullscreenIcon,
   NextEpisodeIcon,
@@ -18,8 +19,11 @@ import {
   SubtitlesIcon,
 } from '../components/Icons'
 import { MediaImage } from '../components/MediaImage'
+import { SeasonMenu } from '../components/SeasonMenu'
+import { TitleLogo } from '../components/TitleLogo'
 import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
+import { watchForEpisode } from '../lib/episodeProgress'
 import { stillFocus, episodeStill } from '../lib/media'
 import { peekTrailer, resolveTrailer, youtubeIdFromHit } from '../trailers/resolve'
 import { findTmdbGallery, tmdbFileName } from '../trailers/tmdb'
@@ -29,7 +33,9 @@ import { useWatch } from './WatchContext'
 const PLAYER_SOURCE = 'flix-player'
 const SKIP_INTRO_AT = 80
 const SKIP_RECAP_AT = 148
-const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5] as const
+const NEXT_CARD_AT = 16
+const AUTO_IN = 5
+const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] as const
 const CAPTIONS = [
   'The city never really sleeps.',
   'Stay close. We move on my mark.',
@@ -139,16 +145,39 @@ export function WatchOverlay() {
   const [volOpen, setVolOpen] = useState(false)
   const [barHover, setBarHover] = useState(false)
   const [scrubHint, setScrubHint] = useState<{ ratio: number; x: number } | null>(null)
+  const [nextDismissed, setNextDismissed] = useState(false)
+  const [stillWatching, setStillWatching] = useState(false)
+  const [identOn, setIdentOn] = useState(true)
+  const [clockKey, setClockKey] = useState('')
   const flashTimer = useRef(0)
   const tapRef = useRef({ at: 0, x: 0, play: 0 })
   const audioRef = useRef({ muted: false, volume: 1 })
+  const currentRef = useRef(0)
   const autoNextRef = useRef('')
+  const streakRef = useRef(0)
+  const showIdRef = useRef('')
   const showChromeRef = useRef<() => void>(() => setChrome(true))
 
   const runtimeSec = Math.max(60, (session?.history?.runtime ?? 48) * 60)
   const startProgress = session?.history?.progress ?? 0
   const isShow = session?.history?.kind === 'show'
-  const keepChrome = paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover
+  if (sessionKey && clockKey !== sessionKey) {
+    const showId = session?.history?.id ?? sessionKey
+    if (showIdRef.current && showIdRef.current !== showId) streakRef.current = 0
+    showIdRef.current = showId
+    autoNextRef.current = ''
+    setClockKey(sessionKey)
+    setCurrent(startProgress * runtimeSec)
+    setDuration(runtimeSec)
+    setPaused(false)
+    setNextDismissed(false)
+    setStillWatching(false)
+    setIdentOn(true)
+    setIntroSkipped(false)
+    setRecapSkipped(false)
+  }
+  const keepChrome = !stillWatching && (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover)
+  const continueWatchingRef = useRef<() => void>(() => {})
 
   const post = useCallback((payload: Record<string, unknown>) => {
     frameRef.current?.contentWindow?.postMessage({ source: PLAYER_SOURCE, ...payload }, '*')
@@ -222,7 +251,14 @@ export function WatchOverlay() {
   }, [muted, volume])
 
   useEffect(() => {
-    if (!session) return
+    currentRef.current = current
+  }, [current])
+
+  useEffect(() => {
+    if (!session) {
+      streakRef.current = 0
+      return
+    }
     setChrome(true)
     setPaused(false)
     setMuted(false)
@@ -235,10 +271,7 @@ export function WatchOverlay() {
     setBarHover(false)
     setIntroSkipped(false)
     setRecapSkipped(false)
-    setShowDetail(null)
     setSeasonNumber(session.history?.seasonNumber ?? null)
-    setCurrent(startProgress * runtimeSec)
-    setDuration(runtimeSec)
     setFlash(null)
     const hasVideo = Boolean(youtubeIdFromHit(peekTrailer(trailerSearch(session))))
     try {
@@ -262,9 +295,23 @@ export function WatchOverlay() {
   }, [session, runtimeSec, startProgress])
 
   useEffect(() => {
-    if (!session?.history?.id || session.history.kind !== 'show') return
+    if (!sessionKey) return
+    setIdentOn(true)
+    const timer = window.setTimeout(() => {
+      setIdentOn(false)
+      showChromeRef.current()
+    }, 5200)
+    return () => window.clearTimeout(timer)
+  }, [sessionKey])
+
+  useEffect(() => {
+    if (!session?.history?.id || session.history.kind !== 'show') {
+      setShowDetail(null)
+      return
+    }
+    const id = session.history.id
     let cancelled = false
-    getShow(session.history.id)
+    getShow(id)
       .then((detail) => {
         if (!cancelled) setShowDetail(detail)
       })
@@ -321,15 +368,32 @@ export function WatchOverlay() {
     const show = () => {
       setChrome(true)
       window.clearTimeout(timer)
-      if (!keepChrome) timer = window.setTimeout(() => setChrome(false), 3200)
+      if (!keepChrome) timer = window.setTimeout(() => setChrome(false), 2800)
     }
     showChromeRef.current = show
     const coarse = window.matchMedia('(pointer: coarse)').matches
     if (keepChrome) setChrome(true)
-    else timer = window.setTimeout(() => setChrome(false), 3200)
+    else timer = window.setTimeout(() => setChrome(false), 2800)
     const onKey = (event: KeyboardEvent) => {
       const typing = (event.target as HTMLElement)?.tagName === 'INPUT' || (event.target as HTMLElement)?.tagName === 'SELECT'
       if (typing) return
+      if (event.key === 'Escape') {
+        if (episodesOpen || audioOpen || speedOpen) {
+          event.preventDefault()
+          event.stopImmediatePropagation()
+          setEpisodesOpen(false)
+          setAudioOpen(false)
+          setSpeedOpen(false)
+        }
+        return
+      }
+      if (stillWatching) {
+        if (event.code === 'Space' || event.key === 'Enter' || event.key.toLowerCase() === 'k') {
+          event.preventDefault()
+          continueWatchingRef.current()
+        }
+        return
+      }
       if (event.code === 'Space' || event.key === 'k') {
         event.preventDefault()
         togglePlay()
@@ -366,9 +430,11 @@ export function WatchOverlay() {
         event.preventDefault()
         skip(10)
         show()
-      } else if (event.key === 'Escape') {
+      } else if (event.key.toLowerCase() === 's' && isShow && !introSkipped && currentRef.current < 110) {
         event.preventDefault()
-        closeWatch()
+        setIntroSkipped(true)
+        post({ cmd: 'seek', seconds: SKIP_INTRO_AT })
+        show()
       } else if (event.key.toLowerCase() === 'f') {
         event.preventDefault()
         toggleFullscreen()
@@ -390,27 +456,38 @@ export function WatchOverlay() {
         ambienceRef.current = null
         return
       }
+      const takeDuration = (next?: number) => {
+        if (typeof next !== 'number' || next <= 0) return
+        if (next < runtimeSec * 0.45) return
+        setDuration(next)
+      }
+      if (data.type === 'ended') {
+        if (typeof data.current === 'number') setCurrent(data.current)
+        takeDuration(data.duration)
+        setPaused(true)
+        return
+      }
       if (data.type !== 'time') return
       if (typeof data.current === 'number') setCurrent(data.current)
-      if (typeof data.duration === 'number' && data.duration > 0) setDuration(data.duration)
+      takeDuration(data.duration)
       if (typeof data.paused === 'boolean') setPaused(data.paused)
     }
     if (!coarse) {
       window.addEventListener('mousemove', show)
       window.addEventListener('pointerdown', show)
     }
-    window.addEventListener('keydown', onKey)
+    window.addEventListener('keydown', onKey, true)
     window.addEventListener('message', onMessage)
     document.addEventListener('fullscreenchange', onFs)
     return () => {
       window.clearTimeout(timer)
       window.removeEventListener('mousemove', show)
       window.removeEventListener('pointerdown', show)
-      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keydown', onKey, true)
       window.removeEventListener('message', onMessage)
       document.removeEventListener('fullscreenchange', onFs)
     }
-  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post])
+  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped])
 
   useEffect(() => {
     const length = duration || runtimeSec
@@ -419,23 +496,50 @@ export function WatchOverlay() {
 
   const playing = currentEpisode(showDetail, session?.history?.seasonNumber, session?.history?.episodeNumber)
   const upcoming = useMemo(
-    () => nextEpisode(showDetail, session?.history?.seasonNumber, session?.history?.episodeNumber),
-    [showDetail, session?.history?.seasonNumber, session?.history?.episodeNumber],
+    () =>
+      nextEpisode(
+        showDetail,
+        playing?.season.season_number ?? session?.history?.seasonNumber,
+        playing?.episode.number ?? session?.history?.episodeNumber,
+      ),
+    [
+      showDetail,
+      playing?.season.season_number,
+      playing?.episode.number,
+      session?.history?.seasonNumber,
+      session?.history?.episodeNumber,
+    ],
   )
   const activeSeason =
     showDetail?.seasons?.find((season) => season.season_number === (seasonNumber ?? session?.history?.seasonNumber)) ??
     showDetail?.seasons?.[0]
-  const lengthNow = duration || runtimeSec
-  const remainingNow = Math.max(0, lengthNow - current)
+  const clockSynced = clockKey === sessionKey
+  const lengthNow = (clockSynced ? duration : runtimeSec) || runtimeSec
+  const playhead = clockSynced ? current : startProgress * runtimeSec
+  const remainingNow = Math.max(0, lengthNow - playhead)
 
   useEffect(() => {
-    if (!upcoming || remainingNow > 0.6 || current < 30 || !session?.history) return
+    if (!upcoming || !session?.history) return
+    if (nextDismissed || stillWatching) return
     if (activeProfile?.autoplayNext === false) return
+    const ended = lengthNow > 0 && remainingNow <= 2.2
+    const nearStart = playhead < 8 && remainingNow > 8
+    if (!ended || nearStart) return
+    const href = upcoming.episode.watch_href
+    if (!href) return
     const key = upcoming.episode.id
     if (autoNextRef.current === key) return
+    if (streakRef.current >= 2) {
+      setStillWatching(true)
+      setPaused(true)
+      post({ cmd: 'pause' })
+      ambienceRef.current?.setPlaying(false)
+      return
+    }
     autoNextRef.current = key
+    streakRef.current += 1
     playClick()
-    openWatch(upcoming.episode.watch_href, session.history.title, {
+    openWatch(href, session.history.title, {
       ...session.history,
       watch_href: upcoming.episode.watch_href,
       runtime: upcoming.episode.duration ?? session.history.runtime,
@@ -444,7 +548,40 @@ export function WatchOverlay() {
       episodeNumber: upcoming.episode.number,
       episodeId: upcoming.episode.id,
     })
-  }, [remainingNow, current, upcoming, session, openWatch, activeProfile?.autoplayNext])
+  }, [remainingNow, playhead, lengthNow, upcoming, session, openWatch, activeProfile?.autoplayNext, nextDismissed, stillWatching, post])
+
+  const continueWatching = useCallback(() => {
+    if (!session?.history) {
+      streakRef.current = 0
+      setStillWatching(false)
+      return
+    }
+    if (upcoming) {
+      streakRef.current = 0
+      setStillWatching(false)
+      playClick()
+      openWatch(upcoming.episode.watch_href, session.history.title, {
+        ...session.history,
+        year: session.history.year,
+        watch_href: upcoming.episode.watch_href,
+        runtime: upcoming.episode.duration ?? session.history.runtime,
+        progress: 0,
+        seasonNumber: upcoming.season.season_number,
+        episodeNumber: upcoming.episode.number,
+        episodeId: upcoming.episode.id,
+      })
+      return
+    }
+    streakRef.current = 0
+    setStillWatching(false)
+    setPaused(false)
+    post({ cmd: 'play' })
+    ambienceRef.current?.setPlaying(true)
+  }, [session, upcoming, openWatch, post])
+
+  useEffect(() => {
+    continueWatchingRef.current = continueWatching
+  }, [continueWatching])
 
   if (!session) return null
 
@@ -453,14 +590,25 @@ export function WatchOverlay() {
   const remaining = Math.max(0, length - current)
   const episodeLabel = playing
     ? `S${playing.season.season_number}:E${playing.episode.number}`
-    : session.history?.seasonNumber && session.history?.episodeNumber
-      ? `S${session.history.seasonNumber}:E${session.history.episodeNumber}`
+    : isShow
+      ? `S${session.history?.seasonNumber ?? 1}:E${session.history?.episodeNumber ?? 1}`
       : null
-  const showSkipIntro = isShow && !introSkipped && current < 110 && !episodesOpen && !audioOpen && !speedOpen
-  const showSkipRecap = isShow && !recapSkipped && !showSkipIntro && current >= 80 && current < 155 && !episodesOpen && !audioOpen && !speedOpen
-  const showNext = Boolean(upcoming && remaining <= 48 && !episodesOpen && !audioOpen && !speedOpen && length > 0)
-  const nextCount = Math.max(1, Math.ceil(remaining))
-  const nextProgress = length ? Math.min(1, remaining / 48) : 0
+  const showSkipIntro =
+    isShow && !introSkipped && !identOn && current < 110 && !episodesOpen && !audioOpen && !speedOpen
+  const showSkipRecap =
+    isShow &&
+    !recapSkipped &&
+    !identOn &&
+    !showSkipIntro &&
+    current >= 80 &&
+    current < 155 &&
+    !episodesOpen &&
+    !audioOpen &&
+    !speedOpen
+  const showNext = Boolean(upcoming && remaining <= NEXT_CARD_AT && !nextDismissed && !episodesOpen && !audioOpen && !speedOpen && !stillWatching && length > 0)
+  const countingDown = remaining <= AUTO_IN && activeProfile?.autoplayNext !== false
+  const nextCount = countingDown ? Math.max(1, Math.ceil(remaining)) : null
+  const nextProgress = countingDown ? Math.min(1, remaining / AUTO_IN) : 1
   const caption = subs === 'en' ? CAPTIONS[Math.floor(current / 9) % CAPTIONS.length] : null
 
   function ratioFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
@@ -491,6 +639,8 @@ export function WatchOverlay() {
 
   function playEpisode(season: Season, episode: Episode) {
     if (!session?.history) return
+    streakRef.current = 0
+    setStillWatching(false)
     playClick()
     openWatch(episode.watch_href, session.history.title, {
       ...session.history,
@@ -511,11 +661,22 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen || speedOpen ? 'is-panel' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
       onClick={(event) => {
+        if (stillWatching) {
+          event.preventDefault()
+          return
+        }
+        if (episodesOpen || audioOpen || speedOpen) {
+          event.preventDefault()
+          setEpisodesOpen(false)
+          setAudioOpen(false)
+          setSpeedOpen(false)
+          return
+        }
         const coarse = window.matchMedia('(pointer: coarse)').matches
         if (!coarse) {
           togglePlay()
@@ -569,6 +730,21 @@ export function WatchOverlay() {
           {flash === 'fwd' ? <SkipForwardIcon className="icon" /> : null}
         </div>
       ) : null}
+      {stillWatching ? null : (
+        <div className={`watch-ident ${chrome && !identOn ? 'is-raised' : ''} ${identOn ? 'is-on' : ''}`} aria-hidden="true">
+          <TitleLogo
+            item={trailerSearch(session)}
+            className="watch-ident-logo"
+            titleClassName="watch-ident-title"
+          />
+          {isShow ? (
+            <p className="watch-ident-ep">
+              {episodeLabel}
+              {playing?.episode.title ? ` ${playing.episode.title}` : ''}
+            </p>
+          ) : null}
+        </div>
+      )}
       <div
         className={`watch-topbar ${chrome ? 'is-visible' : ''}`}
         onClick={(event) => event.stopPropagation()}
@@ -611,12 +787,31 @@ export function WatchOverlay() {
       {showNext && upcoming ? (
         <button
           type="button"
-          className="next-ep-card is-visible"
+          className="watch-credits is-visible"
           onClick={(event) => {
             event.stopPropagation()
-            playEpisode(upcoming.season, upcoming.episode)
+            setNextDismissed(true)
           }}
         >
+          Watch Credits
+        </button>
+      ) : null}
+      {showNext && upcoming ? (
+        <div
+          className="next-ep-card is-visible"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button
+            type="button"
+            className="next-ep-close"
+            aria-label="Hide next episode"
+            onClick={(event) => {
+              event.stopPropagation()
+              setNextDismissed(true)
+            }}
+          >
+            <CloseIcon className="icon" />
+          </button>
           <span className="next-ep-kicker">
             {activeProfile?.autoplayNext !== false ? (
               <span
@@ -624,12 +819,19 @@ export function WatchOverlay() {
                 style={{ '--p': String(nextProgress) } as CSSProperties}
                 aria-hidden="true"
               >
-                <span>{nextCount}</span>
+                <span>{nextCount != null ? nextCount : <PlayIcon className="icon" />}</span>
               </span>
             ) : null}
             Next Episode
           </span>
-          <span className="next-ep-body">
+          <button
+            type="button"
+            className="next-ep-body"
+            onClick={(event) => {
+              event.stopPropagation()
+              playEpisode(upcoming.season, upcoming.episode)
+            }}
+          >
             <span className="next-ep-thumb">
               <MediaImage src={episodeStill(galleryUrls, upcoming.episode.number, upcoming.episode.thumb_url)} alt="" />
               <PlayIcon className="icon" />
@@ -640,8 +842,8 @@ export function WatchOverlay() {
               </em>
               {upcoming.episode.synopsis ? <small>{upcoming.episode.synopsis}</small> : null}
             </span>
-          </span>
-        </button>
+          </button>
+        </div>
       ) : null}
       {caption ? <p className={`watch-caption ${chrome ? 'is-raised' : ''}`}>{caption}</p> : null}
       <div className="watch-center">
@@ -706,7 +908,13 @@ export function WatchOverlay() {
             onPointerLeave={() => setScrubHint(null)}
           >
             {scrubHint ? (
-              <span className="watch-scrub-hint" style={{ left: scrubHint.x }}>
+              <span className={`watch-scrub-hint ${galleryUrls.length ? 'has-art' : ''}`} style={{ left: scrubHint.x }}>
+                {galleryUrls.length ? (
+                  <MediaImage
+                    src={galleryUrls[Math.min(galleryUrls.length - 1, Math.floor(scrubHint.ratio * galleryUrls.length))]}
+                    alt=""
+                  />
+                ) : null}
                 {formatClock(scrubHint.ratio * length)}
               </span>
             ) : null}
@@ -743,17 +951,35 @@ export function WatchOverlay() {
               >
                 <SpeakerIcon muted={muted || volume <= 0.01} className="icon" />
               </button>
-              <div className="watch-vol-rail">
-                <input
-                  className="watch-vol-slider"
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={muted ? 0 : volume}
-                  aria-label="Volume"
-                  onChange={(event) => onVolume(Number(event.target.value))}
-                />
+              <div
+                className="watch-vol-rail"
+                role="slider"
+                aria-label="Volume"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round((muted ? 0 : volume) * 100)}
+                onPointerDown={(event) => {
+                  event.stopPropagation()
+                  event.currentTarget.setPointerCapture(event.pointerId)
+                  setVolOpen(true)
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const inset = 12
+                  const height = Math.max(1, rect.height - inset * 2)
+                  onVolume(1 - Math.min(1, Math.max(0, (event.clientY - rect.top - inset) / height)))
+                }}
+                onPointerMove={(event) => {
+                  if (!event.buttons) return
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const inset = 12
+                  const height = Math.max(1, rect.height - inset * 2)
+                  onVolume(1 - Math.min(1, Math.max(0, (event.clientY - rect.top - inset) / height)))
+                }}
+              >
+                <span className="watch-vol-track">
+                  <span className="watch-vol-fill" style={{ height: `${Math.round((muted ? 0 : volume) * 100)}%` }}>
+                    <span className="watch-vol-knob" />
+                  </span>
+                </span>
               </div>
             </div>
           </div>
@@ -846,33 +1072,67 @@ export function WatchOverlay() {
           </div>
         </div>
       </div>
-      {episodesOpen && showDetail?.seasons?.length ? (
+      {episodesOpen || audioOpen || speedOpen ? (
+        <button
+          type="button"
+          className="watch-scrim"
+          aria-label="Close panel"
+          onClick={(event) => {
+            event.stopPropagation()
+            setEpisodesOpen(false)
+            setAudioOpen(false)
+            setSpeedOpen(false)
+          }}
+        />
+      ) : null}
+      {stillWatching ? (
+        <div
+          className="watch-still"
+          role="dialog"
+          aria-label="Are you still watching?"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {galleryUrls[0] || session.history?.poster_url ? (
+            <MediaImage
+              className="watch-still-art"
+              src={galleryUrls[0] || session.history?.poster_url}
+              alt=""
+            />
+          ) : null}
+          <div className="watch-still-inner">
+            <p className="watch-still-kicker">{session.history?.title || session.title}</p>
+            <h2>Are you still watching?</h2>
+            <button type="button" className="btn btn-play" onClick={continueWatching}>
+              <PlayIcon className="icon" />
+              Continue Watching
+            </button>
+          </div>
+        </div>
+      ) : null}
+      {episodesOpen ? (
         <div className="watch-panel watch-episodes" onClick={(event) => event.stopPropagation()}>
           <div className="watch-ep-head">
             <h2>Episodes</h2>
-            {showDetail.seasons.length > 1 ? (
-              <label>
-                <span className="visually-hidden">Season</span>
-                <select
-                  className="watch-season"
-                  value={activeSeason?.season_number}
-                  onChange={(event) => setSeasonNumber(Number(event.target.value))}
-                >
-                  {showDetail.seasons.map((season) => (
-                    <option key={season.season_number} value={season.season_number}>
-                      Season {season.season_number}
-                    </option>
-                  ))}
-                </select>
-              </label>
+            {showDetail && showDetail.seasons && showDetail.seasons.length > 1 ? (
+              <SeasonMenu
+                seasons={showDetail.seasons}
+                history={session.history ? { ...session.history, watchedAt: 0 } : undefined}
+                value={activeSeason?.season_number ?? 1}
+                onChange={(seasonNumber) => setSeasonNumber(seasonNumber)}
+              />
             ) : (
               <span className="watch-ep-count">{activeSeason?.episodes?.length ?? 0} Episodes</span>
             )}
           </div>
           <div className="watch-ep-list">
-            {activeSeason?.episodes?.map((episode) => {
+            {activeSeason?.episodes?.length ? (
+              activeSeason.episodes.map((episode) => {
               const season = activeSeason
               const active = episode.number === session.history?.episodeNumber && season.season_number === session.history?.seasonNumber
+              const watched = session.history
+                ? watchForEpisode({ ...session.history, watchedAt: 0 }, season.season_number, episode)
+                : undefined
+              const epProgress = active ? progress : (watched?.progress ?? 0)
               return (
                 <button
                   type="button"
@@ -884,6 +1144,11 @@ export function WatchOverlay() {
                     <span className="watch-ep-thumb" style={{ '--focal': stillFocus(episode.number) } as CSSProperties}>
                     <MediaImage src={episodeStill(galleryUrls, episode.number, episode.thumb_url)} alt="" />
                     <PlayIcon className="icon" />
+                    {epProgress > 0.05 && epProgress < 0.92 ? (
+                      <div className="progress-track watch-ep-progress">
+                        <div style={{ width: `${Math.round(Math.min(1, epProgress) * 100)}%` }} />
+                      </div>
+                    ) : null}
                   </span>
                   <span className="watch-ep-copy">
                     <em>
@@ -895,7 +1160,10 @@ export function WatchOverlay() {
                   </span>
                 </button>
               )
-            })}
+            })
+            ) : (
+              <p className="watch-ep-empty">{showDetail ? 'No episodes available.' : 'Loading episodes…'}</p>
+            )}
           </div>
         </div>
       ) : null}

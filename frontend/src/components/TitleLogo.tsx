@@ -7,11 +7,13 @@ function LogoImage({
   alt,
   className,
   onGiveUp,
+  onReady,
 }: {
   src: string
   alt: string
   className?: string
   onGiveUp: () => void
+  onReady?: () => void
 }) {
   const [proxied, setProxied] = useState(false)
   return (
@@ -19,6 +21,7 @@ function LogoImage({
       className={className}
       src={proxied ? proxyImageUrl(src) : src}
       alt={alt}
+      onLoad={() => onReady?.()}
       onError={() => {
         if (proxied) onGiveUp()
         else setProxied(true)
@@ -38,19 +41,25 @@ export function TitleLogo({
 }) {
   const logo = useTmdbLogo(item)
   const [failedSrc, setFailedSrc] = useState<string | null>(null)
-  const showLogo = Boolean(logo) && logo !== failedSrc
+  const [readySrc, setReadySrc] = useState<string | null>(null)
+  const showLogo = Boolean(logo) && logo !== failedSrc && readySrc === logo
 
-  if (showLogo && logo) {
-    return (
-      <LogoImage
-        key={logo}
-        src={logo}
-        alt={item.title}
-        className={className}
-        onGiveUp={() => setFailedSrc(logo)}
-      />
-    )
-  }
-
-  return <h1 className={titleClassName}>{item.title}</h1>
+  return (
+    <>
+      {logo && logo !== failedSrc ? (
+        <LogoImage
+          key={logo}
+          src={logo}
+          alt={item.title}
+          className={`${className ?? ''} ${readySrc === logo ? '' : 'is-logo-pending'}`}
+          onReady={() => setReadySrc(logo)}
+          onGiveUp={() => {
+            setFailedSrc(logo)
+            setReadySrc(null)
+          }}
+        />
+      ) : null}
+      {showLogo ? null : <h1 className={titleClassName}>{item.title}</h1>}
+    </>
+  )
 }

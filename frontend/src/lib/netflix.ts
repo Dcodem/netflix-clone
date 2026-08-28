@@ -11,6 +11,15 @@ export function maturityLabel(item: { kind?: string; genres?: string[] }): strin
   return isShow(item) ? 'TV-14' : '13+'
 }
 
+/** Netflix About copy under the boxed rating. */
+export function maturityBlurb(label: string): string {
+  if (label === '18+' || label === 'TV-MA') return 'graphic violence, language, smoking'
+  if (label === '16+') return 'violence, language, mature themes'
+  if (label === 'TV-14') return 'language, mature themes, violence'
+  if (label === 'PG') return 'mild thematic elements'
+  return 'some thematic elements'
+}
+
 export function needsPlaceholderArt(url?: string | null): boolean {
   if (!url) return true
   return url.startsWith('/art/')
@@ -70,6 +79,11 @@ const FALLBACK_MOODS = [
   'Nostalgic',
   'Cerebral',
 ]
+
+export function isNewEpisodes(id?: string, kind?: string): boolean {
+  if (kind !== 'show' || !id) return false
+  return moodSeed(id) % 4 === 0
+}
 
 function moodSeed(value: string): number {
   let hash = 2166136261

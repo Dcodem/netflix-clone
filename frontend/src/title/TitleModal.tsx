@@ -4,7 +4,7 @@ import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '..
 import { CatalogImage } from '../components/CatalogImage'
 import { EpisodeList, SeasonPicker } from '../components/EpisodeList'
 import { ErrorState } from '../components/ErrorState'
-import { CloseIcon, RestartIcon, SpeakerIcon } from '../components/Icons'
+import { CloseIcon, PlayIcon, RestartIcon, SpeakerIcon } from '../components/Icons'
 import { TitleLogo } from '../components/TitleLogo'
 import { MoreLikeGrid } from '../components/MoreLikeGrid'
 import { Spinner } from '../components/Spinner'
@@ -14,7 +14,7 @@ import { GenreDots } from '../components/GenreDots'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
-import { matchPercent, maturityLabel, moodTags } from '../lib/netflix'
+import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
@@ -37,7 +37,7 @@ export function TitleModal() {
   const modalRef = useRef<HTMLDivElement>(null)
   const episodesRef = useRef<HTMLDivElement>(null)
   const moreRef = useRef<HTMLDivElement>(null)
-  const aboutRef = useRef<HTMLElement>(null)
+  const trailersRef = useRef<HTMLElement>(null)
   const jumpingRef = useRef(false)
   const stills = useTmdbGallery(item)
   const [muted, setMuted] = useState(true)
@@ -72,11 +72,11 @@ export function TitleModal() {
 
   const trailerPlaying = trailerReady && !trailerEnded
   useEffect(() => {
+    if (!item) return
     setSettled(false)
-    if (!trailerPlaying) return
     const timer = window.setTimeout(() => setSettled(true), 6000)
     return () => window.clearTimeout(timer)
-  }, [trailerPlaying, item?.id])
+  }, [item?.id])
 
   const detailFetch = useFetch(
     () => (item ? (isShow(item) ? getShow(item.id) : getMovie(item.id)) : Promise.resolve(null)),
@@ -119,12 +119,12 @@ export function TitleModal() {
       const sections: Array<{ id: 'episodes' | 'more' | 'trailers'; el: HTMLElement | null }> = [
         { id: 'episodes', el: episodesRef.current },
         { id: 'more', el: moreRef.current },
-        { id: 'trailers', el: aboutRef.current },
+        { id: 'trailers', el: trailersRef.current },
       ]
       let current: 'episodes' | 'more' | 'trailers' | null = null
       for (const section of sections) {
         if (!section.el) continue
-        if (section.el.getBoundingClientRect().top <= line) current = section.id
+        if (section.el.getBoundingClientRect().top <= line + 108) current = section.id
       }
       if (current) setTab(current)
     }
@@ -158,11 +158,11 @@ export function TitleModal() {
   function jump(next: 'episodes' | 'more' | 'trailers') {
     setTab(next)
     jumpingRef.current = true
-    const node = next === 'episodes' ? episodesRef.current : next === 'more' ? moreRef.current : aboutRef.current
+    const node = next === 'episodes' ? episodesRef.current : next === 'more' ? moreRef.current : trailersRef.current
     node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     window.setTimeout(() => {
       jumpingRef.current = false
-    }, 650)
+    }, 900)
   }
 
   function playEpisode(episode: Episode, season: Season) {
@@ -198,6 +198,16 @@ export function TitleModal() {
     trailerRef.current?.replay()
   }
 
+  function playTrailerClip() {
+    playClick()
+    setMuted(false)
+    setTrailerEnded(false)
+    setTrailerReady(true)
+    trailerRef.current?.setMuted(false)
+    trailerRef.current?.replay()
+    modalRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <div className="title-modal-backdrop" onClick={closeTitle} role="presentation" ref={backdropRef}>
       <div
@@ -211,7 +221,10 @@ export function TitleModal() {
         <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
           <CloseIcon className="icon" />
         </button>
-        <div className={`title-modal-hero ${trailerPlaying ? 'is-playing' : ''} ${settled ? 'is-settled' : ''}`}>
+        <div
+          key={item.id}
+          className={`title-modal-hero ${trailerPlaying ? 'is-playing' : 'is-cinematic'} ${settled ? 'is-settled' : ''}`}
+        >
           <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
           <TrailerPreview
             ref={trailerRef}
@@ -228,15 +241,17 @@ export function TitleModal() {
           />
           <div className="title-modal-hero-body">
             <TitleLogo item={item} className="title-modal-logo" titleClassName="title-modal-title" />
-            <TitleActions
-              item={item}
-              detail={detail}
-              watchHref={watchHref}
-              size="sm"
-              showMore={false}
-              continueMode={continueMode}
-              playStyle="labeled"
-            />
+            <div className="title-modal-desktop-actions">
+              <TitleActions
+                item={item}
+                detail={detail}
+                watchHref={watchHref}
+                size="sm"
+                showMore={false}
+                continueMode={continueMode}
+                playStyle="labeled"
+              />
+            </div>
           </div>
           <div className="hero-controls-right">
             {trailerEnded ? (
@@ -257,12 +272,25 @@ export function TitleModal() {
           </div>
         </div>
         <div className="title-modal-main">
+          <div className="title-modal-phone-actions">
+            <TitleActions
+              item={item}
+              detail={detail}
+              watchHref={watchHref}
+              size="sm"
+              showMore={false}
+              continueMode={continueMode}
+              playStyle="labeled"
+              layout="sheet"
+            />
+          </div>
           {detailFetch.loading && !detail ? <Spinner label="Loading" /> : null}
           {detailFetch.error ? <ErrorState message={detailFetch.error} onRetry={detailFetch.retry} /> : null}
           <div className="title-modal-split">
             <div className="title-modal-split-main">
               <div className="jawbone-meta">
                 <span className="match">{match}% Match</span>
+                {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
                 {item.year ? <span>{item.year}</span> : null}
                 <span className="maturity">{maturity}</span>
                 {runtime ? <span>{runtime}</span> : null}
@@ -334,20 +362,45 @@ export function TitleModal() {
             </div>
           ) : null}
 
-          <section ref={aboutRef} className="title-about title-section">
+          <section ref={trailersRef} className="title-about title-section">
             <h2>Trailers & More</h2>
             {stills.length ? (
-              <div className="trailer-still-grid">
-                {stills.slice(0, 8).map((file) => {
+              <div className="trailer-card-grid">
+                {stills.slice(0, 8).map((file, index) => {
                   const src = stillUrl(file)
-                  return src ? <img key={file} src={proxyImageUrl(src)} alt="" /> : null
+                  if (!src) return null
+                  const captions = [
+                    `Trailer: ${item.title}`,
+                    `Teaser: ${item.title}`,
+                    'Clip 1',
+                    'Recap',
+                    'Featurette',
+                    'Clip 2',
+                    'Clip 3',
+                    'Bonus clip',
+                  ]
+                  const caption = captions[index] ?? `Clip ${index}`
+                  return (
+                    <button
+                      type="button"
+                      className="trailer-card"
+                      key={file}
+                      onClick={playTrailerClip}
+                      aria-label={caption}
+                    >
+                      <span className="trailer-card-art">
+                        <img src={proxyImageUrl(src)} alt="" />
+                        <span className="trailer-card-play" aria-hidden="true">
+                          <PlayIcon className="icon" />
+                        </span>
+                      </span>
+                      <span className="trailer-card-caption">{caption}</span>
+                    </button>
+                  )
                 })}
               </div>
-            ) : (
-              <p>Trailer stills appear here when TMDB art is available.</p>
-            )}
+            ) : null}
             <h2>About {item.title}</h2>
-            {detail?.synopsis ? <p>{detail.synopsis}</p> : null}
             {detail?.cast?.length ? (
               <p>
                 <span>Cast:</span> {detail.cast.join(', ')}
@@ -359,10 +412,18 @@ export function TitleModal() {
               </p>
             ) : null}
             {moods.length ? (
-              <p>
-                <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {moods.join(' · ')}
-              </p>
+              <div className="title-about-row">
+                <span>This {isShow(item) ? 'show' : 'movie'} is:</span>
+                <GenreDots genres={moods} className="title-moods" />
+              </div>
             ) : null}
+            <div className="title-about-maturity">
+              <span>Maturity rating:</span>
+              <p>
+                <span className="maturity">{maturity}</span>
+                {maturityBlurb(maturity)}
+              </p>
+            </div>
           </section>
         </div>
       </div>

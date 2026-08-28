@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getCatalogMany, getMovie, getMovies, getShow } from '../api/client'
 import type { MovieListItem } from '../api/types'
-import { BellIcon, InfoIcon, PlayIcon } from '../components/Icons'
+import { BellIcon, CheckIcon, InfoIcon, PlayIcon, PlusIcon } from '../components/Icons'
 import { CatalogImage } from '../components/CatalogImage'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
@@ -10,8 +10,8 @@ import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { Home } from './Home'
-import { genresOf, isShow, sortByRating, uniqueById } from '../lib/media'
-import { matchPercent, toLiked } from '../lib/netflix'
+import { genresOf, isShow, ofKind, sortByRating, uniqueById } from '../lib/media'
+import { matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -20,6 +20,9 @@ import { useWatch } from '../watch/WatchContext'
 
 const synCache = new Map<string, string>()
 const THIS_YEAR = new Date().getFullYear()
+
+type NewsChip = 'coming' | 'watching' | 'top-tv' | 'top-movies'
+type FeedMode = 'soon' | 'watching' | 'ranked'
 
 async function synopsisForItem(item: MovieListItem): Promise<string> {
   const hit = synCache.get(item.id)
@@ -51,10 +54,14 @@ function FeedCard({
   item,
   kicker,
   synopsis,
+  mode,
+  rank,
 }: {
   item: MovieListItem
-  kicker: string
+  kicker?: string
   synopsis?: string
+  mode: FeedMode
+  rank?: number
 }) {
   const { openTitle } = useTitleModal()
   const { openWatch } = useWatch()
@@ -62,10 +69,11 @@ function FeedCard({
   const [playing, setPlaying] = useState(false)
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
   const genres = genresOf(item).slice(0, 3)
-  const upcoming = comingSoon(item)
-  const date = upcoming ? comingDate(item.id) : null
+  const date = mode === 'soon' ? comingDate(item.id) : null
   const match = matchPercent(item, activeProfile)
+  const maturity = maturityLabel(item)
   const history = activeProfile?.history.find((entry) => entry.id === item.id)
+  const ranked = mode === 'ranked' && typeof rank === 'number'
 
   async function playNow() {
     if (playing) return
@@ -96,53 +104,89 @@ function FeedCard({
   }
 
   return (
-    <article className={`news-card ${upcoming ? 'is-soon' : ''}`}>
+    <article
+      className={`news-card ${mode === 'soon' ? 'is-soon' : ''} ${ranked ? 'is-ranked' : ''} ${rank === 10 ? 'is-ten' : ''}`}
+    >
       {date ? (
         <div className="news-date" aria-label={date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}>
           <em>{monthLabel(date)}</em>
           <strong>{date.getDate()}</strong>
         </div>
       ) : null}
+      {ranked ? (
+        <div className="news-rank" aria-hidden="true">
+          {rank}
+        </div>
+      ) : null}
       <button type="button" className="news-card-art" onClick={() => openTitle(item)} aria-label={item.title}>
         <CatalogImage item={item} alt="" prefer="backdrop" />
       </button>
       <div className="news-card-body">
-        {upcoming ? null : <p className="news-kicker">{kicker}</p>}
-        <h2>{item.title}</h2>
-        <p className="news-meta">
-          {!upcoming ? <span className="match">{match}% Match</span> : null}
-          {item.year ? <span>{item.year}</span> : null}
-        </p>
-        {genres.length ? <GenreDots genres={genres} className="news-genres" /> : null}
-        {synopsis ? <p className="news-syn">{synopsis}</p> : null}
-        <div className="news-actions">
-          {upcoming ? (
-            <button
-              type="button"
-              className={`btn btn-info ${onList ? 'is-on' : ''}`}
-              onClick={() => toggleMyList(toLiked(item))}
-            >
-              <BellIcon className="icon" />
-              {onList ? 'Reminded' : 'Remind Me'}
-            </button>
-          ) : (
-            <button type="button" className="btn btn-play" onClick={() => void playNow()} disabled={playing}>
-              <PlayIcon className="icon" />
-              Play
-            </button>
-          )}
-          <button
-            type="button"
-            className="btn btn-info"
-            onClick={() => {
-              playClick()
-              openTitle(item)
-            }}
-          >
-            <InfoIcon className="icon" />
-            More Info
-          </button>
+        <div className="news-title-row">
+          <div className="news-title-copy">
+            {mode === 'watching' && kicker ? <p className="news-kicker">{kicker}</p> : null}
+            <h2>{item.title}</h2>
+          </div>
+          <div className="news-icon-actions">
+            {mode === 'soon' ? (
+              <button
+                type="button"
+                className={`news-icon-btn ${onList ? 'is-on' : ''}`}
+                onClick={() => toggleMyList(toLiked(item))}
+              >
+                <span className="news-icon-disc">
+                  {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
+                </span>
+                {onList ? 'Reminded' : 'Remind Me'}
+              </button>
+            ) : (
+              <button type="button" className="news-icon-btn is-play" onClick={() => void playNow()} disabled={playing}>
+                <span className="news-icon-disc">
+                  <PlayIcon className="icon" />
+                </span>
+                Play
+              </button>
+            )}
+            {mode === 'soon' ? (
+              <button
+                type="button"
+                className="news-icon-btn"
+                onClick={() => {
+                  playClick()
+                  openTitle(item)
+                }}
+              >
+                <span className="news-icon-disc">
+                  <InfoIcon className="icon" />
+                </span>
+                Info
+              </button>
+            ) : (
+              <button
+                type="button"
+                className={`news-icon-btn ${onList ? 'is-on' : ''}`}
+                onClick={() => toggleMyList(toLiked(item))}
+              >
+                <span className="news-icon-disc">
+                  {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
+                </span>
+                My List
+              </button>
+            )}
+          </div>
         </div>
+        {date ? (
+          <p className="news-coming">
+            Coming {date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+          </p>
+        ) : null}
+        <p className="news-meta">
+          {mode !== 'soon' ? <span className="match">{match}% Match</span> : null}
+          <span className="maturity">{maturity}</span>
+          {item.year && mode !== 'soon' ? <span>{item.year}</span> : null}
+        </p>
+        {synopsis ? <p className="news-syn">{synopsis}</p> : null}
+        {genres.length ? <GenreDots genres={genres} className="news-genres" /> : null}
       </div>
     </article>
   )
@@ -170,8 +214,11 @@ function NewsHotFeed() {
   )
   const comingRef = useRef<HTMLElement>(null)
   const watchingRef = useRef<HTMLElement>(null)
+  const topTvRef = useRef<HTMLElement>(null)
+  const topMoviesRef = useRef<HTMLElement>(null)
+  const chipBtnRefs = useRef<Partial<Record<NewsChip, HTMLButtonElement | null>>>({})
   const jumpingRef = useRef(false)
-  const [chip, setChip] = useState<'coming' | 'watching' | null>(null)
+  const [chip, setChip] = useState<NewsChip | null>(null)
   const coming = useMemo(
     () =>
       catalog
@@ -185,18 +232,39 @@ function NewsHotFeed() {
     const seen = new Set(coming.map((item) => item.id))
     return sortByRating(catalog.filter((item) => !seen.has(item.id))).slice(0, 12)
   }, [catalog, coming])
-  const activeChip = chip ?? (coming.length ? 'coming' : 'watching')
+  const topTv = useMemo(() => sortByRating(ofKind(catalog, 'shows')).slice(0, 10), [catalog])
+  const topMovies = useMemo(() => sortByRating(ofKind(catalog, 'movies')).slice(0, 10), [catalog])
+  const chips = useMemo(() => {
+    const next: Array<{ id: NewsChip; label: string; show: boolean }> = [
+      { id: 'coming', label: 'Coming Soon', show: coming.length > 0 },
+      { id: 'watching', label: 'Everyone’s Watching', show: watching.length > 0 },
+      { id: 'top-tv', label: 'Top 10 TV Shows', show: topTv.length > 0 },
+      { id: 'top-movies', label: 'Top 10 Movies', show: topMovies.length > 0 },
+    ]
+    return next.filter((entry) => entry.show)
+  }, [coming.length, watching.length, topTv.length, topMovies.length])
+  const activeChip = chip && chips.some((entry) => entry.id === chip) ? chip : (chips[0]?.id ?? 'coming')
   const [synopses, setSynopses] = useState<Record<string, string>>({})
-  const feedIds = useMemo(
-    () => [...coming, ...watching].map((item) => item.id).join(','),
-    [coming, watching],
+  const feed = useMemo(
+    () => uniqueById([...coming, ...watching, ...topTv, ...topMovies]),
+    [coming, watching, topTv, topMovies],
   )
+  const feedIds = useMemo(() => feed.map((item) => item.id).join(','), [feed])
 
   useEffect(() => {
     let cancelled = false
-    const feed = [...coming, ...watching]
     const missing = feed.filter((item) => !synCache.has(item.id))
-    if (!missing.length) return
+    if (!missing.length) {
+      setSynopses((prev) => {
+        const next = { ...prev }
+        for (const item of feed) {
+          const hit = synCache.get(item.id)
+          if (hit && next[item.id] !== hit) next[item.id] = hit
+        }
+        return next
+      })
+      return
+    }
     Promise.all(
       missing.map(async (item) => {
         try {
@@ -211,12 +279,16 @@ function NewsHotFeed() {
     return () => {
       cancelled = true
     }
-  }, [coming, watching, feedIds])
+  }, [feed, feedIds])
 
   useEffect(() => {
-    const comingNode = comingRef.current
-    const watchingNode = watchingRef.current
-    const targets = [comingNode, watchingNode].filter(Boolean) as HTMLElement[]
+    const nodes: Array<[NewsChip, HTMLElement | null]> = [
+      ['coming', comingRef.current],
+      ['watching', watchingRef.current],
+      ['top-tv', topTvRef.current],
+      ['top-movies', topMoviesRef.current],
+    ]
+    const targets = nodes.filter((entry): entry is [NewsChip, HTMLElement] => Boolean(entry[1]))
     if (!targets.length) return
     const observer = new IntersectionObserver(
       (entries) => {
@@ -225,19 +297,34 @@ function NewsHotFeed() {
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
         if (!hit) return
-        if (hit.target === comingNode) setChip('coming')
-        else if (hit.target === watchingNode) setChip('watching')
+        const match = targets.find(([, node]) => node === hit.target)
+        if (match) setChip(match[0])
       },
-      { rootMargin: '-20% 0px -55% 0px', threshold: [0.08, 0.2, 0.4] },
+      { rootMargin: '-18% 0px -58% 0px', threshold: [0.08, 0.2, 0.4] },
     )
-    targets.forEach((node) => observer.observe(node))
+    targets.forEach(([, node]) => observer.observe(node))
     return () => observer.disconnect()
-  }, [coming.length, watching.length])
+  }, [coming.length, watching.length, topTv.length, topMovies.length])
 
-  function jump(next: 'coming' | 'watching') {
+  useEffect(() => {
+    const btn = chipBtnRefs.current[activeChip]
+    const scroller = btn?.parentElement
+    if (!btn || !scroller) return
+    const left = btn.offsetLeft - (scroller.clientWidth - btn.offsetWidth) / 2
+    scroller.scrollTo({ left: Math.max(0, left), behavior: 'smooth' })
+  }, [activeChip])
+
+  function jump(next: NewsChip) {
     setChip(next)
     jumpingRef.current = true
-    const node = next === 'coming' ? comingRef.current : watchingRef.current
+    const node =
+      next === 'coming'
+        ? comingRef.current
+        : next === 'watching'
+          ? watchingRef.current
+          : next === 'top-tv'
+            ? topTvRef.current
+            : topMoviesRef.current
     node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     window.setTimeout(() => {
       jumpingRef.current = false
@@ -254,29 +341,32 @@ function NewsHotFeed() {
   if (!catalog.length && movies.error) {
     return <ErrorState message={movies.error} onRetry={movies.retry} />
   }
-  if (!coming.length && !watching.length) {
+  if (!chips.length) {
     return <EmptyState title="Nothing new right now" detail="Check Home for more titles." />
   }
 
   return (
     <main className="page page-pad news-hot-page">
-      <nav className="news-chips" aria-label="New & Popular">
-        {coming.length ? (
-          <button type="button" className={activeChip === 'coming' ? 'is-on' : ''} onClick={() => jump('coming')}>
-            Coming Soon
+      <nav className="news-chips" aria-label="News & Hot">
+        {chips.map((entry) => (
+          <button
+            key={entry.id}
+            type="button"
+            ref={(node) => {
+              chipBtnRefs.current[entry.id] = node
+            }}
+            className={activeChip === entry.id ? 'is-on' : ''}
+            onClick={() => jump(entry.id)}
+          >
+            {entry.label}
           </button>
-        ) : null}
-        {watching.length ? (
-          <button type="button" className={activeChip === 'watching' ? 'is-on' : ''} onClick={() => jump('watching')}>
-            Everyone’s Watching
-          </button>
-        ) : null}
+        ))}
       </nav>
       {coming.length ? (
         <section className="news-feed" ref={comingRef} aria-label="Coming Soon">
           <h1 className="visually-hidden">Coming Soon</h1>
           {coming.map((item) => (
-            <FeedCard key={item.id} item={item} kicker="Coming Soon" synopsis={synopses[item.id]} />
+            <FeedCard key={item.id} item={item} mode="soon" synopsis={synopses[item.id]} />
           ))}
         </section>
       ) : null}
@@ -284,7 +374,29 @@ function NewsHotFeed() {
         <section className="news-feed" ref={watchingRef} aria-label="Everyone’s Watching">
           <h2 className="visually-hidden">Everyone’s Watching</h2>
           {watching.map((item) => (
-            <FeedCard key={item.id} item={item} kicker="Everyone’s Watching" synopsis={synopses[item.id]} />
+            <FeedCard
+              key={item.id}
+              item={item}
+              mode="watching"
+              kicker="Everyone’s Watching"
+              synopsis={synopses[item.id]}
+            />
+          ))}
+        </section>
+      ) : null}
+      {topTv.length ? (
+        <section className="news-feed" ref={topTvRef} aria-label="Top 10 TV Shows">
+          <h2 className="visually-hidden">Top 10 TV Shows</h2>
+          {topTv.map((item, index) => (
+            <FeedCard key={item.id} item={item} mode="ranked" rank={index + 1} synopsis={synopses[item.id]} />
+          ))}
+        </section>
+      ) : null}
+      {topMovies.length ? (
+        <section className="news-feed" ref={topMoviesRef} aria-label="Top 10 Movies">
+          <h2 className="visually-hidden">Top 10 Movies</h2>
+          {topMovies.map((item, index) => (
+            <FeedCard key={item.id} item={item} mode="ranked" rank={index + 1} synopsis={synopses[item.id]} />
           ))}
         </section>
       ) : null}

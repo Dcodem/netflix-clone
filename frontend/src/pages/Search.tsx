@@ -5,8 +5,10 @@ import type { MovieListItem } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
 import { ClockIcon, CloseIcon } from '../components/Icons'
 import { MediaGrid } from '../components/MediaGrid'
+import { SearchHitsList } from '../components/SearchHitsList'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import { sortByRating, uniqueById } from '../lib/media'
 import { clearRecentSearches, listRecentSearches, removeRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -50,6 +52,7 @@ export function Search() {
     () => sortByRating(popular.data ?? []).slice(0, 18),
     [popular.data],
   )
+  const phone = useMediaQuery('(max-width: 767px)')
 
   useEffect(() => {
     setRecents(listRecentSearches())
@@ -104,8 +107,14 @@ export function Search() {
         {recentBlock}
         {popularItems.length ? (
           <>
-            <h2 className="section-title search-recommended-title">Recommended TV Shows and Movies</h2>
-            <MediaGrid items={popularItems} layout="poster" hoverable={false} />
+            <h2 className="section-title search-recommended-title">
+              {phone ? 'Top Searches' : 'Recommended TV Shows and Movies'}
+            </h2>
+            {phone ? (
+              <SearchHitsList items={popularItems} ranked />
+            ) : (
+              <MediaGrid items={popularItems} />
+            )}
           </>
         ) : null}
       </main>
@@ -135,7 +144,11 @@ export function Search() {
           <h1 className="search-heading">
             Explore titles related to: <span>{q}</span>
           </h1>
-          <MediaGrid items={items} layout="poster" hoverable={false} />
+          {phone ? (
+            <SearchHitsList items={items} />
+          ) : (
+            <MediaGrid items={items} />
+          )}
         </>
       ) : (
         <>

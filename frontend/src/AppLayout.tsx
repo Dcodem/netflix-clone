@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from './auth/AuthContext'
 import { Header } from './components/Header'
 import { MobileDock } from './components/MobileDock'
@@ -11,6 +11,8 @@ import { WatchOverlay } from './watch/WatchOverlay'
 export function AppLayout() {
   const { user } = useAuth()
   const { activeProfile } = useProfiles()
+  const location = useLocation()
+  const entering = Boolean((location.state as { fromProfile?: boolean } | null)?.fromProfile)
 
   if (!user) {
     return <Navigate to="/login" replace />
@@ -21,7 +23,7 @@ export function AppLayout() {
   }
 
   return (
-    <div className="app-shell" onPointerDownCapture={() => playBrowseSting()}>
+    <div className={`app-shell ${entering ? 'is-entering' : ''}`} onPointerDownCapture={() => playBrowseSting()}>
       <Header />
       <Outlet />
       <SiteFooter />

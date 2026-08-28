@@ -5,8 +5,26 @@ import type { MovieListItem } from '../api/types'
 import { uniqueById } from '../lib/media'
 import { useAuth } from '../auth/AuthContext'
 import { CatalogImage } from '../components/CatalogImage'
+import { FooterLang } from '../components/SiteFooter'
 
 const REMEMBER_KEY = 'flix.remember'
+
+function fieldError(type: string | undefined, value: string, minLength?: number) {
+  const trimmed = value.trim()
+  if (type === 'password') {
+    if (trimmed.length < (minLength ?? 4) || trimmed.length > 60) {
+      return `Your password must contain between ${minLength ?? 4} and 60 characters.`
+    }
+    return null
+  }
+  if (!trimmed) {
+    return type === 'email' ? 'Please enter a valid email or phone number.' : 'Please enter your name.'
+  }
+  if (type === 'email' && trimmed.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+    return 'Please enter a valid email.'
+  }
+  return null
+}
 
 function Field({
   id,
@@ -27,19 +45,24 @@ function Field({
   minLength?: number
   onChange: (value: string) => void
 }) {
+  const [touched, setTouched] = useState(false)
+  const error = touched ? fieldError(type, value, minLength) : null
   return (
-    <label className="nf-field" htmlFor={id}>
+    <label className={`nf-field ${error ? 'is-invalid' : ''}`} htmlFor={id}>
       <input
         id={id}
         type={type ?? 'text'}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        onBlur={() => setTouched(true)}
         autoComplete={autoComplete}
         required={required}
         minLength={minLength}
         placeholder=" "
+        aria-invalid={Boolean(error)}
       />
       <span>{label}</span>
+      {error ? <p className="nf-field-error">{error}</p> : null}
     </label>
   )
 }
@@ -127,15 +150,30 @@ export function Login() {
           <button type="submit" className="btn btn-primary login-submit" disabled={busy}>
             {busy ? 'Please wait…' : mode === 'signup' ? 'Sign Up' : 'Sign In'}
           </button>
-          <div className="login-row">
-            <label className="login-remember">
-              <input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} />
-              Remember me
-            </label>
-            <button type="button" className="login-help" onClick={() => setHelp((value) => !value)}>
-              Forgot password?
-            </button>
-          </div>
+          {mode === 'login' ? (
+            <>
+              <p className="login-or">OR</p>
+              <button
+                type="button"
+                className="login-code"
+                onClick={() => {
+                  setHelp(false)
+                  setError(
+                    'A sign-in code would be emailed. This clone keeps accounts on this device — use your password instead.',
+                  )
+                }}
+              >
+                Use a Sign-In Code
+              </button>
+            </>
+          ) : null}
+          <button type="button" className="login-help" onClick={() => setHelp((value) => !value)}>
+            Forgot password?
+          </button>
+          <label className="login-remember">
+            <input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} />
+            Remember me
+          </label>
           {help ? (
             <p className="login-help-copy">
               Passwords stay in this browser. If you forgot yours, create a new account with the same email after
@@ -172,6 +210,7 @@ export function Login() {
           <li>Cookie Preferences</li>
           <li>Corporate Information</li>
         </ul>
+        <FooterLang className="login-lang" />
       </footer>
     </main>
   )

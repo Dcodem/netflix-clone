@@ -4,6 +4,7 @@ import { AvatarArt } from '../components/AvatarArt'
 import { LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
+import { playProfileSting } from '../lib/sounds'
 import { PROFILE_AVATARS, avatarFor, type Profile } from '../profiles/types'
 
 function PinBoxes({
@@ -111,7 +112,8 @@ export function ProfileSelect() {
       return
     }
     setPinTarget(null)
-    navigate('/browse')
+    playProfileSting()
+    navigate('/browse', { state: { fromProfile: true } })
   }
 
   useEffect(() => {
@@ -151,7 +153,8 @@ export function ProfileSelect() {
       return
     }
     selectProfile(profile.id)
-    navigate('/browse')
+    playProfileSting()
+    navigate('/browse', { state: { fromProfile: true } })
   }
 
   async function onPin(event: FormEvent) {
