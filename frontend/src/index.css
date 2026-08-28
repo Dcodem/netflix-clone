@@ -1426,13 +1426,13 @@ select,
   height: auto;
   border-radius: 4px;
   border: 4px solid transparent;
-  background: #141414;
+  background: #1a1a1a;
   color: var(--muted);
   cursor: pointer;
   display: grid;
   place-items: center;
   padding: 0;
-  transition: border-color 0.12s ease;
+  transition: border-color 0.12s ease, background 0.12s ease;
 }
 
 .profile-add span {
@@ -2481,11 +2481,11 @@ select,
 .jawbone-wordmark-text {
   margin: 0;
   color: #fff;
-  font-size: clamp(18px, 2.2vw, 26px);
+  font-size: clamp(22px, 2.6vw, 32px);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.05;
-  text-shadow: 0 2px 14px #000;
+  text-shadow: 0 2px 18px #000, 0 0 28px rgba(0, 0, 0, 0.9);
 }
 
 .jawbone-progress {
@@ -2813,6 +2813,14 @@ select,
   transform-origin: left bottom;
   transition: transform 0.9s cubic-bezier(0.5, 0, 0.1, 1);
   margin: 4px 0 10px;
+}
+
+img.is-logo-pending {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .title-modal-logo,
@@ -5550,8 +5558,10 @@ select,
 }
 
 .watch-overlay.is-ident .watch-now-playing,
-.watch-overlay.is-ident .watch-title-stack {
-  opacity: 0;
+.watch-overlay.is-ident .watch-title-stack,
+.watch-overlay.is-ident .skip-intro {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .watch-overlay.is-panel .watch-ident {
