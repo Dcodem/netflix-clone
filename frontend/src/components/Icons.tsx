@@ -471,3 +471,17 @@ export function DownloadIcon({ className }: { className?: string }) {
     </svg>
   )
 }
+
+export function GlobeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M3.8 12h16.4M12 3.8c2.4 2.6 3.6 5.2 3.6 8.2s-1.2 5.6-3.6 8.2c-2.4-2.6-3.6-5.2-3.6-8.2s1.2-5.6 3.6-8.2z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+      />
+    </svg>
+  )
+}

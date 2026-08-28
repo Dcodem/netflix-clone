@@ -5,6 +5,7 @@ import { LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { playProfileSting } from '../lib/sounds'
+import { PROFILE_AVATARS, avatarFor, type Profile } from '../profiles/types'
 
 function PinBoxes({
   value,
