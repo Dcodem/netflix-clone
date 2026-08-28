@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AvatarArt } from '../components/AvatarArt'
-import { LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
+import { ChevronLeftIcon, LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { playProfileSting } from '../lib/sounds'
@@ -99,6 +99,7 @@ export function ProfileSelect() {
   const [pinGuess, setPinGuess] = useState('')
   const [pinError, setPinError] = useState<string | null>(null)
   const [pinShake, setPinShake] = useState(0)
+  const [pickingAvatar, setPickingAvatar] = useState(false)
   const unlocking = useRef(false)
 
   async function submitPin(guess = pinGuess) {
@@ -145,6 +146,7 @@ export function ProfileSelect() {
     setRemovePin(false)
     setEditAutoplayNext(profile.autoplayNext !== false)
     setEditAutoplayPreview(profile.autoplayPreview !== false)
+    setPickingAvatar(false)
   }
 
   async function onSelect(profile: Profile) {
@@ -175,6 +177,7 @@ export function ProfileSelect() {
     setName('')
     setPin('')
     setAdding(false)
+    setPickingAvatar(false)
   }
 
   const editing = profiles.find((profile) => profile.id === editingId) ?? null
@@ -192,6 +195,7 @@ export function ProfileSelect() {
       autoplayPreview: editAutoplayPreview,
     })
     setEditingId(null)
+    setPickingAvatar(false)
     setManaging(true)
   }
 
@@ -204,6 +208,7 @@ export function ProfileSelect() {
           setPinTarget(null)
           setAdding(false)
           setEditingId(null)
+          setPickingAvatar(false)
           setManaging(false)
         }}
         aria-label="Flix"
@@ -227,6 +232,35 @@ export function ProfileSelect() {
             Forgot PIN?
           </button>
         </form>
+      ) : pickingAvatar ? (
+        <div className="icon-picker-page">
+          <button type="button" className="icon-picker-back" onClick={() => setPickingAvatar(false)} aria-label="Back">
+            <ChevronLeftIcon className="icon" />
+          </button>
+          <p className="icon-picker-kicker">{editing ? 'Edit Profile' : 'Add Profile'}</p>
+          <h1>Choose a profile icon</h1>
+          <div className="avatar-picker is-page">
+            {PROFILE_AVATARS.map((avatar) => {
+              const on = (editing ? editPicked.id : picked.id) === avatar.id
+              return (
+                <button
+                  type="button"
+                  key={avatar.id}
+                  className={`profile-avatar picker ${on ? 'is-on' : ''}`}
+                  style={{ background: avatar.color }}
+                  onClick={() => {
+                    if (editing) setEditAvatarId(avatar.id)
+                    else setAvatarId(avatar.id)
+                    setPickingAvatar(false)
+                  }}
+                  aria-label={avatar.label}
+                >
+                  <AvatarArt avatar={avatar} alt={avatar.label} />
+                </button>
+              )
+            })}
+          </div>
+        </div>
       ) : adding ? (
         <form className="add-profile-sheet" onSubmit={onAdd}>
           <h1>Add Profile</h1>
@@ -234,15 +268,15 @@ export function ProfileSelect() {
           <div className="add-profile-row">
             <button
               type="button"
-              className="profile-avatar"
+              className="profile-avatar is-managing"
               style={{ background: picked.color }}
               aria-label="Change profile picture"
-              onClick={() => {
-                const next = PROFILE_AVATARS[(PROFILE_AVATARS.findIndex((a) => a.id === picked.id) + 1) % PROFILE_AVATARS.length]
-                setAvatarId(next.id)
-              }}
+              onClick={() => setPickingAvatar(true)}
             >
               <AvatarArt avatar={picked} alt={picked.label} />
+              <span className="profile-pencil" aria-hidden="true">
+                <PencilIcon className="icon" />
+              </span>
             </button>
             <input
               value={name}
@@ -253,30 +287,6 @@ export function ProfileSelect() {
               aria-label="Profile name"
             />
           </div>
-          <div className="avatar-picker">
-            {PROFILE_AVATARS.map((avatar) => (
-              <button
-                type="button"
-                key={avatar.id}
-                className={`profile-avatar picker ${picked.id === avatar.id ? 'is-on' : ''}`}
-                style={{ background: avatar.color }}
-                onClick={() => {
-                  setAvatarId(avatar.id)
-                }}
-                aria-label={avatar.label}
-              >
-                <AvatarArt avatar={avatar} alt={avatar.label} />
-              </button>
-            ))}
-          </div>
-          <input
-            inputMode="numeric"
-            pattern="\d{4}"
-            maxLength={4}
-            value={pin}
-            onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
-            placeholder="Optional PIN"
-          />
           <div className="add-profile-actions">
             <button type="submit" className="btn btn-light">
               Continue
@@ -295,71 +305,60 @@ export function ProfileSelect() {
               className="profile-avatar is-managing"
               style={{ background: editPicked.color }}
               aria-label="Change profile picture"
-              onClick={() => {
-                const next =
-                  PROFILE_AVATARS[
-                    (PROFILE_AVATARS.findIndex((avatar) => avatar.id === editPicked.id) + 1) % PROFILE_AVATARS.length
-                  ]
-                setEditAvatarId(next.id)
-              }}
+              onClick={() => setPickingAvatar(true)}
             >
               <AvatarArt avatar={editPicked} alt={editPicked.label} />
               <span className="profile-pencil" aria-hidden="true">
                 <PencilIcon className="icon" />
               </span>
             </button>
-            <input
-              value={editName}
-              onChange={(event) => setEditName(event.target.value)}
-              placeholder="Name"
-              autoFocus
-              required
-              maxLength={20}
-              aria-label="Profile name"
-            />
-          </div>
-          <div className="avatar-picker">
-            {PROFILE_AVATARS.map((avatar) => (
-              <button
-                type="button"
-                key={avatar.id}
-                className={`profile-avatar picker ${editPicked.id === avatar.id ? 'is-on' : ''}`}
-                style={{ background: avatar.color }}
-                onClick={() => {
-                  setEditAvatarId(avatar.id)
-                }}
-                aria-label={avatar.label}
-              >
-                <AvatarArt avatar={avatar} alt={avatar.label} />
-              </button>
-            ))}
-          </div>
-          <div className="edit-pin-row">
-            <input
-              inputMode="numeric"
-              pattern="\d{4}"
-              maxLength={4}
-              value={editPin}
-              onChange={(event) => {
-                setRemovePin(false)
-                setEditPin(event.target.value.replace(/\D/g, '').slice(0, 4))
-              }}
-              placeholder={editing.pinHash ? 'New PIN' : 'Optional PIN'}
-              aria-label="Profile PIN"
-            />
-            {editing.pinHash ? (
-              <label className="profile-check">
+            <div className="edit-profile-fields">
+              <input
+                value={editName}
+                onChange={(event) => setEditName(event.target.value)}
+                placeholder="Name"
+                autoFocus
+                required
+                maxLength={20}
+                aria-label="Profile name"
+              />
+              <div className="edit-meta">
+                <span>Language</span>
+                <span>English</span>
+              </div>
+              <div className="edit-meta">
+                <span>Maturity Settings</span>
+                <span>All Maturity Ratings</span>
+              </div>
+              <div className="edit-meta edit-meta-lock">
+                <span>Profile Lock</span>
                 <input
-                  type="checkbox"
-                  checked={removePin}
+                  inputMode="numeric"
+                  pattern="\d{4}"
+                  maxLength={4}
+                  value={editPin}
                   onChange={(event) => {
-                    setRemovePin(event.target.checked)
-                    if (event.target.checked) setEditPin('')
+                    setRemovePin(false)
+                    setEditPin(event.target.value.replace(/\D/g, '').slice(0, 4))
                   }}
+                  placeholder={editing.pinHash && !removePin ? '••••' : 'PIN'}
+                  aria-label="Profile PIN"
                 />
-                Remove PIN
-              </label>
-            ) : null}
+              </div>
+              {editing.pinHash ? (
+                <label className="profile-check">
+                  <input
+                    type="checkbox"
+                    checked={removePin}
+                    onChange={(event) => {
+                      setRemovePin(event.target.checked)
+                      if (event.target.checked) setEditPin('')
+                    }}
+                  />
+                  Remove PIN
+                </label>
+              ) : null}
+            </div>
           </div>
           <label className="edit-toggle">
             <span>
@@ -389,7 +388,14 @@ export function ProfileSelect() {
             <button type="submit" className="btn btn-light">
               Save
             </button>
-            <button type="button" className="btn manage-profiles" onClick={() => setEditingId(null)}>
+            <button
+              type="button"
+              className="btn manage-profiles"
+              onClick={() => {
+                setEditingId(null)
+                setPickingAvatar(false)
+              }}
+            >
               Cancel
             </button>
             {profiles.length > 1 ? (
@@ -399,6 +405,7 @@ export function ProfileSelect() {
                 onClick={() => {
                   const id = editing.id
                   setEditingId(null)
+                  setPickingAvatar(false)
                   deleteProfile(id)
                 }}
               >

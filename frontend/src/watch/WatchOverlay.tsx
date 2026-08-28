@@ -1120,6 +1120,7 @@ export function WatchOverlay() {
               <PlayIcon className="icon" />
               Continue Watching
             </button>
+            <p className="watch-still-hint">If you don&apos;t select Continue Watching, playback will pause.</p>
           </div>
         </div>
       ) : null}

@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { ChevronRightIcon } from '../components/Icons'
 import { envKeys } from '../trailers/types'
 
 export function Account() {
@@ -21,31 +22,55 @@ export function Account() {
     <main className="page-pad account-page">
       <h1>Account</h1>
 
-      <section className="account-card">
-        <h2>Membership & Billing</h2>
+      <section className="account-membership">
         <p className="account-email">{user?.email}</p>
         <p className="account-plan">
-          Flix Standard <span className="spec-badge">HD</span>
+          <span className="account-plan-name">Standard</span>
+          <span className="spec-badge">HD</span>
         </p>
-        <p className="account-hint">Passwords stay on this device. There is no monthly bill.</p>
+        <p className="account-hint">Membership on this device. There is no monthly bill.</p>
       </section>
 
-      <section className="account-card">
+      <section className="account-list">
+        <h2>Membership & Billing</h2>
+        <div className="account-row">
+          <span>Email</span>
+          <span>{user?.email}</span>
+        </div>
+        <div className="account-row">
+          <span>Password</span>
+          <span>••••••••</span>
+        </div>
+        <div className="account-row">
+          <span>Phone</span>
+          <span>Not set</span>
+        </div>
+      </section>
+
+      <section className="account-list">
         <h2>Plan Details</h2>
-        <p>Standard · HD · 5.1 · spatial audio when the title has it.</p>
+        <div className="account-row">
+          <span>Standard</span>
+          <span>HD · 5.1 · spatial audio</span>
+        </div>
       </section>
 
-      <section className="account-card">
-        <h2>Profile & Parental Controls</h2>
-        <Link to="/" state={{ manage: true }}>
-          Manage profiles
+      <section className="account-list">
+        <h2>Security & Privacy</h2>
+        <Link className="account-row is-link" to="/" state={{ manage: true }}>
+          <span>Profile & parental controls</span>
+          <ChevronRightIcon className="icon" />
+        </Link>
+        <Link className="account-row is-link" to="/" state={{ manage: true }}>
+          <span>Manage profiles</span>
+          <ChevronRightIcon className="icon" />
         </Link>
       </section>
 
-      <section className="account-card">
-        <h2>Playback settings</h2>
+      <details className="account-extras">
+        <summary>Playback extras</summary>
         <p className="account-hint">
-          Previews default to free TMDB YouTube trailers. IVA / Fabric Origin is optional paid extras.
+          Previews default to free TMDB YouTube trailers. Extra keys are optional.
         </p>
         <form className="account-form" onSubmit={onSave}>
           <label>
@@ -77,7 +102,7 @@ export function Account() {
             {saved ? 'Saved' : 'Save'}
           </button>
         </form>
-      </section>
+      </details>
     </main>
   )
 }

@@ -47,14 +47,16 @@ export function SearchHitsList({
             </span>
             <span className="search-top-title">{item.title}</span>
           </button>
-          <button
-            type="button"
-            className="search-top-play"
-            aria-label={`Play ${item.title}`}
-            onClick={() => void playItem(item)}
-          >
-            <PlayIcon className="icon" />
-          </button>
+          {ranked ? null : (
+            <button
+              type="button"
+              className="search-top-play"
+              aria-label={`Play ${item.title}`}
+              onClick={() => void playItem(item)}
+            >
+              <PlayIcon className="icon" />
+            </button>
+          )}
         </li>
       ))}
     </ul>

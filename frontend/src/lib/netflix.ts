@@ -13,11 +13,11 @@ export function maturityLabel(item: { kind?: string; genres?: string[] }): strin
 
 /** Netflix About copy under the boxed rating. */
 export function maturityBlurb(label: string): string {
-  if (label === '18+' || label === 'TV-MA') return 'graphic violence, language, smoking'
-  if (label === '16+') return 'violence, language, mature themes'
+  if (label === '18+' || label === 'TV-MA') return 'graphic violence, language, smoking, substance use'
+  if (label === '16+') return 'violence, language, mature themes, smoking'
   if (label === 'TV-14') return 'language, mature themes, violence'
-  if (label === 'PG') return 'mild thematic elements'
-  return 'some thematic elements'
+  if (label === 'PG') return 'mild thematic elements, some language'
+  return 'some thematic elements, language'
 }
 
 export function needsPlaceholderArt(url?: string | null): boolean {
