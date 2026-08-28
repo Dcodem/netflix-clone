@@ -21,15 +21,23 @@ export function PosterCard({
   rank?: number
   layout?: 'landscape' | 'poster'
 }) {
-  const { openTitle } = useTitleModal()
+  const { openTitle, item: openItem } = useTitleModal()
   const { hideContinue } = useProfiles()
   const rootRef = useRef<HTMLButtonElement>(null)
   const [hover, setHover] = useState(false)
+  const [peek, setPeek] = useState(false)
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
   const timer = useRef<number>(0)
   const ranked = typeof rank === 'number'
 
   useEffect(() => () => window.clearTimeout(timer.current), [])
+
+  useEffect(() => {
+    if (openItem) {
+      setHover(false)
+      setPeek(false)
+    }
+  }, [openItem])
 
   function cancelClose() {
     window.clearTimeout(timer.current)
@@ -38,34 +46,41 @@ export function PosterCard({
   function onEnter(event: PointerEvent<HTMLDivElement>) {
     if (!hoverable || event.pointerType !== 'mouse') return
     cancelClose()
+    setPeek(true)
     timer.current = window.setTimeout(() => {
       const rect = rootRef.current?.getBoundingClientRect()
       if (rect) {
         setAnchor(rect)
         setHover(true)
       }
-    }, 400)
+      }, 400)
   }
 
   function onLeave(event: PointerEvent<HTMLDivElement>) {
     if (event.pointerType !== 'mouse') return
     cancelClose()
-    timer.current = window.setTimeout(() => setHover(false), 140)
+    timer.current = window.setTimeout(() => {
+      setHover(false)
+      setPeek(false)
+    }, 140)
   }
 
   return (
     <div
-      className={`poster-wrap ${ranked ? 'is-ranked' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'}`}
+      className={`poster-wrap ${ranked ? 'is-ranked' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'} ${peek ? 'is-peeking' : ''} ${hover ? 'is-previewing' : ''}`}
       onPointerEnter={onEnter}
       onPointerLeave={onLeave}
     >
-      {ranked ? <span className="rank-num">{rank}</span> : null}
+      {ranked ? (
+        <span className={`rank-num ${rank === 1 ? 'is-first' : ''} ${rank === 10 ? 'is-ten' : ''}`}>{rank}</span>
+      ) : null}
       <button
         type="button"
         className="poster-card"
         ref={rootRef}
         onClick={() => {
           setHover(false)
+          setPeek(false)
           openTitle(item)
         }}
         aria-label={item.title}
@@ -80,6 +95,12 @@ export function PosterCard({
         ) : null}
       </button>
       {continueMode ? (
+        <div className="continue-meta">
+          <span className="continue-title">{item.title}</span>
+          {item.continueLabel ? <span className="continue-ep">{item.continueLabel}</span> : null}
+        </div>
+      ) : null}
+      {continueMode ? (
         <button
           type="button"
           className="continue-hide"
@@ -93,14 +114,16 @@ export function PosterCard({
           <CloseIcon className="icon" />
         </button>
       ) : null}
-      {hover && anchor ? (
+      {hover && anchor && !openItem ? (
         <TitleHoverCard
           item={item}
           anchor={anchor}
           progress={progress}
-          continueMode={continueMode}
           onKeep={cancelClose}
-          onClose={() => setHover(false)}
+          onClose={() => {
+            setHover(false)
+            setPeek(false)
+          }}
         />
       ) : null}
     </div>

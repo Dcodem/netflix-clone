@@ -10,6 +10,7 @@ export type MovieListItem = {
   genres?: string[]
   poster_url?: string | null
   href: string
+  continueLabel?: string
 }
 
 export type MovieDetail = MovieListItem & {

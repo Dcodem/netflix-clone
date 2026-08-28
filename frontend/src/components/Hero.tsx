@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { getMovie, getShow } from '../api/client'
-import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
+import type { MovieDetail, MovieListItem } from '../api/types'
 import { genresOf, isShow } from '../lib/media'
-import { maturityLabel, qualityBadge } from '../lib/netflix'
+import { buildWatchSession } from '../lib/watchSession'
+import { maturityLabel } from '../lib/netflix'
+import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
-import { InfoIcon, PlayIcon, SpeakerIcon } from './Icons'
+import { InfoIcon, PlayIcon, RestartIcon, SpeakerIcon } from './Icons'
 import { CatalogImage } from './CatalogImage'
+import { GenreDots } from './GenreDots'
+import { TitleLogo } from './TitleLogo'
 
 const VIDEO_ASPECT = 16 / 9
 
@@ -28,12 +32,16 @@ export function Hero({ item }: { item: MovieListItem }) {
   const [detail, setDetail] = useState<MovieDetail | null>(null)
   const [muted, setMuted] = useState(true)
   const [trailerReady, setTrailerReady] = useState(false)
+  const [trailerEnded, setTrailerEnded] = useState(false)
+  const [settled, setSettled] = useState(false)
   const [scale, setScale] = useState(1.45)
-  const previewActive = !openItem && !session
+  const previewActive = !openItem && !session && activeProfile?.autoplayPreview !== false
+  const playing = trailerReady && previewActive && !trailerEnded
 
   useEffect(() => {
     let cancelled = false
     setTrailerReady(false)
+    setTrailerEnded(false)
     setMuted(true)
     const load = isShow(item) ? getShow(item.id) : getMovie(item.id)
     load
@@ -65,38 +73,26 @@ export function Hero({ item }: { item: MovieListItem }) {
     if (!previewActive) setMuted(true)
   }, [previewActive])
 
+  useEffect(() => {
+    setSettled(false)
+    if (!playing) return
+    if (!window.matchMedia('(min-width: 768px)').matches) return
+    const timer = window.setTimeout(() => setSettled(true), 6000)
+    return () => window.clearTimeout(timer)
+  }, [playing, item.id])
+
   const backdrop = detail?.backdrop_url || item.poster_url
-  const genres = genresOf(detail ?? item)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
-  const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
-  const resumeSeason =
-    seasons.find((season) => season.season_number === last?.seasonNumber) ?? seasons[0]
-  const resumeEpisode =
-    resumeSeason?.episodes?.find(
-      (episode) => episode.id === last?.episodeId || episode.number === last?.episodeNumber,
-    ) ?? resumeSeason?.episodes?.[0]
-  const watchHref = isShow(item)
-    ? last?.watch_href || resumeEpisode?.watch_href || detail?.watch_href
-    : detail?.watch_href
+  const sessionReady = buildWatchSession(item, detail, last)
   const maturity = maturityLabel(item)
   const synopsis = detail?.synopsis
-  const quality = qualityBadge(item.quality || detail?.quality)
+  const genres = genresOf(detail ?? item).slice(0, 3)
 
   function onWatch() {
-    if (!watchHref) return
-    openWatch(watchHref, item.title, {
-      id: item.id,
-      kind: item.kind ?? 'movie',
-      title: item.title,
-      poster_url: item.poster_url ?? null,
-      genres,
-      watch_href: watchHref,
-      runtime: resumeEpisode?.duration ?? detail?.runtime ?? last?.runtime ?? null,
-      progress: last?.progress,
-      seasonNumber: last?.seasonNumber ?? resumeSeason?.season_number,
-      episodeNumber: last?.episodeNumber ?? resumeEpisode?.number,
-      episodeId: last?.episodeId ?? resumeEpisode?.id,
-    })
+    const next = buildWatchSession(item, detail, last)
+    if (!next) return
+    playClick()
+    openWatch(next.href, item.title, next.payload)
   }
 
   function toggleMute() {
@@ -105,9 +101,15 @@ export function Hero({ item }: { item: MovieListItem }) {
     setMuted(next)
   }
 
+  function replayTrailer() {
+    setTrailerEnded(false)
+    setTrailerReady(true)
+    trailerRef.current?.replay()
+  }
+
   return (
-    <section className={`hero ${trailerReady && previewActive ? 'is-playing' : ''}`}>
-      <div className={`hero-media ${trailerReady && previewActive ? 'is-playing' : ''}`} ref={mediaRef}>
+    <section className={`hero ${playing ? 'is-playing' : ''} ${settled ? 'is-settled' : ''}`}>
+      <div className={`hero-media ${playing ? 'is-playing' : ''}`} ref={mediaRef}>
         <CatalogImage item={{ ...item, backdrop_url: backdrop }} alt="" className="hero-img" prefer="backdrop" />
         {previewActive ? (
           <div
@@ -121,7 +123,11 @@ export function Hero({ item }: { item: MovieListItem }) {
               kind={item.kind}
               className="hero-trailer"
               muted={muted}
-              onReady={() => setTrailerReady(true)}
+              onReady={() => {
+                setTrailerEnded(false)
+                setTrailerReady(true)
+              }}
+              onEnded={() => setTrailerEnded(true)}
             />
           </div>
         ) : null}
@@ -131,22 +137,11 @@ export function Hero({ item }: { item: MovieListItem }) {
           <span className="n-mark">F</span>
           <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
         </div>
-        <h1 className="hero-title">{item.title}</h1>
-        <div className="hero-meta">
-          {item.year ? <span>{item.year}</span> : null}
-          {quality ? <span className="quality-badge">{quality}</span> : null}
-          {isShow(item) ? (
-            <span>
-              {seasons.length > 1 ? `${seasons.length} Seasons` : 'Series'}
-              {last?.seasonNumber && last?.episodeNumber
-                ? ` · S${last.seasonNumber}:E${last.episodeNumber}`
-                : ''}
-            </span>
-          ) : null}
-        </div>
+        <TitleLogo item={item} className="hero-logo" titleClassName="hero-title" />
+        {genres.length ? <GenreDots genres={genres} className="hero-genre-dots" /> : null}
         {synopsis ? <p className="hero-syn">{synopsis}</p> : null}
         <div className="hero-actions">
-          <button type="button" className="btn btn-play" onClick={onWatch} disabled={!watchHref}>
+          <button type="button" className="btn btn-play" onClick={onWatch} disabled={!sessionReady}>
             <PlayIcon className="icon" />
             {last?.progress && last.progress > 0.05 ? 'Resume' : 'Play'}
           </button>
@@ -157,7 +152,11 @@ export function Hero({ item }: { item: MovieListItem }) {
         </div>
       </div>
       <div className="hero-controls-right">
-        {trailerReady && previewActive ? (
+        {previewActive && trailerEnded ? (
+          <button type="button" className="hero-mute" onClick={replayTrailer} aria-label="Replay">
+            <RestartIcon className="icon" />
+          </button>
+        ) : previewActive ? (
           <button
             type="button"
             className="hero-mute"

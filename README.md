@@ -54,12 +54,12 @@ This frontend is built so the catalog API and the video host can be swapped in w
 5. **Images.** Use `poster_url`, `backdrop_url`, and `thumb_url`. If a file fails, the UI retries `/img?u=`. Missing or mock `/art/...` posters can fall back to TMDB art when a TMDB key is present. Keep real catalog posters when you have them.
 6. **Do not run two APIs on 8090.** Stop the mock before starting the real catalog.
 
-Accounts, profiles (including Kids and PIN), My List, Continue Watching, and taste stay in this browser. They will not sync until a later backend owns them.
+Accounts, profiles, My List, Continue Watching, and taste stay in this browser. They will not sync until a later backend owns them.
 
 ## Screens
 
 - Sign in / Sign up — local accounts; poster wall behind the card
-- Who's watching — illustrated profile photos, Kids profiles (PG only), optional 4-digit PIN
+- Who's watching — illustrated profile photos, optional 4-digit PIN
 - Home — billboard hero, silent poster rails, hover previews on desktop, Continue Watching
 - Movies / TV Shows — genre dropdown over the billboard; Movies and TV rails follow this profile's taste
 - New & Popular — new and trending rails

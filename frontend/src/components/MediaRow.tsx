@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { MovieListItem } from '../api/types'
 import { useFineHover } from '../hooks/useFineHover'
 import { useRowOverflow } from '../hooks/useRowOverflow'
@@ -5,6 +6,15 @@ import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons'
 import { PosterCard } from './PosterCard'
+
+function exploreHref(title: string, items: MovieListItem[], seed?: MovieListItem) {
+  if (seed?.title) return `/search?q=${encodeURIComponent(seed.title)}`
+  if (title.length <= 18 && !/for |because|watch|pick|trend|list/i.test(title)) {
+    return `/search?q=${encodeURIComponent(title)}`
+  }
+  const shows = items.filter((item) => item.kind === 'show').length
+  return shows > items.length / 2 ? '/browse/shows' : '/browse/movies'
+}
 
 function SceneCard({ item }: { item: MovieListItem }) {
   const { openTitle } = useTitleModal()
@@ -52,18 +62,33 @@ export function MediaRow({
   const fineHover = useFineHover()
   const ranked = variant === 'top10'
   const looping = loop && !seed && !ranked && items.length >= 8 && fineHover
-  const { ref, canPrev, canNext, copies, scrollByPage } = useRowOverflow(looping, items.length)
+  const { ref, canPrev, canNext, copies, scrollByPage, pageIndex, pageCount } = useRowOverflow(looping, items.length)
 
   if (!items.length) return null
 
   const slides = looping ? Array.from({ length: copies }, (_, copy) => copy) : [0]
   const visible = ranked ? items.slice(0, 10) : items
+  const canExplore = !subtitle && !continueMode && !ranked
 
   return (
     <section className={`media-row ${seed ? 'has-scene' : ''} ${ranked ? 'is-top10' : ''}`}>
       <div className="row-heading">
-        <h2 className="section-title">{title}</h2>
-        {subtitle || continueMode || ranked ? null : <span className="row-explore">Explore All</span>}
+        {canExplore ? (
+          <Link className="row-heading-link" to={exploreHref(title, items, seed)}>
+            <h2 className="section-title">{title}</h2>
+            <span className="row-explore">Explore All</span>
+            <ChevronRightIcon className="icon row-heading-caret" />
+          </Link>
+        ) : (
+          <h2 className="section-title">{title}</h2>
+        )}
+        {pageCount > 1 && !ranked ? (
+          <div className="row-pages" aria-hidden="true">
+            {Array.from({ length: pageCount }, (_, index) => (
+              <span key={index} className={index === pageIndex ? 'is-on' : ''} />
+            ))}
+          </div>
+        ) : null}
       </div>
       {subtitle ? <p className="section-sub row-sub">{subtitle}</p> : null}
       <div className="row-wrap">
@@ -72,7 +97,9 @@ export function MediaRow({
             type="button"
             className="row-arrow row-arrow-prev"
             aria-label={`Scroll ${title} left`}
-            onClick={() => scrollByPage(-1)}
+            onClick={() => {
+              scrollByPage(-1)
+            }}
           >
             <ChevronLeftIcon className="icon" />
           </button>
@@ -98,7 +125,9 @@ export function MediaRow({
             type="button"
             className="row-arrow row-arrow-next"
             aria-label={`Scroll ${title} right`}
-            onClick={() => scrollByPage(1)}
+            onClick={() => {
+              scrollByPage(1)
+            }}
           >
             <ChevronRightIcon className="icon" />
           </button>

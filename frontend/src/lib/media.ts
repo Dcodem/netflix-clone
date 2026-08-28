@@ -35,6 +35,25 @@ export function formatRuntime(mins?: number | null): string | null {
   return rest ? `${hours}h ${rest}m` : `${hours}h`
 }
 
+export function stillFocus(index: number) {
+  return `${(index * 29) % 88}% ${(index * 17) % 72}%`
+}
+
+const TMDB_FILE = /^[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|webp)$/i
+
+export function stillUrl(value?: string | null): string | null {
+  if (!value) return null
+  if (/^https?:\/\//i.test(value) || value.startsWith('/art/') || value.startsWith('/img')) return value
+  const file = value.replace(/^\/+/, '')
+  if (TMDB_FILE.test(file)) return `https://image.tmdb.org/t/p/w780/${file}`
+  return value
+}
+
+export function episodeStill(stills: string[] | undefined, number: number, fallback?: string | null) {
+  const pick = stills?.length ? stills[(Math.max(1, number) - 1) % stills.length] : null
+  return stillUrl(pick) ?? stillUrl(fallback)
+}
+
 export function uniqueById<T extends { id: string }>(items: T[]): T[] {
   const seen = new Set<string>()
   const out: T[] = []

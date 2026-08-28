@@ -8,7 +8,9 @@ type MediaImageProps = {
 }
 
 function MediaImageInner({ src, alt, className }: MediaImageProps) {
-  const [stage, setStage] = useState<'direct' | 'proxy' | 'fallback'>('direct')
+  const [stage, setStage] = useState<'direct' | 'proxy' | 'fallback'>(() =>
+    src && /(?:image\.tmdb\.org|themoviedb\.org)/i.test(src) ? 'proxy' : 'direct',
+  )
 
   if (!src || stage === 'fallback') {
     return (

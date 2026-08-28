@@ -1,58 +1,92 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import type { Episode, Season } from '../api/types'
 import { isEpisodeStarted, isEpisodeWatched, seasonStats, watchForEpisode } from '../lib/episodeProgress'
 import type { WatchHistoryItem } from '../profiles/types'
-import { PlayIcon } from './Icons'
+import { episodeStill, stillFocus } from '../lib/media'
+import { CheckIcon, PlayIcon } from './Icons'
 import { MediaImage } from './MediaImage'
+
+export function SeasonPicker({
+  seasons,
+  history,
+  value,
+  onChange,
+}: {
+  seasons: Season[]
+  history?: WatchHistoryItem
+  value: number
+  onChange: (seasonNumber: number) => void
+}) {
+  if (seasons.length > 1) {
+    return (
+      <label className="season-select-wrap title-tabs-season">
+        <span className="visually-hidden">Season</span>
+        <select
+          className="season-select"
+          value={value}
+          onChange={(event) => onChange(Number(event.target.value))}
+        >
+          {seasons.map((season) => {
+            const stats = seasonStats(history, season)
+            const watched =
+              stats.started > 0 ? ` · ${stats.started} of ${stats.total} watched` : ` · ${stats.total} episodes`
+            return (
+              <option key={season.season_number} value={season.season_number}>
+                Season {season.season_number}
+                {watched}
+              </option>
+            )
+          })}
+        </select>
+      </label>
+    )
+  }
+  const count = seasons[0]?.episodes?.length ?? 0
+  return count ? <span className="season-count title-tabs-season">{count} Episodes</span> : null
+}
 
 export function EpisodeList({
   seasons,
   history,
+  stills,
   onPlay,
+  seasonNumber,
+  onSeasonNumber,
+  hideHeader = false,
 }: {
   seasons: Season[]
   history?: WatchHistoryItem
+  stills?: string[]
   onPlay: (episode: Episode, season: Season) => void
+  seasonNumber?: number
+  onSeasonNumber?: (seasonNumber: number) => void
+  hideHeader?: boolean
 }) {
-  const [seasonNumber, setSeasonNumber] = useState(history?.seasonNumber ?? seasons[0]?.season_number ?? 1)
+  const [internalSeason, setInternalSeason] = useState(history?.seasonNumber ?? seasons[0]?.season_number ?? 1)
+  const activeNumber = seasonNumber ?? internalSeason
 
   useEffect(() => {
-    if (history?.seasonNumber) setSeasonNumber(history.seasonNumber)
-  }, [history?.seasonNumber, history?.episodeId])
+    if (seasonNumber !== undefined) return
+    if (history?.seasonNumber) setInternalSeason(history.seasonNumber)
+  }, [history?.seasonNumber, history?.episodeId, seasonNumber])
 
   if (!seasons.length) return null
 
-  const activeSeason = seasons.find((season) => season.season_number === seasonNumber) ?? seasons[0]
+  const activeSeason = seasons.find((season) => season.season_number === activeNumber) ?? seasons[0]
+
+  function setSeason(next: number) {
+    setInternalSeason(next)
+    onSeasonNumber?.(next)
+  }
 
   return (
     <section className="episode-panel">
-      <div className="episode-header">
-        <h2 className="episode-heading">Episodes</h2>
-        {seasons.length > 1 ? (
-          <label className="season-select-wrap">
-            <span className="visually-hidden">Season</span>
-            <select
-              className="season-select"
-              value={activeSeason.season_number}
-              onChange={(event) => setSeasonNumber(Number(event.target.value))}
-            >
-              {seasons.map((season) => {
-                const stats = seasonStats(history, season)
-                const watched =
-                  stats.started > 0 ? ` · ${stats.started} of ${stats.total} watched` : ` · ${stats.total} episodes`
-                return (
-                  <option key={season.season_number} value={season.season_number}>
-                    Season {season.season_number}
-                    {watched}
-                  </option>
-                )
-              })}
-            </select>
-          </label>
-        ) : (
-          <span className="season-count">{activeSeason.episodes?.length ?? 0} Episodes</span>
-        )}
-      </div>
+      {!hideHeader ? (
+        <div className="episode-header">
+          <h2 className="episode-heading">Episodes</h2>
+          <SeasonPicker seasons={seasons} history={history} value={activeSeason.season_number} onChange={setSeason} />
+        </div>
+      ) : null}
       {activeSeason?.episodes?.length ? (
         <div className="episodes">
           {activeSeason.episodes.map((episode) => {
@@ -69,10 +103,10 @@ export function EpisodeList({
                 onClick={() => onPlay(episode, activeSeason)}
               >
                 <span className="ep-num">{episode.number}</span>
-                <div className="ep-thumb-wrap">
-                  <MediaImage src={episode.thumb_url} alt="" className="ep-thumb" />
+                <div className="ep-thumb-wrap" style={{ '--focal': stillFocus(episode.number) } as CSSProperties}>
+                  <MediaImage src={episodeStill(stills, episode.number, episode.thumb_url)} alt="" className="ep-thumb" />
                   <span className="ep-play">
-                    <PlayIcon className="icon" />
+                    {done ? <CheckIcon className="icon" /> : <PlayIcon className="icon" />}
                   </span>
                   {started ? (
                     <div className="progress-track ep-progress">

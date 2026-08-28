@@ -4,7 +4,8 @@ import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { pushRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
-import { SearchIcon } from './Icons'
+import { NotificationsMenu } from './NotificationsMenu'
+import { ChevronLeftIcon, CloseIcon, SearchIcon } from './Icons'
 
 const NAV = [
   { to: '/browse', label: 'Home', end: true },
@@ -30,28 +31,31 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(Boolean(urlQuery) || location.pathname === '/search')
   const inputRef = useRef<HTMLInputElement>(null)
   const searchRef = useRef<HTMLDivElement>(null)
+  const browseRef = useRef<HTMLDetailsElement>(null)
   const debounced = useDebouncedValue(query.trim(), 350)
   const open = searchOpen || Boolean(query) || location.pathname === '/search'
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
+    const onScroll = () => setScrolled(window.scrollY > 40)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
-    if (debounced.length >= 2) {
-      pushRecentSearch(debounced)
-      if (location.pathname !== '/search' || searchParams.get('q') !== debounced) {
-        navigate(`/search?q=${encodeURIComponent(debounced)}`)
+    const live = query.trim()
+    if (live.length < 2) {
+      if (location.pathname === '/search' && searchParams.get('q')) {
+        navigate('/search')
       }
       return
     }
-    if (location.pathname === '/search' && searchParams.get('q')) {
-      navigate('/search')
+    if (debounced !== live) return
+    pushRecentSearch(debounced)
+    if (location.pathname !== '/search' || searchParams.get('q') !== debounced) {
+      navigate(`/search?q=${encodeURIComponent(debounced)}`)
     }
-  }, [debounced, location.pathname, navigate, searchParams])
+  }, [debounced, query, location.pathname, navigate, searchParams])
 
   useEffect(() => {
     if (!open) return
@@ -89,14 +93,45 @@ export function Header() {
     window.setTimeout(() => inputRef.current?.focus(), 20)
   }
 
+  function clearQuery() {
+    setQuery('')
+    if (location.pathname === '/search') navigate('/search')
+  }
+
+  function leaveSearch() {
+    setQuery('')
+    setSearchOpen(false)
+    if (location.pathname === '/search') navigate('/browse')
+  }
+
+  function syncBrowseCaret() {
+    const root = browseRef.current
+    const summary = root?.querySelector('summary')
+    if (!root?.open || !summary) return
+    const rect = summary.getBoundingClientRect()
+    root.style.setProperty('--caret-x', `${Math.round(rect.left + rect.width / 2)}px`)
+  }
+
+  if (!activeProfile) return null
+
   return (
-    <header className={`site-header ${scrolled ? 'is-scrolled' : ''} ${activeProfile?.kids ? 'is-kids' : ''}`}>
+    <header className={`site-header ${scrolled ? 'is-scrolled' : ''} ${open ? 'is-searching' : ''}`}>
       <div className="header-inner">
+        <button type="button" className="search-back" onClick={leaveSearch} aria-label="Back">
+          <ChevronLeftIcon className="icon" />
+        </button>
         <Link className="logo" to="/browse">
           FLIX
         </Link>
-        <details className="browse-menu">
+        <details className="browse-menu" ref={browseRef} onToggle={syncBrowseCaret}>
           <summary>Browse</summary>
+          <button
+            type="button"
+            className="browse-menu-scrim"
+            aria-label="Close browse menu"
+            tabIndex={-1}
+            onClick={(event) => event.currentTarget.closest('details')?.removeAttribute('open')}
+          />
           <div className="browse-menu-list">
             {NAV.map((link) => (
               <NavLink
@@ -124,16 +159,29 @@ export function Header() {
               <SearchIcon className="icon" />
             </button>
             {open ? (
-              <input
-                ref={inputRef}
-                type="search"
-                placeholder="Titles, people, genres"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                aria-label="Search"
-              />
+              <>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  inputMode="search"
+                  autoComplete="off"
+                  placeholder="Titles, people, genres"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  aria-label="Search"
+                />
+                <button
+                  type="button"
+                  className={`search-close ${query ? 'is-shown' : ''}`}
+                  aria-label={query ? 'Clear search' : 'Close search'}
+                  onClick={query ? clearQuery : leaveSearch}
+                >
+                  <CloseIcon className="icon" />
+                </button>
+              </>
             ) : null}
           </div>
+          <NotificationsMenu />
           <AccountMenu />
         </div>
       </div>

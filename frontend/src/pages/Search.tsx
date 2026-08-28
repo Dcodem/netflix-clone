@@ -1,14 +1,26 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { searchTitles } from '../api/client'
-import { EmptyState } from '../components/EmptyState'
+import { getCatalogMany, getMovies, searchTitles } from '../api/client'
+import type { MovieListItem } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
+import { ClockIcon, CloseIcon } from '../components/Icons'
 import { MediaGrid } from '../components/MediaGrid'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
-import { filterForProfile } from '../lib/netflix'
-import { clearRecentSearches, listRecentSearches } from '../lib/recentSearch'
+import { sortByRating, uniqueById } from '../lib/media'
+import { clearRecentSearches, listRecentSearches, removeRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
+import { relatedSearchResults } from '../profiles/taste'
+
+function catalogHits(query: string, catalog: MovieListItem[]): MovieListItem[] {
+  const needle = query.trim().toLowerCase()
+  if (needle.length < 2) return []
+  return catalog.filter(
+    (item) =>
+      item.title.toLowerCase().includes(needle) ||
+      (item.genres ?? []).some((genre) => genre.toLowerCase().includes(needle)),
+  )
+}
 
 export function Search() {
   const { activeProfile } = useProfiles()
@@ -16,59 +28,93 @@ export function Search() {
   const q = (params.get('q') ?? '').trim()
   const enabled = q.length >= 2
   const { data, error, loading, retry } = useFetch(() => searchTitles(q), q, { enabled })
+  const catalog = useFetch(async () => {
+    const [movies, shows] = await Promise.all([
+      getCatalogMany('movies', 5).catch(() => [] as MovieListItem[]),
+      getCatalogMany('shows', 5).catch(() => [] as MovieListItem[]),
+    ])
+    return uniqueById([...movies, ...shows])
+  }, 'search-catalog')
+  const popular = useFetch(() => getMovies(), 'search-popular', { enabled: !enabled })
   const [recents, setRecents] = useState(listRecentSearches)
-  const items = useMemo(() => filterForProfile(data ?? [], activeProfile), [data, activeProfile])
+  const pool = useMemo(() => catalog.data ?? [], [catalog.data])
+  const hits = useMemo(() => {
+    const fromApi = data ?? []
+    return uniqueById([...fromApi, ...catalogHits(q, pool)])
+  }, [data, q, pool])
+  const items = useMemo(
+    () => relatedSearchResults(hits, pool, activeProfile, 48),
+    [hits, pool, activeProfile],
+  )
+  const popularItems = useMemo(
+    () => sortByRating(popular.data ?? []).slice(0, 18),
+    [popular.data],
+  )
 
   useEffect(() => {
     setRecents(listRecentSearches())
   }, [q])
 
   const recentBlock = useMemo(
-    () => (
-      <div className="search-recents">
-        <div className="search-recents-head">
-          <h2 className="section-title">Recent searches</h2>
-          {recents.length ? (
+    () =>
+      recents.length ? (
+        <div className="search-recents">
+          <div className="search-recents-head">
+            <h2 className="section-title">Recent Searches</h2>
             <button
               type="button"
-              className="btn btn-ghost"
+              className="search-clear-all"
               onClick={() => {
                 clearRecentSearches()
                 setRecents([])
               }}
             >
-              Clear
+              Clear All
             </button>
-          ) : null}
-        </div>
-        {recents.length ? (
-          <div className="search-recent-chips">
-            {recents.map((entry) => (
-              <button
-                type="button"
-                key={entry}
-                className="taste-chip"
-                onClick={() => setParams({ q: entry })}
-              >
-                {entry}
-              </button>
-            ))}
           </div>
-        ) : (
-          <p className="section-sub">Searches stay on this device. Type two characters to look up a title.</p>
-        )}
-      </div>
-    ),
+          <ul className="search-recent-list">
+            {recents.slice(0, 5).map((entry) => (
+              <li key={entry}>
+                <button type="button" onClick={() => setParams({ q: entry })}>
+                  <ClockIcon className="icon" />
+                  <span>{entry}</span>
+                </button>
+                <button
+                  type="button"
+                  className="search-recent-forget"
+                  aria-label={`Remove ${entry}`}
+                  onClick={() => {
+                    removeRecentSearch(entry)
+                    setRecents(listRecentSearches())
+                  }}
+                >
+                  <CloseIcon className="icon" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null,
     [recents, setParams],
   )
 
   if (!enabled) {
-    return <main className="page page-pad">{recentBlock}</main>
+    return (
+      <main className="page page-pad search-page">
+        {recentBlock}
+        {popularItems.length ? (
+          <>
+            <h2 className="section-title search-recommended-title">Recommended TV Shows and Movies</h2>
+            <MediaGrid items={popularItems} layout="poster" hoverable={false} />
+          </>
+        ) : null}
+      </main>
+    )
   }
 
-  if (loading) {
+  if (loading && !hits.length) {
     return (
-      <main className="page page-pad">
+      <main className="page page-pad search-page">
         <Spinner label={`Searching “${q}”`} />
       </main>
     )
@@ -76,22 +122,33 @@ export function Search() {
 
   if (error) {
     return (
-      <main className="page page-pad">
+      <main className="page page-pad search-page">
         <ErrorState message={error} onRetry={retry} />
       </main>
     )
   }
 
   return (
-    <main className="page page-pad">
+    <main className="page page-pad search-page">
       {items.length ? (
         <>
-          <h1 className="search-heading">Explore titles related to &ldquo;{q}&rdquo;</h1>
-          <MediaGrid items={items} />
+          <h1 className="search-heading">
+            Explore titles related to: <span>{q}</span>
+          </h1>
+          <MediaGrid items={items} layout="poster" hoverable={false} />
         </>
       ) : (
         <>
-          <EmptyState title="Your search did not have any matches." detail="Try a different title, actor, or genre." />
+          <div className="search-empty">
+            <p>Your search for “{q}” did not have any matches.</p>
+            <p className="search-empty-kicker">Suggestions:</p>
+            <ul>
+              <li>Try different keywords</li>
+              <li>Looking for a movie or TV show?</li>
+              <li>Try using a movie, TV show title, an actor or director</li>
+              <li>Try a genre, like comedy, romance, sports, or drama</li>
+            </ul>
+          </div>
           {recentBlock}
         </>
       )}

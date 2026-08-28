@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { getShow } from '../api/client'
 import type { Episode, Season } from '../api/types'
 import { CatalogImage } from '../components/CatalogImage'
@@ -11,9 +11,9 @@ import { TasteButtons } from '../components/TasteButtons'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRating, formatRuntime, genresOf } from '../lib/media'
-import { isKidsSafe } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
+import { useTmdbGallery } from '../trailers/useTmdbGallery'
 import { useWatch } from '../watch/WatchContext'
 
 export function ShowDetail() {
@@ -24,7 +24,7 @@ export function ShowDetail() {
   const last = activeProfile?.history.find((entry) => entry.id === id)
   const trailerRef = useRef<TrailerHandle>(null)
   const [muted, setMuted] = useState(true)
-  const [trailerReady, setTrailerReady] = useState(false)
+  const stills = useTmdbGallery(data)
 
   const seasons = useMemo(() => data?.seasons ?? [], [data])
   const resumeSeason = useMemo(() => {
@@ -35,7 +35,6 @@ export function ShowDetail() {
   if (loading) return <Spinner label="Loading show" />
   if (error) return <ErrorState message={error} onRetry={retry} />
   if (!data) return <ErrorState message="Show not found" onRetry={retry} />
-  if (activeProfile?.kids && !isKidsSafe(data)) return <Navigate to="/browse" replace />
 
   const show = data
   const rating = formatRating(show.rating)
@@ -53,6 +52,7 @@ export function ShowDetail() {
       id: show.id,
       kind: 'show',
       title: show.title,
+      year: show.year,
       poster_url: show.poster_url ?? null,
       genres,
       watch_href: watchHref,
@@ -70,6 +70,7 @@ export function ShowDetail() {
       id: show.id,
       kind: 'show',
       title: show.title,
+      year: show.year,
       poster_url: show.poster_url ?? null,
       genres,
       watch_href: episode.watch_href,
@@ -99,7 +100,6 @@ export function ShowDetail() {
             kind="show"
             className="hero-trailer"
             muted={muted}
-            onReady={() => setTrailerReady(true)}
           />
           <div className="detail-hero-body">
             <CatalogImage item={show} alt="" className="detail-poster" />
@@ -137,18 +137,16 @@ export function ShowDetail() {
               </div>
             </div>
           </div>
-          {trailerReady ? (
-            <div className="hero-controls-right">
-              <button
-                type="button"
-                className="hero-mute"
-                onClick={toggleMute}
-                aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-              >
-                <SpeakerIcon muted={muted} className="icon" />
-              </button>
-            </div>
-          ) : null}
+          <div className="hero-controls-right">
+            <button
+              type="button"
+              className="hero-mute"
+              onClick={toggleMute}
+              aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+            >
+              <SpeakerIcon muted={muted} className="icon" />
+            </button>
+          </div>
         </div>
         {show.synopsis ? <p className="detail-synopsis">{show.synopsis}</p> : null}
         {show.cast?.length ? (
@@ -156,7 +154,7 @@ export function ShowDetail() {
             <strong>Cast</strong> {show.cast.join(', ')}
           </p>
         ) : null}
-        <EpisodeList seasons={seasons} history={last} onPlay={onWatchEpisode} />
+        <EpisodeList seasons={seasons} history={last} stills={stills} onPlay={onWatchEpisode} />
       </section>
     </main>
   )

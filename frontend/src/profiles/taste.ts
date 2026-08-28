@@ -98,7 +98,6 @@ export function becauseYouWatchedRows(
     rows.push({
       id: `because-${seed.id}`,
       title: `Because you watched ${seed.title}`,
-      subtitle: rows.length === 0 ? "Here's what you should watch" : undefined,
       items: related,
       seed,
     })
@@ -157,8 +156,17 @@ const GENRE_LABELS: Record<string, string> = {
 
 export function genreRailTitle(genre: string, kind: 'all' | 'movies' | 'shows' = 'all'): string {
   const label = GENRE_LABELS[genre] ?? genre
-  if (kind === 'movies') return label === 'Comedies' ? 'Comedy Movies' : `${label} Movies`
-  if (kind === 'shows') return `${label} TV Shows`
+  if (kind === 'movies') {
+    if (label === 'Comedies') return 'Comedy Movies'
+    if (label === 'Dramas') return 'Drama Movies'
+    return `${label} Movies`
+  }
+  if (kind === 'shows') {
+    if (label === 'Comedies') return 'TV Comedies'
+    if (label === 'Dramas') return 'TV Dramas'
+    if (label === 'Documentaries') return 'TV Documentaries'
+    return `${label} TV Shows`
+  }
   return label
 }
 
@@ -279,6 +287,36 @@ export function recommendSimilar(
     .sort((a, b) => b.score - a.score)
     .map((row) => row.item)
     .slice(0, limit)
+}
+
+/** Netflix search fills the page with related titles, not only exact matches. */
+export function relatedSearchResults(
+  hits: MovieListItem[],
+  catalog: MovieListItem[],
+  profile: Profile | null,
+  limit = 48,
+): MovieListItem[] {
+  if (!hits.length) return []
+  const seen = new Set<string>()
+  const out: MovieListItem[] = []
+  const add = (item?: MovieListItem) => {
+    if (!item || seen.has(item.id)) return
+    seen.add(item.id)
+    out.push(item)
+  }
+
+  hits.forEach(add)
+  recommendSimilar(catalog, hits.slice(0, 6), Math.max(24, limit)).forEach(add)
+
+  const rest = catalog.filter((item) => !seen.has(item.id))
+  if (profile) rankByTaste(rest, profile, { excludeSeen: false }).forEach(add)
+  if (out.length < 24) {
+    [...rest]
+      .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+      .forEach(add)
+  }
+
+  return out.slice(0, limit)
 }
 
 export function similarByGenres(item: MovieListItem, pool: MovieListItem[], limit = 12): MovieListItem[] {

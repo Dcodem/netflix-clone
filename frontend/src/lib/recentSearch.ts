@@ -1,5 +1,5 @@
 const STORAGE_KEY = 'flix.search.recent.v1'
-const LIMIT = 8
+const LIMIT = 5
 
 export function listRecentSearches(): string[] {
   try {
@@ -13,12 +13,23 @@ export function listRecentSearches(): string[] {
 
 export function pushRecentSearch(query: string) {
   const value = query.trim()
-  if (value.length < 2) return
-  const next = [value, ...listRecentSearches().filter((entry) => entry.toLowerCase() !== value.toLowerCase())].slice(
-    0,
-    LIMIT,
-  )
+  if (value.length < 3) return
+  const needle = value.toLowerCase()
+  const next = [
+    value,
+    ...listRecentSearches().filter((entry) => {
+      const existing = entry.toLowerCase()
+      return existing !== needle && !needle.startsWith(existing) && !existing.startsWith(needle)
+    }),
+  ].slice(0, LIMIT)
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+}
+
+export function removeRecentSearch(query: string) {
+  const needle = query.trim().toLowerCase()
+  const next = listRecentSearches().filter((entry) => entry.toLowerCase() !== needle)
+  if (next.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+  else localStorage.removeItem(STORAGE_KEY)
 }
 
 export function clearRecentSearches() {

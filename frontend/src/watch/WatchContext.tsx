@@ -14,6 +14,7 @@ type WatchContextValue = {
   session: WatchSession | null
   openWatch: (href: string, title: string, history?: Omit<WatchHistoryItem, 'watchedAt'>) => void
   closeWatch: () => void
+  reportProgress: (progress: number) => void
 }
 
 const WatchContext = createContext<WatchContextValue | null>(null)
@@ -23,25 +24,28 @@ export function WatchProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<WatchSession | null>(null)
   const sessionRef = useRef(session)
   sessionRef.current = session
+  const progressRef = useRef(0)
 
   const closeWatch = useCallback(() => {
     const current = sessionRef.current
     if (current?.history) {
-      const elapsed = (Date.now() - current.startedAt) / 1000
-      const runtimeSec = Math.max(60, (current.history.runtime ?? 48) * 60)
-      const previous = current.history.progress ?? 0
       recordWatch({
         ...current.history,
-        progress: Math.min(0.96, Math.max(0.08, previous + elapsed / runtimeSec)),
+        progress: Math.min(0.96, Math.max(0.08, progressRef.current || current.history.progress || 0.08)),
       })
     }
     setSession(null)
   }, [recordWatch])
 
+  const reportProgress = useCallback((progress: number) => {
+    progressRef.current = Math.min(0.98, Math.max(0, progress))
+  }, [])
+
   const openWatch = useCallback(
     (href: string, title: string, history?: Omit<WatchHistoryItem, 'watchedAt'>) => {
       if (!href) return
-      if (history) recordWatch({ ...history, progress: history.progress ?? 0.08 })
+      progressRef.current = history?.progress ?? 0
+      if (history) recordWatch({ ...history, progress: progressRef.current })
       setSession({ href: resolveWatchHref(href), title, startedAt: Date.now(), history })
     },
     [recordWatch],
@@ -50,7 +54,12 @@ export function WatchProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!session) return
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeWatch()
+      if (event.key !== 'Escape') return
+      if (document.fullscreenElement) {
+        void document.exitFullscreen()
+        return
+      }
+      closeWatch()
     }
     window.addEventListener('keydown', onKey)
     const previous = document.body.style.overflow
@@ -62,8 +71,8 @@ export function WatchProvider({ children }: { children: ReactNode }) {
   }, [session, closeWatch])
 
   const value = useMemo(
-    () => ({ session, openWatch, closeWatch }),
-    [session, openWatch, closeWatch],
+    () => ({ session, openWatch, closeWatch, reportProgress }),
+    [session, openWatch, closeWatch, reportProgress],
   )
 
   return <WatchContext.Provider value={value}>{children}</WatchContext.Provider>

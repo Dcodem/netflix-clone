@@ -1,22 +1,21 @@
 import { EmptyState } from '../components/EmptyState'
 import { MediaGrid } from '../components/MediaGrid'
 import { likedToItems } from '../lib/homeRows'
-import { filterForProfile } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 
 export function MyList() {
   const { activeProfile } = useProfiles()
-  const items = filterForProfile(likedToItems(activeProfile?.myList ?? []), activeProfile)
+  const items = likedToItems(activeProfile?.myList ?? [])
 
   return (
     <main className="page page-pad my-list-page">
-      <h1 className="section-title">My List</h1>
+      <h1 className="page-title">My List</h1>
       {items.length ? (
-        <MediaGrid items={items} />
+        <MediaGrid items={items} layout="poster" hoverable={false} />
       ) : (
         <EmptyState
-          title="Your list is empty"
-          detail="Add titles from the hover preview or More Info modal."
+          title="You haven't added any titles to your list yet"
+          detail="Add titles from a hover preview or More Info to watch them later."
         />
       )}
     </main>

@@ -1,32 +1,35 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { getMovie, getShow } from '../api/client'
-import type { MovieDetail, MovieListItem } from '../api/types'
+import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
 import { formatRuntime, genresOf, isShow } from '../lib/media'
-import { matchPercent, maturityLabel, qualityBadge } from '../lib/netflix'
+import { matchPercent, maturityLabel } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
-import { TrailerPreview } from '../trailers/TrailerPreview'
+import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { CatalogImage } from './CatalogImage'
+import { FeatureBadges } from './FeatureBadges'
+import { GenreDots } from './GenreDots'
+import { SpeakerIcon } from './Icons'
 import { TitleActions } from './TitleActions'
 
 export function TitleHoverCard({
   item,
   anchor,
   progress,
-  continueMode = false,
   onClose,
   onKeep,
 }: {
   item: MovieListItem
   anchor: DOMRect
   progress?: number
-  continueMode?: boolean
   onClose: () => void
   onKeep: () => void
 }) {
   const { activeProfile } = useProfiles()
+  const trailerRef = useRef<TrailerHandle>(null)
   const [detail, setDetail] = useState<MovieDetail | null>(null)
   const [trailerReady, setTrailerReady] = useState(false)
+  const [muted, setMuted] = useState(true)
 
   useEffect(() => {
     let cancelled = false
@@ -43,21 +46,27 @@ export function TitleHoverCard({
     }
   }, [item])
 
-  const width = Math.max(320, Math.min(380, anchor.width * 1.7))
+  const width = Math.max(340, Math.min(460, Math.round(anchor.width * 1.85)))
+  const artH = width * (9 / 16)
   let left = anchor.left + anchor.width / 2 - width / 2
   left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
-  const heightGuess = width * 0.56 + 200
-  let top = anchor.top - 18
+  const heightGuess = artH + 196
+  let top = anchor.top + anchor.height / 2 - artH / 2
+  if (top < 12) top = 12
   if (top + heightGuess > window.innerHeight - 12) {
     top = Math.max(12, window.innerHeight - heightGuess - 12)
   }
+  const fromScale = Math.max(0.42, Math.min(0.82, anchor.width / width))
 
   const match = matchPercent(item, activeProfile)
   const maturity = maturityLabel(item)
   const runtime = formatRuntime(detail?.runtime)
-  const quality = qualityBadge(item.quality || detail?.quality)
+  const quality = item.quality || detail?.quality
   const genres = genresOf(detail ?? item).slice(0, 3)
+  const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
+  const episodeCount = seasons.reduce((count, season) => count + (season.episodes?.length ?? 0), 0)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
+  const previewOn = activeProfile?.autoplayPreview !== false
   const watchHref =
     last?.watch_href ||
     (isShow(item)
@@ -68,39 +77,75 @@ export function TitleHoverCard({
   const originX = Math.max(24, Math.min(width - 24, anchor.left + anchor.width / 2 - left))
   const originY = Math.max(24, Math.min(160, anchor.top + anchor.height / 2 - top))
 
+  function toggleMute() {
+    const next = !muted
+    trailerRef.current?.setMuted(next)
+    setMuted(next)
+  }
+
   return createPortal(
     <div
       className="jawbone"
-      style={{ top, left, width, transformOrigin: `${originX}px ${originY}px` }}
+      style={
+        {
+          top,
+          left,
+          width,
+          transformOrigin: `${originX}px ${originY}px`,
+          '--jaw-from': String(fromScale),
+        } as CSSProperties
+      }
       onMouseEnter={onKeep}
       onMouseLeave={onClose}
     >
       <div className={`jawbone-art ${trailerReady ? 'is-playing' : ''}`}>
         <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
-        <TrailerPreview
-          title={item.title}
-          year={item.year}
-          kind={item.kind}
-          mode="mini"
-          className="jawbone-trailer"
-          onReady={() => setTrailerReady(true)}
-        />
+        {previewOn ? (
+          <TrailerPreview
+            ref={trailerRef}
+            title={item.title}
+            year={item.year}
+            kind={item.kind}
+            mode="mini"
+            muted={muted}
+            className="jawbone-trailer"
+            onReady={() => setTrailerReady(true)}
+          />
+        ) : null}
         {progress ? (
           <div className="progress-track jawbone-progress">
             <div style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
         ) : null}
+        {previewOn ? (
+          <button
+            type="button"
+            className={`hero-mute jawbone-mute ${progress ? 'has-progress' : ''}`}
+            onClick={toggleMute}
+            aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+          >
+            <SpeakerIcon muted={muted} className="icon" />
+          </button>
+        ) : null}
       </div>
       <div className="jawbone-body">
-        <TitleActions item={item} detail={detail} watchHref={watchHref} size="sm" continueMode={continueMode} />
+        <TitleActions item={item} detail={detail} watchHref={watchHref} size="sm" />
         <div className="jawbone-meta">
           <span className="match">{match}% Match</span>
-          {item.year ? <span>{item.year}</span> : null}
           <span className="maturity">{maturity}</span>
-          {quality ? <span className="quality-badge">{quality}</span> : null}
-          {runtime ? <span>{runtime}</span> : isShow(item) ? <span>Series</span> : null}
+          {runtime ? <span>{runtime}</span> : null}
+          <FeatureBadges quality={quality} />
+          {isShow(item) ? (
+            <span>
+              {seasons.length > 1
+                ? `${seasons.length} Seasons`
+                : episodeCount
+                  ? `${episodeCount} Episodes`
+                  : 'TV Show'}
+            </span>
+          ) : null}
         </div>
-        {genres.length ? <div className="jawbone-genres">{genres.join(' · ')}</div> : null}
+        {genres.length ? <GenreDots genres={genres} className="jawbone-genres" /> : null}
       </div>
     </div>,
     document.body,

@@ -87,29 +87,253 @@ function sendJson(res, status, data) {
   send(res, status, JSON.stringify(data), { 'Content-Type': 'application/json; charset=utf-8' })
 }
 
-function playerPage(item, season, episode) {
+function playerPage(item, season, episode, query = {}) {
   const heading = season && episode ? `${item.title} · S${season}E${episode}` : item.title
+  const runtime = Math.max(60, Number(first(query.runtime)) || (item.runtime ? Number(item.runtime) * 60 : 48 * 60))
+  const start = Math.max(0, Number(first(query.t)) || 0)
+  const ytRaw = String(first(query.yt) || '')
+  const ytId = /^[\w-]{6,20}$/.test(ytRaw) ? ytRaw : ''
+  const h = hue(item.id)
+  const color = `hsl(${h} 48% 14%)`
+  const accent = `hsl(${(h + 38) % 360} 58% 42%)`
+  const backdrop = item.backdrop_url || `/art/backdrop/${encodeURIComponent(item.id)}`
+  const poster = item.poster_url || `/art/poster/${encodeURIComponent(item.id)}`
+  const thumb =
+    season && episode
+      ? `/art/thumb/${encodeURIComponent(item.id)}?s=${encodeURIComponent(season)}&e=${encodeURIComponent(episode)}`
+      : backdrop
+  const gallery = String(first(query.g) || '')
+    .split(',')
+    .map((file) => file.trim())
+    .filter((file) => /^[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|webp)$/i.test(file))
+    .map((file) => `/img?u=${encodeURIComponent(`https://image.tmdb.org/t/p/w1280/${file}`)}`)
+  const sources = gallery.length ? gallery : [backdrop, thumb, poster]
+  const plates = sources.map((src) => escapeXml(src))
+  const plateMarkup = plates
+    .map((src, index) => `<div class="plate${index === 0 ? ' is-on' : ''}" style="background-image:url('${src}')"></div>`)
+    .join('')
   return `<!doctype html>
 <html>
   <head>
     <meta charset="utf-8"/>
     <title>${escapeXml(heading)}</title>
     <style>
-      html,body{margin:0;height:100%;background:#050505;color:#fff;font-family:system-ui,sans-serif}
-      .stage{height:100%;display:grid;place-items:center;background:radial-gradient(circle at 20% 20%,#2a2a2a,#050505)}
-      .card{text-align:center;opacity:.9}
-      .kicker{letter-spacing:.2em;font-size:12px;color:#bbb}
-      h1{font-size:28px;margin:8px 0 0}
+      html,body{margin:0;height:100%;background:#000;overflow:hidden}
+      .stage{position:absolute;inset:0;background:#050505;transition:opacity .55s ease}
+      .plate{position:absolute;inset:-18%;background-size:cover;background-position:center;opacity:0;transition:opacity .32s ease;transform-origin:center;filter:saturate(1.08) contrast(1.08)}
+      .plate.is-on{opacity:1}
+      .stage.is-playing .plate.is-on{animation:ken 6.2s ease-in-out alternate infinite}
+      .stage.is-playing .plate.is-on:nth-child(3n+2){animation-name:ken-b}
+      .stage.is-playing .plate.is-on:nth-child(3n){animation-name:ken-c}
+      .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42),transparent 22%,transparent 62%,rgba(0,0,0,.58))}
+      .grain{position:absolute;inset:-20%;pointer-events:none;opacity:.16;mix-blend-mode:overlay;background-image:repeating-radial-gradient(circle at 18% 22%, rgba(255,255,255,.55) 0 1px, transparent 1px 3px);animation:grain .28s steps(2) infinite}
+      .flicker{position:absolute;inset:0;pointer-events:none;background:rgba(255,255,255,.025);animation:flicker 6s ease-in-out infinite}
+      .letter{position:absolute;left:0;right:0;height:0;background:#000;z-index:3}
+      .letter.top{top:0}
+      .letter.bot{bottom:0}
+      .wash{position:absolute;inset:0;background:radial-gradient(circle at 72% 28%, ${accent} 0%, transparent 36%), radial-gradient(circle at 18% 82%, ${color} 0%, transparent 52%);opacity:.28;mix-blend-mode:soft-light}
+      #ytwrap{position:absolute;inset:0;overflow:hidden;z-index:20;opacity:0;pointer-events:none;background:#000}
+      #ytwrap.is-on{opacity:1}
+      #yt{position:absolute;inset:0;width:100%!important;height:100%!important}
+      #ytwrap iframe{position:absolute;left:50%;top:50%;width:177.78%;height:100%;min-width:100%;min-height:56.25%;transform:translate(-50%,-50%);border:0;pointer-events:none}
+      body.is-video .stage,body.is-video .veil,body.is-video .grain,body.is-video .flicker,body.is-video .letter{opacity:0;animation:none}
+      @keyframes ken{from{transform:scale(1.04) translate3d(0,0,0)}to{transform:scale(1.16) translate3d(-2.4%,1.2%,0)}}
+      @keyframes ken-b{from{transform:scale(1.1) translate3d(1.6%,-1%,0)}to{transform:scale(1.2) translate3d(-1.2%,1.8%,0)}}
+      @keyframes ken-c{from{transform:scale(1.06) translate3d(-1.8%,1%,0)}to{transform:scale(1.18) translate3d(1.8%,-1.6%,0)}}
+      @keyframes grain{to{transform:translate3d(-3%,4%,0)}}
+      @keyframes flicker{0%,100%{opacity:.2}40%{opacity:.05}72%{opacity:.28}}
+      .stage.is-paused .grain,.stage.is-paused .flicker{animation-play-state:paused}
     </style>
   </head>
   <body>
-    <div class="stage">
-      <div class="card">
-        <div class="kicker">MOCK PLAYER</div>
-        <h1>${escapeXml(heading)}</h1>
-        <p>${item.kind === 'show' ? 'Series' : 'Film'} · ${item.year}</p>
-      </div>
+    <div class="stage is-playing">
+      ${plateMarkup}
+      <div class="wash"></div>
     </div>
+    <div class="veil"></div>
+    <div class="grain"></div>
+    <div class="flicker"></div>
+    <div class="letter top"></div>
+    <div class="letter bot"></div>
+    <div id="ytwrap" aria-hidden="true"><div id="yt"></div></div>
+    <script>
+      const SOURCE = 'flix-player'
+      const YT_ID = ${JSON.stringify(ytId)}
+      let duration = ${runtime}
+      let current = ${start}
+      let paused = false
+      let shot = 0
+      let ytPlayer = null
+      let usingYt = false
+      let wantMute = false
+      let wantVolume = 1
+      let wantRate = 1
+      const PLAYING = 1
+      const stage = document.querySelector('.stage')
+      const wrap = document.getElementById('ytwrap')
+      const plates = [...document.querySelectorAll('.plate')]
+      function showShot(next) {
+        if (!plates.length) return
+        shot = (next + plates.length) % plates.length
+        plates.forEach((plate, index) => plate.classList.toggle('is-on', index === shot))
+      }
+      function sizeYt() {
+        const iframe = wrap && wrap.querySelector('iframe')
+        if (!iframe) return
+        iframe.style.cssText = 'position:absolute;left:50%;top:50%;width:177.78%;height:100%;min-width:100%;min-height:56.25%;transform:translate(-50%,-50%);border:0;pointer-events:none'
+      }
+      function applyAudio() {
+        if (!ytPlayer) return
+        try {
+          ytPlayer.setVolume(Math.round(Math.max(0, Math.min(1, wantVolume)) * 100))
+          if (wantMute || wantVolume <= 0.01) ytPlayer.mute()
+          else ytPlayer.unMute()
+        } catch (err) {}
+      }
+      function applyTransport() {
+        if (!ytPlayer) return
+        try {
+          if (typeof ytPlayer.setPlaybackRate === 'function') ytPlayer.setPlaybackRate(wantRate)
+          if (paused) ytPlayer.pauseVideo()
+          else ytPlayer.playVideo()
+        } catch (err) {}
+      }
+      function seekTo(seconds) {
+        current = Math.max(0, Math.min(duration, seconds))
+        if (usingYt && ytPlayer && typeof ytPlayer.seekTo === 'function') {
+          try { ytPlayer.seekTo(current, true) } catch (err) {}
+        } else showShot(shot + 1)
+      }
+      function revealYt() {
+        if (!wrap) return
+        sizeYt()
+        wrap.classList.add('is-on')
+        wrap.style.opacity = '1'
+        document.body.classList.add('is-video')
+      }
+      function readYt() {
+        if (!ytPlayer) return
+        try {
+          const ytDur = ytPlayer.getDuration()
+          if (ytDur && ytDur > 1) {
+            duration = ytDur
+            usingYt = true
+          }
+          const ytCur = ytPlayer.getCurrentTime()
+          if (typeof ytCur === 'number') current = ytCur
+          const state = ytPlayer.getPlayerState()
+          if (state === 2 || state === 0) paused = true
+          else if (state === PLAYING) paused = false
+          if (state === PLAYING) revealYt()
+        } catch (err) {}
+      }
+      function tick(dt) {
+        if (usingYt) readYt()
+        else if (!paused) current = Math.min(duration, current + dt * wantRate)
+        parent.postMessage({ source: SOURCE, type: 'time', current: current, duration: duration, paused: paused }, '*')
+      }
+      let last = performance.now()
+      function loop(now) {
+        tick((now - last) / 1000)
+        last = now
+        requestAnimationFrame(loop)
+      }
+      requestAnimationFrame(loop)
+      setInterval(function () { if (!paused && !usingYt) showShot(shot + 1) }, 2600)
+      function startYt() {
+        if (!window.YT || !window.YT.Player) return
+        ytPlayer = new window.YT.Player('yt', {
+          videoId: YT_ID,
+          width: '100%',
+          height: '100%',
+          host: 'https://www.youtube.com',
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            modestbranding: 1,
+            rel: 0,
+            iv_load_policy: 3,
+            playsinline: 1,
+            origin: window.location.origin
+          },
+          events: {
+            onReady: function (event) {
+              sizeYt()
+              try { event.target.mute(); event.target.playVideo() } catch (err) {}
+              applyAudio()
+              applyTransport()
+            },
+            onError: function () {
+              usingYt = false
+            },
+            onStateChange: function (event) {
+              if (event.data === PLAYING) {
+                usingYt = true
+                paused = false
+                revealYt()
+                parent.postMessage({ source: SOURCE, type: 'media', kind: 'youtube' }, '*')
+              }
+              if (event.data === 2) paused = true
+              if (event.data === 0) {
+                paused = true
+                current = duration
+              }
+            }
+          }
+        })
+        sizeYt()
+      }
+      function bootYt() {
+        if (!YT_ID) return
+        if (window.YT && window.YT.Player) {
+          startYt()
+          return
+        }
+        const tag = document.createElement('script')
+        tag.src = 'https://www.youtube.com/iframe_api'
+        const previous = window.onYouTubeIframeAPIReady
+        window.onYouTubeIframeAPIReady = function () {
+          if (typeof previous === 'function') previous()
+          startYt()
+        }
+        document.head.appendChild(tag)
+      }
+      bootYt()
+      window.addEventListener('message', function (event) {
+        const data = event.data || {}
+        if (data.source !== SOURCE) return
+        if (data.cmd === 'play') {
+          paused = false
+          stage.classList.add('is-playing')
+          stage.classList.remove('is-paused')
+          applyTransport()
+        }
+        if (data.cmd === 'pause') {
+          paused = true
+          stage.classList.remove('is-playing')
+          stage.classList.add('is-paused')
+          applyTransport()
+        }
+        if (data.cmd === 'seek' && typeof data.seconds === 'number') seekTo(data.seconds)
+        if (data.cmd === 'skip' && typeof data.delta === 'number') seekTo(current + data.delta)
+        if (data.cmd === 'mute') {
+          wantMute = Boolean(data.value)
+          applyAudio()
+        }
+        if (data.cmd === 'volume' && typeof data.value === 'number') {
+          wantVolume = data.value
+          wantMute = data.value <= 0.01
+          applyAudio()
+        }
+        if (data.cmd === 'rate' && typeof data.value === 'number') {
+          wantRate = Math.max(0.25, Math.min(2, data.value))
+          applyTransport()
+        }
+      })
+    </script>
   </body>
 </html>`
 }
@@ -220,8 +444,9 @@ export function handleCatalog(req, res, route = catalogPathFromRequest(req)) {
     const id = pathname.slice('/watch/play/'.length)
     const item = getItem(id)
     if (!item) return notFound(res)
-    return send(res, 200, playerPage(item, first(query.s), first(query.e)), {
+    return send(res, 200, playerPage(item, first(query.s), first(query.e), query), {
       'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
     })
   }
 

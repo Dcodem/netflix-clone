@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { getMovie } from '../api/client'
 import { CatalogImage } from '../components/CatalogImage'
 import { ErrorState } from '../components/ErrorState'
@@ -8,7 +8,6 @@ import { Spinner } from '../components/Spinner'
 import { TasteButtons } from '../components/TasteButtons'
 import { useFetch } from '../hooks/useFetch'
 import { formatRating, formatRuntime, genresOf } from '../lib/media'
-import { isKidsSafe } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useWatch } from '../watch/WatchContext'
@@ -20,12 +19,10 @@ export function MovieDetail() {
   const { data, error, loading, retry } = useFetch(() => getMovie(id), id)
   const trailerRef = useRef<TrailerHandle>(null)
   const [muted, setMuted] = useState(true)
-  const [trailerReady, setTrailerReady] = useState(false)
 
   if (loading) return <Spinner label="Loading movie" />
   if (error) return <ErrorState message={error} onRetry={retry} />
   if (!data) return <ErrorState message="Movie not found" onRetry={retry} />
-  if (activeProfile?.kids && !isKidsSafe(data)) return <Navigate to="/browse" replace />
 
   const movie = data
   const rating = formatRating(movie.rating)
@@ -39,6 +36,7 @@ export function MovieDetail() {
       id: movie.id,
       kind: movie.kind ?? 'movie',
       title: movie.title,
+      year: movie.year,
       poster_url: movie.poster_url ?? null,
       genres,
       watch_href: movie.watch_href,
@@ -64,7 +62,6 @@ export function MovieDetail() {
             kind={data.kind ?? 'movie'}
             className="hero-trailer"
             muted={muted}
-            onReady={() => setTrailerReady(true)}
           />
           <div className="detail-hero-body">
             <CatalogImage item={data} alt="" className="detail-poster" />
@@ -97,18 +94,16 @@ export function MovieDetail() {
               </div>
             </div>
           </div>
-          {trailerReady ? (
-            <div className="hero-controls-right">
-              <button
-                type="button"
-                className="hero-mute"
-                onClick={toggleMute}
-                aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-              >
-                <SpeakerIcon muted={muted} className="icon" />
-              </button>
-            </div>
-          ) : null}
+          <div className="hero-controls-right">
+            <button
+              type="button"
+              className="hero-mute"
+              onClick={toggleMute}
+              aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+            >
+              <SpeakerIcon muted={muted} className="icon" />
+            </button>
+          </div>
         </div>
         {data.synopsis ? <p className="detail-synopsis">{data.synopsis}</p> : null}
         {data.cast?.length ? (

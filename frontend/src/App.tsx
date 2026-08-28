@@ -7,6 +7,8 @@ import { Home } from './pages/Home'
 import { Login } from './pages/Login'
 import { MovieDetail } from './pages/MovieDetail'
 import { MyList } from './pages/MyList'
+import { MyNetflix } from './pages/MyNetflix'
+import { NewsHot } from './pages/NewsHot'
 import { ProfileSelect } from './pages/ProfileSelect'
 import { Search } from './pages/Search'
 import { ShowDetail } from './pages/ShowDetail'
@@ -28,8 +30,9 @@ export default function App() {
                   <Route path="/browse" element={<Home filter="home" />} />
                   <Route path="/browse/movies" element={<Home filter="movies" />} />
                   <Route path="/browse/shows" element={<Home filter="shows" />} />
-                  <Route path="/browse/latest" element={<Home filter="popular" />} />
+                  <Route path="/browse/latest" element={<NewsHot />} />
                   <Route path="/browse/my-list" element={<MyList />} />
+                  <Route path="/browse/my-netflix" element={<MyNetflix />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/taste" element={<Taste />} />
                   <Route path="/account" element={<Account />} />
