@@ -2784,6 +2784,7 @@ select,
 .title-modal-hero {
   position: relative;
   aspect-ratio: 16 / 9;
+  min-height: 220px;
   background: #000;
   overflow: hidden;
   border-radius: 8px 8px 0 0;
@@ -3508,8 +3509,26 @@ img.is-logo-pending {
   }
 
   .title-modal-hero {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 16 / 9;
+    min-height: 240px;
     border-radius: 0;
+  }
+
+  .title-modal-hero .hero-controls-right {
+    top: auto;
+    bottom: 16px;
+    right: 12px;
+  }
+
+  .title-modal-hero.is-settled .title-modal-hero-body h1,
+  .title-modal-hero.is-settled .title-modal-logo,
+  .title-modal-hero.is-settled .title-modal-title {
+    transform: none;
+  }
+
+  .title-modal-hero-body .title-actions.play-labeled {
+    padding-right: 118px;
+    row-gap: 10px;
   }
 
   .title-modal-close {
