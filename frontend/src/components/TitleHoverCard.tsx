@@ -139,9 +139,10 @@ export function TitleHoverCard({
           {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
           {item.year ? <span>{item.year}</span> : null}
           <span className="maturity">{maturity}</span>
-          {runtime ? <span>{runtime}</span> : null}
           {remainingLabel(progress, detail?.runtime) ? (
             <span>{remainingLabel(progress, detail?.runtime)}</span>
+          ) : runtime ? (
+            <span>{runtime}</span>
           ) : null}
           <FeatureBadges quality={quality} />
           {isShow(item) ? (
