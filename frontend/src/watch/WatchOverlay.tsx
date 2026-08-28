@@ -497,7 +497,8 @@ export function WatchOverlay() {
     if (nextDismissed || stillWatching) return
     if (activeProfile?.autoplayNext === false) return
     const ended = lengthNow > 0 && (remainingNow <= 1.25 || current / lengthNow >= 0.992)
-    if (!ended || current < 30) return
+    const nearStart = current < 12 && current / lengthNow < 0.08
+    if (!ended || nearStart) return
     const key = upcoming.episode.id
     if (autoNextRef.current === key) return
     if (streakRef.current >= 2) {

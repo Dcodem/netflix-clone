@@ -5788,8 +5788,8 @@ select,
 }
 
 .next-ep-count {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -5800,8 +5800,8 @@ select,
 }
 
 .next-ep-count > span {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #141414;
   display: grid;
@@ -5811,8 +5811,9 @@ select,
 }
 
 .next-ep-count .icon {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
+  margin-left: 1px;
 }
 
 .next-ep-body {

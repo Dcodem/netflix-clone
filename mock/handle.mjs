@@ -198,6 +198,7 @@ function playerPage(item, season, episode, query = {}) {
           else ytPlayer.playVideo()
         } catch (err) {}
       }
+      let endedLatch = false
       function seekTo(seconds) {
         current = Math.max(0, Math.min(duration, seconds))
         if (usingYt && ytPlayer && typeof ytPlayer.seekTo === 'function') {
@@ -206,7 +207,10 @@ function playerPage(item, season, episode, query = {}) {
         if (duration > 0 && current >= duration - 0.05) {
           current = duration
           paused = true
+          endedLatch = true
           parent.postMessage({ source: SOURCE, type: 'ended', current: current, duration: duration, paused: true }, '*')
+        } else {
+          endedLatch = false
         }
       }
       function revealYt() {
@@ -233,12 +237,19 @@ function playerPage(item, season, episode, query = {}) {
         } catch (err) {}
       }
       function tick(dt) {
+        if (endedLatch) {
+          current = duration
+          paused = true
+          parent.postMessage({ source: SOURCE, type: 'time', current: current, duration: duration, paused: true }, '*')
+          return
+        }
         if (usingYt) readYt()
         else if (!paused) {
           const next = Math.min(duration, current + dt * wantRate)
           if (duration > 0 && next >= duration - 0.05 && current < duration - 0.05) {
             current = duration
             paused = true
+            endedLatch = true
             parent.postMessage({ source: SOURCE, type: 'ended', current: current, duration: duration, paused: true }, '*')
           } else current = next
         }
@@ -292,6 +303,7 @@ function playerPage(item, season, episode, query = {}) {
               if (event.data === 0) {
                 paused = true
                 current = duration
+                endedLatch = true
                 parent.postMessage({ source: SOURCE, type: 'ended', current: current, duration: duration, paused: true }, '*')
               }
             }
@@ -320,6 +332,7 @@ function playerPage(item, season, episode, query = {}) {
         if (data.source !== SOURCE) return
         if (data.cmd === 'play') {
           paused = false
+          endedLatch = false
           stage.classList.add('is-playing')
           stage.classList.remove('is-paused')
           applyTransport()
