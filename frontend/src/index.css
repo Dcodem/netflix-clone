@@ -2994,7 +2994,7 @@ img.is-logo-pending {
 .title-modal-hero.is-settled .title-modal-hero-body h1,
 .title-modal-hero.is-settled .title-modal-logo,
 .title-modal-hero.is-settled .title-modal-title {
-  transform: scale(0.62);
+  transform: scale(0.52);
 }
 
 .title-modal-main {

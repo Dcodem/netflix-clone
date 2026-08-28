@@ -77,7 +77,10 @@ export function TitleModal() {
     if (!item) return
     setSettled(false)
     setHeroHover(false)
-    const timer = window.setTimeout(() => setSettled(true), 6000)
+    const timer = window.setTimeout(() => {
+      setSettled(true)
+      setHeroHover(false)
+    }, 6000)
     return () => window.clearTimeout(timer)
   }, [item?.id])
   const collapsed = settled && !heroHover
@@ -228,7 +231,7 @@ export function TitleModal() {
         <div
           className={`title-modal-hero ${trailerPlaying ? 'is-playing' : 'is-cinematic'} ${collapsed ? 'is-settled' : ''}`}
           onPointerEnter={(event) => {
-            if (event.pointerType === 'mouse') setHeroHover(true)
+            if (event.pointerType === 'mouse' && settled) setHeroHover(true)
           }}
           onPointerLeave={(event) => {
             if (event.pointerType === 'mouse') setHeroHover(false)
