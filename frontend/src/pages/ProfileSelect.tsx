@@ -330,21 +330,23 @@ export function ProfileSelect() {
                 <span>Maturity Settings</span>
                 <span>All Maturity Ratings</span>
               </div>
-              <div className="edit-meta edit-meta-lock">
+              <div className="edit-meta">
                 <span>Profile Lock</span>
-                <input
-                  inputMode="numeric"
-                  pattern="\d{4}"
-                  maxLength={4}
-                  value={editPin}
-                  onChange={(event) => {
-                    setRemovePin(false)
-                    setEditPin(event.target.value.replace(/\D/g, '').slice(0, 4))
-                  }}
-                  placeholder={editing.pinHash && !removePin ? '••••' : 'PIN'}
-                  aria-label="Profile PIN"
-                />
+                <span>{editing.pinHash && !removePin ? 'On' : 'Off'}</span>
               </div>
+              <input
+                className="edit-pin-field"
+                inputMode="numeric"
+                pattern="\d{4}"
+                maxLength={4}
+                value={editPin}
+                onChange={(event) => {
+                  setRemovePin(false)
+                  setEditPin(event.target.value.replace(/\D/g, '').slice(0, 4))
+                }}
+                placeholder={editing.pinHash && !removePin ? 'New PIN' : 'Set a PIN'}
+                aria-label="Profile PIN"
+              />
               {editing.pinHash ? (
                 <label className="profile-check">
                   <input

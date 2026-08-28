@@ -108,9 +108,9 @@ export function MyNetflix() {
       <section className="my-netflix-notes">
         <h2 className="section-title">Notifications</h2>
         {notices.length ? (
-          <div className="notify-feed">
+          <div className="notify-rail">
             {notices.map(({ item, kicker, stamp }) => (
-              <button type="button" key={item.id} className="notify-row" onClick={() => openTitle(item)}>
+              <button type="button" key={item.id} className="notify-card" onClick={() => openTitle(item)}>
                 <CatalogImage item={item} prefer="backdrop" alt="" />
                 <span>
                   <strong>{kicker}</strong>
@@ -130,8 +130,8 @@ export function MyNetflix() {
         <div className="downloads-empty">
           <DownloadIcon className="icon" />
           <div>
-            <strong>Introducing Downloads for You</strong>
-            <p>Featured downloads for {activeProfile.name} will appear here on phones and tablets.</p>
+            <strong>Downloads for You</strong>
+            <p>Movies and TV shows you download appear here.</p>
           </div>
         </div>
       </section>
