@@ -20,6 +20,7 @@ import {
 } from '../components/Icons'
 import { MediaImage } from '../components/MediaImage'
 import { SeasonMenu } from '../components/SeasonMenu'
+import { TitleLogo } from '../components/TitleLogo'
 import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { watchForEpisode } from '../lib/episodeProgress'
@@ -296,7 +297,10 @@ export function WatchOverlay() {
   useEffect(() => {
     if (!sessionKey) return
     setIdentOn(true)
-    const timer = window.setTimeout(() => setIdentOn(false), 5200)
+    const timer = window.setTimeout(() => {
+      setIdentOn(false)
+      showChromeRef.current()
+    }, 5200)
     return () => window.clearTimeout(timer)
   }, [sessionKey])
 
@@ -728,7 +732,11 @@ export function WatchOverlay() {
       ) : null}
       {stillWatching ? null : (
         <div className={`watch-ident ${chrome && !identOn ? 'is-raised' : ''} ${identOn ? 'is-on' : ''}`} aria-hidden="true">
-          <p className="watch-ident-title">{session.history?.title || session.title}</p>
+          <TitleLogo
+            item={trailerSearch(session)}
+            className="watch-ident-logo"
+            titleClassName="watch-ident-title"
+          />
           {isShow ? (
             <p className="watch-ident-ep">
               {episodeLabel}
