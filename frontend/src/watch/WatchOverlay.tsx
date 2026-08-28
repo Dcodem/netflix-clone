@@ -1044,6 +1044,7 @@ export function WatchOverlay() {
               </button>
               {speedOpen ? (
                 <div className="watch-speed-menu" role="menu" aria-label="Playback speed">
+                  <p className="watch-speed-label">Playback Speed</p>
                   {SPEEDS.map((rate) => (
                     <button
                       type="button"
@@ -1055,6 +1056,7 @@ export function WatchOverlay() {
                         setSpeedOpen(false)
                       }}
                     >
+                      {speed === rate ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
                       {rate === 1 ? 'Normal' : `${rate}x`}
                     </button>
                   ))}
