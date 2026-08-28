@@ -1983,10 +1983,29 @@ select,
   font-size: 15px;
   padding: 12px 0;
   list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .account-extras summary::-webkit-details-marker {
   display: none;
+}
+
+.account-extras summary::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid #808080;
+  border-bottom: 2px solid #808080;
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+}
+
+.account-extras[open] summary::after {
+  transform: rotate(-135deg);
+  margin-top: 4px;
 }
 
 .account-extras .account-form {
@@ -4322,7 +4341,6 @@ img.is-logo-pending {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-right: 12px;
 }
 
 .search-top li + li {
@@ -5345,6 +5363,7 @@ img.is-logo-pending {
   color: #fff;
   padding: 14px 16px;
   font-size: 18px;
+  outline: none;
 }
 
 .add-profile-actions {
@@ -5409,6 +5428,7 @@ img.is-logo-pending {
   color: #fff;
   padding: 12px 14px;
   font-size: 16px;
+  outline: none;
 }
 
 .edit-meta {
@@ -5569,7 +5589,7 @@ img.is-logo-pending {
 
 .edit-toggle input:checked::after {
   transform: translateX(18px);
-  background: #141414;
+  background: #000;
 }
 
 .edit-toggle input:focus-visible {
