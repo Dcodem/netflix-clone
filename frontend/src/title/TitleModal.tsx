@@ -124,7 +124,7 @@ export function TitleModal() {
       let current: 'episodes' | 'more' | 'trailers' | null = null
       for (const section of sections) {
         if (!section.el) continue
-        if (section.el.getBoundingClientRect().top <= line) current = section.id
+        if (section.el.getBoundingClientRect().top <= line + 72) current = section.id
       }
       if (current) setTab(current)
     }
@@ -162,7 +162,7 @@ export function TitleModal() {
     node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     window.setTimeout(() => {
       jumpingRef.current = false
-    }, 650)
+    }, 900)
   }
 
   function playEpisode(episode: Episode, season: Season) {
@@ -351,10 +351,17 @@ export function TitleModal() {
                 {stills.slice(0, 8).map((file, index) => {
                   const src = stillUrl(file)
                   if (!src) return null
-                  const kinds = ['Trailer', 'Teaser', 'Clip', 'Recap', 'Featurette']
-                  const kind = kinds[index] ?? 'Clip'
-                  const caption =
-                    index === 0 ? `Trailer: ${item.title}` : index === 1 ? `Teaser: ${item.title}` : `${kind} ${index}`
+                  const captions = [
+                    `Trailer: ${item.title}`,
+                    `Teaser: ${item.title}`,
+                    'Clip 1',
+                    'Recap',
+                    'Featurette',
+                    'Clip 2',
+                    'Clip 3',
+                    'Bonus clip',
+                  ]
+                  const caption = captions[index] ?? `Clip ${index}`
                   return (
                     <button
                       type="button"
