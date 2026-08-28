@@ -134,7 +134,7 @@ select,
 
 .logo {
   font-family: var(--display);
-  font-size: 32px;
+  font-size: 27px;
   font-weight: 900;
   letter-spacing: -0.06em;
   text-decoration: none;
@@ -1185,7 +1185,7 @@ select,
 }
 
 .episode-btn:hover {
-  background: #2f2f2f;
+  background: #333;
 }
 
 .ep-thumb,
@@ -3024,14 +3024,22 @@ img.is-logo-pending {
   position: relative;
   background: none;
   border: 0;
-  color: #fff;
+  color: #808080;
   font-size: 16px;
   font-weight: 500;
   padding: 14px 0 12px;
   cursor: pointer;
+  font-family: inherit;
+  transition: color 0.12s ease;
+}
+
+.title-tabs > button:hover,
+.title-tabs > button:focus-visible {
+  color: #fff;
 }
 
 .title-tabs > button.is-on {
+  color: #fff;
   font-weight: 700;
 }
 
@@ -3091,6 +3099,10 @@ img.is-logo-pending {
   display: none;
 }
 
+.title-modal .title-about > h2:first-child {
+  display: none;
+}
+
 .title-modal .more-like-grid {
   margin-top: 0;
 }
@@ -3105,7 +3117,7 @@ img.is-logo-pending {
 }
 
 .episode-btn:hover {
-  background: #2f2f2f;
+  background: #333;
 }
 
 .more-like {
@@ -5602,7 +5614,9 @@ img.is-logo-pending {
 
 .skip-intro:hover,
 .next-episode:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: #fff;
+  color: #141414;
+  border-color: #fff;
 }
 
 .watch-vol {
@@ -6827,10 +6841,12 @@ img.is-logo-pending {
   border: 1px solid #fff;
   backdrop-filter: blur(8px);
   animation: skip-in 0.28s ease;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 
 .skip-intro:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: #fff;
+  color: #141414;
 }
 
 @keyframes skip-in {
