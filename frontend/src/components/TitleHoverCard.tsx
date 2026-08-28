@@ -47,7 +47,7 @@ export function TitleHoverCard({
     }
   }, [item])
 
-  const width = Math.max(340, Math.min(460, Math.round(anchor.width * 1.85)))
+  const width = Math.max(340, Math.min(430, Math.round(anchor.width * 1.65)))
   const artH = width * (9 / 16)
   let left = anchor.left + anchor.width / 2 - width / 2
   left = Math.max(12, Math.min(left, window.innerWidth - width - 12))

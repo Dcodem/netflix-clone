@@ -2429,7 +2429,7 @@ select,
   overflow: visible;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), 0 18px 48px rgba(0, 0, 0, 0.72);
   --jaw-from: 0.54;
-  animation: jaw-in 0.4s cubic-bezier(0.5, 0, 0.1, 1) both;
+  animation: jaw-in 0.35s cubic-bezier(0.5, 0, 0.1, 1) both;
 }
 
 @keyframes jaw-in {
@@ -2757,9 +2757,9 @@ select,
   float: right;
   top: 12px;
   z-index: 12;
-  width: 40px;
-  height: 40px;
-  margin: 12px 12px -52px 0;
+  width: 36px;
+  height: 36px;
+  margin: 16px 16px -52px 0;
   border-radius: 50%;
   border: 0;
   background: #181818;
@@ -2768,6 +2768,7 @@ select,
   cursor: pointer;
   display: grid;
   place-items: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
 }
 
 .title-modal-close .icon {
@@ -4272,7 +4273,8 @@ img.is-logo-pending {
   }
 
   .ep-num {
-    display: none;
+    width: 28px;
+    font-size: 18px;
   }
 
   .maturity-flag {
@@ -6977,6 +6979,27 @@ img.is-logo-pending {
   display: grid;
   gap: 2px;
   min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .continue-meta {
+    display: none;
+  }
+
+  .continue-hide {
+    opacity: 0;
+  }
+
+  .poster-wrap:hover .continue-hide,
+  .poster-wrap:focus-within .continue-hide,
+  .poster-wrap.is-peeking .continue-hide {
+    opacity: 1;
+  }
+
+  .poster-wrap.is-previewing .continue-hide {
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 
 .continue-title {
