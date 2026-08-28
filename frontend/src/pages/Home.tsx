@@ -81,7 +81,11 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
 
   const loading = (movies.loading && !movies.data) || (extras.loading && !extras.data)
   if (loading && !catalog.length) {
-    return <Spinner label="Loading titles" />
+    return (
+      <main className="page browse-page">
+        <Spinner label="Loading titles" />
+      </main>
+    )
   }
 
   if (!catalog.length && movies.error) {

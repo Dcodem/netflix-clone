@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { getCatalogMany, getMovie, getShow } from '../api/client'
+import { getCatalogMany, getMovie, getShow, proxyImageUrl } from '../api/client'
 import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '../api/types'
 import { CatalogImage } from '../components/CatalogImage'
 import { EpisodeList, SeasonPicker } from '../components/EpisodeList'
@@ -12,7 +12,7 @@ import { TitleActions } from '../components/TitleActions'
 import { FeatureBadges } from '../components/FeatureBadges'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
-import { formatRuntime, genresOf, isShow, uniqueById } from '../lib/media'
+import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
 import { matchPercent, maturityLabel, moodTags } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -33,6 +33,7 @@ export function TitleModal() {
   const last = activeProfile?.history.find((entry) => entry.id === item?.id)
   const trailerRef = useRef<TrailerHandle>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
+  const modalRef = useRef<HTMLDivElement>(null)
   const episodesRef = useRef<HTMLDivElement>(null)
   const moreRef = useRef<HTMLDivElement>(null)
   const aboutRef = useRef<HTMLElement>(null)
@@ -106,7 +107,7 @@ export function TitleModal() {
 
   useEffect(() => {
     if (!item) return
-    const scroller = backdropRef.current
+    const scroller = modalRef.current ?? backdropRef.current
     if (!scroller) return
     const root: HTMLElement = scroller
 
@@ -203,6 +204,7 @@ export function TitleModal() {
         role="dialog"
         aria-modal="true"
         aria-label={item.title}
+        ref={modalRef}
         onClick={(event) => event.stopPropagation()}
       >
         <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
@@ -334,13 +336,10 @@ export function TitleModal() {
             <h2>Trailers & More</h2>
             {stills.length ? (
               <div className="trailer-still-grid">
-                {stills.slice(0, 8).map((file) => (
-                  <img
-                    key={file}
-                    src={`/img?u=${encodeURIComponent(`https://image.tmdb.org/t/p/w780/${file}`)}`}
-                    alt=""
-                  />
-                ))}
+                {stills.slice(0, 8).map((file) => {
+                  const src = stillUrl(file)
+                  return src ? <img key={file} src={proxyImageUrl(src)} alt="" /> : null
+                })}
               </div>
             ) : (
               <p>Trailer stills appear here when TMDB art is available.</p>

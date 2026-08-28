@@ -245,7 +245,11 @@ function NewsHotFeed() {
   }
 
   if ((movies.loading || extras.loading) && !catalog.length) {
-    return <Spinner label="Loading titles" />
+    return (
+      <main className="page page-pad news-hot-page">
+        <Spinner label="Loading titles" />
+      </main>
+    )
   }
   if (!catalog.length && movies.error) {
     return <ErrorState message={movies.error} onRetry={movies.retry} />
