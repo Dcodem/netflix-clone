@@ -287,6 +287,36 @@ export function HelpCircleIcon({ className }: { className?: string }) {
   )
 }
 
+export function TransferIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M7 7h11M18 7l-3.2-3.2M18 7l-3.2 3.2M17 17H6M6 17l3.2-3.2M6 17l3.2 3.2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function ExitIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M10 5H6.2A1.2 1.2 0 005 6.2v11.6A1.2 1.2 0 006.2 19H10M10 12h9M16.2 8.2L20 12l-3.8 3.8"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 export function PencilIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

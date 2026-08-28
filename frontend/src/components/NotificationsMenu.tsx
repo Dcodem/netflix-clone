@@ -32,8 +32,7 @@ export function NotificationsMenu() {
       {open ? (
         <div className="notify-dropdown" role="menu">
           {notices.length ? (
-            <section className="notify-group">
-              <h3>Notifications</h3>
+            <div className="notify-list">
               {notices.map(({ item, kicker, stamp }) => (
                 <button
                   type="button"
@@ -52,7 +51,7 @@ export function NotificationsMenu() {
                   </span>
                 </button>
               ))}
-            </section>
+            </div>
           ) : (
             <p>You’re all caught up</p>
           )}

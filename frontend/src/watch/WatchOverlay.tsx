@@ -969,14 +969,14 @@ export function WatchOverlay() {
                   event.currentTarget.setPointerCapture(event.pointerId)
                   setVolOpen(true)
                   const rect = event.currentTarget.getBoundingClientRect()
-                  const inset = 12
+                  const inset = 8
                   const height = Math.max(1, rect.height - inset * 2)
                   onVolume(1 - Math.min(1, Math.max(0, (event.clientY - rect.top - inset) / height)))
                 }}
                 onPointerMove={(event) => {
                   if (!event.buttons) return
                   const rect = event.currentTarget.getBoundingClientRect()
-                  const inset = 12
+                  const inset = 8
                   const height = Math.max(1, rect.height - inset * 2)
                   onVolume(1 - Math.min(1, Math.max(0, (event.clientY - rect.top - inset) / height)))
                 }}
