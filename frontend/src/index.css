@@ -5691,6 +5691,11 @@ img.is-logo-pending {
   pointer-events: none !important;
 }
 
+.watch-overlay.is-next .watch-center {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .watch-overlay.is-panel .watch-ident {
   opacity: 0 !important;
 }
