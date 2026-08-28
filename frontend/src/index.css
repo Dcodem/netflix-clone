@@ -456,6 +456,11 @@ select,
   margin-top: 18px;
 }
 
+.hero-open-title,
+.hero-list {
+  display: none;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -3289,6 +3294,48 @@ img.is-logo-pending {
     margin-bottom: -52px;
   }
 
+  .browse-page:not(.has-browse-heading) {
+    padding-top: var(--header-offset);
+  }
+
+  .browse-page:not(.has-browse-heading) .hero {
+    min-height: min(138vw, 70vh);
+    max-height: none;
+    margin: 0 16px 16px;
+    border-radius: 12px;
+  }
+
+  .browse-page:not(.has-browse-heading) .hero::after {
+    background: linear-gradient(180deg, transparent 34%, rgba(0, 0, 0, 0.48) 62%, rgba(0, 0, 0, 0.92) 100%);
+  }
+
+  .browse-page:not(.has-browse-heading) .hero-body {
+    padding: 28px 16px 16px;
+  }
+
+  .browse-page:not(.has-browse-heading) .hero-syn {
+    display: none;
+  }
+
+  .browse-page:not(.has-browse-heading) .hero.is-settled .billboard-kicker,
+  .browse-page:not(.has-browse-heading) .hero.is-settled .hero-genre-dots {
+    opacity: 1;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .browse-page:not(.has-browse-heading) .hero-controls-right {
+    bottom: 86px;
+  }
+
+  .browse-page:not(.has-browse-heading) .maturity-flag {
+    display: none;
+  }
+
+  .browse-page:not(.has-browse-heading) .hero-actions {
+    padding-right: 0;
+  }
+
   .hero-body {
     max-width: none;
     padding: calc(var(--header-offset) + 20px) 16px 88px;
@@ -4515,6 +4562,24 @@ img.is-logo-pending {
   .hero-actions .btn-info {
     flex: 1;
     min-width: 0;
+  }
+
+  .hero-more {
+    display: none;
+  }
+
+  .hero-list {
+    display: inline-flex;
+  }
+
+  .hero-open-title {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border: 0;
+    background: none;
+    cursor: pointer;
   }
 
   .notify-toggle {
@@ -5947,14 +6012,15 @@ img.is-logo-pending {
   right: 28px;
   bottom: 118px;
   z-index: 2300;
-  background: rgba(42, 42, 42, 0.6);
+  background: rgba(42, 42, 42, 0.55);
   color: #fff;
   border: 1px solid #fff;
-  border-radius: 4px;
-  padding: 10px 18px;
+  border-radius: 2px;
+  padding: 11px 18px 11px 20px;
   font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: none;
   backdrop-filter: blur(8px);
 }
 
@@ -6798,14 +6864,20 @@ img.is-logo-pending {
 @media (max-width: 767px) {
   .home-pills {
     display: flex;
-    flex-wrap: wrap;
-    position: absolute;
-    top: var(--header-offset);
-    left: 0;
-    right: 0;
+    flex-wrap: nowrap;
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
     z-index: 6;
     gap: 8px;
-    padding: 8px var(--page-gutter) 0;
+    padding: 8px 16px 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .home-pills::-webkit-scrollbar {
+    display: none;
   }
 
   .home-pills a,

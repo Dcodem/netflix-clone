@@ -3,13 +3,13 @@ import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem } from '../api/types'
 import { genresOf, isShow } from '../lib/media'
 import { buildWatchSession } from '../lib/watchSession'
-import { maturityLabel } from '../lib/netflix'
+import { maturityLabel, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
-import { InfoIcon, PlayIcon, RestartIcon, SpeakerIcon } from './Icons'
+import { CheckIcon, InfoIcon, PlayIcon, PlusIcon, RestartIcon, SpeakerIcon } from './Icons'
 import { CatalogImage } from './CatalogImage'
 import { GenreDots } from './GenreDots'
 import { TitleLogo } from './TitleLogo'
@@ -26,7 +26,7 @@ function coverScale(width: number, height: number) {
 export function Hero({ item }: { item: MovieListItem }) {
   const { openWatch, session } = useWatch()
   const { openTitle, item: openItem } = useTitleModal()
-  const { activeProfile } = useProfiles()
+  const { activeProfile, toggleMyList } = useProfiles()
   const mediaRef = useRef<HTMLDivElement>(null)
   const trailerRef = useRef<TrailerHandle>(null)
   const [detail, setDetail] = useState<MovieDetail | null>(null)
@@ -86,6 +86,7 @@ export function Hero({ item }: { item: MovieListItem }) {
   const maturity = maturityLabel(item)
   const synopsis = detail?.synopsis
   const genres = genresOf(detail ?? item).slice(0, 3)
+  const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
 
   function onWatch() {
     const next = buildWatchSession(item, detail, last)
@@ -109,6 +110,12 @@ export function Hero({ item }: { item: MovieListItem }) {
   return (
     <section className={`hero ${playing ? 'is-playing' : ''} ${settled ? 'is-settled' : ''}`}>
       <div className={`hero-media ${playing ? 'is-playing' : ''}`} ref={mediaRef}>
+        <button
+          type="button"
+          className="hero-open-title"
+          onClick={() => openTitle(item)}
+          aria-label={`${item.title} details`}
+        />
         <CatalogImage item={{ ...item, backdrop_url: backdrop }} alt="" className="hero-img" prefer="backdrop" />
         {previewActive ? (
           <div
@@ -144,9 +151,17 @@ export function Hero({ item }: { item: MovieListItem }) {
             <PlayIcon className="icon" />
             {last?.progress && last.progress > 0.05 ? 'Resume' : 'Play'}
           </button>
-          <button type="button" className="btn btn-info" onClick={() => openTitle(item)}>
+          <button type="button" className="btn btn-info hero-more" onClick={() => openTitle(item)}>
             <InfoIcon className="icon" />
             More Info
+          </button>
+          <button
+            type="button"
+            className="btn btn-info hero-list"
+            onClick={() => toggleMyList(toLiked(item))}
+          >
+            {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
+            My List
           </button>
         </div>
       </div>
