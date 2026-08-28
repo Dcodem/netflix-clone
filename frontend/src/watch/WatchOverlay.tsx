@@ -943,18 +943,35 @@ export function WatchOverlay() {
               >
                 <SpeakerIcon muted={muted || volume <= 0.01} className="icon" />
               </button>
-              <div className="watch-vol-rail">
-                <input
-                  className="watch-vol-slider"
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={muted ? 0 : volume}
-                  aria-label="Volume"
-                  style={{ '--vol': String(muted ? 0 : volume) } as CSSProperties}
-                  onChange={(event) => onVolume(Number(event.target.value))}
-                />
+              <div
+                className="watch-vol-rail"
+                role="slider"
+                aria-label="Volume"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round((muted ? 0 : volume) * 100)}
+                onPointerDown={(event) => {
+                  event.stopPropagation()
+                  event.currentTarget.setPointerCapture(event.pointerId)
+                  setVolOpen(true)
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const inset = 12
+                  const height = Math.max(1, rect.height - inset * 2)
+                  onVolume(1 - Math.min(1, Math.max(0, (event.clientY - rect.top - inset) / height)))
+                }}
+                onPointerMove={(event) => {
+                  if (!event.buttons) return
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const inset = 12
+                  const height = Math.max(1, rect.height - inset * 2)
+                  onVolume(1 - Math.min(1, Math.max(0, (event.clientY - rect.top - inset) / height)))
+                }}
+              >
+                <span className="watch-vol-track">
+                  <span className="watch-vol-fill" style={{ height: `${Math.round((muted ? 0 : volume) * 100)}%` }}>
+                    <span className="watch-vol-knob" />
+                  </span>
+                </span>
               </div>
             </div>
           </div>
