@@ -2991,10 +2991,33 @@ img.is-logo-pending {
   opacity: 1;
 }
 
+.title-modal-hero.is-cinematic .title-modal-logo,
+.title-modal-hero.is-cinematic .title-modal-title,
+.title-modal-hero.is-cinematic .title-modal-hero-body h1,
+.title-modal-hero.is-playing .title-modal-logo,
+.title-modal-hero.is-playing .title-modal-title,
+.title-modal-hero.is-playing .title-modal-hero-body h1 {
+  animation: title-logo-settle 0.9s cubic-bezier(0.5, 0, 0.1, 1) 6s forwards;
+}
+
+@keyframes title-logo-settle {
+  to {
+    transform: scale(0.52);
+  }
+}
+
 .title-modal-hero.is-settled .title-modal-hero-body h1,
 .title-modal-hero.is-settled .title-modal-logo,
 .title-modal-hero.is-settled .title-modal-title {
   transform: scale(0.52);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .title-modal-hero:hover .title-modal-hero-body h1,
+  .title-modal-hero:hover .title-modal-logo,
+  .title-modal-hero:hover .title-modal-title {
+    transform: none !important;
+  }
 }
 
 .title-modal-main {
@@ -3669,7 +3692,14 @@ img.is-logo-pending {
 
   .title-modal-hero.is-settled .title-modal-hero-body h1,
   .title-modal-hero.is-settled .title-modal-logo,
-  .title-modal-hero.is-settled .title-modal-title {
+  .title-modal-hero.is-settled .title-modal-title,
+  .title-modal-hero.is-cinematic .title-modal-logo,
+  .title-modal-hero.is-cinematic .title-modal-title,
+  .title-modal-hero.is-cinematic .title-modal-hero-body h1,
+  .title-modal-hero.is-playing .title-modal-logo,
+  .title-modal-hero.is-playing .title-modal-title,
+  .title-modal-hero.is-playing .title-modal-hero-body h1 {
+    animation: none;
     transform: none;
   }
 
