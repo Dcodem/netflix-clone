@@ -413,12 +413,13 @@ select,
 
 .hero.is-settled .hero-title,
 .hero.is-settled .hero-logo {
-  transform: scale(0.62);
+  transform: scale(0.52);
 }
 
 .hero-syn,
 .hero-meta {
-  transition: opacity 0.7s ease, max-height 0.7s ease, margin 0.7s ease;
+  max-height: 7.2em;
+  transition: opacity 0.75s ease, max-height 0.75s ease, margin 0.75s ease;
 }
 
 .hero.is-settled .hero-syn,
@@ -1371,10 +1372,10 @@ select,
 
 .profiles-page h1 {
   font-family: var(--display);
-  font-size: clamp(32px, 3.8vw, 56px);
+  font-size: clamp(30px, 3.6vw, 54px);
   font-weight: 300;
-  letter-spacing: 0.01em;
-  margin: 0 0 2.15em;
+  letter-spacing: 0.02em;
+  margin: 0 0 2.4em;
   color: #fff;
 }
 
@@ -1390,7 +1391,7 @@ select,
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 2rem 2.15rem;
+  gap: 1.85rem 2.35rem;
 }
 
 .profile-cell {
@@ -1415,13 +1416,13 @@ select,
   aspect-ratio: 1;
   height: auto;
   border-radius: 4px;
-  border: 4px solid transparent;
+  border: 3px solid transparent;
   font-size: 52px;
   cursor: pointer;
   display: grid;
   place-items: center;
   overflow: hidden;
-  transition: border-color 0.12s ease;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
 }
 
 .profile-cell:hover .profile-avatar,
@@ -1430,6 +1431,7 @@ select,
 .profile-cell:focus-visible .profile-add,
 .profile-add:hover {
   border-color: #fff;
+  box-shadow: 0 0 0 1px #fff;
 }
 
 .profile-cell:hover .profile-name,
@@ -1438,10 +1440,11 @@ select,
 }
 
 .profile-name {
-  margin-top: 0.6em;
+  margin-top: 0.7em;
   color: #808080;
-  font-size: clamp(12px, 1.3vw, 18px);
+  font-size: clamp(12px, 1.25vw, 17px);
   font-weight: 400;
+  letter-spacing: 0.01em;
   transition: color 0.12s ease;
 }
 
@@ -1950,7 +1953,7 @@ select,
   content: '';
   position: absolute;
   top: -10px;
-  right: 26px;
+  right: 36px;
   border: 8px solid transparent;
   border-bottom-color: #fff;
 }
@@ -2192,6 +2195,7 @@ select,
 
 .hero-syn {
   max-width: 540px;
+  max-height: 6.4em;
   margin: 14px 0 0;
   font-size: clamp(14px, 1.6vw, 18px);
   line-height: 1.35;
@@ -3756,12 +3760,13 @@ img.is-logo-pending {
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
+  max-height: 2.6em;
   font-family: var(--display);
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 0.18em;
   color: #fff;
-  transition: opacity 0.7s ease, max-height 0.7s ease, margin 0.7s ease;
+  transition: opacity 0.75s ease, max-height 0.75s ease, margin 0.75s ease;
 }
 
 .n-mark {
@@ -3781,11 +3786,12 @@ img.is-logo-pending {
 .hero-genre-dots {
   display: none;
   margin: 8px 0 0;
+  max-height: 2.4em;
   color: #fff;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  transition: opacity 0.7s ease, max-height 0.7s ease, margin 0.7s ease;
+  transition: opacity 0.75s ease, max-height 0.75s ease, margin 0.75s ease;
 }
 
 .hero-genre-dots li + li::before {
@@ -5895,10 +5901,10 @@ img.is-logo-pending {
   z-index: 2210;
   max-width: min(72vw, 720px);
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(14px) scale(0.97);
   pointer-events: none;
   text-shadow: 0 2px 28px rgba(0, 0, 0, 0.85), 0 0 42px rgba(0, 0, 0, 0.55);
-  transition: opacity 0.55s ease, transform 0.55s ease, bottom 0.22s ease;
+  transition: opacity 0.9s ease, transform 0.9s ease, bottom 0.22s ease;
 }
 
 .watch-ident.is-on {

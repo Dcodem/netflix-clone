@@ -364,12 +364,12 @@ export function WatchOverlay() {
     const show = () => {
       setChrome(true)
       window.clearTimeout(timer)
-      if (!keepChrome) timer = window.setTimeout(() => setChrome(false), 3200)
+      if (!keepChrome) timer = window.setTimeout(() => setChrome(false), 2800)
     }
     showChromeRef.current = show
     const coarse = window.matchMedia('(pointer: coarse)').matches
     if (keepChrome) setChrome(true)
-    else timer = window.setTimeout(() => setChrome(false), 3200)
+    else timer = window.setTimeout(() => setChrome(false), 2800)
     const onKey = (event: KeyboardEvent) => {
       const typing = (event.target as HTMLElement)?.tagName === 'INPUT' || (event.target as HTMLElement)?.tagName === 'SELECT'
       if (typing) return

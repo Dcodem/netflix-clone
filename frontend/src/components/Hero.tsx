@@ -34,6 +34,7 @@ export function Hero({ item }: { item: MovieListItem }) {
   const [trailerReady, setTrailerReady] = useState(false)
   const [trailerEnded, setTrailerEnded] = useState(false)
   const [settled, setSettled] = useState(false)
+  const [heroHover, setHeroHover] = useState(false)
   const [scale, setScale] = useState(1.45)
   const previewActive = !openItem && !session && activeProfile?.autoplayPreview !== false
   const playing = trailerReady && previewActive && !trailerEnded
@@ -75,6 +76,7 @@ export function Hero({ item }: { item: MovieListItem }) {
 
   useEffect(() => {
     setSettled(false)
+    setHeroHover(false)
     if (!playing) return
     const timer = window.setTimeout(() => setSettled(true), 6000)
     return () => window.clearTimeout(timer)
@@ -107,8 +109,18 @@ export function Hero({ item }: { item: MovieListItem }) {
     trailerRef.current?.replay()
   }
 
+  const collapsed = settled && !heroHover
+
   return (
-    <section className={`hero ${playing ? 'is-playing' : ''} ${settled ? 'is-settled' : ''}`}>
+    <section
+      className={`hero ${playing ? 'is-playing' : ''} ${collapsed ? 'is-settled' : ''}`}
+      onPointerEnter={(event) => {
+        if (event.pointerType === 'mouse') setHeroHover(true)
+      }}
+      onPointerLeave={(event) => {
+        if (event.pointerType === 'mouse') setHeroHover(false)
+      }}
+    >
       <div className={`hero-media ${playing ? 'is-playing' : ''}`} ref={mediaRef}>
         <button
           type="button"
