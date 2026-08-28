@@ -63,6 +63,19 @@ a {
   background: var(--bg);
 }
 
+.app-shell.is-entering {
+  animation: browse-enter 0.72s ease;
+}
+
+@keyframes browse-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .app-shell > .page,
 .app-shell > .page-pad {
   flex: 1 0 auto;
@@ -2882,12 +2895,23 @@ img.is-logo-pending {
   display: flex;
   gap: 28px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   margin: 18px -28px 8px;
   padding: 0 56px 0 28px;
   background: #181818;
   border-bottom: 1px solid #404040;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+  scrollbar-width: none;
+}
+
+.title-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.title-tabs .season-menu {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .title-tabs > button {
@@ -3279,6 +3303,11 @@ img.is-logo-pending {
     display: flex;
   }
 
+  .hero.is-settled .hero-title,
+  .hero.is-settled .hero-logo {
+    transform: scale(0.78);
+  }
+
   .hero-actions .btn {
     min-height: 44px;
     font-size: 16px;
@@ -3448,8 +3477,17 @@ img.is-logo-pending {
     margin-left: -16px;
     margin-right: -16px;
     padding-left: 16px;
-    padding-right: 52px;
+    padding-right: 16px;
     gap: 18px;
+  }
+
+  .title-tabs .season-menu {
+    width: auto;
+  }
+
+  .title-tabs .season-menu-btn {
+    width: auto;
+    min-height: 36px;
   }
 
   .title-tabs > button {
@@ -6349,7 +6387,31 @@ img.is-logo-pending {
   }
 
   .watch-credits {
-    display: none;
+    left: 16px;
+    right: auto;
+    bottom: 108px;
+    padding: 8px 4px;
+    font-size: 15px;
+  }
+
+  .next-ep-card {
+    width: min(248px, calc(100% - 132px));
+  }
+
+  .watch-panel.watch-audio,
+  .watch-audio {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    max-height: min(72vh, 640px);
+    padding: 22px 20px calc(22px + env(safe-area-inset-bottom, 0px));
+    border: 0;
+    border-radius: 12px 12px 0 0;
+    background: #141414;
+    box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.45);
+    animation: sheet-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .watch-controls .watch-ctrl[aria-label]::after {

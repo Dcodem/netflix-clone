@@ -113,7 +113,7 @@ export function ProfileSelect() {
     }
     setPinTarget(null)
     playProfileSting()
-    navigate('/browse')
+    navigate('/browse', { state: { fromProfile: true } })
   }
 
   useEffect(() => {
@@ -154,7 +154,7 @@ export function ProfileSelect() {
     }
     selectProfile(profile.id)
     playProfileSting()
-    navigate('/browse')
+    navigate('/browse', { state: { fromProfile: true } })
   }
 
   async function onPin(event: FormEvent) {

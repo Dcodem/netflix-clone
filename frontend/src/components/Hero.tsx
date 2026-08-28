@@ -76,7 +76,6 @@ export function Hero({ item }: { item: MovieListItem }) {
   useEffect(() => {
     setSettled(false)
     if (!playing) return
-    if (!window.matchMedia('(min-width: 768px)').matches) return
     const timer = window.setTimeout(() => setSettled(true), 6000)
     return () => window.clearTimeout(timer)
   }, [playing, item.id])
