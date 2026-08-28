@@ -199,18 +199,40 @@ function playerPage(item, season, episode, query = {}) {
         } catch (err) {}
       }
       let endedLatch = false
+      function ytDuration() {
+        if (!ytPlayer || typeof ytPlayer.getDuration !== 'function') return 0
+        try { return Number(ytPlayer.getDuration()) || 0 } catch (err) { return 0 }
+      }
+      function hideYt() {
+        usingYt = false
+        if (wrap) {
+          wrap.classList.remove('is-on')
+          wrap.style.opacity = '0'
+        }
+        document.body.classList.remove('is-video')
+      }
+      function inTrailerWindow(seconds) {
+        const ytDur = ytDuration()
+        return ytDur > 1 && seconds < ytDur - 0.35
+      }
       function seekTo(seconds) {
         current = Math.max(0, Math.min(duration, seconds))
-        if (usingYt && ytPlayer && typeof ytPlayer.seekTo === 'function') {
+        endedLatch = false
+        if (ytPlayer && inTrailerWindow(current)) {
+          usingYt = true
           try { ytPlayer.seekTo(current, true) } catch (err) {}
-        } else showShot(shot + 1)
+          if (!paused) applyTransport()
+          revealYt()
+        } else {
+          hideYt()
+          if (ytPlayer) try { ytPlayer.pauseVideo() } catch (err) {}
+          showShot(shot + 1)
+        }
         if (duration > 0 && current >= duration - 0.05) {
           current = duration
           paused = true
           endedLatch = true
           parent.postMessage({ source: SOURCE, type: 'ended', current: current, duration: duration, paused: true }, '*')
-        } else {
-          endedLatch = false
         }
       }
       function revealYt() {
@@ -223,17 +245,20 @@ function playerPage(item, season, episode, query = {}) {
       function readYt() {
         if (!ytPlayer) return
         try {
-          const ytDur = ytPlayer.getDuration()
-          if (ytDur && ytDur > 1) {
-            duration = ytDur
-            usingYt = true
-          }
-          const ytCur = ytPlayer.getCurrentTime()
-          if (typeof ytCur === 'number') current = ytCur
           const state = ytPlayer.getPlayerState()
-          if (state === 2 || state === 0) paused = true
-          else if (state === PLAYING) paused = false
+          const ytDur = ytDuration()
+          if (state === 0 || (ytDur > 1 && current >= ytDur - 0.2)) {
+            hideYt()
+            if (state === 0) {
+              try { ytPlayer.pauseVideo() } catch (err) {}
+            }
+            return
+          }
           if (state === PLAYING) revealYt()
+          if (usingYt && !paused && typeof ytPlayer.getCurrentTime === 'function') {
+            const ytCur = ytPlayer.getCurrentTime()
+            if (typeof ytCur === 'number' && inTrailerWindow(ytCur)) current = ytCur
+          }
         } catch (err) {}
       }
       function tick(dt) {
@@ -244,7 +269,7 @@ function playerPage(item, season, episode, query = {}) {
           return
         }
         if (usingYt) readYt()
-        else if (!paused) {
+        if (!paused && !usingYt) {
           const next = Math.min(duration, current + dt * wantRate)
           if (duration > 0 && next >= duration - 0.05 && current < duration - 0.05) {
             current = duration
@@ -293,18 +318,13 @@ function playerPage(item, season, episode, query = {}) {
               usingYt = false
             },
             onStateChange: function (event) {
-              if (event.data === PLAYING) {
+              if (event.data === PLAYING && inTrailerWindow(current)) {
                 usingYt = true
-                paused = false
                 revealYt()
                 parent.postMessage({ source: SOURCE, type: 'media', kind: 'youtube' }, '*')
               }
-              if (event.data === 2) paused = true
               if (event.data === 0) {
-                paused = true
-                current = duration
-                endedLatch = true
-                parent.postMessage({ source: SOURCE, type: 'ended', current: current, duration: duration, paused: true }, '*')
+                hideYt()
               }
             }
           }

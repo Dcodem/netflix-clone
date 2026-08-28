@@ -452,15 +452,20 @@ export function WatchOverlay() {
         ambienceRef.current = null
         return
       }
+      const takeDuration = (next?: number) => {
+        if (typeof next !== 'number' || next <= 0) return
+        if (next < runtimeSec * 0.45) return
+        setDuration(next)
+      }
       if (data.type === 'ended') {
         if (typeof data.current === 'number') setCurrent(data.current)
-        if (typeof data.duration === 'number' && data.duration > 0) setDuration(data.duration)
+        takeDuration(data.duration)
         setPaused(true)
         return
       }
       if (data.type !== 'time') return
       if (typeof data.current === 'number') setCurrent(data.current)
-      if (typeof data.duration === 'number' && data.duration > 0) setDuration(data.duration)
+      takeDuration(data.duration)
       if (typeof data.paused === 'boolean') setPaused(data.paused)
     }
     if (!coarse) {
