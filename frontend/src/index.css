@@ -648,7 +648,8 @@ select,
 }
 
 .row-arrow {
-  display: none;
+  display: grid;
+  place-items: center;
   position: absolute;
   top: 28px;
   bottom: 56px;
@@ -3231,10 +3232,9 @@ img.is-logo-pending {
   }
 }
 
-@media (hover: hover) and (pointer: fine) {
+@media (max-width: 767px) {
   .row-arrow {
-    display: grid;
-    place-items: center;
+    display: none;
   }
 }
 
