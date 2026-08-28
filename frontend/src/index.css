@@ -5798,6 +5798,12 @@ select,
   text-decoration: underline;
 }
 
+.watch-ep-empty {
+  margin: 12px 0 0;
+  color: #b3b3b3;
+  font-size: 14px;
+}
+
 .watch-ep.is-on {
   background: rgba(255, 255, 255, 0.06);
 }
@@ -5934,6 +5940,21 @@ select,
   .next-ep-card {
     bottom: 108px;
     right: 16px;
+  }
+
+  .watch-panel {
+    z-index: 2280;
+  }
+
+  .watch-overlay.is-panel .watch-center {
+    opacity: 0 !important;
+    pointer-events: none;
+  }
+
+  .watch-panel.watch-episodes {
+    background: #141414;
+    max-height: min(72vh, 640px);
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   }
 }
 

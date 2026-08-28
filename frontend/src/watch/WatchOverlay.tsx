@@ -902,11 +902,11 @@ export function WatchOverlay() {
           }}
         />
       ) : null}
-      {episodesOpen && showDetail?.seasons?.length ? (
+      {episodesOpen ? (
         <div className="watch-panel watch-episodes" onClick={(event) => event.stopPropagation()}>
           <div className="watch-ep-head">
             <h2>Episodes</h2>
-            {showDetail.seasons.length > 1 ? (
+            {showDetail && showDetail.seasons && showDetail.seasons.length > 1 ? (
               <label>
                 <span className="visually-hidden">Season</span>
                 <select
@@ -926,7 +926,8 @@ export function WatchOverlay() {
             )}
           </div>
           <div className="watch-ep-list">
-            {activeSeason?.episodes?.map((episode) => {
+            {activeSeason?.episodes?.length ? (
+              activeSeason.episodes.map((episode) => {
               const season = activeSeason
               const active = episode.number === session.history?.episodeNumber && season.season_number === session.history?.seasonNumber
               const watched = session.history
@@ -960,7 +961,10 @@ export function WatchOverlay() {
                   </span>
                 </button>
               )
-            })}
+            })
+            ) : (
+              <p className="watch-ep-empty">{showDetail ? 'No episodes available.' : 'Loading episodes…'}</p>
+            )}
           </div>
         </div>
       ) : null}
