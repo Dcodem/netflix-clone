@@ -113,7 +113,7 @@ export function Search() {
             {phone ? (
               <SearchHitsList items={popularItems} ranked />
             ) : (
-              <MediaGrid items={popularItems} layout="poster" hoverable={false} />
+              <MediaGrid items={popularItems} />
             )}
           </>
         ) : null}
@@ -147,7 +147,7 @@ export function Search() {
           {phone ? (
             <SearchHitsList items={items} />
           ) : (
-            <MediaGrid items={items} layout="poster" hoverable={false} />
+            <MediaGrid items={items} />
           )}
         </>
       ) : (

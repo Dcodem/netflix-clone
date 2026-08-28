@@ -134,12 +134,16 @@ function FeedCard({
                 className={`news-icon-btn ${onList ? 'is-on' : ''}`}
                 onClick={() => toggleMyList(toLiked(item))}
               >
-                {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
+                <span className="news-icon-disc">
+                  {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
+                </span>
                 {onList ? 'Reminded' : 'Remind Me'}
               </button>
             ) : (
-              <button type="button" className="news-icon-btn" onClick={() => void playNow()} disabled={playing}>
-                <PlayIcon className="icon" />
+              <button type="button" className="news-icon-btn is-play" onClick={() => void playNow()} disabled={playing}>
+                <span className="news-icon-disc">
+                  <PlayIcon className="icon" />
+                </span>
                 Play
               </button>
             )}
@@ -152,7 +156,9 @@ function FeedCard({
                   openTitle(item)
                 }}
               >
-                <InfoIcon className="icon" />
+                <span className="news-icon-disc">
+                  <InfoIcon className="icon" />
+                </span>
                 Info
               </button>
             ) : (
@@ -161,7 +167,9 @@ function FeedCard({
                 className={`news-icon-btn ${onList ? 'is-on' : ''}`}
                 onClick={() => toggleMyList(toLiked(item))}
               >
-                {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
+                <span className="news-icon-disc">
+                  {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
+                </span>
                 My List
               </button>
             )}
