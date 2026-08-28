@@ -13,6 +13,7 @@ const NAV = [
   { to: '/browse/movies', label: 'Movies' },
   { to: '/browse/latest', label: 'New & Popular' },
   { to: '/browse/my-list', label: 'My List' },
+  { to: '/browse/languages', label: 'Browse by Languages' },
 ] as const
 
 export function Header() {

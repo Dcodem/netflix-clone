@@ -127,15 +127,30 @@ export function Login() {
           <button type="submit" className="btn btn-primary login-submit" disabled={busy}>
             {busy ? 'Please wait…' : mode === 'signup' ? 'Sign Up' : 'Sign In'}
           </button>
-          <div className="login-row">
-            <label className="login-remember">
-              <input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} />
-              Remember me
-            </label>
-            <button type="button" className="login-help" onClick={() => setHelp((value) => !value)}>
-              Forgot password?
-            </button>
-          </div>
+          {mode === 'login' ? (
+            <>
+              <p className="login-or">OR</p>
+              <button
+                type="button"
+                className="login-code"
+                onClick={() => {
+                  setHelp(false)
+                  setError(
+                    'A sign-in code would be emailed. This clone keeps accounts on this device — use your password instead.',
+                  )
+                }}
+              >
+                Use a Sign-In Code
+              </button>
+            </>
+          ) : null}
+          <button type="button" className="login-help" onClick={() => setHelp((value) => !value)}>
+            Forgot password?
+          </button>
+          <label className="login-remember">
+            <input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} />
+            Remember me
+          </label>
           {help ? (
             <p className="login-help-copy">
               Passwords stay in this browser. If you forgot yours, create a new account with the same email after

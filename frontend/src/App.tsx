@@ -3,6 +3,7 @@ import { AppLayout } from './AppLayout'
 import { AuthProvider } from './auth/AuthContext'
 import { ProfileProvider } from './profiles/ProfileContext'
 import { Account } from './pages/Account'
+import { BrowseLanguages } from './pages/BrowseLanguages'
 import { Home } from './pages/Home'
 import { Login } from './pages/Login'
 import { MovieDetail } from './pages/MovieDetail'
@@ -32,6 +33,7 @@ export default function App() {
                   <Route path="/browse/shows" element={<Home filter="shows" />} />
                   <Route path="/browse/latest" element={<NewsHot />} />
                   <Route path="/browse/my-list" element={<MyList />} />
+                  <Route path="/browse/languages" element={<BrowseLanguages />} />
                   <Route path="/browse/my-netflix" element={<MyNetflix />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/taste" element={<Taste />} />

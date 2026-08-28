@@ -58,6 +58,12 @@ export function CategoriesSheet({
             <Link to="/browse/movies" onClick={onClose}>
               Movies
             </Link>
+            <Link to="/browse/latest" onClick={onClose}>
+              New & Popular
+            </Link>
+            <Link to="/browse/languages" onClick={onClose}>
+              Browse by Languages
+            </Link>
           </>
         ) : (
           <button
