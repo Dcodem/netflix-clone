@@ -14,7 +14,7 @@ import { GenreDots } from '../components/GenreDots'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
-import { matchPercent, maturityLabel, moodTags } from '../lib/netflix'
+import { matchPercent, maturityBlurb, maturityLabel, moodTags } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
@@ -37,7 +37,7 @@ export function TitleModal() {
   const modalRef = useRef<HTMLDivElement>(null)
   const episodesRef = useRef<HTMLDivElement>(null)
   const moreRef = useRef<HTMLDivElement>(null)
-  const aboutRef = useRef<HTMLElement>(null)
+  const trailersRef = useRef<HTMLElement>(null)
   const jumpingRef = useRef(false)
   const stills = useTmdbGallery(item)
   const [muted, setMuted] = useState(true)
@@ -119,12 +119,12 @@ export function TitleModal() {
       const sections: Array<{ id: 'episodes' | 'more' | 'trailers'; el: HTMLElement | null }> = [
         { id: 'episodes', el: episodesRef.current },
         { id: 'more', el: moreRef.current },
-        { id: 'trailers', el: aboutRef.current },
+        { id: 'trailers', el: trailersRef.current },
       ]
       let current: 'episodes' | 'more' | 'trailers' | null = null
       for (const section of sections) {
         if (!section.el) continue
-        if (section.el.getBoundingClientRect().top <= line + 72) current = section.id
+        if (section.el.getBoundingClientRect().top <= line + 108) current = section.id
       }
       if (current) setTab(current)
     }
@@ -158,7 +158,7 @@ export function TitleModal() {
   function jump(next: 'episodes' | 'more' | 'trailers') {
     setTab(next)
     jumpingRef.current = true
-    const node = next === 'episodes' ? episodesRef.current : next === 'more' ? moreRef.current : aboutRef.current
+    const node = next === 'episodes' ? episodesRef.current : next === 'more' ? moreRef.current : trailersRef.current
     node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     window.setTimeout(() => {
       jumpingRef.current = false
@@ -344,7 +344,7 @@ export function TitleModal() {
             </div>
           ) : null}
 
-          <section ref={aboutRef} className="title-about title-section">
+          <section ref={trailersRef} className="title-about title-section">
             <h2>Trailers & More</h2>
             {stills.length ? (
               <div className="trailer-card-grid">
@@ -383,7 +383,6 @@ export function TitleModal() {
               </div>
             ) : null}
             <h2>About {item.title}</h2>
-            {detail?.synopsis ? <p>{detail.synopsis}</p> : null}
             {detail?.cast?.length ? (
               <p>
                 <span>Cast:</span> {detail.cast.join(', ')}
@@ -395,10 +394,18 @@ export function TitleModal() {
               </p>
             ) : null}
             {moods.length ? (
-              <p>
-                <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {moods.join(' · ')}
-              </p>
+              <div className="title-about-row">
+                <span>This {isShow(item) ? 'show' : 'movie'} is:</span>
+                <GenreDots genres={moods} className="title-moods" />
+              </div>
             ) : null}
+            <div className="title-about-maturity">
+              <span>Maturity rating:</span>
+              <p>
+                <span className="maturity">{maturity}</span>
+                {maturityBlurb(maturity)}
+              </p>
+            </div>
           </section>
         </div>
       </div>

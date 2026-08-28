@@ -404,7 +404,8 @@ select,
 
 .hero.is-settled .hero-syn,
 .hero.is-settled .hero-meta,
-.hero.is-settled .billboard-kicker {
+.hero.is-settled .billboard-kicker,
+.hero.is-settled .hero-genre-dots {
   opacity: 0;
   max-height: 0;
   margin: 0;
@@ -1167,12 +1168,17 @@ select,
 }
 
 .watch-overlay.is-panel::after {
-  content: '';
+  content: none;
+}
+
+.watch-scrim {
   position: absolute;
   inset: 0;
   z-index: 2145;
+  border: 0;
+  padding: 0;
   background: rgba(0, 0, 0, 0.46);
-  pointer-events: none;
+  cursor: default;
 }
 
 .watch-topbar {
@@ -1180,7 +1186,7 @@ select,
   top: 0;
   left: 0;
   right: 0;
-  z-index: 2100;
+  z-index: 2200;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -2137,8 +2143,8 @@ select,
 
 .title-modal-hero .hero-controls-right,
 .detail-hero .hero-controls-right {
-  bottom: 28%;
-  right: 16px;
+  bottom: 22%;
+  right: 0;
 }
 
 .quality-badge,
@@ -2772,7 +2778,7 @@ select,
 }
 
 .title-section {
-  scroll-margin-top: 52px;
+  scroll-margin-top: 72px;
 }
 
 .title-modal-syn {
@@ -3392,6 +3398,7 @@ select,
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
+  transition: opacity 0.7s ease, max-height 0.7s ease, margin 0.7s ease;
 }
 
 .hero-genre-dots li + li::before {
@@ -3875,7 +3882,7 @@ select,
   right: 0;
   bottom: 0;
   height: 120px;
-  z-index: 2100;
+  z-index: 2200;
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.94) 0%, rgba(0, 0, 0, 0.55) 48%, transparent 100%);
   pointer-events: none;
 }
@@ -5690,6 +5697,31 @@ select,
   overflow: auto;
 }
 
+@media (min-width: 768px) {
+  .watch-panel.watch-episodes {
+    left: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(54vw, 680px);
+    max-height: none;
+    padding: 28px 36px 128px 56px;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(8, 8, 8, 0.88) 40px, #141414 96px);
+    animation: ep-sheet-in 0.22s ease;
+  }
+}
+
+@keyframes ep-sheet-in {
+  from {
+    transform: translateX(28px);
+    opacity: 0.55;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
 .watch-ep-head {
   display: flex;
   align-items: center;
@@ -5722,13 +5754,49 @@ select,
   display: grid;
 }
 
-  .watch-ep {
-    grid-template-columns: 36px minmax(168px, 240px) 1fr !important;
-    gap: 16px;
-    padding: 12px 8px !important;
-    border-top: 1px solid #2a2a2a;
-    align-items: start;
-  }
+.watch-ep {
+  grid-template-columns: 36px minmax(168px, 240px) 1fr !important;
+  gap: 16px;
+  padding: 12px 8px !important;
+  border-top: 1px solid #2a2a2a;
+  align-items: start;
+}
+
+.watch-ep-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  z-index: 2;
+}
+
+.watch-credits {
+  position: absolute;
+  right: min(460px, calc(100% - 48px));
+  bottom: 118px;
+  z-index: 2150;
+  background: none;
+  border: 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  text-shadow: 0 1px 8px #000;
+  padding: 10px 8px;
+}
+
+.watch-credits.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.watch-credits:hover {
+  text-decoration: underline;
+}
 
 .watch-ep.is-on {
   background: rgba(255, 255, 255, 0.06);
@@ -5761,8 +5829,12 @@ select,
 }
 
 .watch-panel.watch-audio {
-  width: min(520px, calc(100% - 32px));
-  padding: 20px 24px;
+  width: min(560px, calc(100% - 32px));
+  padding: 22px 28px 18px;
+  border: 0;
+  border-radius: 4px;
+  background: rgba(20, 20, 20, 0.96);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
 }
 
 .watch-audio button {
@@ -5785,6 +5857,10 @@ select,
 @media (max-width: 767px) {
   .next-ep-body {
     grid-template-columns: 112px 1fr;
+  }
+
+  .watch-credits {
+    display: none;
   }
 
   .watch-ep {
@@ -5897,6 +5973,11 @@ select,
   font-weight: 700;
 }
 
+.title-about h2 + .trailer-card-grid + h2,
+.title-about .trailer-card-grid + h2 {
+  margin-top: 28px;
+}
+
 .title-about p {
   margin: 0 0 10px;
   color: #d2d2d2;
@@ -5906,6 +5987,41 @@ select,
 
 .title-about span {
   color: #777;
+}
+
+.title-about-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: #d2d2d2;
+  font-size: 14px;
+}
+
+.title-about-row .title-moods {
+  margin: 0;
+}
+
+.title-about-maturity {
+  margin: 14px 0 0;
+}
+
+.title-about-maturity > span {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.title-about-maturity p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  color: #d2d2d2;
+}
+
+.title-about-maturity .maturity {
+  color: #fff;
 }
 
 .more-like-syn {

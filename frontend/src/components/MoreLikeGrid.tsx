@@ -6,6 +6,7 @@ import { matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
+import { FeatureBadges } from './FeatureBadges'
 import { CheckIcon, PlayIcon, PlusIcon } from './Icons'
 
 type LikeChip = { chip: string; synopsis: string }
@@ -86,6 +87,7 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
                   <span className="match">{match}% Match</span>
                   <span className="maturity">{maturityLabel(item)}</span>
                   {item.year ? <span>{item.year}</span> : null}
+                  <FeatureBadges quality={item.quality} />
                   <button
                     type="button"
                     className={`circle-btn ${onList ? 'is-on' : ''}`}

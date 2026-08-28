@@ -21,6 +21,7 @@ import {
 import { MediaImage } from '../components/MediaImage'
 import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
+import { watchForEpisode } from '../lib/episodeProgress'
 import { stillFocus, episodeStill } from '../lib/media'
 import { peekTrailer, resolveTrailer, youtubeIdFromHit } from '../trailers/resolve'
 import { findTmdbGallery, tmdbFileName } from '../trailers/tmdb'
@@ -30,7 +31,7 @@ import { useWatch } from './WatchContext'
 const PLAYER_SOURCE = 'flix-player'
 const SKIP_INTRO_AT = 80
 const SKIP_RECAP_AT = 148
-const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5] as const
+const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] as const
 const CAPTIONS = [
   'The city never really sleeps.',
   'Stay close. We move on my mark.',
@@ -370,8 +371,13 @@ export function WatchOverlay() {
         skip(10)
         show()
       } else if (event.key === 'Escape') {
-        event.preventDefault()
-        closeWatch()
+        if (episodesOpen || audioOpen || speedOpen) {
+          event.preventDefault()
+          event.stopImmediatePropagation()
+          setEpisodesOpen(false)
+          setAudioOpen(false)
+          setSpeedOpen(false)
+        }
       } else if (event.key.toLowerCase() === 'f') {
         event.preventDefault()
         toggleFullscreen()
@@ -402,18 +408,18 @@ export function WatchOverlay() {
       window.addEventListener('mousemove', show)
       window.addEventListener('pointerdown', show)
     }
-    window.addEventListener('keydown', onKey)
+    window.addEventListener('keydown', onKey, true)
     window.addEventListener('message', onMessage)
     document.addEventListener('fullscreenchange', onFs)
     return () => {
       window.clearTimeout(timer)
       window.removeEventListener('mousemove', show)
       window.removeEventListener('pointerdown', show)
-      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keydown', onKey, true)
       window.removeEventListener('message', onMessage)
       document.removeEventListener('fullscreenchange', onFs)
     }
-  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post])
+  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen])
 
   useEffect(() => {
     const length = duration || runtimeSec
@@ -520,6 +526,13 @@ export function WatchOverlay() {
       aria-modal="true"
       aria-label="Player"
       onClick={(event) => {
+        if (episodesOpen || audioOpen || speedOpen) {
+          event.preventDefault()
+          setEpisodesOpen(false)
+          setAudioOpen(false)
+          setSpeedOpen(false)
+          return
+        }
         const coarse = window.matchMedia('(pointer: coarse)').matches
         if (!coarse) {
           togglePlay()
@@ -610,6 +623,18 @@ export function WatchOverlay() {
         <button type="button" className="skip-intro is-visible" onClick={skipRecap}>
           Skip Recap
           <SkipIntroIcon className="icon" />
+        </button>
+      ) : null}
+      {showNext && upcoming ? (
+        <button
+          type="button"
+          className="watch-credits is-visible"
+          onClick={(event) => {
+            event.stopPropagation()
+            setNextDismissed(true)
+          }}
+        >
+          Watch Credits
         </button>
       ) : null}
       {showNext && upcoming ? (
@@ -864,6 +889,19 @@ export function WatchOverlay() {
           </div>
         </div>
       </div>
+      {episodesOpen || audioOpen || speedOpen ? (
+        <button
+          type="button"
+          className="watch-scrim"
+          aria-label="Close panel"
+          onClick={(event) => {
+            event.stopPropagation()
+            setEpisodesOpen(false)
+            setAudioOpen(false)
+            setSpeedOpen(false)
+          }}
+        />
+      ) : null}
       {episodesOpen && showDetail?.seasons?.length ? (
         <div className="watch-panel watch-episodes" onClick={(event) => event.stopPropagation()}>
           <div className="watch-ep-head">
@@ -891,6 +929,10 @@ export function WatchOverlay() {
             {activeSeason?.episodes?.map((episode) => {
               const season = activeSeason
               const active = episode.number === session.history?.episodeNumber && season.season_number === session.history?.seasonNumber
+              const watched = session.history
+                ? watchForEpisode({ ...session.history, watchedAt: 0 }, season.season_number, episode)
+                : undefined
+              const epProgress = active ? progress : (watched?.progress ?? 0)
               return (
                 <button
                   type="button"
@@ -902,6 +944,11 @@ export function WatchOverlay() {
                     <span className="watch-ep-thumb" style={{ '--focal': stillFocus(episode.number) } as CSSProperties}>
                     <MediaImage src={episodeStill(galleryUrls, episode.number, episode.thumb_url)} alt="" />
                     <PlayIcon className="icon" />
+                    {epProgress > 0.05 && epProgress < 0.92 ? (
+                      <div className="progress-track watch-ep-progress">
+                        <div style={{ width: `${Math.round(Math.min(1, epProgress) * 100)}%` }} />
+                      </div>
+                    ) : null}
                   </span>
                   <span className="watch-ep-copy">
                     <em>
