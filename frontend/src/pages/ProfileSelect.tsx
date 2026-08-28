@@ -368,6 +368,7 @@ export function ProfileSelect() {
             </span>
             <input
               type="checkbox"
+              role="switch"
               checked={editAutoplayNext}
               onChange={(event) => setEditAutoplayNext(event.target.checked)}
             />
@@ -379,6 +380,7 @@ export function ProfileSelect() {
             </span>
             <input
               type="checkbox"
+              role="switch"
               checked={editAutoplayPreview}
               onChange={(event) => setEditAutoplayPreview(event.target.checked)}
             />
