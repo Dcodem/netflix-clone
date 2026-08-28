@@ -11,11 +11,13 @@ function MediaImageInner({ src, alt, className }: MediaImageProps) {
   const [stage, setStage] = useState<'direct' | 'proxy' | 'fallback'>(() =>
     src && /(?:image\.tmdb\.org|themoviedb\.org)/i.test(src) ? 'proxy' : 'direct',
   )
+  const [ready, setReady] = useState(false)
+  const label = alt.trim()
 
   if (!src || stage === 'fallback') {
     return (
       <div className={`media-fallback ${className ?? ''}`} aria-hidden="true">
-        {alt.slice(0, 1).toUpperCase()}
+        {label.slice(0, 1).toUpperCase() || '•'}
       </div>
     )
   }
@@ -24,10 +26,12 @@ function MediaImageInner({ src, alt, className }: MediaImageProps) {
 
   return (
     <img
-      className={className}
+      className={`${className ?? ''} media-img ${ready ? 'is-ready' : ''}`}
       src={url}
-      alt={alt}
+      alt={label}
       loading="lazy"
+      decoding="async"
+      onLoad={() => setReady(true)}
       onError={() => setStage((current) => (current === 'direct' ? 'proxy' : 'fallback'))}
     />
   )

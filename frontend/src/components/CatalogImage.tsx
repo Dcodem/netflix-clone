@@ -22,5 +22,5 @@ export function CatalogImage({
   const fallback = prefer === 'backdrop' ? item.backdrop_url || item.poster_url : item.poster_url
   const tmdb = prefer === 'backdrop' ? art.backdrop || art.poster : art.poster || art.backdrop
   const src = tmdb || fallback
-  return <MediaImage src={src} alt={alt} className={className} />
+  return <MediaImage src={src} alt={alt || item.title} className={className} />
 }

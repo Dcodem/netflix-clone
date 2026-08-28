@@ -793,6 +793,7 @@ select,
 
 .poster-art {
   position: relative;
+  background: #1a1a1a;
 }
 
 .poster-art img,
@@ -848,6 +849,15 @@ select,
 .scene-title {
   font-size: 15px;
   font-weight: 700;
+}
+
+.media-img {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.media-img.is-ready {
+  opacity: 1;
 }
 
 .media-fallback {
@@ -2823,23 +2833,24 @@ img.is-logo-pending {
   pointer-events: none;
 }
 
-.title-modal-logo,
-.title-modal-title {
-  max-width: min(280px, 58%);
-  max-height: 64px;
-  margin: 0;
+.title-modal-logo {
+  max-width: min(420px, 72%);
+  max-height: 112px;
+  margin: 0 0 8px;
   transition: transform 0.9s ease;
 }
 
 .title-modal-title {
-  margin: 0;
+  margin: 0 0 8px;
+  max-width: min(540px, 86%);
   font-family: var(--display);
-  font-size: clamp(28px, 4vw, 42px);
+  font-size: clamp(32px, 5vw, 54px);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 0.92;
   text-shadow: 0 2px 18px #000, 0 0 28px rgba(0, 0, 0, 0.85);
   transform-origin: left bottom;
+  transition: transform 0.9s ease;
 }
 
 .title-modal-hero-body .title-actions {
@@ -5559,7 +5570,9 @@ img.is-logo-pending {
 
 .watch-overlay.is-ident .watch-now-playing,
 .watch-overlay.is-ident .watch-title-stack,
-.watch-overlay.is-ident .skip-intro {
+.watch-overlay.is-ident .skip-intro,
+.watch-overlay.is-ident .watch-bottombar,
+.watch-overlay.is-ident .watch-center {
   opacity: 0 !important;
   pointer-events: none !important;
 }
