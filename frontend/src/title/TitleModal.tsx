@@ -4,7 +4,7 @@ import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '..
 import { CatalogImage } from '../components/CatalogImage'
 import { EpisodeList, SeasonPicker } from '../components/EpisodeList'
 import { ErrorState } from '../components/ErrorState'
-import { CloseIcon, RestartIcon, SpeakerIcon } from '../components/Icons'
+import { CloseIcon, PlayIcon, RestartIcon, SpeakerIcon } from '../components/Icons'
 import { TitleLogo } from '../components/TitleLogo'
 import { MoreLikeGrid } from '../components/MoreLikeGrid'
 import { Spinner } from '../components/Spinner'
@@ -198,6 +198,16 @@ export function TitleModal() {
     trailerRef.current?.replay()
   }
 
+  function playTrailerClip() {
+    playClick()
+    setMuted(false)
+    setTrailerEnded(false)
+    setTrailerReady(true)
+    trailerRef.current?.setMuted(false)
+    trailerRef.current?.replay()
+    modalRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <div className="title-modal-backdrop" onClick={closeTitle} role="presentation" ref={backdropRef}>
       <div
@@ -337,15 +347,34 @@ export function TitleModal() {
           <section ref={aboutRef} className="title-about title-section">
             <h2>Trailers & More</h2>
             {stills.length ? (
-              <div className="trailer-still-grid">
-                {stills.slice(0, 8).map((file) => {
+              <div className="trailer-card-grid">
+                {stills.slice(0, 8).map((file, index) => {
                   const src = stillUrl(file)
-                  return src ? <img key={file} src={proxyImageUrl(src)} alt="" /> : null
+                  if (!src) return null
+                  const kinds = ['Trailer', 'Teaser', 'Clip', 'Recap', 'Featurette']
+                  const kind = kinds[index] ?? 'Clip'
+                  const caption =
+                    index === 0 ? `Trailer: ${item.title}` : index === 1 ? `Teaser: ${item.title}` : `${kind} ${index}`
+                  return (
+                    <button
+                      type="button"
+                      className="trailer-card"
+                      key={file}
+                      onClick={playTrailerClip}
+                      aria-label={caption}
+                    >
+                      <span className="trailer-card-art">
+                        <img src={proxyImageUrl(src)} alt="" />
+                        <span className="trailer-card-play" aria-hidden="true">
+                          <PlayIcon className="icon" />
+                        </span>
+                      </span>
+                      <span className="trailer-card-caption">{caption}</span>
+                    </button>
+                  )
                 })}
               </div>
-            ) : (
-              <p>Trailer stills appear here when TMDB art is available.</p>
-            )}
+            ) : null}
             <h2>About {item.title}</h2>
             {detail?.synopsis ? <p>{detail.synopsis}</p> : null}
             {detail?.cast?.length ? (

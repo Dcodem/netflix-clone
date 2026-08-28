@@ -1166,6 +1166,15 @@ select,
   background: #000;
 }
 
+.watch-overlay.is-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2145;
+  background: rgba(0, 0, 0, 0.46);
+  pointer-events: none;
+}
+
 .watch-topbar {
   position: absolute;
   top: 0;
@@ -6200,24 +6209,78 @@ select,
   white-space: nowrap;
 }
 
-.trailer-still-grid {
+.trailer-still-grid,
+.trailer-card-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 12px 10px;
   margin: 12px 0 24px;
 }
 
-.trailer-still-grid img {
+.trailer-still-grid img,
+.trailer-card-art img {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  background: #111;
+}
+
+.trailer-card {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.trailer-card-art {
+  position: relative;
+  display: block;
+  overflow: hidden;
   border-radius: 4px;
   background: #111;
 }
 
+.trailer-card-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.trailer-card:hover .trailer-card-play,
+.trailer-card:focus-visible .trailer-card-play {
+  opacity: 1;
+}
+
+.trailer-card-play .icon {
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8));
+}
+
+.trailer-card-caption {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
 @media (min-width: 768px) {
-  .trailer-still-grid {
+  .trailer-still-grid,
+  .trailer-card-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
