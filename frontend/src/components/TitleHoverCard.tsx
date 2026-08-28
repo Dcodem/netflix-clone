@@ -121,7 +121,7 @@ export function TitleHoverCard({
             <div style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
         ) : null}
-        {previewOn ? (
+        {previewOn && trailerReady ? (
           <button
             type="button"
             className={`hero-mute jawbone-mute ${progress ? 'has-progress' : ''}`}

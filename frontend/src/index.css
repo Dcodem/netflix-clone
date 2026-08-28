@@ -605,8 +605,8 @@ select,
   position: absolute;
   top: 28px;
   bottom: 56px;
-  width: 5.5%;
-  min-width: 56px;
+  width: 4.5%;
+  min-width: 52px;
   z-index: 3;
   border: 0;
   color: #fff;
@@ -616,20 +616,20 @@ select,
 }
 
 .row-arrow .icon {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.9));
-  transition: transform 0.15s ease;
+  transition: transform 0.18s cubic-bezier(0.5, 0, 0.1, 1);
 }
 
 .row-arrow-prev {
   left: 0;
-  background: linear-gradient(90deg, rgba(20, 20, 20, 0.92) 0%, rgba(20, 20, 20, 0.55) 62%, transparent 100%);
+  background: linear-gradient(90deg, rgba(20, 20, 20, 0.7) 0%, rgba(20, 20, 20, 0.35) 62%, transparent 100%);
 }
 
 .row-arrow-next {
   right: 0;
-  background: linear-gradient(270deg, rgba(20, 20, 20, 0.92) 0%, rgba(20, 20, 20, 0.55) 62%, transparent 100%);
+  background: linear-gradient(270deg, rgba(20, 20, 20, 0.7) 0%, rgba(20, 20, 20, 0.35) 62%, transparent 100%);
 }
 
 .media-row:hover .row-arrow,
@@ -642,15 +642,15 @@ select,
 }
 
 .row-arrow:hover .icon {
-  transform: scale(1.42);
+  transform: scale(1.55);
 }
 
 .row-arrow-prev:hover {
-  background: linear-gradient(90deg, rgba(20, 20, 20, 1) 0%, rgba(20, 20, 20, 0.78) 62%, transparent 100%);
+  background: linear-gradient(90deg, rgba(20, 20, 20, 0.92) 0%, rgba(20, 20, 20, 0.55) 62%, transparent 100%);
 }
 
 .row-arrow-next:hover {
-  background: linear-gradient(270deg, rgba(20, 20, 20, 1) 0%, rgba(20, 20, 20, 0.78) 62%, transparent 100%);
+  background: linear-gradient(270deg, rgba(20, 20, 20, 0.92) 0%, rgba(20, 20, 20, 0.55) 62%, transparent 100%);
 }
 
 .row-scroller.is-looping {
@@ -781,13 +781,13 @@ select,
   }
 
   .poster-wrap.is-previewing .poster-card {
-    opacity: 0;
+    /* Keep the tile under the expanding card so the row never flashes a hole. */
     pointer-events: none;
-    transition: opacity 0.06s linear;
   }
 
   .poster-wrap.is-previewing .continue-hide {
     opacity: 0;
+    pointer-events: none;
   }
 }
 
@@ -1334,10 +1334,10 @@ select,
 
 .profiles-page h1 {
   font-family: var(--display);
-  font-size: clamp(32px, 4vw, 54px);
+  font-size: clamp(30px, 3.5vw, 54px);
   font-weight: 400;
   letter-spacing: 0;
-  margin: 0 0 42px;
+  margin: 0 0 2.1em;
   color: #fff;
 }
 
@@ -1353,11 +1353,11 @@ select,
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 28px 32px;
+  gap: 2rem 2.15rem;
 }
 
 .profile-cell {
-  width: clamp(112px, 10vw, 200px);
+  width: clamp(84px, 10vw, 200px);
   background: none;
   border: 0;
   padding: 0;
@@ -1378,12 +1378,13 @@ select,
   aspect-ratio: 1;
   height: auto;
   border-radius: 4px;
-  border: 2px solid transparent;
+  border: 4px solid transparent;
   font-size: 52px;
   cursor: pointer;
   display: grid;
   place-items: center;
   overflow: hidden;
+  transition: border-color 0.12s ease;
 }
 
 .profile-cell:hover .profile-avatar,
@@ -1400,7 +1401,7 @@ select,
 }
 
 .profile-name {
-  margin-top: 10px;
+  margin-top: 0.6em;
   color: #808080;
   font-size: clamp(12px, 1.3vw, 18px);
   font-weight: 400;
@@ -1424,13 +1425,14 @@ select,
   aspect-ratio: 1;
   height: auto;
   border-radius: 4px;
-  border: 2px solid transparent;
+  border: 4px solid transparent;
   background: #141414;
   color: var(--muted);
   cursor: pointer;
   display: grid;
   place-items: center;
   padding: 0;
+  transition: border-color 0.12s ease;
 }
 
 .profile-add span {
@@ -2390,7 +2392,7 @@ select,
   overflow: visible;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), 0 18px 48px rgba(0, 0, 0, 0.72);
   --jaw-from: 0.54;
-  animation: jaw-in 0.42s cubic-bezier(0.5, 0, 0.1, 1) both;
+  animation: jaw-in 0.4s cubic-bezier(0.5, 0, 0.1, 1) both;
 }
 
 @keyframes jaw-in {
@@ -2410,6 +2412,18 @@ select,
   background: #000;
   overflow: hidden;
   border-radius: 6px 6px 0 0;
+}
+
+.jawbone-art::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 52%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.42) 48%, rgba(0, 0, 0, 0.78) 100%);
 }
 
 .jawbone-art img,
@@ -2487,18 +2501,6 @@ select,
   padding: 14px 16px 18px;
   overflow: visible;
   border-radius: 0 0 6px 6px;
-  animation: jaw-body-in 0.22s ease 0.1s both;
-}
-
-@keyframes jaw-body-in {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
 }
 
 .jawbone-meta {
@@ -5547,7 +5549,8 @@ select,
   font-weight: 500;
 }
 
-.watch-overlay.is-ident .watch-now-playing {
+.watch-overlay.is-ident .watch-now-playing,
+.watch-overlay.is-ident .watch-title-stack {
   opacity: 0;
 }
 
@@ -6347,6 +6350,7 @@ select,
     right: 20px;
     bottom: 96px;
     max-width: none;
+    z-index: 2270;
   }
 
   .watch-ident.is-raised {
@@ -6355,6 +6359,11 @@ select,
 
   .watch-ident-title {
     font-size: clamp(28px, 8vw, 40px);
+  }
+
+  .watch-overlay.is-ident .skip-intro {
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 
   .watch-still {

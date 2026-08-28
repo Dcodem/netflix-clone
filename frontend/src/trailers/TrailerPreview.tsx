@@ -59,12 +59,23 @@ export const TrailerPreview = forwardRef<
   }
   const [hit, setHit] = useState<TrailerHit | null>(null)
   const [live, setLive] = useState(false)
+  const [armed, setArmed] = useState(mode !== 'mini')
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const mutedRef = useRef(muted)
   const readyRef = useRef(false)
   mutedRef.current = muted
   const loop = mode === 'mini'
+
+  useEffect(() => {
+    if (mode !== 'mini') {
+      setArmed(true)
+      return
+    }
+    setArmed(false)
+    const timer = window.setTimeout(() => setArmed(true), 420)
+    return () => window.clearTimeout(timer)
+  }, [mode, title])
 
   useEffect(() => {
     let cancelled = false
@@ -80,7 +91,7 @@ export const TrailerPreview = forwardRef<
         .catch(() => {
           if (!cancelled) setHit(null)
         })
-    }, mode === 'hero' ? 900 : 200)
+    }, mode === 'hero' ? 900 : 0)
     return () => {
       cancelled = true
       window.clearTimeout(timer)
@@ -144,7 +155,7 @@ export const TrailerPreview = forwardRef<
   useImperativeHandle(ref, () => ({ setMuted: applyMute, replay }))
 
   useEffect(() => {
-    if (!hit || hit.kind !== 'youtube') return
+    if (!hit || hit.kind !== 'youtube' || !armed) return
     const onMessage = (event: MessageEvent) => {
       const iframe = iframeRef.current
       if (!iframe || event.source !== iframe.contentWindow) return
@@ -166,9 +177,9 @@ export const TrailerPreview = forwardRef<
       window.clearTimeout(fail)
       window.removeEventListener('message', onMessage)
     }
-  }, [hit, loop])
+  }, [hit, loop, armed])
 
-  if (!hit) return null
+  if (!hit || !armed) return null
 
   if (hit.kind === 'youtube') {
     const params = new URLSearchParams({

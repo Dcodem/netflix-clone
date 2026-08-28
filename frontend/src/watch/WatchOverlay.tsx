@@ -584,7 +584,8 @@ export function WatchOverlay() {
     : isShow
       ? `S${session.history?.seasonNumber ?? 1}:E${session.history?.episodeNumber ?? 1}`
       : null
-  const showSkipIntro = isShow && !introSkipped && current < 110 && !episodesOpen && !audioOpen && !speedOpen
+  const showSkipIntro =
+    isShow && !introSkipped && !identOn && current < 110 && !episodesOpen && !audioOpen && !speedOpen
   const showSkipRecap = isShow && !recapSkipped && !showSkipIntro && current >= 80 && current < 155 && !episodesOpen && !audioOpen && !speedOpen
   const showNext = Boolean(upcoming && remaining <= NEXT_CARD_AT && !nextDismissed && !episodesOpen && !audioOpen && !speedOpen && !stillWatching && length > 0)
   const countingDown = remaining <= AUTO_IN && activeProfile?.autoplayNext !== false
