@@ -238,15 +238,17 @@ export function TitleModal() {
           />
           <div className="title-modal-hero-body">
             <TitleLogo item={item} className="title-modal-logo" titleClassName="title-modal-title" />
-            <TitleActions
-              item={item}
-              detail={detail}
-              watchHref={watchHref}
-              size="sm"
-              showMore={false}
-              continueMode={continueMode}
-              playStyle="labeled"
-            />
+            <div className="title-modal-desktop-actions">
+              <TitleActions
+                item={item}
+                detail={detail}
+                watchHref={watchHref}
+                size="sm"
+                showMore={false}
+                continueMode={continueMode}
+                playStyle="labeled"
+              />
+            </div>
           </div>
           <div className="hero-controls-right">
             {trailerEnded ? (
@@ -267,6 +269,18 @@ export function TitleModal() {
           </div>
         </div>
         <div className="title-modal-main">
+          <div className="title-modal-phone-actions">
+            <TitleActions
+              item={item}
+              detail={detail}
+              watchHref={watchHref}
+              size="sm"
+              showMore={false}
+              continueMode={continueMode}
+              playStyle="labeled"
+              layout="sheet"
+            />
+          </div>
           {detailFetch.loading && !detail ? <Spinner label="Loading" /> : null}
           {detailFetch.error ? <ErrorState message={detailFetch.error} onRetry={detailFetch.retry} /> : null}
           <div className="title-modal-split">
