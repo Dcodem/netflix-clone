@@ -990,24 +990,96 @@ select,
   font-size: 13px;
 }
 
-.season-select-wrap {
-  min-width: 180px;
+.now-badge {
+  color: #46d369;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.01em;
 }
 
-.season-select {
-  background: #242424;
+.season-menu {
+  position: relative;
+  margin-left: auto;
+}
+
+.season-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(36, 36, 36, 0.92);
   color: #fff;
   border: 1px solid #808080;
   border-radius: 4px;
-  padding: 8px 32px 8px 12px;
+  padding: 8px 12px;
   font-size: 16px;
   font-weight: 600;
-  appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, #fff 50%),
-    linear-gradient(135deg, #fff 50%, transparent 50%);
-  background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
-  background-size: 5px 5px, 5px 5px;
-  background-repeat: no-repeat;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.season-menu-btn .icon {
+  width: 12px;
+  height: 12px;
+  opacity: 0.9;
+}
+
+.season-menu.is-open .season-menu-btn .icon {
+  transform: rotate(180deg);
+}
+
+.season-menu-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 8;
+  min-width: 220px;
+  padding: 6px 0;
+  background: #191919;
+  border: 1px solid #333;
+  border-radius: 4px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+}
+
+.season-menu-list button {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  background: none;
+  border: 0;
+  color: #e5e5e5;
+  text-align: left;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.season-menu-list button:hover,
+.season-menu-list button.is-on {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.season-menu-list small {
+  display: block;
+  margin-top: 2px;
+  color: #8b8b8b;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.season-menu-list .icon,
+.season-check-spacer {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.watch-episodes .season-menu-list {
+  z-index: 2290;
 }
 
 .ep-thumb-wrap {
@@ -3291,15 +3363,20 @@ select,
     flex-wrap: wrap;
   }
 
-  .season-select-wrap {
+  .season-menu {
     width: 100%;
-    min-width: 0;
   }
 
-  .season-select {
+  .season-menu-btn {
     width: 100%;
+    justify-content: space-between;
     min-height: 44px;
-    font-size: 16px;
+  }
+
+  .season-menu-list {
+    left: 0;
+    right: 0;
+    min-width: 0;
   }
 
   .episode {
@@ -6344,6 +6421,24 @@ select,
   pointer-events: none;
   z-index: 4;
   white-space: nowrap;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.watch-scrub-hint.has-art {
+  padding: 6px 6px 5px;
+  bottom: 22px;
+}
+
+.watch-scrub-hint img,
+.watch-scrub-hint .media-fallback {
+  width: 148px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+  border-radius: 2px;
+  background: #111;
 }
 
 .trailer-still-grid,

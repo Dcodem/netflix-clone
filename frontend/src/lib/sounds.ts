@@ -33,12 +33,22 @@ export function playBrowseSting() {
   try {
     if (sessionStorage.getItem(STING_KEY) === '1') return
     sessionStorage.setItem(STING_KEY, '1')
+    playProfileSting()
+  } catch {
+    /* autoplay / closed context */
+  }
+}
+
+/** Plays when a profile is chosen, like Netflix entering browse. */
+export function playProfileSting() {
+  try {
     const ac = audio()
     const now = ac.currentTime
     tone(ac, 98, now, 0.28, 0.09, 'sine')
     tone(ac, 196, now, 0.22, 0.05, 'triangle')
     tone(ac, 294, now + 0.16, 0.42, 0.07, 'triangle')
     tone(ac, 440, now + 0.16, 0.36, 0.035, 'sine')
+    sessionStorage.setItem(STING_KEY, '1')
   } catch {
     /* autoplay / closed context */
   }

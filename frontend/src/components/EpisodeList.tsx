@@ -1,10 +1,11 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import type { Episode, Season } from '../api/types'
-import { isEpisodeStarted, isEpisodeWatched, seasonStats, watchForEpisode } from '../lib/episodeProgress'
+import { isEpisodeStarted, isEpisodeWatched, watchForEpisode } from '../lib/episodeProgress'
 import type { WatchHistoryItem } from '../profiles/types'
 import { episodeStill, stillFocus } from '../lib/media'
 import { CheckIcon, PlayIcon } from './Icons'
 import { MediaImage } from './MediaImage'
+import { SeasonMenu } from './SeasonMenu'
 
 export function SeasonPicker({
   seasons,
@@ -17,32 +18,15 @@ export function SeasonPicker({
   value: number
   onChange: (seasonNumber: number) => void
 }) {
-  if (seasons.length > 1) {
-    return (
-      <label className="season-select-wrap title-tabs-season">
-        <span className="visually-hidden">Season</span>
-        <select
-          className="season-select"
-          value={value}
-          onChange={(event) => onChange(Number(event.target.value))}
-        >
-          {seasons.map((season) => {
-            const stats = seasonStats(history, season)
-            const watched =
-              stats.started > 0 ? ` · ${stats.started} of ${stats.total} watched` : ` · ${stats.total} episodes`
-            return (
-              <option key={season.season_number} value={season.season_number}>
-                Season {season.season_number}
-                {watched}
-              </option>
-            )
-          })}
-        </select>
-      </label>
-    )
-  }
-  const count = seasons[0]?.episodes?.length ?? 0
-  return count ? <span className="season-count title-tabs-season">{count} Episodes</span> : null
+  return (
+    <SeasonMenu
+      seasons={seasons}
+      history={history}
+      value={value}
+      onChange={onChange}
+      className="title-tabs-season"
+    />
+  )
 }
 
 export function EpisodeList({

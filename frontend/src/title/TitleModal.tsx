@@ -14,7 +14,7 @@ import { GenreDots } from '../components/GenreDots'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
-import { matchPercent, maturityBlurb, maturityLabel, moodTags } from '../lib/netflix'
+import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
@@ -273,6 +273,7 @@ export function TitleModal() {
             <div className="title-modal-split-main">
               <div className="jawbone-meta">
                 <span className="match">{match}% Match</span>
+                {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
                 {item.year ? <span>{item.year}</span> : null}
                 <span className="maturity">{maturity}</span>
                 {runtime ? <span>{runtime}</span> : null}

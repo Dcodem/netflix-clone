@@ -19,6 +19,7 @@ import {
   SubtitlesIcon,
 } from '../components/Icons'
 import { MediaImage } from '../components/MediaImage'
+import { SeasonMenu } from '../components/SeasonMenu'
 import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { watchForEpisode } from '../lib/episodeProgress'
@@ -31,6 +32,8 @@ import { useWatch } from './WatchContext'
 const PLAYER_SOURCE = 'flix-player'
 const SKIP_INTRO_AT = 80
 const SKIP_RECAP_AT = 148
+const NEXT_CARD_AT = 16
+const AUTO_IN = 5
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] as const
 const CAPTIONS = [
   'The city never really sleeps.',
@@ -468,9 +471,10 @@ export function WatchOverlay() {
       : null
   const showSkipIntro = isShow && !introSkipped && current < 110 && !episodesOpen && !audioOpen && !speedOpen
   const showSkipRecap = isShow && !recapSkipped && !showSkipIntro && current >= 80 && current < 155 && !episodesOpen && !audioOpen && !speedOpen
-  const showNext = Boolean(upcoming && remaining <= 48 && !nextDismissed && !episodesOpen && !audioOpen && !speedOpen && length > 0)
-  const nextCount = Math.max(1, Math.ceil(remaining))
-  const nextProgress = length ? Math.min(1, remaining / 48) : 0
+  const showNext = Boolean(upcoming && remaining <= NEXT_CARD_AT && !nextDismissed && !episodesOpen && !audioOpen && !speedOpen && length > 0)
+  const countingDown = remaining <= AUTO_IN && activeProfile?.autoplayNext !== false
+  const nextCount = countingDown ? Math.max(1, Math.ceil(remaining)) : null
+  const nextProgress = countingDown ? Math.min(1, remaining / AUTO_IN) : 1
   const caption = subs === 'en' ? CAPTIONS[Math.floor(current / 9) % CAPTIONS.length] : null
 
   function ratioFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
@@ -654,7 +658,7 @@ export function WatchOverlay() {
             <CloseIcon className="icon" />
           </button>
           <span className="next-ep-kicker">
-            {activeProfile?.autoplayNext !== false ? (
+            {nextCount != null ? (
               <span
                 className="next-ep-count"
                 style={{ '--p': String(nextProgress) } as CSSProperties}
@@ -749,7 +753,13 @@ export function WatchOverlay() {
             onPointerLeave={() => setScrubHint(null)}
           >
             {scrubHint ? (
-              <span className="watch-scrub-hint" style={{ left: scrubHint.x }}>
+              <span className={`watch-scrub-hint ${galleryUrls.length ? 'has-art' : ''}`} style={{ left: scrubHint.x }}>
+                {galleryUrls.length ? (
+                  <MediaImage
+                    src={galleryUrls[Math.min(galleryUrls.length - 1, Math.floor(scrubHint.ratio * galleryUrls.length))]}
+                    alt=""
+                  />
+                ) : null}
                 {formatClock(scrubHint.ratio * length)}
               </span>
             ) : null}
@@ -907,20 +917,12 @@ export function WatchOverlay() {
           <div className="watch-ep-head">
             <h2>Episodes</h2>
             {showDetail && showDetail.seasons && showDetail.seasons.length > 1 ? (
-              <label>
-                <span className="visually-hidden">Season</span>
-                <select
-                  className="watch-season"
-                  value={activeSeason?.season_number}
-                  onChange={(event) => setSeasonNumber(Number(event.target.value))}
-                >
-                  {showDetail.seasons.map((season) => (
-                    <option key={season.season_number} value={season.season_number}>
-                      Season {season.season_number}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <SeasonMenu
+                seasons={showDetail.seasons}
+                history={session.history ? { ...session.history, watchedAt: 0 } : undefined}
+                value={activeSeason?.season_number ?? 1}
+                onChange={(seasonNumber) => setSeasonNumber(seasonNumber)}
+              />
             ) : (
               <span className="watch-ep-count">{activeSeason?.episodes?.length ?? 0} Episodes</span>
             )}

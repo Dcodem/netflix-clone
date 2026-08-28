@@ -4,7 +4,7 @@ import { AvatarArt } from '../components/AvatarArt'
 import { LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
-import { PROFILE_AVATARS, avatarFor, type Profile } from '../profiles/types'
+import { playProfileSting } from '../lib/sounds'
 
 function PinBoxes({
   value,
@@ -111,6 +111,7 @@ export function ProfileSelect() {
       return
     }
     setPinTarget(null)
+    playProfileSting()
     navigate('/browse')
   }
 
@@ -151,6 +152,7 @@ export function ProfileSelect() {
       return
     }
     selectProfile(profile.id)
+    playProfileSting()
     navigate('/browse')
   }
 

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
-import { formatRuntime, genresOf, isShow } from '../lib/media'
-import { matchPercent, maturityLabel } from '../lib/netflix'
+import { formatRuntime, genresOf, isShow, remainingLabel } from '../lib/media'
+import { isNewEpisodes, matchPercent, maturityLabel } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { CatalogImage } from './CatalogImage'
@@ -132,9 +132,13 @@ export function TitleHoverCard({
         <TitleActions item={item} detail={detail} watchHref={watchHref} size="sm" />
         <div className="jawbone-meta">
           <span className="match">{match}% Match</span>
+          {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
           {item.year ? <span>{item.year}</span> : null}
           <span className="maturity">{maturity}</span>
           {runtime ? <span>{runtime}</span> : null}
+          {remainingLabel(progress, detail?.runtime) ? (
+            <span>{remainingLabel(progress, detail?.runtime)}</span>
+          ) : null}
           <FeatureBadges quality={quality} />
           {isShow(item) ? (
             <span>

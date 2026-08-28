@@ -80,6 +80,11 @@ const FALLBACK_MOODS = [
   'Cerebral',
 ]
 
+export function isNewEpisodes(id?: string, kind?: string): boolean {
+  if (kind !== 'show' || !id) return false
+  return moodSeed(id) % 4 === 0
+}
+
 function moodSeed(value: string): number {
   let hash = 2166136261
   for (let i = 0; i < value.length; i += 1) {
