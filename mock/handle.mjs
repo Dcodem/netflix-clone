@@ -203,13 +203,16 @@ function playerPage(item, season, episode, query = {}) {
         if (!ytPlayer || typeof ytPlayer.getDuration !== 'function') return 0
         try { return Number(ytPlayer.getDuration()) || 0 } catch (err) { return 0 }
       }
-      function hideYt() {
-        usingYt = false
+      function hideYtVisual() {
         if (wrap) {
           wrap.classList.remove('is-on')
           wrap.style.opacity = '0'
         }
         document.body.classList.remove('is-video')
+      }
+      function hideYt() {
+        usingYt = false
+        hideYtVisual()
       }
       function inTrailerWindow(seconds) {
         const ytDur = ytDuration()
@@ -219,10 +222,18 @@ function playerPage(item, season, episode, query = {}) {
         current = Math.max(0, Math.min(duration, seconds))
         endedLatch = false
         if (ytPlayer && inTrailerWindow(current)) {
-          usingYt = true
           try { ytPlayer.seekTo(current, true) } catch (err) {}
           if (!paused) applyTransport()
-          revealYt()
+          try {
+            if (ytPlayer.getPlayerState() === PLAYING) {
+              usingYt = true
+              revealYt()
+            } else {
+              hideYt()
+            }
+          } catch (err) {
+            hideYt()
+          }
         } else {
           hideYt()
           if (ytPlayer) try { ytPlayer.pauseVideo() } catch (err) {}
