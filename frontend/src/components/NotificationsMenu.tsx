@@ -79,7 +79,7 @@ export function NotificationsMenu() {
               ))}
             </>
           ) : (
-            <p>No recent notifications.</p>
+            <p>You’re all caught up</p>
           )}
         </div>
       ) : null}

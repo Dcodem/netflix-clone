@@ -3,8 +3,8 @@ import { getCatalogMany } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
-import { CaretIcon } from '../components/Icons'
 import { MediaGrid } from '../components/MediaGrid'
+import { OutlineSelect } from '../components/OutlineSelect'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import {
@@ -52,40 +52,20 @@ export function BrowseLanguages() {
       <header className="languages-head">
         <h1>Browse by Languages</h1>
         <div className="languages-filters">
-          <label className="lang-select">
-            <span>Original Language</span>
-            <span className="lang-select-row">
-              <select
-                value={language}
-                aria-label="Original Language"
-                onChange={(event) => setLanguage(event.target.value as LanguageCode)}
-              >
-                {ORIGINAL_LANGUAGES.map((entry) => (
-                  <option key={entry.code} value={entry.code}>
-                    {entry.label}
-                  </option>
-                ))}
-              </select>
-              <CaretIcon className="icon" />
-            </span>
-          </label>
-          <label className="lang-select">
-            <span>Sort by</span>
-            <span className="lang-select-row">
-              <select
-                value={sort}
-                aria-label="Sort by"
-                onChange={(event) => setSort(event.target.value as LanguageSort)}
-              >
-                {LANGUAGE_SORTS.map((entry) => (
-                  <option key={entry.id} value={entry.id}>
-                    {entry.label}
-                  </option>
-                ))}
-              </select>
-              <CaretIcon className="icon" />
-            </span>
-          </label>
+          <OutlineSelect
+            label="Original Language"
+            value={language}
+            searchable
+            searchPlaceholder="Search languages"
+            options={ORIGINAL_LANGUAGES.map((entry) => ({ value: entry.code, label: entry.label }))}
+            onChange={(next) => setLanguage(next as LanguageCode)}
+          />
+          <OutlineSelect
+            label="Sort by"
+            value={sort}
+            options={LANGUAGE_SORTS.map((entry) => ({ value: entry.id, label: entry.label }))}
+            onChange={(next) => setSort(next as LanguageSort)}
+          />
         </div>
       </header>
       {items.length ? (
