@@ -2426,8 +2426,8 @@ select,
   background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.42) 48%, rgba(0, 0, 0, 0.78) 100%);
 }
 
-.jawbone-art img,
-.jawbone-art .media-fallback {
+.jawbone-art > img,
+.jawbone-art > .media-fallback {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -2751,8 +2751,8 @@ select,
   border-radius: 8px 8px 0 0;
 }
 
-.title-modal-hero img,
-.title-modal-hero .media-fallback,
+.title-modal-hero > img,
+.title-modal-hero > .media-fallback,
 .title-modal-trailer {
   position: absolute;
   inset: 0;
