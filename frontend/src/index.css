@@ -456,8 +456,11 @@ select,
   margin-top: 18px;
 }
 
-.hero-open-title,
-.hero-list {
+.hero-open-title {
+  display: none;
+}
+
+.hero-actions .hero-list {
   display: none;
 }
 
@@ -4564,11 +4567,11 @@ img.is-logo-pending {
     min-width: 0;
   }
 
-  .hero-more {
+  .hero-actions .hero-more {
     display: none;
   }
 
-  .hero-list {
+  .hero-actions .hero-list {
     display: inline-flex;
   }
 
