@@ -6122,12 +6122,12 @@ img.is-logo-pending {
   z-index: 2105;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.64) 0%, rgba(0, 0, 0, 0.28) 34%, transparent 64%),
-    linear-gradient(180deg, transparent 46%, rgba(0, 0, 0, 0.4) 100%);
+    linear-gradient(90deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.38) 32%, transparent 58%),
+    linear-gradient(180deg, transparent 42%, rgba(0, 0, 0, 0.52) 100%);
 }
 
 .watch-overlay.is-ident .watch-frame {
-  filter: brightness(0.4) saturate(0.92);
+  filter: brightness(0.34) saturate(0.9);
 }
 
 .watch-ident {
