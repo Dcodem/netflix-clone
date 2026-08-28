@@ -10,6 +10,7 @@ import { MoreLikeGrid } from '../components/MoreLikeGrid'
 import { Spinner } from '../components/Spinner'
 import { TitleActions } from '../components/TitleActions'
 import { FeatureBadges } from '../components/FeatureBadges'
+import { GenreDots } from '../components/GenreDots'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
@@ -286,9 +287,10 @@ export function TitleModal() {
                 </p>
               ) : null}
               {moods.length ? (
-                <p className="title-modal-cast">
-                  <span>This {isShow(item) ? 'show' : 'movie'} is:</span> {moods.join(' · ')}
-                </p>
+                <div className="title-modal-cast">
+                  <span>This {isShow(item) ? 'show' : 'movie'} is:</span>
+                  <GenreDots genres={moods} className="title-moods" />
+                </div>
               ) : null}
             </div>
           </div>

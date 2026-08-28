@@ -1247,10 +1247,10 @@ select,
 
 .profiles-page h1 {
   font-family: var(--display);
-  font-size: clamp(30px, 3.6vw, 48px);
+  font-size: clamp(32px, 4vw, 54px);
   font-weight: 400;
   letter-spacing: 0;
-  margin: 0 0 36px;
+  margin: 0 0 42px;
   color: #fff;
 }
 
@@ -1714,6 +1714,68 @@ select,
   font-size: 14px;
 }
 
+.account-page h1 {
+  margin: 0 0 22px;
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 700;
+}
+
+.account-card {
+  background: #1a1a1a;
+  border-radius: 6px;
+  padding: 20px 22px 22px;
+  margin: 0 0 14px;
+  max-width: 720px;
+}
+
+.account-card h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #e5e5e5;
+}
+
+.account-card p {
+  margin: 0 0 8px;
+}
+
+.account-email {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.account-plan {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+}
+
+.account-card a {
+  display: block;
+  color: #54b9c5;
+  text-decoration: none;
+  padding: 8px 0;
+  font-size: 15px;
+}
+
+.account-card a:hover {
+  text-decoration: underline;
+}
+
+.account-card .account-form {
+  margin-top: 12px;
+}
+
+.title-modal-cast .title-moods {
+  display: inline-flex;
+  margin: 4px 0 0;
+  font-size: inherit;
+  font-weight: 400;
+  color: #d2d2d2;
+}
+
 .account-form label {
   display: grid;
   gap: 6px;
@@ -2159,7 +2221,7 @@ select,
   overflow: visible;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), 0 18px 48px rgba(0, 0, 0, 0.72);
   --jaw-from: 0.54;
-  animation: jaw-in 0.4s cubic-bezier(0.33, 0.04, 0.12, 1) both;
+  animation: jaw-in 0.42s cubic-bezier(0.5, 0, 0.1, 1) both;
 }
 
 @keyframes jaw-in {
@@ -2440,12 +2502,13 @@ select,
 }
 
 .title-modal-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 5;
+  position: sticky;
+  float: right;
+  top: 12px;
+  z-index: 12;
   width: 40px;
   height: 40px;
+  margin: 12px 12px -52px 0;
   border-radius: 50%;
   border: 0;
   background: #181818;
@@ -2582,7 +2645,7 @@ select,
   align-items: center;
   flex-wrap: wrap;
   margin: 18px -28px 8px;
-  padding: 0 28px;
+  padding: 0 56px 0 28px;
   background: #181818;
   border-bottom: 1px solid #404040;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
@@ -3092,7 +3155,6 @@ select,
     min-height: 100svh;
     max-height: 100svh;
   }
-  }
 
   .title-modal-hero {
     aspect-ratio: 16 / 10;
@@ -3115,7 +3177,7 @@ select,
     margin-left: -16px;
     margin-right: -16px;
     padding-left: 16px;
-    padding-right: 16px;
+    padding-right: 52px;
     gap: 18px;
   }
 
@@ -5702,14 +5764,18 @@ select,
 }
 
 .my-netflix-head {
-  margin: 8px 0 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 28px;
 }
 
 .my-netflix-profile {
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 100%;
+  min-width: 0;
+  flex: 1;
   background: none;
   border: 0;
   color: #fff;
@@ -5748,16 +5814,16 @@ select,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  width: 100%;
-  max-width: 420px;
-  margin: 16px 0 8px;
+  gap: 8px;
+  flex-shrink: 0;
+  margin: 0;
   background: var(--accent);
   color: #fff;
   border: 0;
   border-radius: 4px;
-  min-height: 48px;
-  font-size: 16px;
+  min-height: 40px;
+  padding: 8px 14px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
 }

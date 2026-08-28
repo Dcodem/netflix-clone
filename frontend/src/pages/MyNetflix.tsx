@@ -88,7 +88,7 @@ export function MyNetflix() {
           </span>
           <span>
             <strong>{activeProfile.name}</strong>
-            <em>Switch profiles</em>
+            <em>Switch Profiles</em>
           </span>
           <CaretIcon className="icon" />
         </button>
