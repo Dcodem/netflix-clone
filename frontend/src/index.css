@@ -2820,7 +2820,7 @@ select,
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
-.title-tabs button {
+.title-tabs > button {
   position: relative;
   background: none;
   border: 0;
@@ -2831,11 +2831,11 @@ select,
   cursor: pointer;
 }
 
-.title-tabs button.is-on {
+.title-tabs > button.is-on {
   font-weight: 700;
 }
 
-.title-tabs button.is-on::after {
+.title-tabs > button.is-on::after {
   content: '';
   position: absolute;
   left: 0;
@@ -3350,7 +3350,7 @@ select,
     gap: 18px;
   }
 
-  .title-tabs button {
+  .title-tabs > button {
     font-size: 14px;
   }
 
