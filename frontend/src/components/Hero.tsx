@@ -38,6 +38,7 @@ export function Hero({ item }: { item: MovieListItem }) {
   const [scale, setScale] = useState(1.45)
   const previewActive = !openItem && !session && activeProfile?.autoplayPreview !== false
   const playing = trailerReady && previewActive && !trailerEnded
+  const cinematic = previewActive && !trailerEnded
 
   useEffect(() => {
     let cancelled = false
@@ -77,10 +78,10 @@ export function Hero({ item }: { item: MovieListItem }) {
   useEffect(() => {
     setSettled(false)
     setHeroHover(false)
-    if (!playing) return
+    if (!previewActive) return
     const timer = window.setTimeout(() => setSettled(true), 6000)
     return () => window.clearTimeout(timer)
-  }, [playing, item.id])
+  }, [previewActive, item.id])
 
   const backdrop = detail?.backdrop_url || item.poster_url
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
@@ -113,7 +114,7 @@ export function Hero({ item }: { item: MovieListItem }) {
 
   return (
     <section
-      className={`hero ${playing ? 'is-playing' : ''} ${collapsed ? 'is-settled' : ''}`}
+      className={`hero ${playing ? 'is-playing' : ''} ${cinematic ? 'is-cinematic' : ''} ${collapsed ? 'is-settled' : ''}`}
       onPointerEnter={(event) => {
         if (event.pointerType === 'mouse') setHeroHover(true)
       }}
@@ -128,7 +129,13 @@ export function Hero({ item }: { item: MovieListItem }) {
           onClick={() => openTitle(item)}
           aria-label={`${item.title} details`}
         />
-        <CatalogImage item={{ ...item, backdrop_url: backdrop }} alt="" className="hero-img" prefer="backdrop" />
+        <CatalogImage
+          key={item.id}
+          item={{ ...item, backdrop_url: backdrop }}
+          alt=""
+          className="hero-img"
+          prefer="backdrop"
+        />
         {previewActive ? (
           <div
             className="hero-trailer-clip"

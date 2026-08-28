@@ -361,6 +361,21 @@ select,
   height: 100%;
   object-fit: cover;
   z-index: 0;
+  transform: scale(1.04);
+  transform-origin: center 42%;
+}
+
+.hero.is-cinematic .hero-img {
+  animation: hero-drift 16s ease-out forwards;
+}
+
+@keyframes hero-drift {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1.16);
+  }
 }
 
 .hero-trailer-clip {
@@ -3623,6 +3638,11 @@ img.is-logo-pending {
     top: auto;
     bottom: 18px;
     right: 0;
+    z-index: 6;
+  }
+
+  .title-modal-hero .maturity-flag {
+    display: inline-flex;
   }
 
   .title-modal-hero.is-settled .title-modal-hero-body h1,
