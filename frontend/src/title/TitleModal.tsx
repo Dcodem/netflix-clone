@@ -221,6 +221,7 @@ export function TitleModal() {
         <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
           <CloseIcon className="icon" />
         </button>
+        <span className="title-modal-handle" aria-hidden="true" />
         <div
           key={item.id}
           className={`title-modal-hero ${trailerPlaying ? 'is-playing' : 'is-cinematic'} ${settled ? 'is-settled' : ''}`}
