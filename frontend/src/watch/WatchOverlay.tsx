@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext'
 import {
   CheckIcon,
   ChevronLeftIcon,
+  CloseIcon,
   EpisodesIcon,
   FullscreenIcon,
   NextEpisodeIcon,
@@ -139,6 +140,7 @@ export function WatchOverlay() {
   const [volOpen, setVolOpen] = useState(false)
   const [barHover, setBarHover] = useState(false)
   const [scrubHint, setScrubHint] = useState<{ ratio: number; x: number } | null>(null)
+  const [nextDismissed, setNextDismissed] = useState(false)
   const flashTimer = useRef(0)
   const tapRef = useRef({ at: 0, x: 0, play: 0 })
   const audioRef = useRef({ muted: false, volume: 1 })
@@ -240,6 +242,7 @@ export function WatchOverlay() {
     setCurrent(startProgress * runtimeSec)
     setDuration(runtimeSec)
     setFlash(null)
+    setNextDismissed(false)
     const hasVideo = Boolean(youtubeIdFromHit(peekTrailer(trailerSearch(session))))
     try {
       if (hasVideo) {
@@ -430,6 +433,7 @@ export function WatchOverlay() {
 
   useEffect(() => {
     if (!upcoming || remainingNow > 0.6 || current < 30 || !session?.history) return
+    if (nextDismissed) return
     if (activeProfile?.autoplayNext === false) return
     const key = upcoming.episode.id
     if (autoNextRef.current === key) return
@@ -444,7 +448,7 @@ export function WatchOverlay() {
       episodeNumber: upcoming.episode.number,
       episodeId: upcoming.episode.id,
     })
-  }, [remainingNow, current, upcoming, session, openWatch, activeProfile?.autoplayNext])
+  }, [remainingNow, current, upcoming, session, openWatch, activeProfile?.autoplayNext, nextDismissed])
 
   if (!session) return null
 
@@ -458,7 +462,7 @@ export function WatchOverlay() {
       : null
   const showSkipIntro = isShow && !introSkipped && current < 110 && !episodesOpen && !audioOpen && !speedOpen
   const showSkipRecap = isShow && !recapSkipped && !showSkipIntro && current >= 80 && current < 155 && !episodesOpen && !audioOpen && !speedOpen
-  const showNext = Boolean(upcoming && remaining <= 48 && !episodesOpen && !audioOpen && !speedOpen && length > 0)
+  const showNext = Boolean(upcoming && remaining <= 48 && !nextDismissed && !episodesOpen && !audioOpen && !speedOpen && length > 0)
   const nextCount = Math.max(1, Math.ceil(remaining))
   const nextProgress = length ? Math.min(1, remaining / 48) : 0
   const caption = subs === 'en' ? CAPTIONS[Math.floor(current / 9) % CAPTIONS.length] : null
@@ -609,14 +613,21 @@ export function WatchOverlay() {
         </button>
       ) : null}
       {showNext && upcoming ? (
-        <button
-          type="button"
+        <div
           className="next-ep-card is-visible"
-          onClick={(event) => {
-            event.stopPropagation()
-            playEpisode(upcoming.season, upcoming.episode)
-          }}
+          onClick={(event) => event.stopPropagation()}
         >
+          <button
+            type="button"
+            className="next-ep-close"
+            aria-label="Hide next episode"
+            onClick={(event) => {
+              event.stopPropagation()
+              setNextDismissed(true)
+            }}
+          >
+            <CloseIcon className="icon" />
+          </button>
           <span className="next-ep-kicker">
             {activeProfile?.autoplayNext !== false ? (
               <span
@@ -629,7 +640,14 @@ export function WatchOverlay() {
             ) : null}
             Next Episode
           </span>
-          <span className="next-ep-body">
+          <button
+            type="button"
+            className="next-ep-body"
+            onClick={(event) => {
+              event.stopPropagation()
+              playEpisode(upcoming.season, upcoming.episode)
+            }}
+          >
             <span className="next-ep-thumb">
               <MediaImage src={episodeStill(galleryUrls, upcoming.episode.number, upcoming.episode.thumb_url)} alt="" />
               <PlayIcon className="icon" />
@@ -640,8 +658,8 @@ export function WatchOverlay() {
               </em>
               {upcoming.episode.synopsis ? <small>{upcoming.episode.synopsis}</small> : null}
             </span>
-          </span>
-        </button>
+          </button>
+        </div>
       ) : null}
       {caption ? <p className={`watch-caption ${chrome ? 'is-raised' : ''}`}>{caption}</p> : null}
       <div className="watch-center">
