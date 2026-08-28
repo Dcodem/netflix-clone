@@ -172,7 +172,8 @@ export function Hero({ item }: { item: MovieListItem }) {
           </button>
           <button type="button" className="btn btn-info hero-more" onClick={() => openTitle(item)}>
             <InfoIcon className="icon" />
-            More Info
+            <span className="hero-more-wide">More Info</span>
+            <span className="hero-more-short">Info</span>
           </button>
           <button
             type="button"

@@ -480,6 +480,10 @@ select,
   display: none;
 }
 
+.hero-more-short {
+  display: none;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -2732,6 +2736,11 @@ select,
   height: 40px;
 }
 
+.jawbone .circle-play {
+  width: 44px;
+  height: 44px;
+}
+
 .title-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -3527,10 +3536,6 @@ img.is-logo-pending {
     min-height: 44px;
     font-size: 16px;
     padding: 10px 18px;
-  }
-
-  .hero-actions .btn-play {
-    flex: 1;
   }
 
   .hero-controls-right {
@@ -4867,22 +4872,64 @@ img.is-logo-pending {
 @media (max-width: 767px) {
   .hero-actions {
     width: 100%;
-    padding-right: 16px;
-    flex-wrap: nowrap;
+    padding-right: 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
   }
 
-  .hero-actions .btn-play,
-  .hero-actions .btn-info {
-    flex: 1;
-    min-width: 0;
-  }
-
+  .hero-actions .hero-list,
   .hero-actions .hero-more {
-    display: none;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 0;
+    min-width: 0;
+    padding: 0 10px;
+    background: none;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 0;
   }
 
   .hero-actions .hero-list {
-    display: inline-flex;
+    order: 1;
+    justify-self: start;
+  }
+
+  .hero-actions .btn-play {
+    order: 2;
+    min-width: 128px;
+    min-height: 42px;
+    padding: 8px 24px;
+    font-size: 16px;
+  }
+
+  .hero-actions .hero-more {
+    order: 3;
+    justify-self: end;
+  }
+
+  .hero-actions .hero-list .icon,
+  .hero-actions .hero-more .icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .hero-actions .hero-list:hover,
+  .hero-actions .hero-more:hover {
+    background: none;
+    color: #fff;
+  }
+
+  .hero-more-wide {
+    display: none;
+  }
+
+  .hero-more-short {
+    display: inline;
   }
 
   .hero-open-title {

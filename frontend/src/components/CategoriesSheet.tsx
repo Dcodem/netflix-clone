@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { CloseIcon } from './Icons'
 
 export function CategoriesSheet({
@@ -18,6 +18,8 @@ export function CategoriesSheet({
   onSelect: (genre: string) => void
   variant?: 'categories' | 'genres'
 }) {
+  const location = useLocation()
+
   useEffect(() => {
     if (!open) return
     const onKey = (event: KeyboardEvent) => {
@@ -46,22 +48,42 @@ export function CategoriesSheet({
       <nav className="categories-list">
         {variant === 'categories' ? (
           <>
-            <Link to="/browse" onClick={onClose}>
+            <Link to="/browse" className={location.pathname === '/browse' && !selected ? 'is-on' : ''} onClick={onClose}>
               Home
             </Link>
-            <Link to="/browse/my-list" onClick={onClose}>
+            <Link
+              to="/browse/my-list"
+              className={location.pathname === '/browse/my-list' ? 'is-on' : ''}
+              onClick={onClose}
+            >
               My List
             </Link>
-            <Link to="/browse/shows" onClick={onClose}>
+            <Link
+              to="/browse/shows"
+              className={location.pathname === '/browse/shows' ? 'is-on' : ''}
+              onClick={onClose}
+            >
               TV Shows
             </Link>
-            <Link to="/browse/movies" onClick={onClose}>
+            <Link
+              to="/browse/movies"
+              className={location.pathname === '/browse/movies' ? 'is-on' : ''}
+              onClick={onClose}
+            >
               Movies
             </Link>
-            <Link to="/browse/latest" onClick={onClose}>
+            <Link
+              to="/browse/latest"
+              className={location.pathname === '/browse/latest' ? 'is-on' : ''}
+              onClick={onClose}
+            >
               New & Popular
             </Link>
-            <Link to="/browse/languages" onClick={onClose}>
+            <Link
+              to="/browse/languages"
+              className={location.pathname === '/browse/languages' ? 'is-on' : ''}
+              onClick={onClose}
+            >
               Browse by Languages
             </Link>
           </>
