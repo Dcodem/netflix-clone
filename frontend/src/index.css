@@ -3256,6 +3256,12 @@ img.is-logo-pending {
   margin: 0 0 18px;
 }
 
+@media (min-width: 768px) {
+  .search-recents {
+    display: none;
+  }
+}
+
 .search-recents-head {
   display: flex;
   align-items: baseline;
@@ -4239,12 +4245,12 @@ img.is-logo-pending {
 }
 
 .search-top-rank {
-  width: 1.35em;
+  width: 1.6em;
   flex-shrink: 0;
   color: #808080;
   font-family: var(--display);
   font-weight: 700;
-  font-size: 22px;
+  font-size: 28px;
   line-height: 1;
   text-align: center;
 }
@@ -4650,6 +4656,10 @@ img.is-logo-pending {
   margin-top: auto;
   padding: 40px var(--page-gutter) 80px;
   color: #808080;
+}
+
+.app-shell:has(.search-page) .site-footer {
+  display: none;
 }
 
 .site-footer-inner {
@@ -7297,8 +7307,17 @@ img.is-logo-pending {
     display: none;
   }
 
-  .app-shell:has(.watch-overlay) .mobile-dock {
+  .app-shell:has(.watch-overlay) .mobile-dock,
+  .app-shell:has(.search-page) .mobile-dock {
     display: none;
+  }
+
+  .app-shell:has(.search-page) .site-footer {
+    display: none;
+  }
+
+  .search-page {
+    padding-bottom: 28px;
   }
 }
 
