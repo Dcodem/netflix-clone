@@ -256,6 +256,37 @@ export function ChevronRightIcon({ className }: { className?: string }) {
   )
 }
 
+export function PersonIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="8.2" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M5.6 19.2c.8-3.2 3.1-4.8 6.4-4.8s5.6 1.6 6.4 4.8"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+export function HelpCircleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M9.6 9.2a2.4 2.4 0 114.2 1.6c-.8.7-1.8 1.1-1.8 2.4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="16.4" r="0.9" fill="currentColor" />
+    </svg>
+  )
+}
+
 export function PencilIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

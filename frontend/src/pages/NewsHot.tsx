@@ -347,7 +347,7 @@ function NewsHotFeed() {
 
   return (
     <main className="page page-pad news-hot-page">
-      <nav className="news-chips" aria-label="News & Hot">
+      <nav className="news-chips" aria-label="New & Hot">
         {chips.map((entry) => (
           <button
             key={entry.id}

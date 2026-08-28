@@ -4,7 +4,7 @@ import { useHoverMenu } from '../hooks/useHoverMenu'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { AvatarArt } from './AvatarArt'
-import { CaretIcon, PencilIcon } from './Icons'
+import { CaretIcon, HelpCircleIcon, PencilIcon, PersonIcon } from './Icons'
 
 export function AccountMenu() {
   const { user, logout } = useAuth()
@@ -79,9 +79,11 @@ export function AccountMenu() {
             Transfer Profile
           </Link>
           <Link to="/account" onClick={() => setOpen(false)}>
+            <PersonIcon className="icon" />
             Account
           </Link>
           <Link to="/account" onClick={() => setOpen(false)}>
+            <HelpCircleIcon className="icon" />
             Help Center
           </Link>
           <button

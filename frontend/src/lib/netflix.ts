@@ -85,6 +85,31 @@ export function isNewEpisodes(id?: string, kind?: string): boolean {
   return moodSeed(id) % 4 === 0
 }
 
+export function noticeStamp(id: string): string {
+  const labels = ['Just now', '3h ago', 'Yesterday', '2 days ago', '4 days ago', '1 week ago']
+  return labels[moodSeed(id) % labels.length]
+}
+
+/** Bell + My Netflix cards — Netflix never uses Continue Watching as a notification. */
+export function catalogNotices(catalog: MovieListItem[], limit = 8) {
+  const year = new Date().getFullYear()
+  const out: Array<{ item: MovieListItem; kicker: string; stamp: string }> = []
+  const seen = new Set<string>()
+  const push = (item: MovieListItem, kicker: string) => {
+    if (seen.has(item.id) || out.length >= limit) return
+    seen.add(item.id)
+    out.push({ item, kicker, stamp: noticeStamp(item.id) })
+  }
+  for (const item of catalog) {
+    if (isShow(item) && isNewEpisodes(item.id, item.kind)) push(item, 'New Episodes')
+  }
+  for (const item of catalog) {
+    if ((item.year ?? 0) >= year) push(item, 'Recently Added')
+  }
+  for (const item of catalog) push(item, 'Now on Flix')
+  return out
+}
+
 function moodSeed(value: string): number {
   let hash = 2166136261
   for (let i = 0; i < value.length; i += 1) {
