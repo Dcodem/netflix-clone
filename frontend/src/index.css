@@ -5460,12 +5460,12 @@ select,
   position: absolute;
   left: 48px;
   bottom: 108px;
-  z-index: 2140;
+  z-index: 2210;
   max-width: min(72vw, 720px);
   opacity: 0;
   transform: translateY(10px);
   pointer-events: none;
-  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.85);
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.85), 0 0 42px rgba(0, 0, 0, 0.55);
   transition: opacity 0.55s ease, transform 0.55s ease, bottom 0.22s ease;
 }
 

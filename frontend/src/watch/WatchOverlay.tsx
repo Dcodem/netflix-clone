@@ -147,17 +147,33 @@ export function WatchOverlay() {
   const [nextDismissed, setNextDismissed] = useState(false)
   const [stillWatching, setStillWatching] = useState(false)
   const [identOn, setIdentOn] = useState(true)
+  const [clockKey, setClockKey] = useState('')
   const flashTimer = useRef(0)
   const tapRef = useRef({ at: 0, x: 0, play: 0 })
   const audioRef = useRef({ muted: false, volume: 1 })
   const currentRef = useRef(0)
   const autoNextRef = useRef('')
   const streakRef = useRef(0)
+  const showIdRef = useRef('')
   const showChromeRef = useRef<() => void>(() => setChrome(true))
 
   const runtimeSec = Math.max(60, (session?.history?.runtime ?? 48) * 60)
   const startProgress = session?.history?.progress ?? 0
   const isShow = session?.history?.kind === 'show'
+  if (sessionKey && clockKey !== sessionKey) {
+    const showId = session?.history?.id ?? sessionKey
+    if (showIdRef.current && showIdRef.current !== showId) streakRef.current = 0
+    showIdRef.current = showId
+    setClockKey(sessionKey)
+    setCurrent(startProgress * runtimeSec)
+    setDuration(runtimeSec)
+    setPaused(false)
+    setNextDismissed(false)
+    setStillWatching(false)
+    setIdentOn(true)
+    setIntroSkipped(false)
+    setRecapSkipped(false)
+  }
   const keepChrome = !stillWatching && (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover)
   const continueWatchingRef = useRef<() => void>(() => {})
 
@@ -255,12 +271,7 @@ export function WatchOverlay() {
     setRecapSkipped(false)
     setShowDetail(null)
     setSeasonNumber(session.history?.seasonNumber ?? null)
-    setCurrent(startProgress * runtimeSec)
-    setDuration(runtimeSec)
     setFlash(null)
-    setNextDismissed(false)
-    setStillWatching(false)
-    setIdentOn(true)
     const hasVideo = Boolean(youtubeIdFromHit(peekTrailer(trailerSearch(session))))
     try {
       if (hasVideo) {
@@ -285,7 +296,7 @@ export function WatchOverlay() {
   useEffect(() => {
     if (!sessionKey) return
     setIdentOn(true)
-    const timer = window.setTimeout(() => setIdentOn(false), 4000)
+    const timer = window.setTimeout(() => setIdentOn(false), 5200)
     return () => window.clearTimeout(timer)
   }, [sessionKey])
 
@@ -437,6 +448,12 @@ export function WatchOverlay() {
         ambienceRef.current = null
         return
       }
+      if (data.type === 'ended') {
+        if (typeof data.current === 'number') setCurrent(data.current)
+        if (typeof data.duration === 'number' && data.duration > 0) setDuration(data.duration)
+        setPaused(true)
+        return
+      }
       if (data.type !== 'time') return
       if (typeof data.current === 'number') setCurrent(data.current)
       if (typeof data.duration === 'number' && data.duration > 0) setDuration(data.duration)
@@ -476,10 +493,11 @@ export function WatchOverlay() {
   const remainingNow = Math.max(0, lengthNow - current)
 
   useEffect(() => {
-    if (!upcoming || remainingNow > 0.6 || current < 30 || !session?.history) return
-    if (nextDismissed) return
-    if (stillWatching) return
+    if (!upcoming || !session?.history) return
+    if (nextDismissed || stillWatching) return
     if (activeProfile?.autoplayNext === false) return
+    const ended = lengthNow > 0 && (remainingNow <= 1.25 || current / lengthNow >= 0.992)
+    if (!ended || current < 30) return
     const key = upcoming.episode.id
     if (autoNextRef.current === key) return
     if (streakRef.current >= 2) {
@@ -543,8 +561,8 @@ export function WatchOverlay() {
   const remaining = Math.max(0, length - current)
   const episodeLabel = playing
     ? `S${playing.season.season_number}:E${playing.episode.number}`
-    : session.history?.seasonNumber && session.history?.episodeNumber
-      ? `S${session.history.seasonNumber}:E${session.history.episodeNumber}`
+    : isShow
+      ? `S${session.history?.seasonNumber ?? 1}:E${session.history?.episodeNumber ?? 1}`
       : null
   const showSkipIntro = isShow && !introSkipped && current < 110 && !episodesOpen && !audioOpen && !speedOpen
   const showSkipRecap = isShow && !recapSkipped && !showSkipIntro && current >= 80 && current < 155 && !episodesOpen && !audioOpen && !speedOpen

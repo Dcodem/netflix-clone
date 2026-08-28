@@ -203,6 +203,11 @@ function playerPage(item, season, episode, query = {}) {
         if (usingYt && ytPlayer && typeof ytPlayer.seekTo === 'function') {
           try { ytPlayer.seekTo(current, true) } catch (err) {}
         } else showShot(shot + 1)
+        if (duration > 0 && current >= duration - 0.05) {
+          current = duration
+          paused = true
+          parent.postMessage({ source: SOURCE, type: 'ended', current: current, duration: duration, paused: true }, '*')
+        }
       }
       function revealYt() {
         if (!wrap) return
@@ -229,7 +234,14 @@ function playerPage(item, season, episode, query = {}) {
       }
       function tick(dt) {
         if (usingYt) readYt()
-        else if (!paused) current = Math.min(duration, current + dt * wantRate)
+        else if (!paused) {
+          const next = Math.min(duration, current + dt * wantRate)
+          if (duration > 0 && next >= duration - 0.05 && current < duration - 0.05) {
+            current = duration
+            paused = true
+            parent.postMessage({ source: SOURCE, type: 'ended', current: current, duration: duration, paused: true }, '*')
+          } else current = next
+        }
         parent.postMessage({ source: SOURCE, type: 'time', current: current, duration: duration, paused: paused }, '*')
       }
       let last = performance.now()
@@ -280,6 +292,7 @@ function playerPage(item, season, episode, query = {}) {
               if (event.data === 0) {
                 paused = true
                 current = duration
+                parent.postMessage({ source: SOURCE, type: 'ended', current: current, duration: duration, paused: true }, '*')
               }
             }
           }
