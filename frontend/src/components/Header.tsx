@@ -34,7 +34,7 @@ export function Header() {
   const inputRef = useRef<HTMLInputElement>(null)
   const searchRef = useRef<HTMLDivElement>(null)
   const browseRef = useRef<HTMLDetailsElement>(null)
-  const debounced = useDebouncedValue(query.trim(), 350)
+  const debounced = useDebouncedValue(query.trim(), 140)
   const desktop = useMediaQuery('(min-width: 768px)')
   const open = searchOpen || Boolean(query) || location.pathname === '/search'
   const heroPath =
@@ -62,7 +62,7 @@ export function Header() {
     if (debounced !== live) return
     pushRecentSearch(debounced)
     if (location.pathname !== '/search' || searchParams.get('q') !== debounced) {
-      navigate(`/search?q=${encodeURIComponent(debounced)}`)
+      navigate(`/search?q=${encodeURIComponent(debounced)}`, { replace: location.pathname === '/search' })
     }
   }, [debounced, query, location.pathname, navigate, searchParams])
 
