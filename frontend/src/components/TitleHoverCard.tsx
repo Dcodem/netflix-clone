@@ -133,7 +133,13 @@ export function TitleHoverCard({
         ) : null}
       </div>
       <div className="jawbone-body">
-        <TitleActions item={item} detail={detail} watchHref={watchHref} size="sm" />
+        <TitleActions
+          item={item}
+          detail={detail}
+          watchHref={watchHref}
+          size="sm"
+          continueMode={Boolean(progress && progress > 0.05)}
+        />
         <div className="jawbone-meta">
           <span className="match">{match}% Match</span>
           {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}

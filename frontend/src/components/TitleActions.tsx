@@ -165,7 +165,7 @@ export function TitleActions({
           <PlayIcon className="icon" />
         </button>
       )}
-      {continueMode && !sheet ? (
+      {continueMode && playStyle === 'labeled' && !sheet ? (
         <button type="button" className="circle-btn" onClick={() => play(true)} disabled={!href} aria-label="Play from beginning">
           <RestartIcon className="icon" />
         </button>

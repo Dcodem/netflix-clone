@@ -828,9 +828,14 @@ select,
     z-index: 6;
   }
 
-  .poster-wrap.is-peeking .poster-card {
-    transform: none;
-    box-shadow: none;
+  .poster-wrap.is-peeking:not(.is-previewing) .poster-card {
+    transform: scale(1.16);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.58);
+  }
+
+  .poster-wrap.is-poster.is-peeking:not(.is-previewing) .poster-card,
+  .poster-wrap.is-ranked.is-peeking:not(.is-previewing) .poster-card {
+    transform: scale(1.08);
   }
 
   .poster-wrap.is-previewing .poster-card {
@@ -1385,7 +1390,7 @@ select,
   height: 100%;
   border: 0;
   background: #000;
-  transition: filter 0.7s ease;
+  transition: filter 0.75s ease, transform 0.75s ease;
 }
 
 .profiles-page {
@@ -6127,7 +6132,8 @@ img.is-logo-pending {
 }
 
 .watch-overlay.is-ident .watch-frame {
-  filter: brightness(0.34) saturate(0.9);
+  filter: brightness(0.52) blur(16px) saturate(0.82);
+  transform: scale(1.12);
 }
 
 .watch-ident {
@@ -6146,6 +6152,7 @@ img.is-logo-pending {
 .watch-ident.is-on {
   opacity: 1;
   transform: none;
+  bottom: 52px;
 }
 
 .watch-ident.is-raised {
@@ -7114,6 +7121,10 @@ img.is-logo-pending {
     bottom: 96px;
     max-width: none;
     z-index: 2270;
+  }
+
+  .watch-ident.is-on {
+    bottom: calc(36px + env(safe-area-inset-bottom, 0px));
   }
 
   .watch-ident.is-raised {
