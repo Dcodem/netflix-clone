@@ -28,13 +28,13 @@ export function useHoverMenu() {
   function onEnter() {
     if (!fine) return
     window.clearTimeout(timer.current)
-    timer.current = window.setTimeout(() => setOpen(true), 50)
+    timer.current = window.setTimeout(() => setOpen(true), 160)
   }
 
   function onLeave() {
     if (!fine) return
     window.clearTimeout(timer.current)
-    timer.current = window.setTimeout(() => setOpen(false), 180)
+    timer.current = window.setTimeout(() => setOpen(false), 280)
   }
 
   function toggle() {

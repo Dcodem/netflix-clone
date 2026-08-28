@@ -44,6 +44,7 @@ export function TitleModal() {
   const [trailerReady, setTrailerReady] = useState(false)
   const [trailerEnded, setTrailerEnded] = useState(false)
   const [settled, setSettled] = useState(false)
+  const [heroHover, setHeroHover] = useState(false)
   const [tab, setTab] = useState<'episodes' | 'more' | 'trailers' | null>(null)
   const [seasonNumber, setSeasonNumber] = useState(1)
 
@@ -52,6 +53,7 @@ export function TitleModal() {
     setTrailerReady(false)
     setTrailerEnded(false)
     setSettled(false)
+    setHeroHover(false)
     setTab(null)
     setSeasonNumber(last?.seasonNumber ?? 1)
   }, [item?.id, last?.seasonNumber])
@@ -72,11 +74,13 @@ export function TitleModal() {
 
   const trailerPlaying = trailerReady && !trailerEnded
   useEffect(() => {
+    if (!item) return
     setSettled(false)
-    if (!trailerPlaying) return
+    setHeroHover(false)
     const timer = window.setTimeout(() => setSettled(true), 6000)
     return () => window.clearTimeout(timer)
-  }, [trailerPlaying, item?.id])
+  }, [item?.id])
+  const collapsed = settled && !heroHover
 
   const detailFetch = useFetch(
     () => (item ? (isShow(item) ? getShow(item.id) : getMovie(item.id)) : Promise.resolve(null)),
@@ -221,7 +225,15 @@ export function TitleModal() {
         <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
           <CloseIcon className="icon" />
         </button>
-        <div className={`title-modal-hero ${trailerPlaying ? 'is-playing' : ''} ${settled ? 'is-settled' : ''}`}>
+        <div
+          className={`title-modal-hero ${trailerPlaying ? 'is-playing' : 'is-cinematic'} ${collapsed ? 'is-settled' : ''}`}
+          onPointerEnter={(event) => {
+            if (event.pointerType === 'mouse') setHeroHover(true)
+          }}
+          onPointerLeave={(event) => {
+            if (event.pointerType === 'mouse') setHeroHover(false)
+          }}
+        >
           <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
           <TrailerPreview
             ref={trailerRef}
