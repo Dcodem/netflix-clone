@@ -2445,7 +2445,7 @@ select,
   position: absolute;
   left: 14px;
   bottom: 14px;
-  z-index: 3;
+  z-index: 5;
   max-width: 58%;
   pointer-events: none;
 }
@@ -5703,6 +5703,10 @@ select,
 
   .watch-knob {
     transform: translate(50%, -50%) scale(1);
+  }
+
+  .watch-controls .watch-ctrl[aria-label]::after {
+    content: none;
   }
 }
 
