@@ -93,20 +93,37 @@ export function noticeStamp(id: string): string {
 /** Bell + My Netflix cards — Netflix never uses Continue Watching as a notification. */
 export function catalogNotices(catalog: MovieListItem[], limit = 8) {
   const year = new Date().getFullYear()
-  const out: Array<{ item: MovieListItem; kicker: string; stamp: string }> = []
+  const newEps: MovieListItem[] = []
+  const added: MovieListItem[] = []
+  const now: MovieListItem[] = []
   const seen = new Set<string>()
-  const push = (item: MovieListItem, kicker: string) => {
-    if (seen.has(item.id) || out.length >= limit) return
+  for (const item of catalog) {
+    if (seen.has(item.id)) continue
     seen.add(item.id)
-    out.push({ item, kicker, stamp: noticeStamp(item.id) })
+    if (isShow(item) && isNewEpisodes(item.id, item.kind)) newEps.push(item)
+    else if ((item.year ?? 0) >= year) added.push(item)
+    else now.push(item)
   }
-  for (const item of catalog) {
-    if (isShow(item) && isNewEpisodes(item.id, item.kind)) push(item, 'New Episodes')
+  const out: Array<{ item: MovieListItem; kicker: string; stamp: string }> = []
+  let n = 0
+  let a = 0
+  let r = 0
+  while (out.length < limit && (n < newEps.length || a < added.length || r < now.length)) {
+    if (n < newEps.length) {
+      const item = newEps[n++]
+      out.push({ item, kicker: 'New Episodes', stamp: noticeStamp(item.id) })
+    }
+    if (out.length >= limit) break
+    if (a < added.length) {
+      const item = added[a++]
+      out.push({ item, kicker: 'Recently Added', stamp: noticeStamp(item.id) })
+    }
+    if (out.length >= limit) break
+    if (r < now.length) {
+      const item = now[r++]
+      out.push({ item, kicker: 'Now on Flix', stamp: noticeStamp(item.id) })
+    }
   }
-  for (const item of catalog) {
-    if ((item.year ?? 0) >= year) push(item, 'Recently Added')
-  }
-  for (const item of catalog) push(item, 'Now on Flix')
   return out
 }
 
