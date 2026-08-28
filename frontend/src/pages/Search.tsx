@@ -5,6 +5,7 @@ import type { MovieListItem } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
 import { ClockIcon, CloseIcon } from '../components/Icons'
 import { MediaGrid } from '../components/MediaGrid'
+import { SearchHitsList } from '../components/SearchHitsList'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
@@ -109,7 +110,11 @@ export function Search() {
             <h2 className="section-title search-recommended-title">
               {phone ? 'Top Searches' : 'Recommended TV Shows and Movies'}
             </h2>
-            <MediaGrid items={popularItems} layout="poster" hoverable={false} />
+            {phone ? (
+              <SearchHitsList items={popularItems} ranked />
+            ) : (
+              <MediaGrid items={popularItems} layout="poster" hoverable={false} />
+            )}
           </>
         ) : null}
       </main>
@@ -139,7 +144,11 @@ export function Search() {
           <h1 className="search-heading">
             Explore titles related to: <span>{q}</span>
           </h1>
-          <MediaGrid items={items} layout="poster" hoverable={false} />
+          {phone ? (
+            <SearchHitsList items={items} />
+          ) : (
+            <MediaGrid items={items} layout="poster" hoverable={false} />
+          )}
         </>
       ) : (
         <>
