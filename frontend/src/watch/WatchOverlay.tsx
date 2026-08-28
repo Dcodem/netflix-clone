@@ -172,7 +172,7 @@ export function WatchOverlay() {
     setPaused(false)
     setNextDismissed(false)
     setStillWatching(false)
-    setIdentOn(true)
+    setIdentOn(startProgress < 0.02)
     setIntroSkipped(false)
     setRecapSkipped(false)
   }
@@ -296,13 +296,18 @@ export function WatchOverlay() {
 
   useEffect(() => {
     if (!sessionKey) return
-    setIdentOn(true)
+    const fromStart = startProgress < 0.02
+    setIdentOn(fromStart)
+    if (!fromStart) {
+      showChromeRef.current()
+      return
+    }
     const timer = window.setTimeout(() => {
       setIdentOn(false)
       showChromeRef.current()
     }, 5200)
     return () => window.clearTimeout(timer)
-  }, [sessionKey])
+  }, [sessionKey, startProgress])
 
   useEffect(() => {
     if (!session?.history?.id || session.history.kind !== 'show') {
@@ -661,7 +666,7 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen || speedOpen ? 'is-panel' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
@@ -736,6 +741,7 @@ export function WatchOverlay() {
             item={trailerSearch(session)}
             className="watch-ident-logo"
             titleClassName="watch-ident-title"
+            imageOnly
           />
           {isShow ? (
             <p className="watch-ident-ep">
@@ -819,7 +825,7 @@ export function WatchOverlay() {
                 style={{ '--p': String(nextProgress) } as CSSProperties}
                 aria-hidden="true"
               >
-                <span>{nextCount != null ? nextCount : <PlayIcon className="icon" />}</span>
+                <span key={nextCount ?? 'go'}>{nextCount != null ? nextCount : <PlayIcon className="icon" />}</span>
               </span>
             ) : null}
             Next Episode
@@ -854,7 +860,7 @@ export function WatchOverlay() {
             event.stopPropagation()
             skip(-10)
           }}
-          aria-label="Back 10 seconds"
+          aria-label="Back 10 Seconds"
         >
           <SkipBackIcon className="icon" />
         </button>
@@ -876,7 +882,7 @@ export function WatchOverlay() {
             event.stopPropagation()
             skip(10)
           }}
-          aria-label="Forward 10 seconds"
+          aria-label="Forward 10 Seconds"
         >
           <SkipForwardIcon className="icon" />
         </button>
@@ -929,10 +935,10 @@ export function WatchOverlay() {
             <button type="button" className="watch-ctrl watch-transport" onClick={togglePlay} aria-label={paused ? 'Play' : 'Pause'}>
               {paused ? <PlayIcon className="icon" /> : <PauseIcon className="icon" />}
             </button>
-            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(-10)} aria-label="Back 10 seconds">
+            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(-10)} aria-label="Back 10 Seconds">
               <SkipBackIcon className="icon" />
             </button>
-            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(10)} aria-label="Forward 10 seconds">
+            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(10)} aria-label="Forward 10 Seconds">
               <SkipForwardIcon className="icon" />
             </button>
             <div
@@ -963,14 +969,14 @@ export function WatchOverlay() {
                   event.currentTarget.setPointerCapture(event.pointerId)
                   setVolOpen(true)
                   const rect = event.currentTarget.getBoundingClientRect()
-                  const inset = 12
+                  const inset = 8
                   const height = Math.max(1, rect.height - inset * 2)
                   onVolume(1 - Math.min(1, Math.max(0, (event.clientY - rect.top - inset) / height)))
                 }}
                 onPointerMove={(event) => {
                   if (!event.buttons) return
                   const rect = event.currentTarget.getBoundingClientRect()
-                  const inset = 12
+                  const inset = 8
                   const height = Math.max(1, rect.height - inset * 2)
                   onVolume(1 - Math.min(1, Math.max(0, (event.clientY - rect.top - inset) / height)))
                 }}
@@ -1025,7 +1031,7 @@ export function WatchOverlay() {
                 setEpisodesOpen(false)
                 setSpeedOpen(false)
               }}
-              aria-label="Audio and subtitles"
+              aria-label="Audio & Subtitles"
             >
               <SubtitlesIcon className="icon" />
             </button>
@@ -1038,12 +1044,19 @@ export function WatchOverlay() {
                   setAudioOpen(false)
                   setEpisodesOpen(false)
                 }}
-                aria-label="Playback speed"
+                aria-label="Playback Speed"
               >
                 <SpeedIcon className="icon" />
               </button>
               {speedOpen ? (
-                <div className="watch-speed-menu" role="menu" aria-label="Playback speed">
+                <div
+                  className="watch-speed-menu"
+                  role="menu"
+                  aria-label="Playback Speed"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <span className="watch-sheet-handle" aria-hidden="true" />
+                  <p className="watch-speed-label">Playback Speed</p>
                   {SPEEDS.map((rate) => (
                     <button
                       type="button"
@@ -1055,6 +1068,7 @@ export function WatchOverlay() {
                         setSpeedOpen(false)
                       }}
                     >
+                      {speed === rate ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
                       {rate === 1 ? 'Normal' : `${rate}x`}
                     </button>
                   ))}
@@ -1065,7 +1079,7 @@ export function WatchOverlay() {
               type="button"
               className="watch-ctrl"
               onClick={toggleFullscreen}
-              aria-label={fullscreen ? 'Exit full screen' : 'Full screen'}
+              aria-label={fullscreen ? 'Exit Full Screen' : 'Full Screen'}
             >
               <FullscreenIcon exit={fullscreen} className="icon" />
             </button>
@@ -1075,7 +1089,7 @@ export function WatchOverlay() {
       {episodesOpen || audioOpen || speedOpen ? (
         <button
           type="button"
-          className="watch-scrim"
+          className={`watch-scrim ${speedOpen && !episodesOpen && !audioOpen ? 'is-clear' : ''}`}
           aria-label="Close panel"
           onClick={(event) => {
             event.stopPropagation()
@@ -1106,6 +1120,7 @@ export function WatchOverlay() {
               <PlayIcon className="icon" />
               Continue Watching
             </button>
+            <p className="watch-still-hint">If you don&apos;t select Continue Watching, playback will pause.</p>
           </div>
         </div>
       ) : null}
@@ -1169,6 +1184,10 @@ export function WatchOverlay() {
       ) : null}
       {audioOpen ? (
         <div className="watch-panel watch-audio" onClick={(event) => event.stopPropagation()}>
+          <div className="watch-audio-head">
+            <span className="watch-sheet-handle" aria-hidden="true" />
+            <p>Audio & Subtitles</p>
+          </div>
           <div>
             <h2>Audio</h2>
             <button type="button" className={audioTrack === 'en' ? 'is-on' : ''} onClick={() => setAudioTrack('en')}>
@@ -1181,7 +1200,7 @@ export function WatchOverlay() {
             </button>
           </div>
           <div>
-            <h2>Subtitles</h2>
+            <h2>Subtitles/CC</h2>
             <button type="button" className={subs === 'off' ? 'is-on' : ''} onClick={() => setSubs('off')}>
               {subs === 'off' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               Off

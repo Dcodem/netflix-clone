@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getMovie, getMovies, getShow } from '../api/client'
 import { AvatarArt } from '../components/AvatarArt'
@@ -8,24 +9,15 @@ import { MediaRow } from '../components/MediaRow'
 import { useAuth } from '../auth/AuthContext'
 import { useFetch } from '../hooks/useFetch'
 import { historyToListItems, likedToItems } from '../lib/homeRows'
-import { isShow } from '../lib/media'
+import { isShow, uniqueById } from '../lib/media'
+import { catalogNotices } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
+import { becauseYouWatchedRows, rankByTaste } from '../profiles/taste'
 import { avatarFor } from '../profiles/types'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
-
-function timeAgo(stamp: number) {
-  const delta = Math.max(0, Date.now() - stamp)
-  const minutes = Math.round(delta / 60000)
-  if (minutes < 1) return 'Just now'
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.round(hours / 24)
-  return days === 1 ? 'Yesterday' : `${days}d ago`
-}
 
 export function MyNetflix() {
   const { user, logout } = useAuth()
@@ -33,7 +25,8 @@ export function MyNetflix() {
   const { openTitle } = useTitleModal()
   const { openWatch } = useWatch()
   const navigate = useNavigate()
-  const movies = useFetch(() => getMovies(), 'my-netflix-movies')
+  const movies = useFetch(() => getMovies(), 'home-movies')
+  const catalog = movies.data ?? []
   const continueItems = historyToListItems(
     (activeProfile?.history ?? []).filter(
       (item) => item.progress && item.progress > 0.05 && !activeProfile?.hiddenContinueIds.includes(item.id),
@@ -45,8 +38,20 @@ export function MyNetflix() {
       .map((item) => [item.id, item.progress as number]),
   )
   const listItems = likedToItems(activeProfile?.myList ?? [])
-  const notes = (activeProfile?.history ?? []).slice(0, 8)
-  const arrivals = (movies.data ?? []).slice(0, 6)
+  const notices = catalogNotices(catalog, 8)
+  const because = useMemo(
+    () => (activeProfile ? becauseYouWatchedRows(catalog, activeProfile.history, 1) : []),
+    [catalog, activeProfile],
+  )
+  const suggested = useMemo(() => {
+    if (!activeProfile || !catalog.length) return []
+    const skip = new Set([
+      ...continueItems.map((item) => item.id),
+      ...listItems.map((item) => item.id),
+      ...because.flatMap((row) => row.items.map((item) => item.id)),
+    ])
+    return uniqueById(rankByTaste(catalog, activeProfile).filter((item) => !skip.has(item.id))).slice(0, 24)
+  }, [activeProfile, because, catalog, continueItems, listItems])
   const avatar = activeProfile ? avatarFor(activeProfile) : null
 
   if (!activeProfile || !avatar) {
@@ -54,7 +59,7 @@ export function MyNetflix() {
   }
 
   async function playSomething() {
-    const pool = movies.data ?? []
+    const pool = catalog
     if (!pool.length) return
     const item = pool[Math.floor(Math.random() * pool.length)]
     playClick()
@@ -92,54 +97,25 @@ export function MyNetflix() {
           </span>
           <CaretIcon className="icon" />
         </button>
-        <button type="button" className="play-something" onClick={() => void playSomething()}>
-          <ShuffleIcon className="icon" />
+        <button type="button" className="play-something" onClick={() => void playSomething()} aria-label="Play Something">
+          <span className="play-something-disc">
+            <ShuffleIcon className="icon" />
+          </span>
           Play Something
         </button>
       </header>
 
       <section className="my-netflix-notes">
         <h2 className="section-title">Notifications</h2>
-        {notes.length ? (
-          <div className="notify-feed">
-            {notes.map((item) => (
-              <button
-                type="button"
-                key={`${item.id}-${item.watchedAt}`}
-                className="notify-row"
-                onClick={() =>
-                  openTitle({
-                    id: item.id,
-                    title: item.title,
-                    kind: item.kind,
-                    year: item.year,
-                    genres: item.genres,
-                    poster_url: item.poster_url,
-                    href: item.kind === 'show' ? `/show/${item.id}` : `/movie/${item.id}`,
-                  })
-                }
-              >
-                <CatalogImage
-                  item={{ title: item.title, kind: item.kind, year: item.year, poster_url: item.poster_url }}
-                  prefer="backdrop"
-                  alt=""
-                />
-                <span>
-                  <strong>{item.progress && item.progress > 0.05 ? 'Continue Watching' : 'Now on Flix'}</strong>
-                  <em>{item.title}</em>
-                  <small>{timeAgo(item.watchedAt)}</small>
-                </span>
-              </button>
-            ))}
-          </div>
-        ) : arrivals.length ? (
-          <div className="notify-feed">
-            {arrivals.map((item) => (
-              <button type="button" key={item.id} className="notify-row" onClick={() => openTitle(item)}>
+        {notices.length ? (
+          <div className="notify-rail">
+            {notices.map(({ item, kicker, stamp }) => (
+              <button type="button" key={item.id} className="notify-card" onClick={() => openTitle(item)}>
                 <CatalogImage item={item} prefer="backdrop" alt="" />
                 <span>
-                  <strong>Recently Added</strong>
+                  <strong>{kicker}</strong>
                   <em>{item.title}</em>
+                  <small>{stamp}</small>
                 </span>
               </button>
             ))}
@@ -154,8 +130,8 @@ export function MyNetflix() {
         <div className="downloads-empty">
           <DownloadIcon className="icon" />
           <div>
-            <strong>Introducing Downloads for You</strong>
-            <p>Featured downloads for {activeProfile.name} will appear here on phones and tablets.</p>
+            <strong>Downloads for You</strong>
+            <p>Movies and TV shows you download appear here.</p>
           </div>
         </div>
       </section>
@@ -171,16 +147,17 @@ export function MyNetflix() {
         />
       ) : null}
       {listItems.length ? <MediaRow title="My List" items={listItems} hoverable={false} /> : null}
+      {because.map((row) => (
+        <MediaRow key={row.id} title={row.title} items={row.items} seed={row.seed} hoverable={false} />
+      ))}
+      {suggested.length ? (
+        <MediaRow title="We Think You’ll Like These" items={suggested} hoverable={false} />
+      ) : null}
 
       <div className="my-netflix-links">
         <Link to="/browse/my-list">My List</Link>
         <Link to="/account">Account</Link>
-        <Link
-          to="/"
-          onClick={() => {
-            clearActive()
-          }}
-        >
+        <Link to="/" state={{ manage: true }}>
           Manage Profiles
         </Link>
         <button

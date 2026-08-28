@@ -4,7 +4,7 @@ import { useHoverMenu } from '../hooks/useHoverMenu'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { AvatarArt } from './AvatarArt'
-import { CaretIcon, PencilIcon } from './Icons'
+import { CaretIcon, ExitIcon, HelpCircleIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
 
 export function AccountMenu() {
   const { user, logout } = useAuth()
@@ -59,22 +59,33 @@ export function AccountMenu() {
           <Link
             to="/"
             className="account-manage"
-            onClick={() => {
-              setOpen(false)
-              clearActive()
-            }}
+            state={{ manage: true }}
+            onClick={() => setOpen(false)}
           >
             <PencilIcon className="icon" />
             Manage Profiles
           </Link>
           <div className="account-dropdown-rule" />
+          <Link
+            to="/"
+            onClick={() => {
+              setOpen(false)
+              clearActive()
+            }}
+          >
+            <ExitIcon className="icon" />
+            Exit Profile
+          </Link>
           <Link to="/account" onClick={() => setOpen(false)}>
+            <TransferIcon className="icon" />
             Transfer Profile
           </Link>
           <Link to="/account" onClick={() => setOpen(false)}>
+            <PersonIcon className="icon" />
             Account
           </Link>
           <Link to="/account" onClick={() => setOpen(false)}>
+            <HelpCircleIcon className="icon" />
             Help Center
           </Link>
           <button

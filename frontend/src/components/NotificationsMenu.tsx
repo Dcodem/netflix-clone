@@ -1,79 +1,16 @@
+import { getMovies } from '../api/client'
 import { useHoverMenu } from '../hooks/useHoverMenu'
-import { useProfiles } from '../profiles/ProfileContext'
-import type { WatchHistoryItem } from '../profiles/types'
+import { catalogNotices } from '../lib/netflix'
+import { useFetch } from '../hooks/useFetch'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
 import { BellIcon } from './Icons'
 
-function timeAgo(stamp: number) {
-  const delta = Math.max(0, Date.now() - stamp)
-  const minutes = Math.round(delta / 60000)
-  if (minutes < 1) return 'Just now'
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.round(hours / 24)
-  return days === 1 ? 'Yesterday' : `${days}d ago`
-}
-
-function NotifyRows({
-  items,
-  onPick,
-}: {
-  items: WatchHistoryItem[]
-  onPick: (item: WatchHistoryItem) => void
-}) {
-  return (
-    <>
-      {items.map((item) => (
-        <button
-          type="button"
-          key={`${item.id}-${item.watchedAt}`}
-          className="notify-row"
-          onClick={() => onPick(item)}
-        >
-          <CatalogImage
-            item={{
-              title: item.title,
-              kind: item.kind,
-              year: item.year,
-              poster_url: item.poster_url,
-            }}
-            prefer="backdrop"
-            alt=""
-          />
-          <span>
-            <strong>{item.progress && item.progress > 0.05 ? 'Continue Watching' : 'Now on Flix'}</strong>
-            <em>{item.title}</em>
-            <small>{timeAgo(item.watchedAt)}</small>
-          </span>
-        </button>
-      ))}
-    </>
-  )
-}
-
 export function NotificationsMenu() {
-  const { activeProfile } = useProfiles()
   const { openTitle } = useTitleModal()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
-  const items = (activeProfile?.history ?? []).slice(0, 8)
-  const day = 24 * 60 * 60 * 1000
-  const today = items.filter((item) => Date.now() - item.watchedAt < day)
-  const earlier = items.filter((item) => Date.now() - item.watchedAt >= day)
-
-  function openItem(item: WatchHistoryItem) {
-    setOpen(false)
-    openTitle({
-      id: item.id,
-      title: item.title,
-      kind: item.kind,
-      year: item.year,
-      genres: item.genres,
-      poster_url: item.poster_url,
-      href: item.kind === 'show' ? `/show/${item.id}` : `/movie/${item.id}`,
-    })
-  }
+  const movies = useFetch(() => getMovies(), 'home-movies')
+  const notices = catalogNotices(movies.data ?? [], 8)
 
   return (
     <div
@@ -90,25 +27,31 @@ export function NotificationsMenu() {
         onClick={toggle}
       >
         <BellIcon className="icon" />
-        {items.length ? <span className="notify-dot" aria-hidden="true" /> : null}
+        {notices.length ? <span className="notify-dot" aria-hidden="true" /> : null}
       </button>
       {open ? (
         <div className="notify-dropdown" role="menu">
-          {items.length ? (
-            <>
-              {today.length ? (
-                <section className="notify-group">
-                  <h3>Today</h3>
-                  <NotifyRows items={today} onPick={openItem} />
-                </section>
-              ) : null}
-              {earlier.length ? (
-                <section className="notify-group">
-                  <h3>Earlier</h3>
-                  <NotifyRows items={earlier} onPick={openItem} />
-                </section>
-              ) : null}
-            </>
+          {notices.length ? (
+            <div className="notify-list">
+              {notices.map(({ item, kicker, stamp }) => (
+                <button
+                  type="button"
+                  key={item.id}
+                  className="notify-row"
+                  onClick={() => {
+                    setOpen(false)
+                    openTitle(item)
+                  }}
+                >
+                  <CatalogImage item={item} prefer="backdrop" alt="" />
+                  <span>
+                    <strong>{kicker}</strong>
+                    <em>{item.title}</em>
+                    <small>{stamp}</small>
+                  </span>
+                </button>
+              ))}
+            </div>
           ) : (
             <p>You’re all caught up</p>
           )}

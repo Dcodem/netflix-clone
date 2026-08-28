@@ -96,23 +96,33 @@ export function buildBrowseRows(opts: {
     const year = new Date().getFullYear()
     const soon = pool.filter((item) => (item.year ?? 0) >= year)
     const watching = sortByRating(pool.filter((item) => (item.year ?? 0) < year))
-    if (profile?.myList.length) {
-      pushRow(rows, {
-        id: 'mylist',
-        title: 'My List',
-        items: ofKind(likedToItems(profile.myList), kind),
-      })
-    }
     pushRow(rows, { id: 'coming', title: 'Coming Soon', items: soon })
     pushRow(rows, { id: 'watching', title: 'Everyone’s Watching', items: watching })
-    const popularTop = sortByRating(pool).slice(0, 10)
-    if (popularTop.length >= 4) {
+    const topTv = sortByRating(shows).slice(0, 10)
+    if (topTv.length >= 4) {
       pushRow(rows, {
-        id: 'top10',
-        title: 'Top 10 in the U.S. Today',
-        items: popularTop,
+        id: 'top10-tv',
+        title: 'Top 10 TV Shows in the U.S. Today',
+        items: topTv,
         variant: 'top10',
         loop: false,
+      })
+    }
+    const topMovies = sortByRating(movies).slice(0, 10)
+    if (topMovies.length >= 4) {
+      pushRow(rows, {
+        id: 'top10-movies',
+        title: 'Top 10 Movies in the U.S. Today',
+        items: topMovies,
+        variant: 'top10',
+        loop: false,
+      })
+    }
+    if (profile) {
+      pushRow(rows, {
+        id: 'next-watch',
+        title: 'Your Next Watch',
+        items: rankByTaste(pool, profile),
       })
     }
     pushRow(rows, { id: 'new-movies', title: 'New Movies', items: sortByYear(movies) })

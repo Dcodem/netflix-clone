@@ -3,7 +3,7 @@ import { HomeIcon, MyNetflixIcon, NewsIcon } from './Icons'
 
 const TABS = [
   { to: '/browse', label: 'Home', icon: HomeIcon, end: true },
-  { to: '/browse/latest', label: 'News & Hot', icon: NewsIcon, end: false },
+  { to: '/browse/latest', label: 'New & Hot', icon: NewsIcon, end: false },
   { to: '/browse/my-netflix', label: 'My Netflix', icon: MyNetflixIcon, end: false },
 ] as const
 

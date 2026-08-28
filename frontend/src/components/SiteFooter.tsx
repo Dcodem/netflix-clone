@@ -115,7 +115,6 @@ export function SiteFooter() {
             </ul>
           ))}
         </div>
-        <FooterLang />
         <button
           type="button"
           className="service-code"

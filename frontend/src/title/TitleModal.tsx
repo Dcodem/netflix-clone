@@ -35,10 +35,6 @@ export function TitleModal() {
   const trailerRef = useRef<TrailerHandle>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
-  const episodesRef = useRef<HTMLDivElement>(null)
-  const moreRef = useRef<HTMLDivElement>(null)
-  const trailersRef = useRef<HTMLElement>(null)
-  const jumpingRef = useRef(false)
   const stills = useTmdbGallery(item)
   const [muted, setMuted] = useState(true)
   const [trailerReady, setTrailerReady] = useState(false)
@@ -106,34 +102,6 @@ export function TitleModal() {
     return uniqueById([...byGenre, ...rest]).slice(0, 12)
   }, [item, catalog.data, activeProfile])
 
-  useEffect(() => {
-    if (!item) return
-    const scroller = modalRef.current ?? backdropRef.current
-    if (!scroller) return
-    const root: HTMLElement = scroller
-
-    function sync() {
-      if (jumpingRef.current) return
-      const tabs = root.querySelector('.title-tabs')
-      const line = (tabs?.getBoundingClientRect().bottom ?? 80) + 8
-      const sections: Array<{ id: 'episodes' | 'more' | 'trailers'; el: HTMLElement | null }> = [
-        { id: 'episodes', el: episodesRef.current },
-        { id: 'more', el: moreRef.current },
-        { id: 'trailers', el: trailersRef.current },
-      ]
-      let current: 'episodes' | 'more' | 'trailers' | null = null
-      for (const section of sections) {
-        if (!section.el) continue
-        if (section.el.getBoundingClientRect().top <= line + 108) current = section.id
-      }
-      if (current) setTab(current)
-    }
-
-    root.addEventListener('scroll', sync, { passive: true })
-    sync()
-    return () => root.removeEventListener('scroll', sync)
-  }, [item, similar.length, detailFetch.data])
-
   if (!item) return null
 
   const detail = detailFetch.data
@@ -155,14 +123,12 @@ export function TitleModal() {
   const continueMode = Boolean(last?.progress && last.progress > 0.05)
   const activeTab = tab ?? (isShow(item) ? 'episodes' : 'more')
 
-  function jump(next: 'episodes' | 'more' | 'trailers') {
+  function selectTab(next: 'episodes' | 'more' | 'trailers') {
     setTab(next)
-    jumpingRef.current = true
-    const node = next === 'episodes' ? episodesRef.current : next === 'more' ? moreRef.current : trailersRef.current
-    node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    window.setTimeout(() => {
-      jumpingRef.current = false
-    }, 900)
+    const tabs = modalRef.current?.querySelector('.title-tabs-row')
+    if (tabs instanceof HTMLElement && modalRef.current) {
+      modalRef.current.scrollTo({ top: Math.max(0, tabs.offsetTop - 8), behavior: 'smooth' })
+    }
   }
 
   function playEpisode(episode: Episode, season: Season) {
@@ -218,6 +184,7 @@ export function TitleModal() {
         ref={modalRef}
         onClick={(event) => event.stopPropagation()}
       >
+        <span className="title-modal-handle" aria-hidden="true" />
         <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
           <CloseIcon className="icon" />
         </button>
@@ -323,27 +290,34 @@ export function TitleModal() {
             </div>
           </div>
 
-          <nav className="title-tabs" aria-label="Title sections">
-            {seasons.length ? (
-              <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => jump('episodes')}>
-                Episodes
+          <div className="title-tabs-row">
+            <nav className="title-tabs" aria-label="Title sections">
+              {isShow(item) ? (
+                <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => selectTab('episodes')}>
+                  Episodes
+                </button>
+              ) : null}
+              {!isShow(item) ? (
+                <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
+                  More Like This
+                </button>
+              ) : null}
+              <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
+                Trailers & More
               </button>
-            ) : null}
-            {similar.length ? (
-              <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => jump('more')}>
-                More Like This
-              </button>
-            ) : null}
-            <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => jump('trailers')}>
-              Trailers & More
-            </button>
-            {seasons.length && activeTab === 'episodes' ? (
+              {isShow(item) ? (
+                <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
+                  More Like This
+                </button>
+              ) : null}
+            </nav>
+            {isShow(item) && activeTab === 'episodes' ? (
               <SeasonPicker seasons={seasons} history={last} value={seasonNumber} onChange={setSeasonNumber} />
             ) : null}
-          </nav>
+          </div>
 
-          {seasons.length ? (
-            <div ref={episodesRef} className="title-section">
+          {isShow(item) && activeTab === 'episodes' ? (
+            <div className="title-section">
               <EpisodeList
                 seasons={seasons}
                 history={last}
@@ -356,50 +330,56 @@ export function TitleModal() {
             </div>
           ) : null}
 
-          {similar.length ? (
-            <div ref={moreRef} className="title-section">
+          {activeTab === 'more' ? (
+            <div className="title-section">
               <MoreLikeGrid items={similar} />
             </div>
           ) : null}
 
-          <section ref={trailersRef} className="title-about title-section">
-            <h2>Trailers & More</h2>
-            {stills.length ? (
-              <div className="trailer-card-grid">
-                {stills.slice(0, 8).map((file, index) => {
-                  const src = stillUrl(file)
-                  if (!src) return null
-                  const captions = [
-                    `Trailer: ${item.title}`,
-                    `Teaser: ${item.title}`,
-                    'Clip 1',
-                    'Recap',
-                    'Featurette',
-                    'Clip 2',
-                    'Clip 3',
-                    'Bonus clip',
-                  ]
-                  const caption = captions[index] ?? `Clip ${index}`
-                  return (
-                    <button
-                      type="button"
-                      className="trailer-card"
-                      key={file}
-                      onClick={playTrailerClip}
-                      aria-label={caption}
-                    >
-                      <span className="trailer-card-art">
-                        <img src={proxyImageUrl(src)} alt="" />
-                        <span className="trailer-card-play" aria-hidden="true">
-                          <PlayIcon className="icon" />
+          {activeTab === 'trailers' ? (
+            <section className="title-trailers title-section">
+              {stills.length ? (
+                <div className="trailer-card-grid">
+                  {stills.slice(0, 8).map((file, index) => {
+                    const src = stillUrl(file)
+                    if (!src) return null
+                    const captions = [
+                      `Trailer: ${item.title}`,
+                      `Teaser: ${item.title}`,
+                      'Clip 1',
+                      'Recap',
+                      'Featurette',
+                      'Clip 2',
+                      'Clip 3',
+                      'Bonus clip',
+                    ]
+                    const caption = captions[index] ?? `Clip ${index}`
+                    return (
+                      <button
+                        type="button"
+                        className="trailer-card"
+                        key={file}
+                        onClick={playTrailerClip}
+                        aria-label={caption}
+                      >
+                        <span className="trailer-card-art">
+                          <img src={proxyImageUrl(src)} alt="" />
+                          <span className="trailer-card-play" aria-hidden="true">
+                            <PlayIcon className="icon" />
+                          </span>
                         </span>
-                      </span>
-                      <span className="trailer-card-caption">{caption}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            ) : null}
+                        <span className="trailer-card-caption">{caption}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="state">No trailers available.</p>
+              )}
+            </section>
+          ) : null}
+
+          <section className="title-about title-section">
             <h2>About {item.title}</h2>
             {detail?.cast?.length ? (
               <p>

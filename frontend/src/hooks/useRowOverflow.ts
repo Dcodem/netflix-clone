@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { useFineHover } from './useFineHover'
 
 export function useRowOverflow(loop = false, itemCount = 0) {
-  const fineHover = useFineHover()
   const ref = useRef<HTMLDivElement>(null)
   const [canPrev, setCanPrev] = useState(false)
   const [canNext, setCanNext] = useState(false)
@@ -72,8 +70,8 @@ export function useRowOverflow(loop = false, itemCount = 0) {
 
   return {
     ref,
-    canPrev: fineHover && canPrev,
-    canNext: fineHover && canNext,
+    canPrev,
+    canNext,
     copies,
     pageIndex,
     pageCount,

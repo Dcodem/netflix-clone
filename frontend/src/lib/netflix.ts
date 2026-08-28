@@ -13,11 +13,11 @@ export function maturityLabel(item: { kind?: string; genres?: string[] }): strin
 
 /** Netflix About copy under the boxed rating. */
 export function maturityBlurb(label: string): string {
-  if (label === '18+' || label === 'TV-MA') return 'graphic violence, language, smoking'
-  if (label === '16+') return 'violence, language, mature themes'
+  if (label === '18+' || label === 'TV-MA') return 'graphic violence, language, smoking, substance use'
+  if (label === '16+') return 'violence, language, mature themes, smoking'
   if (label === 'TV-14') return 'language, mature themes, violence'
-  if (label === 'PG') return 'mild thematic elements'
-  return 'some thematic elements'
+  if (label === 'PG') return 'mild thematic elements, some language'
+  return 'some thematic elements, language'
 }
 
 export function needsPlaceholderArt(url?: string | null): boolean {
@@ -83,6 +83,48 @@ const FALLBACK_MOODS = [
 export function isNewEpisodes(id?: string, kind?: string): boolean {
   if (kind !== 'show' || !id) return false
   return moodSeed(id) % 4 === 0
+}
+
+export function noticeStamp(id: string): string {
+  const labels = ['Just now', '3h ago', 'Yesterday', '2 days ago', '4 days ago', '1 week ago']
+  return labels[moodSeed(id) % labels.length]
+}
+
+/** Bell + My Netflix cards — Netflix never uses Continue Watching as a notification. */
+export function catalogNotices(catalog: MovieListItem[], limit = 8) {
+  const year = new Date().getFullYear()
+  const newEps: MovieListItem[] = []
+  const added: MovieListItem[] = []
+  const now: MovieListItem[] = []
+  const seen = new Set<string>()
+  for (const item of catalog) {
+    if (seen.has(item.id)) continue
+    seen.add(item.id)
+    if (isShow(item) && isNewEpisodes(item.id, item.kind)) newEps.push(item)
+    else if ((item.year ?? 0) >= year) added.push(item)
+    else now.push(item)
+  }
+  const out: Array<{ item: MovieListItem; kicker: string; stamp: string }> = []
+  let n = 0
+  let a = 0
+  let r = 0
+  while (out.length < limit && (n < newEps.length || a < added.length || r < now.length)) {
+    if (n < newEps.length) {
+      const item = newEps[n++]
+      out.push({ item, kicker: 'New Episodes', stamp: noticeStamp(item.id) })
+    }
+    if (out.length >= limit) break
+    if (a < added.length) {
+      const item = added[a++]
+      out.push({ item, kicker: 'Recently Added', stamp: noticeStamp(item.id) })
+    }
+    if (out.length >= limit) break
+    if (r < now.length) {
+      const item = now[r++]
+      out.push({ item, kicker: 'Now on Flix', stamp: noticeStamp(item.id) })
+    }
+  }
+  return out
 }
 
 function moodSeed(value: string): number {

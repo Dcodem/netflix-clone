@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react'
 import { Navigate } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
@@ -8,6 +8,64 @@ import { CatalogImage } from '../components/CatalogImage'
 import { FooterLang } from '../components/SiteFooter'
 
 const REMEMBER_KEY = 'flix.remember'
+
+function CodeBoxes({
+  value,
+  onChange,
+}: {
+  value: string
+  onChange: (value: string) => void
+}) {
+  const refs = useRef<Array<HTMLInputElement | null>>([])
+  const digits = [0, 1, 2, 3].map((index) => value[index] ?? '')
+
+  function write(index: number, nextDigit: string) {
+    const next = digits.slice()
+    next[index] = nextDigit
+    onChange(next.join('').replace(/\D/g, '').slice(0, 4))
+    if (nextDigit && index < 3) refs.current[index + 1]?.focus()
+  }
+
+  function onKeyDown(index: number, event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Backspace' && !digits[index] && index > 0) {
+      event.preventDefault()
+      const next = digits.slice()
+      next[index - 1] = ''
+      onChange(next.join(''))
+      refs.current[index - 1]?.focus()
+    }
+  }
+
+  function onPaste(event: ClipboardEvent<HTMLInputElement>) {
+    event.preventDefault()
+    const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4)
+    if (!pasted) return
+    onChange(pasted)
+    refs.current[Math.min(3, pasted.length) - 1]?.focus()
+  }
+
+  return (
+    <div className="pin-boxes login-code-boxes">
+      {digits.map((digit, index) => (
+        <input
+          key={index}
+          ref={(node) => {
+            refs.current[index] = node
+          }}
+          className="pin-box"
+          inputMode="numeric"
+          maxLength={1}
+          value={digit}
+          autoFocus={index === 0}
+          aria-label={`Sign-in code digit ${index + 1}`}
+          onChange={(event) => write(index, event.target.value.replace(/\D/g, '').slice(-1))}
+          onKeyDown={(event) => onKeyDown(index, event)}
+          onPaste={onPaste}
+        />
+      ))}
+    </div>
+  )
+}
 
 function fieldError(type: string | undefined, value: string, minLength?: number) {
   const trimmed = value.trim()
@@ -69,10 +127,12 @@ function Field({
 
 export function Login() {
   const { user, login, signup } = useAuth()
-  const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const [mode, setMode] = useState<'login' | 'signup' | 'code'>('login')
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
+  const [codeSent, setCodeSent] = useState(false)
+  const [codeGuess, setCodeGuess] = useState('')
   const [remember, setRemember] = useState(() => localStorage.getItem(REMEMBER_KEY) !== '0')
   const [help, setHelp] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -123,6 +183,70 @@ export function Login() {
       </header>
       <div className="login-card">
         <h1>{mode === 'signup' ? 'Sign Up' : 'Sign In'}</h1>
+        {mode === 'code' ? (
+          <form
+            className="login-form"
+            onSubmit={(event) => {
+              event.preventDefault()
+              if (!codeSent) {
+                if (!email.trim()) {
+                  setError('Please enter a valid email or phone number.')
+                  return
+                }
+                setError(null)
+                setCodeSent(true)
+                return
+              }
+              setError("That code didn't work. Try again.")
+              setCodeGuess('')
+            }}
+          >
+            {codeSent ? (
+              <>
+                <p className="login-code-copy">Enter the code we emailed to {email || 'you'}.</p>
+                <CodeBoxes
+                  value={codeGuess}
+                  onChange={(next) => {
+                    setError(null)
+                    setCodeGuess(next)
+                    if (next.length === 4) setError("That code didn't work. Try again.")
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <p className="login-code-copy">We’ll email you a code to sign in and start watching.</p>
+                <Field
+                  id="login-code-email"
+                  label="Email or phone number"
+                  type="email"
+                  value={email}
+                  autoComplete="email"
+                  required
+                  onChange={setEmail}
+                />
+              </>
+            )}
+            {error ? <p className="login-error">{error}</p> : null}
+            {codeSent ? null : (
+              <button type="submit" className="btn btn-primary login-submit">
+                Email Me a Sign-In Code
+              </button>
+            )}
+            <button
+              type="button"
+              className="login-help"
+              onClick={() => {
+                setMode('login')
+                setCodeSent(false)
+                setCodeGuess('')
+                setError(null)
+              }}
+            >
+              Use password instead
+            </button>
+          </form>
+        ) : (
         <form className="login-form" onSubmit={onSubmit}>
           {mode === 'signup' ? (
             <Field id="login-name" label="Name" value={name} autoComplete="name" required onChange={setName} />
@@ -158,9 +282,10 @@ export function Login() {
                 className="login-code"
                 onClick={() => {
                   setHelp(false)
-                  setError(
-                    'A sign-in code would be emailed. This clone keeps accounts on this device — use your password instead.',
-                  )
+                  setError(null)
+                  setCodeSent(false)
+                  setCodeGuess('')
+                  setMode('code')
                 }}
               >
                 Use a Sign-In Code
@@ -181,6 +306,7 @@ export function Login() {
             </p>
           ) : null}
         </form>
+        )}
         <p className="login-sub">
           {mode === 'signup' ? 'Already have an account?' : 'New to Flix?'}{' '}
           <button
@@ -190,6 +316,8 @@ export function Login() {
               setMode(mode === 'signup' ? 'login' : 'signup')
               setError(null)
               setHelp(false)
+              setCodeSent(false)
+              setCodeGuess('')
             }}
           >
             {mode === 'signup' ? 'Sign in now.' : 'Sign up now.'}

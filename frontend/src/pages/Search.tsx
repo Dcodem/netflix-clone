@@ -162,7 +162,6 @@ export function Search() {
               <li>Try a genre, like comedy, romance, sports, or drama</li>
             </ul>
           </div>
-          {recentBlock}
         </>
       )}
     </main>

@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useSearchParams } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
@@ -27,6 +28,8 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   const [params, setParams] = useSearchParams()
   const [categoriesOpen, setCategoriesOpen] = useState(false)
   const [genreMenuOpen, setGenreMenuOpen] = useState(false)
+  const genreBtnRef = useRef<HTMLButtonElement>(null)
+  const [genreBox, setGenreBox] = useState<DOMRect | null>(null)
   const [headingStuck, setHeadingStuck] = useState(false)
   const desktop = useMediaQuery('(min-width: 768px)')
   const genre = params.get('genre') ?? ''
@@ -154,39 +157,55 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
             <div className="genre-select-wrap">
               <button
                 type="button"
+                ref={genreBtnRef}
                 className={`genre-select ${genre ? 'is-on' : ''} ${genreMenuOpen ? 'is-open' : ''}`}
-                onClick={() => (useGenreMenu ? setGenreMenuOpen((value) => !value) : setCategoriesOpen(true))}
+                onClick={() => {
+                  if (useGenreMenu) {
+                    setGenreBox(genreBtnRef.current?.getBoundingClientRect() ?? null)
+                    setGenreMenuOpen((value) => !value)
+                    return
+                  }
+                  setCategoriesOpen(true)
+                }}
                 aria-haspopup={useGenreMenu ? 'listbox' : 'dialog'}
                 aria-expanded={useGenreMenu ? genreMenuOpen : categoriesOpen}
               >
                 {genre || 'Genres'}
                 <CaretIcon className="icon" />
               </button>
-              {useGenreMenu && genreMenuOpen ? (
-                <>
-                  <button
-                    type="button"
-                    className="genre-menu-scrim"
-                    aria-label="Close genres"
-                    onClick={() => setGenreMenuOpen(false)}
-                  />
-                  <div className="genre-menu" role="listbox" aria-label="Genres">
-                    <button type="button" className={!genre ? 'is-on' : ''} onClick={() => setGenre('')}>
-                      All Genres
-                    </button>
-                    {genres.map((entry) => (
+              {useGenreMenu && genreMenuOpen && genreBox
+                ? createPortal(
+                    <>
                       <button
                         type="button"
-                        key={entry}
-                        className={genre === entry ? 'is-on' : ''}
-                        onClick={() => setGenre(entry)}
+                        className="genre-menu-scrim"
+                        aria-label="Close genres"
+                        onClick={() => setGenreMenuOpen(false)}
+                      />
+                      <div
+                        className="genre-menu is-portal"
+                        role="listbox"
+                        aria-label="Genres"
+                        style={{ top: genreBox.bottom + 8, left: Math.max(16, genreBox.left) }}
                       >
-                        {entry}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              ) : null}
+                        <button type="button" className={!genre ? 'is-on' : ''} onClick={() => setGenre('')}>
+                          All Genres
+                        </button>
+                        {genres.map((entry) => (
+                          <button
+                            type="button"
+                            key={entry}
+                            className={genre === entry ? 'is-on' : ''}
+                            onClick={() => setGenre(entry)}
+                          >
+                            {entry}
+                          </button>
+                        ))}
+                      </div>
+                    </>,
+                    document.body,
+                  )
+                : null}
             </div>
           ) : null}
         </div>
@@ -206,7 +225,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           </button>
         </div>
       ) : null}
-      {hero ? <Hero item={hero} /> : null}
+      {hero && filter !== 'popular' ? <Hero item={hero} /> : null}
       {rows.map((row) => (
         <MediaRow
           key={row.id}
