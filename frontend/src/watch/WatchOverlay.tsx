@@ -952,6 +952,7 @@ export function WatchOverlay() {
                   step={0.05}
                   value={muted ? 0 : volume}
                   aria-label="Volume"
+                  style={{ '--vol': String(muted ? 0 : volume) } as CSSProperties}
                   onChange={(event) => onVolume(Number(event.target.value))}
                 />
               </div>

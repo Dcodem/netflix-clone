@@ -5407,7 +5407,8 @@ img.is-logo-pending {
 .jawbone-mute {
   position: absolute;
   right: 12px;
-  bottom: 12px;
+  top: 12px;
+  bottom: auto;
   z-index: 4;
   width: 34px;
   height: 34px;
@@ -5415,7 +5416,8 @@ img.is-logo-pending {
 }
 
 .jawbone-mute.has-progress {
-  bottom: 28px;
+  top: 12px;
+  bottom: auto;
 }
 
 .jawbone-mute .icon {
@@ -5435,6 +5437,7 @@ img.is-logo-pending {
   display: grid;
   gap: 8px;
   pointer-events: none;
+  overflow: visible;
 }
 
 .watch-bottombar.is-visible .watch-scrub,
@@ -5623,41 +5626,50 @@ img.is-logo-pending {
   position: relative;
   display: flex;
   align-items: center;
+  overflow: visible;
 }
 
 .watch-vol-rail {
   display: grid;
   place-items: center;
-  position: static;
-  width: 0;
-  height: 40px;
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: 28px;
+  height: 0;
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
-  transform: none;
-  background: transparent;
+  background: rgba(16, 16, 16, 0.72);
   padding: 0;
-  transition: width 0.16s ease, opacity 0.16s ease, padding 0.16s ease;
+  border-radius: 4px;
+  z-index: 6;
+  transition: height 0.16s ease, opacity 0.16s ease, padding 0.16s ease;
 }
 
 .watch-vol:hover .watch-vol-rail,
 .watch-vol:focus-within .watch-vol-rail,
 .watch-vol.is-open .watch-vol-rail {
-  width: 108px;
+  height: 124px;
   opacity: 1;
-  padding: 0 10px 0 4px;
+  padding: 14px 0;
   pointer-events: auto;
 }
 
 .watch-vol-slider {
-  width: 88px;
+  width: 96px;
   height: 4px;
   margin: 0;
-  transform: none;
+  transform: rotate(-90deg);
   accent-color: #fff;
   cursor: pointer;
   appearance: none;
-  background: rgba(255, 255, 255, 0.28);
+  background: linear-gradient(
+    to right,
+    #fff 0 calc(var(--vol, 1) * 100%),
+    rgba(255, 255, 255, 0.28) calc(var(--vol, 1) * 100%)
+  );
   border-radius: 99px;
 }
 
@@ -6157,6 +6169,7 @@ img.is-logo-pending {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 8px;
+  overflow: visible;
 }
 
 .watch-controls-left,
@@ -6165,6 +6178,7 @@ img.is-logo-pending {
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+  overflow: visible;
 }
 
 .watch-controls-left {
@@ -6427,23 +6441,13 @@ img.is-logo-pending {
 
 @media (max-width: 767px) {
   .watch-vol-rail {
-    position: absolute;
-    left: 50%;
-    top: auto;
-    bottom: calc(100% + 6px);
-    transform: translateX(-50%);
-    width: 36px;
-    height: 0;
-    overflow: hidden;
-    background: rgba(16, 16, 16, 0.92);
-    padding: 0;
-    border-radius: 4px;
+    width: 32px;
+    background: rgba(16, 16, 16, 0.88);
   }
 
   .watch-vol:hover .watch-vol-rail,
   .watch-vol:focus-within .watch-vol-rail,
   .watch-vol.is-open .watch-vol-rail {
-    width: 36px;
     height: 120px;
     padding: 12px 0;
   }
@@ -6451,7 +6455,6 @@ img.is-logo-pending {
   .watch-vol-slider {
     width: 112px;
     height: 6px;
-    transform: rotate(-90deg);
   }
 }
 
@@ -6834,18 +6837,42 @@ img.is-logo-pending {
 
 .skip-intro {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.03em;
   padding: 10px 18px;
   background: rgba(42, 42, 42, 0.6);
   color: #fff;
   border: 1px solid #fff;
   backdrop-filter: blur(8px);
   animation: skip-in 0.28s ease;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition: bottom 0.28s ease, background 0.12s ease, color 0.12s ease;
 }
 
-.skip-intro:hover {
+.skip-intro,
+.next-ep-card,
+.watch-credits {
+  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+}
+
+.next-ep-card,
+.watch-credits {
+  transition: bottom 0.28s ease, opacity 0.2s ease;
+}
+
+.watch-overlay.is-chrome .skip-intro,
+.watch-overlay.is-chrome .next-ep-card,
+.watch-overlay.is-chrome .watch-credits {
+  bottom: 118px;
+}
+
+.skip-intro:hover,
+.next-episode:hover {
   background: #fff;
+  color: #141414;
+  border-color: #fff;
+}
+
+.skip-intro:hover .icon {
   color: #141414;
 }
 
@@ -6857,6 +6884,14 @@ img.is-logo-pending {
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .watch-overlay.is-chrome .skip-intro,
+  .watch-overlay.is-chrome .next-ep-card,
+  .watch-overlay.is-chrome .watch-credits {
+    bottom: 108px;
   }
 }
 
