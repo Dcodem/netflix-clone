@@ -164,6 +164,7 @@ export function WatchOverlay() {
     const showId = session?.history?.id ?? sessionKey
     if (showIdRef.current && showIdRef.current !== showId) streakRef.current = 0
     showIdRef.current = showId
+    autoNextRef.current = ''
     setClockKey(sessionKey)
     setCurrent(startProgress * runtimeSec)
     setDuration(runtimeSec)
@@ -269,7 +270,6 @@ export function WatchOverlay() {
     setBarHover(false)
     setIntroSkipped(false)
     setRecapSkipped(false)
-    setShowDetail(null)
     setSeasonNumber(session.history?.seasonNumber ?? null)
     setFlash(null)
     const hasVideo = Boolean(youtubeIdFromHit(peekTrailer(trailerSearch(session))))
@@ -301,9 +301,13 @@ export function WatchOverlay() {
   }, [sessionKey])
 
   useEffect(() => {
-    if (!session?.history?.id || session.history.kind !== 'show') return
+    if (!session?.history?.id || session.history.kind !== 'show') {
+      setShowDetail(null)
+      return
+    }
+    const id = session.history.id
     let cancelled = false
-    getShow(session.history.id)
+    getShow(id)
       .then((detail) => {
         if (!cancelled) setShowDetail(detail)
       })
@@ -483,22 +487,37 @@ export function WatchOverlay() {
 
   const playing = currentEpisode(showDetail, session?.history?.seasonNumber, session?.history?.episodeNumber)
   const upcoming = useMemo(
-    () => nextEpisode(showDetail, session?.history?.seasonNumber, session?.history?.episodeNumber),
-    [showDetail, session?.history?.seasonNumber, session?.history?.episodeNumber],
+    () =>
+      nextEpisode(
+        showDetail,
+        playing?.season.season_number ?? session?.history?.seasonNumber,
+        playing?.episode.number ?? session?.history?.episodeNumber,
+      ),
+    [
+      showDetail,
+      playing?.season.season_number,
+      playing?.episode.number,
+      session?.history?.seasonNumber,
+      session?.history?.episodeNumber,
+    ],
   )
   const activeSeason =
     showDetail?.seasons?.find((season) => season.season_number === (seasonNumber ?? session?.history?.seasonNumber)) ??
     showDetail?.seasons?.[0]
-  const lengthNow = duration || runtimeSec
-  const remainingNow = Math.max(0, lengthNow - current)
+  const clockSynced = clockKey === sessionKey
+  const lengthNow = (clockSynced ? duration : runtimeSec) || runtimeSec
+  const playhead = clockSynced ? current : startProgress * runtimeSec
+  const remainingNow = Math.max(0, lengthNow - playhead)
 
   useEffect(() => {
     if (!upcoming || !session?.history) return
     if (nextDismissed || stillWatching) return
     if (activeProfile?.autoplayNext === false) return
-    const ended = lengthNow > 0 && (remainingNow <= 1.25 || current / lengthNow >= 0.992)
-    const nearStart = current < 12 && current / lengthNow < 0.08
+    const ended = lengthNow > 0 && (remainingNow <= 2.2 || playhead / lengthNow >= 0.99)
+    const nearStart = playhead < 8 && remainingNow > 8
     if (!ended || nearStart) return
+    const href = upcoming.episode.watch_href
+    if (!href) return
     const key = upcoming.episode.id
     if (autoNextRef.current === key) return
     if (streakRef.current >= 2) {
@@ -511,7 +530,7 @@ export function WatchOverlay() {
     autoNextRef.current = key
     streakRef.current += 1
     playClick()
-    openWatch(upcoming.episode.watch_href, session.history.title, {
+    openWatch(href, session.history.title, {
       ...session.history,
       watch_href: upcoming.episode.watch_href,
       runtime: upcoming.episode.duration ?? session.history.runtime,
@@ -520,7 +539,7 @@ export function WatchOverlay() {
       episodeNumber: upcoming.episode.number,
       episodeId: upcoming.episode.id,
     })
-  }, [remainingNow, current, upcoming, session, openWatch, activeProfile?.autoplayNext, nextDismissed, stillWatching, post])
+  }, [remainingNow, playhead, lengthNow, upcoming, session, openWatch, activeProfile?.autoplayNext, nextDismissed, stillWatching, post])
 
   const continueWatching = useCallback(() => {
     if (!session?.history) {
