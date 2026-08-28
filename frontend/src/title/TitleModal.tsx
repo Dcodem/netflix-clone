@@ -114,7 +114,7 @@ export function TitleModal() {
 
     function sync() {
       if (jumpingRef.current) return
-      const tabs = root.querySelector('.title-tabs')
+      const tabs = root.querySelector('.title-tabs-row') ?? root.querySelector('.title-tabs')
       const line = (tabs?.getBoundingClientRect().bottom ?? 80) + 8
       const sections: Array<{ id: 'episodes' | 'more' | 'trailers'; el: HTMLElement | null }> = [
         { id: 'episodes', el: episodesRef.current },
@@ -323,24 +323,26 @@ export function TitleModal() {
             </div>
           </div>
 
-          <nav className="title-tabs" aria-label="Title sections">
-            {seasons.length ? (
-              <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => jump('episodes')}>
-                Episodes
+          <div className="title-tabs-row">
+            <nav className="title-tabs" aria-label="Title sections">
+              {seasons.length ? (
+                <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => jump('episodes')}>
+                  Episodes
+                </button>
+              ) : null}
+              {similar.length ? (
+                <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => jump('more')}>
+                  More Like This
+                </button>
+              ) : null}
+              <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => jump('trailers')}>
+                Trailers & More
               </button>
-            ) : null}
-            {similar.length ? (
-              <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => jump('more')}>
-                More Like This
-              </button>
-            ) : null}
-            <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => jump('trailers')}>
-              Trailers & More
-            </button>
+            </nav>
             {seasons.length && activeTab === 'episodes' ? (
               <SeasonPicker seasons={seasons} history={last} value={seasonNumber} onChange={setSeasonNumber} />
             ) : null}
-          </nav>
+          </div>
 
           {seasons.length ? (
             <div ref={episodesRef} className="title-section">

@@ -653,8 +653,8 @@ select,
   top: 28px;
   bottom: 56px;
   width: 4.5%;
-  min-width: 52px;
-  z-index: 3;
+  min-width: 56px;
+  z-index: 4;
   border: 0;
   color: #fff;
   cursor: pointer;
@@ -1106,6 +1106,14 @@ select,
   border: 1px solid #333;
   border-radius: 4px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+}
+
+.season-menu-list.is-portal {
+  position: fixed;
+  z-index: 4200;
+  top: auto;
+  max-height: min(70vh, 420px);
+  overflow-y: auto;
 }
 
 .season-menu-list button {
@@ -1724,7 +1732,7 @@ select,
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 5.15);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 4.55);
   }
 
   .btn-play,
@@ -3050,30 +3058,39 @@ img.is-logo-pending {
   padding: 8px 28px 36px;
 }
 
-.title-tabs {
+.title-tabs-row {
   position: sticky;
   top: 0;
   z-index: 6;
   display: flex;
-  gap: 28px;
-  align-items: center;
-  flex-wrap: nowrap;
-  overflow-x: auto;
+  align-items: stretch;
+  gap: 16px;
   margin: 18px -28px 8px;
-  padding: 0 56px 0 28px;
+  padding: 0 28px;
   background: #181818;
   border-bottom: 1px solid #404040;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.title-tabs {
+  display: flex;
+  gap: 28px;
+  align-items: stretch;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   scrollbar-width: none;
+}
+
+.title-tabs-row .season-menu {
+  margin-left: auto;
+  flex-shrink: 0;
+  align-self: center;
 }
 
 .title-tabs::-webkit-scrollbar {
   display: none;
-}
-
-.title-tabs .season-menu {
-  margin-left: auto;
-  flex-shrink: 0;
 }
 
 .title-tabs > button {
@@ -3107,7 +3124,7 @@ img.is-logo-pending {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -1px;
+  bottom: 0;
   height: 4px;
   background: #e50914;
 }
@@ -3760,19 +3777,23 @@ img.is-logo-pending {
     padding-right: 118px;
   }
 
-  .title-tabs {
+  .title-tabs-row {
     margin-left: -16px;
     margin-right: -16px;
     padding-left: 16px;
     padding-right: 16px;
+    gap: 12px;
+  }
+
+  .title-tabs {
     gap: 18px;
   }
 
-  .title-tabs .season-menu {
+  .title-tabs-row .season-menu {
     width: auto;
   }
 
-  .title-tabs .season-menu-btn {
+  .title-tabs-row .season-menu-btn {
     width: auto;
     min-height: 36px;
   }
@@ -4095,15 +4116,15 @@ img.is-logo-pending {
   z-index: 0;
   flex: 0 0 auto;
   font-family: var(--display);
-  font-size: clamp(110px, 15vw, 210px);
+  font-size: clamp(92px, 11.2vw, 168px);
   font-weight: 900;
-  line-height: 0.78;
+  line-height: 0.72;
   color: #000;
   -webkit-text-fill-color: #000;
-  -webkit-text-stroke: 5px #8b8b8b;
+  -webkit-text-stroke: 5px #b6b6b6;
   paint-order: stroke fill;
-  letter-spacing: -0.12em;
-  margin: 0 -0.3em 0 0;
+  letter-spacing: -0.14em;
+  margin: 0 -0.4em 0 0;
   padding: 0;
   user-select: none;
   pointer-events: none;
@@ -4578,12 +4599,12 @@ img.is-logo-pending {
   }
 
   .rank-num {
-    font-size: 118px;
+    font-size: 96px;
     -webkit-text-stroke-width: 4px;
   }
 
   .rank-num.is-ten {
-    font-size: 86px;
+    font-size: 72px;
   }
 
   .ep-num {
@@ -4618,7 +4639,7 @@ img.is-logo-pending {
 
 @media (min-width: 1100px) {
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 5.15);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 4.55);
   }
 }
 

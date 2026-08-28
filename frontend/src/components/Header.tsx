@@ -98,8 +98,10 @@ export function Header() {
 
   function toggleSearch() {
     setSearchOpen(true)
-    if (location.pathname !== '/search') navigate('/search')
-    window.setTimeout(() => inputRef.current?.focus(), 20)
+    window.setTimeout(() => {
+      if (location.pathname !== '/search') navigate('/search')
+      inputRef.current?.focus()
+    }, 160)
   }
 
   function clearQuery() {
