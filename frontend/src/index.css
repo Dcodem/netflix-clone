@@ -756,6 +756,7 @@ select,
 .poster-wrap.is-ranked {
   display: flex;
   align-items: flex-end;
+  overflow: visible;
 }
 
 .poster-card {
@@ -4050,47 +4051,48 @@ img.is-logo-pending {
 }
 
 .is-top10 .row-scroller {
-  gap: 10px;
+  gap: 2px;
 }
 
 .poster-wrap.is-ranked .poster-card {
   position: relative;
   z-index: 1;
-  flex: 1 1 0;
+  flex: 1 1 auto;
   width: auto;
   min-width: 0;
 }
 
 .rank-num {
+  display: block;
+  position: relative;
+  z-index: 0;
   flex: 0 0 auto;
   font-family: var(--display);
-  font-size: clamp(96px, 16vw, 220px);
+  font-size: clamp(110px, 15vw, 210px);
   font-weight: 900;
-  line-height: 0.72;
-  color: #141414;
-  -webkit-text-stroke: 4px #8b8b8b;
+  line-height: 0.78;
+  color: #000;
+  -webkit-text-fill-color: #000;
+  -webkit-text-stroke: 5px #8b8b8b;
   paint-order: stroke fill;
-  letter-spacing: -0.14em;
-  padding-left: 4px;
+  letter-spacing: -0.12em;
+  margin: 0 -0.3em 0 0;
+  padding: 0;
   user-select: none;
   pointer-events: none;
-  z-index: 0;
-  transform: translateX(28%);
-  margin-right: -18%;
+  transform: none;
 }
 
 .rank-num.is-first {
-  letter-spacing: -0.02em;
-  transform: translateX(16%);
-  margin-right: -8%;
-  -webkit-text-stroke-width: 5px;
+  letter-spacing: 0;
+  margin-right: -0.22em;
+  -webkit-text-stroke-width: 6px;
 }
 
 .rank-num.is-ten {
-  font-size: clamp(72px, 12vw, 168px);
-  letter-spacing: -0.16em;
-  transform: translateX(12%);
-  margin-right: -8%;
+  font-size: clamp(78px, 12vw, 158px);
+  letter-spacing: -0.18em;
+  margin-right: -0.34em;
 }
 
 .search-heading {
@@ -4553,12 +4555,12 @@ img.is-logo-pending {
   }
 
   .rank-num {
-    font-size: 84px;
-    -webkit-text-stroke-width: 3px;
+    font-size: 118px;
+    -webkit-text-stroke-width: 4px;
   }
 
   .rank-num.is-ten {
-    font-size: 64px;
+    font-size: 86px;
   }
 
   .ep-num {
