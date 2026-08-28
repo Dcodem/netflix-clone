@@ -59,15 +59,22 @@ export function AccountMenu() {
           <Link
             to="/"
             className="account-manage"
-            onClick={() => {
-              setOpen(false)
-              clearActive()
-            }}
+            state={{ manage: true }}
+            onClick={() => setOpen(false)}
           >
             <PencilIcon className="icon" />
             Manage Profiles
           </Link>
           <div className="account-dropdown-rule" />
+          <Link
+            to="/"
+            onClick={() => {
+              setOpen(false)
+              clearActive()
+            }}
+          >
+            Exit Profile
+          </Link>
           <Link to="/account" onClick={() => setOpen(false)}>
             Transfer Profile
           </Link>

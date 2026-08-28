@@ -22,9 +22,10 @@ function timeAgo(stamp: number) {
   if (minutes < 1) return 'Just now'
   if (minutes < 60) return `${minutes}m ago`
   const hours = Math.round(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours === 1) return '1 hour ago'
+  if (hours < 24) return `${hours} hours ago`
   const days = Math.round(hours / 24)
-  return days === 1 ? 'Yesterday' : `${days}d ago`
+  return days === 1 ? 'Yesterday' : `${days} days ago`
 }
 
 export function MyNetflix() {
@@ -92,8 +93,10 @@ export function MyNetflix() {
           </span>
           <CaretIcon className="icon" />
         </button>
-        <button type="button" className="play-something" onClick={() => void playSomething()}>
-          <ShuffleIcon className="icon" />
+        <button type="button" className="play-something" onClick={() => void playSomething()} aria-label="Play Something">
+          <span className="play-something-disc">
+            <ShuffleIcon className="icon" />
+          </span>
           Play Something
         </button>
       </header>
@@ -175,12 +178,7 @@ export function MyNetflix() {
       <div className="my-netflix-links">
         <Link to="/browse/my-list">My List</Link>
         <Link to="/account">Account</Link>
-        <Link
-          to="/"
-          onClick={() => {
-            clearActive()
-          }}
-        >
+        <Link to="/" state={{ manage: true }}>
           Manage Profiles
         </Link>
         <button

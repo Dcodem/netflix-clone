@@ -1312,6 +1312,10 @@ select,
   cursor: default;
 }
 
+.watch-scrim.is-clear {
+  background: transparent;
+}
+
 .watch-topbar {
   position: absolute;
   top: 0;
@@ -6600,8 +6604,8 @@ img.is-logo-pending {
   left: 50%;
   bottom: calc(100% + 8px);
   transform: translateX(-50%);
-  min-width: 176px;
-  padding: 10px 0 8px;
+  min-width: 196px;
+  padding: 12px 0 8px;
   background: rgba(20, 20, 20, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 4px;
@@ -6613,13 +6617,15 @@ img.is-logo-pending {
   display: grid;
 }
 
+.watch-speed-menu .watch-sheet-handle {
+  display: none;
+}
+
 .watch-speed-label {
-  margin: 0 14px 6px;
+  margin: 0 16px 8px;
   color: #808080;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .watch-speed-menu button {
@@ -6628,10 +6634,10 @@ img.is-logo-pending {
   gap: 10px;
   background: none;
   border: 0;
-  color: #e5e5e5;
+  color: #b3b3b3;
   font-size: 14px;
   font-weight: 500;
-  padding: 8px 14px;
+  padding: 9px 16px;
   cursor: pointer;
   text-align: left;
   width: 100%;
@@ -6812,10 +6818,24 @@ img.is-logo-pending {
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
 }
 
+.watch-audio-head {
+  display: none;
+}
+
+.watch-audio h2 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #808080;
+}
+
 .watch-audio button {
   display: flex;
   align-items: center;
   gap: 10px;
+  color: #b3b3b3;
 }
 
 .watch-audio .icon,
@@ -6827,6 +6847,7 @@ img.is-logo-pending {
 
 .watch-audio button.is-on {
   color: #fff;
+  font-weight: 700;
 }
 
 @media (max-width: 767px) {
@@ -6857,12 +6878,63 @@ img.is-logo-pending {
     width: 100%;
     max-width: none;
     max-height: min(72vh, 640px);
-    padding: 22px 20px calc(22px + env(safe-area-inset-bottom, 0px));
+    padding: 12px 20px calc(22px + env(safe-area-inset-bottom, 0px));
     border: 0;
     border-radius: 12px 12px 0 0;
     background: #141414;
     box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.45);
     animation: sheet-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .watch-audio-head {
+    display: grid;
+    justify-items: center;
+    grid-column: 1 / -1;
+    margin: 0 0 14px;
+  }
+
+  .watch-audio-head p {
+    margin: 4px 0 0;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .watch-sheet-handle {
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 99px;
+    background: #4d4d4d;
+  }
+
+  .watch-speed-menu .watch-sheet-handle {
+    display: block;
+    margin: 2px auto 12px;
+  }
+
+  .watch-speed-menu {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: none;
+    min-width: 0;
+    width: 100%;
+    max-height: min(72vh, 560px);
+    padding: 10px 8px calc(18px + env(safe-area-inset-bottom, 0px));
+    border: 0;
+    border-radius: 12px 12px 0 0;
+    background: #141414;
+    box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.45);
+    z-index: 2280;
+    animation: sheet-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .watch-speed-label {
+    margin: 0 16px 10px;
+    font-size: 18px;
+    color: #fff;
   }
 
   .watch-controls .watch-ctrl[aria-label]::after {
@@ -7182,29 +7254,46 @@ img.is-logo-pending {
 
 .play-something {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
   margin: 0;
-  background: var(--accent);
+  width: 76px;
+  background: none;
   color: #fff;
   border: 0;
-  border-radius: 999px;
-  min-height: 40px;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 700;
+  border-radius: 0;
+  min-height: 0;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
   cursor: pointer;
 }
 
+.play-something-disc {
+  width: 44px;
+  height: 44px;
+  border: 1.6px solid #fff;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
 .play-something .icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 .play-something:hover {
-  background: var(--accent-hover);
+  background: none;
+}
+
+.play-something:hover .play-something-disc {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .my-netflix-downloads {

@@ -661,7 +661,7 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen || speedOpen ? 'is-panel' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
@@ -1043,7 +1043,13 @@ export function WatchOverlay() {
                 <SpeedIcon className="icon" />
               </button>
               {speedOpen ? (
-                <div className="watch-speed-menu" role="menu" aria-label="Playback speed">
+                <div
+                  className="watch-speed-menu"
+                  role="menu"
+                  aria-label="Playback speed"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <span className="watch-sheet-handle" aria-hidden="true" />
                   <p className="watch-speed-label">Playback Speed</p>
                   {SPEEDS.map((rate) => (
                     <button
@@ -1077,7 +1083,7 @@ export function WatchOverlay() {
       {episodesOpen || audioOpen || speedOpen ? (
         <button
           type="button"
-          className="watch-scrim"
+          className={`watch-scrim ${speedOpen && !episodesOpen && !audioOpen ? 'is-clear' : ''}`}
           aria-label="Close panel"
           onClick={(event) => {
             event.stopPropagation()
@@ -1171,6 +1177,10 @@ export function WatchOverlay() {
       ) : null}
       {audioOpen ? (
         <div className="watch-panel watch-audio" onClick={(event) => event.stopPropagation()}>
+          <div className="watch-audio-head">
+            <span className="watch-sheet-handle" aria-hidden="true" />
+            <p>Audio & Subtitles</p>
+          </div>
           <div>
             <h2>Audio</h2>
             <button type="button" className={audioTrack === 'en' ? 'is-on' : ''} onClick={() => setAudioTrack('en')}>
@@ -1183,7 +1193,7 @@ export function WatchOverlay() {
             </button>
           </div>
           <div>
-            <h2>Subtitles</h2>
+            <h2>Subtitles/CC</h2>
             <button type="button" className={subs === 'off' ? 'is-on' : ''} onClick={() => setSubs('off')}>
               {subs === 'off' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               Off

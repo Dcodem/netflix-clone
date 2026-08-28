@@ -2,11 +2,9 @@ import { type FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { envKeys } from '../trailers/types'
-import { useProfiles } from '../profiles/ProfileContext'
 
 export function Account() {
   const { user, updateKeys } = useAuth()
-  const { clearActive } = useProfiles()
   const env = envKeys()
   const [ivaKey, setIvaKey] = useState(user?.ivaKey ?? '')
   const [tmdbKey, setTmdbKey] = useState(user?.tmdbKey ?? '')
@@ -39,7 +37,7 @@ export function Account() {
 
       <section className="account-card">
         <h2>Profile & Parental Controls</h2>
-        <Link to="/" onClick={() => clearActive()}>
+        <Link to="/" state={{ manage: true }}>
           Manage profiles
         </Link>
       </section>

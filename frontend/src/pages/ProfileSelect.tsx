@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AvatarArt } from '../components/AvatarArt'
 import { LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
 import { useAuth } from '../auth/AuthContext'
@@ -82,7 +82,8 @@ export function ProfileSelect() {
     activeProfile,
   } = useProfiles()
   const navigate = useNavigate()
-  const [managing, setManaging] = useState(false)
+  const location = useLocation()
+  const [managing, setManaging] = useState(() => Boolean((location.state as { manage?: boolean } | null)?.manage))
   const [adding, setAdding] = useState(false)
   const [name, setName] = useState('')
   const [pin, setPin] = useState('')
@@ -121,6 +122,12 @@ export function ProfileSelect() {
     // unlock when the fourth digit is entered, like Netflix
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pinGuess, pinTarget])
+
+  useEffect(() => {
+    if ((location.state as { manage?: boolean } | null)?.manage) {
+      navigate('.', { replace: true, state: {} })
+    }
+  }, [location.state, navigate])
 
   if (!user) {
     return <Navigate to="/login" replace />
