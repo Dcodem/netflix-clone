@@ -1385,6 +1385,7 @@ select,
   height: 100%;
   border: 0;
   background: #000;
+  transition: filter 0.7s ease;
 }
 
 .profiles-page {
@@ -1401,10 +1402,10 @@ select,
 
 .profiles-page h1 {
   font-family: var(--display);
-  font-size: clamp(30px, 3.6vw, 54px);
+  font-size: clamp(32px, 4.15vw, 68px);
   font-weight: 300;
-  letter-spacing: 0.02em;
-  margin: 0 0 1.65em;
+  letter-spacing: -0.01em;
+  margin: 0 0 clamp(48px, 6vw, 96px);
   color: #fff;
 }
 
@@ -5172,6 +5173,12 @@ img.is-logo-pending {
   margin: 0;
 }
 
+.add-profile-sheet h1 {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
 .add-profile-row {
   display: flex;
   align-items: center;
@@ -6108,6 +6115,21 @@ img.is-logo-pending {
   }
 }
 
+.watch-overlay.is-ident::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2105;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.64) 0%, rgba(0, 0, 0, 0.28) 34%, transparent 64%),
+    linear-gradient(180deg, transparent 46%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+.watch-overlay.is-ident .watch-frame {
+  filter: brightness(0.4) saturate(0.92);
+}
+
 .watch-ident {
   position: absolute;
   left: 48px;
@@ -6132,13 +6154,13 @@ img.is-logo-pending {
 
 .watch-ident-logo {
   display: block;
-  max-width: min(46vw, 440px);
-  max-height: 118px;
+  max-width: min(52vw, 560px);
+  max-height: min(22vh, 168px);
   width: auto;
   height: auto;
   object-fit: contain;
   object-position: left bottom;
-  filter: drop-shadow(0 2px 28px rgba(0, 0, 0, 0.85));
+  filter: drop-shadow(0 8px 28px rgba(0, 0, 0, 0.72));
 }
 
 .watch-ident-title {
@@ -6526,6 +6548,18 @@ img.is-logo-pending {
   place-items: center;
   font-size: 15px;
   font-weight: 800;
+  animation: next-tick 0.22s ease;
+}
+
+@keyframes next-tick {
+  from {
+    transform: scale(0.62);
+    opacity: 0.25;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 .next-ep-count .icon {
@@ -7090,8 +7124,8 @@ img.is-logo-pending {
   }
 
   .watch-ident-logo {
-    max-width: min(72vw, 280px);
-    max-height: 72px;
+    max-width: min(78vw, 320px);
+    max-height: 16vh;
   }
 
   .watch-overlay.is-ident .skip-intro {
@@ -7118,7 +7152,7 @@ img.is-logo-pending {
   color: #fff;
   border: 1px solid #fff;
   backdrop-filter: blur(8px);
-  animation: skip-in 0.28s ease;
+  animation: skip-in 0.38s cubic-bezier(0.16, 1, 0.3, 1);
   transition: bottom 0.28s ease, background 0.12s ease, color 0.12s ease;
 }
 
@@ -7153,7 +7187,7 @@ img.is-logo-pending {
 @keyframes skip-in {
   from {
     opacity: 0;
-    transform: translateX(12px);
+    transform: translateX(18px);
   }
   to {
     opacity: 1;

@@ -172,7 +172,7 @@ export function WatchOverlay() {
     setPaused(false)
     setNextDismissed(false)
     setStillWatching(false)
-    setIdentOn(true)
+    setIdentOn(startProgress < 0.02)
     setIntroSkipped(false)
     setRecapSkipped(false)
   }
@@ -296,13 +296,18 @@ export function WatchOverlay() {
 
   useEffect(() => {
     if (!sessionKey) return
-    setIdentOn(true)
+    const fromStart = startProgress < 0.02
+    setIdentOn(fromStart)
+    if (!fromStart) {
+      showChromeRef.current()
+      return
+    }
     const timer = window.setTimeout(() => {
       setIdentOn(false)
       showChromeRef.current()
     }, 5200)
     return () => window.clearTimeout(timer)
-  }, [sessionKey])
+  }, [sessionKey, startProgress])
 
   useEffect(() => {
     if (!session?.history?.id || session.history.kind !== 'show') {
@@ -736,6 +741,7 @@ export function WatchOverlay() {
             item={trailerSearch(session)}
             className="watch-ident-logo"
             titleClassName="watch-ident-title"
+            imageOnly
           />
           {isShow ? (
             <p className="watch-ident-ep">
@@ -819,7 +825,7 @@ export function WatchOverlay() {
                 style={{ '--p': String(nextProgress) } as CSSProperties}
                 aria-hidden="true"
               >
-                <span>{nextCount != null ? nextCount : <PlayIcon className="icon" />}</span>
+                <span key={nextCount ?? 'go'}>{nextCount != null ? nextCount : <PlayIcon className="icon" />}</span>
               </span>
             ) : null}
             Next Episode

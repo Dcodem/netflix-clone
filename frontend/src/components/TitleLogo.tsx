@@ -34,14 +34,17 @@ export function TitleLogo({
   item,
   className,
   titleClassName,
+  imageOnly,
 }: {
   item: { title: string; year?: number | null; kind?: string }
   className?: string
   titleClassName?: string
+  imageOnly?: boolean
 }) {
   const logo = useTmdbLogo(item)
   const [failedSrc, setFailedSrc] = useState<string | null>(null)
   const [readySrc, setReadySrc] = useState<string | null>(null)
+  const loading = Boolean(logo) && logo !== failedSrc && readySrc !== logo
   const showLogo = Boolean(logo) && logo !== failedSrc && readySrc === logo
 
   return (
@@ -59,7 +62,7 @@ export function TitleLogo({
           }}
         />
       ) : null}
-      {showLogo ? null : <h1 className={titleClassName}>{item.title}</h1>}
+      {showLogo || loading || imageOnly ? null : <h1 className={titleClassName}>{item.title}</h1>}
     </>
   )
 }
