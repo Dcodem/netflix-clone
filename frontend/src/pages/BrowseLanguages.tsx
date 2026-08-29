@@ -7,7 +7,7 @@ import { MediaGrid } from '../components/MediaGrid'
 import { OutlineSelect } from '../components/OutlineSelect'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
-import { useFineHover } from '../hooks/useFineHover'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import {
   LANGUAGE_SORTS,
   ORIGINAL_LANGUAGES,
@@ -22,7 +22,7 @@ import { useProfiles } from '../profiles/ProfileContext'
 
 export function BrowseLanguages() {
   const { activeProfile } = useProfiles()
-  const fineHover = useFineHover()
+  const desktop = useMediaQuery('(min-width: 768px)')
   const [language, setLanguage] = useState<LanguageCode>(profileLanguageCode(activeProfile?.language))
   const [sort, setSort] = useState<LanguageSort>('suggestions')
   const catalog = useFetch(async () => {
@@ -72,7 +72,7 @@ export function BrowseLanguages() {
         </div>
       </header>
       {items.length ? (
-        <MediaGrid items={items} layout="poster" hoverable={fineHover} />
+        <MediaGrid items={items} layout="poster" hoverable={desktop} />
       ) : (
         <EmptyState title="No titles in this language" detail="Pick another original language." />
       )}
