@@ -7320,6 +7320,20 @@ img.is-logo-pending {
   background: #141414;
 }
 
+@media (min-width: 768px) {
+  .watch-overlay .cast-sheet {
+    justify-items: end;
+    padding: 24px 32px 112px;
+    background: rgba(0, 0, 0, 0.28);
+  }
+
+  .watch-overlay .cast-sheet-card {
+    width: min(360px, calc(100vw - 64px));
+    border-radius: 4px;
+    padding: 20px 20px 22px;
+  }
+}
+
 .watch-help {
   position: absolute;
   left: 50%;
