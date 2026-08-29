@@ -4489,31 +4489,24 @@ img.is-logo-pending {
 
   .title-modal-backdrop {
     padding: 0;
-    padding-bottom: var(--safe-bottom);
+    align-items: stretch;
+    background: #141414;
   }
 
   .title-modal {
     max-width: none;
-    border-radius: 12px 12px 0 0;
-    min-height: calc(100svh - 36px);
-    max-height: calc(100svh - 36px);
-    margin-top: 36px;
+    width: 100%;
+    border-radius: 0;
+    min-height: 100svh;
+    max-height: 100svh;
+    margin: 0;
     animation: sheet-up 0.32s cubic-bezier(0.16, 1, 0.3, 1);
     transform-origin: center;
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
+    box-shadow: none;
   }
 
   .title-modal-handle {
-    display: block;
-    position: sticky;
-    top: 0;
-    z-index: 22;
-    width: 100%;
-    height: 24px;
-    margin: 0;
-    background: #181818;
-    border-radius: 12px 12px 0 0;
-    pointer-events: none;
+    display: none;
   }
 
   .title-modal-handle::after {
@@ -4530,13 +4523,14 @@ img.is-logo-pending {
   }
 
   .title-modal-close {
-    position: sticky;
-    float: right;
-    top: 30px;
+    position: absolute;
+    float: none;
+    top: calc(10px + var(--safe-top));
+    right: 12px;
     z-index: 23;
     width: 36px;
     height: 36px;
-    margin: 0 12px -44px 0;
+    margin: 0;
   }
 
   .title-modal-hero {
@@ -5321,6 +5315,22 @@ img.is-logo-pending {
   transform: scale(1.18);
 }
 
+@media (max-width: 767px) {
+  .ep-play {
+    opacity: 1;
+  }
+
+  .episode.is-watched .ep-play {
+    opacity: 0.9;
+  }
+
+  .ep-play .icon {
+    width: 36px;
+    height: 36px;
+    padding: 8px;
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .ep-play {
     opacity: 0;
@@ -5576,8 +5586,8 @@ img.is-logo-pending {
 
 @media (min-width: 768px) {
   .is-top10 .row-scroller {
-    padding-left: max(12px, calc(var(--page-gutter) - 52px));
-    scroll-padding-left: max(12px, calc(var(--page-gutter) - 52px));
+    padding-left: max(8px, calc(var(--page-gutter) - 78px));
+    scroll-padding-left: max(8px, calc(var(--page-gutter) - 78px));
   }
 
   .is-top10 .row-scroller .poster-wrap {
@@ -5585,12 +5595,16 @@ img.is-logo-pending {
   }
 
   .rank-num {
-    margin-right: -0.34em;
+    margin-right: -0.52em;
   }
 
   .rank-num.is-first {
-    margin-left: -0.18em;
-    margin-right: -0.24em;
+    margin-left: -0.06em;
+    margin-right: -0.44em;
+  }
+
+  .rank-num.is-ten {
+    margin-right: -0.46em;
   }
 }
 
@@ -7660,16 +7674,16 @@ img.is-logo-pending {
 .watch-still-profile {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 12px;
+  margin-bottom: 10px;
   color: #fff;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .watch-still-avatar {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   border-radius: 4px;
   overflow: hidden;
   flex-shrink: 0;
@@ -7694,11 +7708,16 @@ img.is-logo-pending {
 .watch-still-actions .btn-play,
 .watch-still-actions .btn-ghost {
   margin-top: 0;
-  min-width: 200px;
+  min-width: 220px;
   justify-content: center;
   font-size: 18px;
-  min-height: 44px;
+  min-height: 48px;
   padding: 8px 22px;
+}
+
+.watch-still-actions .btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.55);
 }
 
 .watch-still-kicker {
@@ -8068,16 +8087,16 @@ img.is-logo-pending {
   bottom: calc(28px + env(safe-area-inset-bottom, 0px));
   z-index: 2300;
   cursor: pointer;
-  background: rgba(42, 42, 42, 0.55);
+  background: rgba(20, 20, 20, 0.62);
   color: #fff;
   border: 1px solid #fff;
-  border-radius: 4px;
-  padding: 10px 16px 10px 18px;
+  border-radius: 2px;
+  padding: 9px 14px 9px 16px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(2px);
   opacity: 0;
   pointer-events: none;
   animation: skip-in 0.38s cubic-bezier(0.16, 1, 0.3, 1);
