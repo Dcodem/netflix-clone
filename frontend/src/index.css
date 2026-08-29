@@ -2244,8 +2244,32 @@ body:has(.account-page),
   max-width: 720px;
 }
 
+.account-membership-card {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 22px 24px 20px;
+  max-width: 420px;
+}
+
+.account-membership-card .account-email {
+  margin: 0 0 10px;
+}
+
+.account-membership-card .account-plan {
+  margin: 0 0 8px;
+}
+
+.account-membership-card .account-hint {
+  margin: 0 0 16px;
+}
+
+.account-membership-card .account-cancel {
+  margin-top: 0;
+}
+
 .account-plan-name {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 700;
 }
 
@@ -3201,7 +3225,7 @@ body:has(.account-page),
 }
 
 .jawbone-art.is-playing .jawbone-logo {
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.35s ease;
 }
 
@@ -4612,8 +4636,8 @@ img.is-logo-pending {
     flex: 1 1 0;
     min-width: 0;
     text-align: center;
-    font-size: 11px;
-    letter-spacing: 0.04em;
+    font-size: 12px;
+    letter-spacing: 0.06em;
     padding: 12px 2px 10px;
   }
 
@@ -5248,8 +5272,8 @@ img.is-logo-pending {
 .ep-num {
   width: 36px;
   flex-shrink: 0;
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 400;
   color: #d2d2d2;
   text-align: center;
 }
@@ -7661,19 +7685,7 @@ img.is-logo-pending {
   padding: 24px 24px 12vh;
   color: #fff;
   text-align: center;
-  background: rgba(0, 0, 0, 0.84);
-}
-
-.watch-still-art {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.2;
-  filter: blur(22px) brightness(0.42);
-  pointer-events: none;
-  z-index: 0;
+  background: rgba(0, 0, 0, 0.86);
 }
 
 .watch-still-inner {
@@ -7681,23 +7693,23 @@ img.is-logo-pending {
   z-index: 1;
   display: grid;
   justify-items: center;
-  gap: 6px;
+  gap: 0;
   max-width: 560px;
 }
 
 .watch-still-profile {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
   color: #fff;
   font-size: 16px;
   font-weight: 600;
 }
 
 .watch-still-avatar {
-  width: 48px;
-  height: 48px;
+  width: 80px;
+  height: 80px;
   border-radius: 4px;
   overflow: hidden;
   flex-shrink: 0;
@@ -7716,7 +7728,7 @@ img.is-logo-pending {
   flex-wrap: wrap;
   justify-content: center;
   gap: 12px;
-  margin-top: 22px;
+  margin-top: 28px;
 }
 
 .watch-still-actions .btn-play,
@@ -7731,32 +7743,18 @@ img.is-logo-pending {
 
 .watch-still-actions .btn-ghost {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-}
-
-.watch-still-kicker {
-  margin: 0;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.watch-still-ep {
-  margin: 0;
-  color: #b3b3b3;
-  font-size: 15px;
-  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
 .watch-still h2 {
-  margin: 16px 0 0;
+  margin: 0;
   font-size: clamp(28px, 4.6vw, 42px);
   font-weight: 600;
   letter-spacing: -0.02em;
 }
 
 .watch-still .btn-play {
-  margin-top: 22px;
+  margin-top: 0;
   min-width: 248px;
   justify-content: center;
   font-size: 18px;
@@ -8625,13 +8623,13 @@ img.is-logo-pending {
 
 @media (max-width: 767px) {
   .next-ep-body {
-    grid-template-columns: 112px 1fr;
+    grid-template-columns: 132px 1fr;
   }
 
   .watch-credits {
     left: 16px;
     right: auto;
-    bottom: 108px;
+    bottom: calc(148px + env(safe-area-inset-bottom, 0px));
     padding: 8px 12px;
     font-size: 14px;
     z-index: 2300;
@@ -8639,7 +8637,9 @@ img.is-logo-pending {
   }
 
   .next-ep-card {
-    width: min(248px, calc(100% - 148px));
+    left: 12px;
+    right: 12px;
+    width: auto;
     z-index: 2300;
   }
 
@@ -8792,8 +8792,7 @@ img.is-logo-pending {
     font-size: 15px;
   }
 
-  .skip-intro,
-  .next-ep-card {
+  .skip-intro {
     right: 16px;
   }
 
@@ -8891,9 +8890,12 @@ img.is-logo-pending {
 
 @media (max-width: 767px) {
   .watch-overlay.is-chrome:not(.is-ident) .skip-intro,
-  .watch-overlay.is-chrome .next-ep-card,
-  .watch-overlay.is-chrome .watch-credits {
+  .watch-overlay.is-chrome .next-ep-card {
     bottom: 108px;
+  }
+
+  .watch-overlay.is-chrome .watch-credits {
+    bottom: 248px;
   }
 }
 

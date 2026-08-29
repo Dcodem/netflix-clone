@@ -1281,13 +1281,6 @@ export function WatchOverlay() {
           aria-label="Are you still watching?"
           onClick={(event) => event.stopPropagation()}
         >
-          {galleryUrls[0] || session.history?.poster_url ? (
-            <MediaImage
-              className="watch-still-art"
-              src={galleryUrls[0] || session.history?.poster_url}
-              alt=""
-            />
-          ) : null}
           <div className="watch-still-inner">
             {activeProfile ? (
               <div className="watch-still-profile">
@@ -1296,13 +1289,6 @@ export function WatchOverlay() {
                 </span>
                 <span>{activeProfile.name}</span>
               </div>
-            ) : null}
-            <p className="watch-still-kicker">{session.history?.title || session.title}</p>
-            {episodeLabel ? (
-              <p className="watch-still-ep">
-                {episodeLabel}
-                {playing?.episode.title ? ` ${playing.episode.title}` : ''}
-              </p>
             ) : null}
             <h2>Are you still watching?</h2>
             <div className="watch-still-actions">

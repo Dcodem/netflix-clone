@@ -71,15 +71,17 @@ export function Account() {
       <h1>Account</h1>
 
       <section className="account-membership">
-        <p className="account-email">{user?.email}</p>
-        <p className="account-plan">
-          <span className="account-plan-name">Standard</span>
-          <span className="spec-badge">HD</span>
-        </p>
-        <p className="account-hint">Membership on this device. There is no monthly bill.</p>
-        <button type="button" className="account-cancel" onClick={() => togglePanel('cancel')}>
-          Cancel Membership
-        </button>
+        <div className="account-membership-card">
+          <p className="account-email">{user?.email}</p>
+          <p className="account-plan">
+            <span className="account-plan-name">Standard</span>
+            <span className="spec-badge">HD</span>
+          </p>
+          <p className="account-hint">Membership on this device. There is no monthly bill.</p>
+          <button type="button" className="account-cancel" onClick={() => togglePanel('cancel')}>
+            Cancel Membership
+          </button>
+        </div>
         {panel === 'cancel' ? (
           <p className="account-inline-note">
             There is no membership to cancel on this device. FLIX stays available in this browser.
