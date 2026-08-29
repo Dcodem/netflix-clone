@@ -32,6 +32,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   updateKeys: (keys: { ivaKey?: string; tmdbKey?: string }) => void
+  updateAccount: (opts: { email?: string; password?: string; phone?: string | null }) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -110,11 +111,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const updateAccount = useCallback(
+    async (opts: { email?: string; password?: string; phone?: string | null }) => {
+      const current = loadStore()
+      const sessionId = current.sessionUserId
+      if (!sessionId) throw new Error('Sign in to change account details.')
+      let email = opts.email?.trim().toLowerCase()
+      if (email !== undefined) {
+        if (!email || !email.includes('@')) throw new Error('Enter a valid email')
+        if (current.users.some((entry) => entry.id !== sessionId && entry.email === email)) {
+          throw new Error('An account with that email already exists')
+        }
+      }
+      let passwordSalt: string | undefined
+      let passwordHash: string | undefined
+      if (opts.password !== undefined) {
+        if (opts.password.length < 6) throw new Error('Password must be at least 6 characters')
+        const hashed = await hashPassword(opts.password)
+        passwordSalt = hashed.salt
+        passwordHash = hashed.hash
+      }
+      updateStore((prev) => ({
+        ...prev,
+        users: prev.users.map((user) => {
+          if (user.id !== prev.sessionUserId) return user
+          return {
+            ...user,
+            email: email ?? user.email,
+            phone: opts.phone !== undefined ? opts.phone : user.phone,
+            passwordSalt: passwordSalt ?? user.passwordSalt,
+            passwordHash: passwordHash ?? user.passwordHash,
+          }
+        }),
+      }))
+    },
+    [updateStore],
+  )
+
   const user = store.users.find((entry) => entry.id === store.sessionUserId) ?? null
 
   const value = useMemo(
-    () => ({ user: user ? publicUser(user) : null, signup, login, logout, updateKeys }),
-    [user, signup, login, logout, updateKeys],
+    () => ({ user: user ? publicUser(user) : null, signup, login, logout, updateKeys, updateAccount }),
+    [user, signup, login, logout, updateKeys, updateAccount],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

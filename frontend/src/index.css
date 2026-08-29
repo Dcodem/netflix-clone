@@ -2018,11 +2018,38 @@ select,
   max-width: 720px;
 }
 
+.account-block {
+  margin: 0 0 8px;
+  padding: 8px 0 12px;
+  border-top: 1px solid #ccc;
+}
+
+.account-block h2,
 .account-list h2 {
   margin: 0 0 4px;
   font-size: 18px;
   font-weight: 400;
   color: #e50914;
+}
+
+.account-block-body {
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .account-block {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 8px 48px;
+    align-items: start;
+    max-width: 1024px;
+    padding: 22px 0 10px;
+    margin: 0;
+  }
+
+  .account-block h2 {
+    margin: 16px 0 0;
+  }
 }
 
 .account-row {
@@ -2039,7 +2066,65 @@ select,
 }
 
 .account-row span:last-child {
+  color: #333;
+}
+
+.account-change {
+  flex-shrink: 0;
+  margin-left: auto;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #0071eb;
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: right;
+}
+
+.account-change:hover,
+.account-change:focus-visible {
+  text-decoration: underline;
+}
+
+.account-inline {
+  display: grid;
+  gap: 10px;
+  padding: 0 0 16px;
+}
+
+.account-inline label {
+  display: grid;
+  gap: 6px;
+  color: #333;
+  font-size: 14px;
+}
+
+.account-inline input {
+  background: #fff;
+  border: 1px solid #b3b3b3;
+  color: #333;
+  border-radius: 2px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.account-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.account-inline-error,
+.account-inline-note {
+  margin: 0;
   color: #737373;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.account-inline-error {
+  color: #e87c03;
 }
 
 .account-row.is-link {
