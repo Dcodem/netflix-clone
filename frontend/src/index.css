@@ -2074,6 +2074,34 @@ select,
   background: #f3f3f3;
 }
 
+.app-shell:has(.account-page) .site-header,
+.app-shell:has(.account-page) .site-header.is-scrolled,
+.app-shell:has(.account-page) .site-header.is-searching {
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}
+
+.app-shell:has(.account-page) .primary-nav,
+.app-shell:has(.account-page) .browse-menu,
+.app-shell:has(.account-page) .search-wrap,
+.app-shell:has(.account-page) .search-back,
+.app-shell:has(.account-page) .notify-menu,
+.app-shell:has(.account-page) .cast-menu {
+  display: none;
+}
+
+.app-shell:has(.account-page) .header-tools .account-menu {
+  display: block;
+}
+
+.app-shell:has(.account-page) .profile-caret {
+  color: #333;
+}
+
+.app-shell:has(.account-page) .mobile-dock {
+  display: none;
+}
+
 .app-shell:has(.account-page) .site-footer {
   color: #737373;
   background: #f3f3f3;
