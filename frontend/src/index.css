@@ -4837,7 +4837,7 @@ img.is-logo-pending {
   color: #000;
   -webkit-text-fill-color: #000;
   letter-spacing: -0.14em;
-  margin: 0 -0.16em 0 0;
+  margin: 0 -0.22em 0 0;
   min-width: 0.7em;
   text-align: left;
   padding: 0 0.04em 0 0.12em;
@@ -5375,10 +5375,10 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller {
-    padding-left: 0;
+    padding-left: 4px;
     padding-right: 20px;
     padding-top: 44px;
-    scroll-padding-left: 0;
+    scroll-padding-left: 4px;
   }
 
   .rank-num {
@@ -5395,7 +5395,7 @@ img.is-logo-pending {
 
   .rank-num.is-first {
     min-width: 0.86em;
-    margin-left: -0.58em;
+    margin-left: -0.32em;
     margin-right: -0.18em;
     padding-left: 0;
   }
