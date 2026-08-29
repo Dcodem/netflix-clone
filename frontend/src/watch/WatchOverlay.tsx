@@ -873,9 +873,10 @@ export function WatchOverlay() {
               <PlayIcon className="icon" />
             </span>
             <span className="next-ep-copy">
-              <em>
-                S{upcoming.season.season_number}:E{upcoming.episode.number} {upcoming.episode.title}
-              </em>
+              <em>{upcoming.episode.title}</em>
+              <span className="next-ep-code">
+                S{upcoming.season.season_number}:E{upcoming.episode.number}
+              </span>
               {upcoming.episode.synopsis ? <small>{upcoming.episode.synopsis}</small> : null}
             </span>
           </button>

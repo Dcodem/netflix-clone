@@ -183,27 +183,30 @@ select,
 .search-wrap {
   display: flex;
   align-items: center;
-  gap: 8px;
-  width: 34px;
+  gap: 2px;
+  width: 36px;
+  height: 36px;
   overflow: hidden;
   background: transparent;
   border: 1px solid transparent;
-  padding: 2px;
+  padding: 0;
+  box-sizing: border-box;
   transition: width 0.25s ease, background 0.18s ease, border-color 0.18s ease;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .search-wrap.is-open {
-  width: min(272px, 52vw);
+  width: min(270px, 48vw);
   height: 36px;
   background: #000;
   border-color: #fff;
+  padding: 0 4px 0 0;
 }
 
 .search-toggle {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   background: none;
   border: 0;
   color: #fff;
@@ -211,6 +214,18 @@ select,
   display: grid;
   place-items: center;
   padding: 0;
+  transition: color 0.12s ease;
+}
+
+.search-toggle:hover,
+.notify-toggle:hover,
+.cast-btn:hover {
+  color: #b3b3b3;
+}
+
+.search-wrap.is-open .search-toggle,
+.search-wrap.is-open .search-toggle:hover {
+  color: #fff;
 }
 
 .search-toggle .icon {
@@ -237,6 +252,7 @@ select,
   display: grid;
   place-items: center;
   padding: 0;
+  transition: color 0.12s ease;
 }
 
 .cast-btn .icon {
@@ -332,7 +348,7 @@ select,
   outline: none;
   color: var(--text);
   font-size: 14px;
-  padding-right: 2px;
+  padding: 0 4px 0 2px;
 }
 
 .search-wrap input::placeholder {
@@ -342,8 +358,8 @@ select,
 .search-close {
   display: none;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   background: none;
   border: 0;
   color: #fff;
@@ -378,8 +394,8 @@ select,
 }
 
 .search-close .icon {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
 }
 
 .profile-chip {
@@ -4216,6 +4232,12 @@ img.is-logo-pending {
     right: 0;
   }
 
+  .search-wrap {
+    width: 44px;
+    height: 44px;
+    overflow: visible;
+  }
+
   .search-wrap.is-open {
     width: min(240px, calc(100vw - 148px));
   }
@@ -4297,6 +4319,27 @@ img.is-logo-pending {
     flex: 1;
     width: auto;
     max-width: none;
+    height: 36px;
+    overflow: hidden;
+    background: #323232;
+    border-color: transparent;
+    border-radius: 4px;
+    padding: 0 8px 0 2px;
+  }
+
+  .site-header.is-searching .search-toggle {
+    width: 34px;
+    height: 34px;
+  }
+
+  .site-header.is-searching .search-close {
+    width: 32px;
+    height: 32px;
+  }
+
+  .site-header.is-searching .search-close .icon {
+    width: 16px;
+    height: 16px;
   }
 
   .browse-menu[open] .browse-menu-scrim {
@@ -5433,8 +5476,22 @@ img.is-logo-pending {
 }
 
 @media (min-width: 768px) {
+  .is-top10 .row-scroller {
+    padding-left: max(12px, calc(var(--page-gutter) - 52px));
+    scroll-padding-left: max(12px, calc(var(--page-gutter) - 52px));
+  }
+
   .is-top10 .row-scroller .poster-wrap {
     flex-basis: calc((100% - var(--page-gutter) * 2) / 3.15);
+  }
+
+  .rank-num {
+    margin-right: -0.34em;
+  }
+
+  .rank-num.is-first {
+    margin-left: -0.18em;
+    margin-right: -0.24em;
   }
 }
 
@@ -5459,6 +5516,7 @@ img.is-logo-pending {
   background: none;
   color: #fff;
   cursor: pointer;
+  transition: color 0.12s ease;
 }
 
 .notify-toggle .icon {
@@ -7812,18 +7870,19 @@ img.is-logo-pending {
   right: 24px;
   bottom: 118px;
   z-index: 2150;
-  width: min(420px, calc(100% - 40px));
+  width: min(400px, calc(100% - 40px));
   display: grid;
-  gap: 8px;
-  padding: 16px 16px 14px;
-  background: rgba(0, 0, 0, 0.88);
-  border: 0;
+  gap: 10px;
+  padding: 14px 14px 12px;
+  background: rgba(20, 20, 20, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 4px;
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.62);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
   color: #fff;
   text-align: left;
   opacity: 0;
   pointer-events: none;
+  backdrop-filter: blur(10px);
 }
 
 .next-ep-close {
@@ -7856,7 +7915,7 @@ img.is-logo-pending {
   align-items: center;
   gap: 10px;
   padding-right: 28px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -7926,6 +7985,7 @@ img.is-logo-pending {
   aspect-ratio: 16 / 9;
   overflow: hidden;
   background: #111;
+  border-radius: 2px;
 }
 
 .next-ep-thumb .icon {
@@ -7968,11 +8028,19 @@ img.is-logo-pending {
   font-style: normal;
   font-weight: 700;
   font-size: 15px;
+  line-height: 1.25;
+}
+
+.next-ep-code {
+  color: #b3b3b3;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .next-ep-copy small {
   color: #b3b3b3;
   font-size: 13px;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -8172,7 +8240,7 @@ img.is-logo-pending {
 
 .watch-credits {
   position: absolute;
-  right: min(460px, calc(100% - 48px));
+  right: min(440px, calc(100% - 48px));
   bottom: 118px;
   z-index: 2150;
   background: rgba(42, 42, 42, 0.55);
