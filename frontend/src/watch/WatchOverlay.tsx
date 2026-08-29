@@ -26,14 +26,13 @@ import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { stillFocus, episodeStill } from '../lib/media'
+import { skipMarks } from '../lib/skipMarks'
 import { peekTrailer, resolveTrailer, youtubeIdFromHit } from '../trailers/resolve'
 import { findTmdbGallery, tmdbFileName } from '../trailers/tmdb'
 import { envKeys } from '../trailers/types'
 import { useWatch } from './WatchContext'
 
 const PLAYER_SOURCE = 'flix-player'
-const SKIP_INTRO_AT = 80
-const SKIP_RECAP_AT = 148
 const NEXT_CARD_AT = 16
 const AUTO_IN = 5
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] as const
@@ -450,10 +449,15 @@ export function WatchOverlay() {
         event.preventDefault()
         skip(10)
         show()
-      } else if (event.key.toLowerCase() === 's' && isShow && !introSkipped && currentRef.current < 110) {
+      } else if (
+        event.key.toLowerCase() === 's' &&
+        isShow &&
+        !introSkipped &&
+        currentRef.current < skipMarks(runtimeSec).introUntil
+      ) {
         event.preventDefault()
         setIntroSkipped(true)
-        post({ cmd: 'seek', seconds: SKIP_INTRO_AT })
+        post({ cmd: 'seek', seconds: skipMarks(runtimeSec).introAt })
         show()
       } else if (event.key.toLowerCase() === 'f') {
         event.preventDefault()
@@ -613,15 +617,23 @@ export function WatchOverlay() {
     : isShow
       ? `S${session.history?.seasonNumber ?? 1}:E${session.history?.episodeNumber ?? 1}`
       : null
+  const marks = skipMarks(runtimeSec)
   const showSkipIntro =
-    isShow && !introSkipped && current > 2.4 && current < 110 && !episodesOpen && !audioOpen && !speedOpen
+    isShow &&
+    !introSkipped &&
+    current > 2.4 &&
+    current < marks.introUntil &&
+    !episodesOpen &&
+    !audioOpen &&
+    !speedOpen
   const showSkipRecap =
     isShow &&
+    marks.recapUntil > marks.recapAt &&
     !recapSkipped &&
     !identOn &&
     !showSkipIntro &&
-    current >= 80 &&
-    current < 155 &&
+    current >= marks.introUntil &&
+    current < marks.recapUntil &&
     !episodesOpen &&
     !audioOpen &&
     !speedOpen
@@ -645,7 +657,7 @@ export function WatchOverlay() {
     playClick()
     playWhoosh()
     setIntroSkipped(true)
-    post({ cmd: 'seek', seconds: SKIP_INTRO_AT })
+    post({ cmd: 'seek', seconds: marks.introAt })
   }
 
   function skipRecap(event: { stopPropagation: () => void }) {
@@ -654,7 +666,7 @@ export function WatchOverlay() {
     playWhoosh()
     setRecapSkipped(true)
     setIntroSkipped(true)
-    post({ cmd: 'seek', seconds: SKIP_RECAP_AT })
+    post({ cmd: 'seek', seconds: marks.recapAt })
   }
 
   function playEpisode(season: Season, episode: Episode, binge = false) {

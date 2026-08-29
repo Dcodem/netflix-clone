@@ -7,6 +7,7 @@ import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons'
 import { PosterCard } from './PosterCard'
+import { TitleLogo } from './TitleLogo'
 
 function exploreHref(title: string, items: MovieListItem[], seed?: MovieListItem) {
   if (seed?.title) return `/search?q=${encodeURIComponent(seed.title)}`
@@ -32,7 +33,7 @@ function SceneCard({ item }: { item: MovieListItem }) {
         </div>
         <div className="scene-caption">
           <span className="scene-kicker">You watched</span>
-          <span className="scene-title">{item.title}</span>
+          <TitleLogo item={item} className="scene-logo" titleClassName="scene-title" />
         </div>
       </button>
     </div>

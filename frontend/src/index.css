@@ -1043,6 +1043,7 @@ select,
 
 .scene-card {
   position: relative;
+  overflow: hidden;
 }
 
 .scene-art {
@@ -1063,24 +1064,40 @@ select,
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 32px 12px 10px;
-  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.86));
+  padding: 44px 12px 12px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.52) 42%, rgba(0, 0, 0, 0.9) 100%);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-start;
+  gap: 4px;
   text-align: left;
 }
 
 .scene-kicker {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #fff;
+}
+
+.scene-logo {
+  display: block;
+  max-width: min(100%, 168px);
+  max-height: 38px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: left bottom;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.7));
 }
 
 .scene-title {
-  font-size: 15px;
+  margin: 0;
+  font-size: 16px;
   font-weight: 700;
+  line-height: 1.15;
+  color: #fff;
 }
 
 .media-img {
@@ -1928,6 +1945,19 @@ select,
 
   .row-scroller .scene-wrap {
     flex-basis: calc((100% - var(--page-gutter) * 2) / 3.2);
+  }
+
+  .scene-caption {
+    padding: 52px 14px 14px;
+  }
+
+  .scene-logo {
+    max-width: min(100%, 220px);
+    max-height: 48px;
+  }
+
+  .scene-title {
+    font-size: 18px;
   }
 
   .is-top10 .row-scroller .poster-wrap {
@@ -9555,6 +9585,23 @@ img.is-logo-pending {
 .news-icon-btn.is-on:hover .news-icon-disc,
 .news-icon-btn.is-on:focus-visible .news-icon-disc {
   background: #e6e6e6;
+}
+
+.news-remind-toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  margin: 0;
+  padding: 14px 16px;
+  background: #323232;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
 .news-kicker {

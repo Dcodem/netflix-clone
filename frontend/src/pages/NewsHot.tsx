@@ -57,12 +57,14 @@ function FeedCard({
   synopsis,
   mode,
   rank,
+  onRemind,
 }: {
   item: MovieListItem
   kicker?: string
   synopsis?: string
   mode: FeedMode
   rank?: number
+  onRemind?: (item: MovieListItem, onList: boolean) => void
 }) {
   const { openTitle } = useTitleModal()
   const { openWatch } = useWatch()
@@ -124,12 +126,16 @@ function FeedCard({
               <button
                 type="button"
                 className={`news-icon-btn ${onList ? 'is-on' : ''}`}
-                onClick={() => toggleMyList(toLiked(item))}
+                aria-pressed={onList}
+                onClick={() => {
+                  if (onRemind) onRemind(item, onList)
+                  else toggleMyList(toLiked(item))
+                }}
               >
                 <span className="news-icon-disc">
                   {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
                 </span>
-                Remind Me
+                {onList ? 'Reminded' : 'Remind Me'}
               </button>
             ) : (
               <button type="button" className="news-icon-btn is-play" onClick={() => void playNow()} disabled={playing}>
@@ -200,7 +206,23 @@ function NewsHotFeed() {
     return uniqueById([...catalogMovies, ...catalogShows])
   }, 'news-catalog')
 
-  const { activeProfile } = useProfiles()
+  const { activeProfile, toggleMyList } = useProfiles()
+  const [remindNote, setRemindNote] = useState<string | null>(null)
+  const remindTimer = useRef(0)
+
+  function handleRemind(item: MovieListItem, onList: boolean) {
+    playClick()
+    toggleMyList(toLiked(item))
+    window.clearTimeout(remindTimer.current)
+    if (!onList) {
+      setRemindNote(`We’ll remind you when ${item.title} is ready to watch.`)
+      remindTimer.current = window.setTimeout(() => setRemindNote(null), 2800)
+    } else {
+      setRemindNote(null)
+    }
+  }
+
+  useEffect(() => () => window.clearTimeout(remindTimer.current), [])
   const catalog = useMemo(
     () => filterByMaturity(uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]), activeProfile),
     [movies.data, extras.data, activeProfile],
@@ -359,7 +381,13 @@ function NewsHotFeed() {
         <section className="news-feed" ref={comingRef} aria-label="Coming Soon">
           <h1 className="visually-hidden">Coming Soon</h1>
           {coming.map((item) => (
-            <FeedCard key={item.id} item={item} mode="soon" synopsis={synopses[item.id]} />
+            <FeedCard
+              key={item.id}
+              item={item}
+              mode="soon"
+              synopsis={synopses[item.id]}
+              onRemind={handleRemind}
+            />
           ))}
         </section>
       ) : null}
@@ -392,6 +420,11 @@ function NewsHotFeed() {
             <FeedCard key={item.id} item={item} mode="ranked" rank={index + 1} synopsis={synopses[item.id]} />
           ))}
         </section>
+      ) : null}
+      {remindNote ? (
+        <p className="news-remind-toast" role="status">
+          {remindNote}
+        </p>
       ) : null}
     </main>
   )
