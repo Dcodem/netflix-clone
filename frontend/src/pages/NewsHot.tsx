@@ -7,6 +7,7 @@ import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { GenreDots } from '../components/GenreDots'
 import { Spinner } from '../components/Spinner'
+import { TitleLogo } from '../components/TitleLogo'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { Home } from './Home'
@@ -116,7 +117,7 @@ function FeedCard({
         <div className="news-title-row">
           <div className="news-title-copy">
             {mode === 'watching' && kicker ? <p className="news-kicker">{kicker}</p> : null}
-            <h2>{item.title}</h2>
+            <TitleLogo item={item} className="news-title-logo" titleClassName="news-title-text" />
           </div>
           <div className="news-icon-actions">
             {mode === 'soon' ? (
@@ -128,7 +129,7 @@ function FeedCard({
                 <span className="news-icon-disc">
                   {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
                 </span>
-                {onList ? 'Reminded' : 'Remind Me'}
+                Remind Me
               </button>
             ) : (
               <button type="button" className="news-icon-btn is-play" onClick={() => void playNow()} disabled={playing}>
