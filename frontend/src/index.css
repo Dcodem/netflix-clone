@@ -194,8 +194,9 @@ select,
 }
 
 .search-wrap.is-open {
-  width: min(300px, 56vw);
-  background: rgba(0, 0, 0, 0.85);
+  width: min(272px, 52vw);
+  height: 36px;
+  background: #000;
   border-color: #fff;
 }
 
@@ -4351,6 +4352,10 @@ img.is-logo-pending {
   letter-spacing: 0.01em;
 }
 
+.search-heading.is-related {
+  margin-top: 36px;
+}
+
 .search-heading span {
   color: #fff;
   font-weight: 700;
@@ -4997,8 +5002,9 @@ img.is-logo-pending {
   background: transparent;
   border: 1px solid #808080;
   color: #808080;
-  padding: 6px 8px;
+  padding: 7px 8px;
   font-size: 13px;
+  letter-spacing: 0.04em;
   cursor: pointer;
 }
 

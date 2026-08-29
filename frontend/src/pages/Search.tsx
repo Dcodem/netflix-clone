@@ -44,10 +44,10 @@ export function Search() {
     const fromApi = data ?? []
     return uniqueById([...fromApi, ...catalogHits(q, pool)])
   }, [data, q, pool])
-  const items = useMemo(
-    () => relatedSearchResults(hits, pool, activeProfile, 48),
-    [hits, pool, activeProfile],
-  )
+  const related = useMemo(() => {
+    const hitIds = new Set(hits.map((item) => item.id))
+    return relatedSearchResults(hits, pool, activeProfile, 48).filter((item) => !hitIds.has(item.id))
+  }, [hits, pool, activeProfile])
   const popularItems = useMemo(
     () => sortByRating(popular.data ?? []).slice(0, 18),
     [popular.data],
@@ -137,33 +137,44 @@ export function Search() {
     )
   }
 
+  if (!hits.length && !related.length) {
+    return (
+      <main className="page page-pad search-page">
+        <div className="search-empty">
+          <p>Your search for “{q}” did not have any matches.</p>
+          <p className="search-empty-kicker">Suggestions:</p>
+          <ul>
+            <li>Try different keywords</li>
+            <li>Looking for a movie or TV show?</li>
+            <li>Try using a movie, TV show title, an actor or director</li>
+            <li>Try a genre, like comedy, romance, sports, or drama</li>
+          </ul>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="page page-pad search-page">
-      {items.length ? (
+      {hits.length ? (
+        phone ? (
+          <SearchHitsList items={hits} />
+        ) : (
+          <MediaGrid items={hits} layout="poster" />
+        )
+      ) : null}
+      {related.length ? (
         <>
-          <h1 className="search-heading">
+          <h1 className={`search-heading ${hits.length ? 'is-related' : ''}`}>
             Explore titles related to: <span>{q}</span>
           </h1>
           {phone ? (
-            <SearchHitsList items={items} />
+            <SearchHitsList items={related} />
           ) : (
-            <MediaGrid items={items} />
+            <MediaGrid items={related} layout="poster" />
           )}
         </>
-      ) : (
-        <>
-          <div className="search-empty">
-            <p>Your search for “{q}” did not have any matches.</p>
-            <p className="search-empty-kicker">Suggestions:</p>
-            <ul>
-              <li>Try different keywords</li>
-              <li>Looking for a movie or TV show?</li>
-              <li>Try using a movie, TV show title, an actor or director</li>
-              <li>Try a genre, like comedy, romance, sports, or drama</li>
-            </ul>
-          </div>
-        </>
-      )}
+      ) : null}
     </main>
   )
 }
