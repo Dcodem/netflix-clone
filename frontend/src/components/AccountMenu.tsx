@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useHoverMenu } from '../hooks/useHoverMenu'
@@ -5,12 +6,14 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { AvatarArt } from './AvatarArt'
 import { CaretIcon, ExitIcon, HelpCircleIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
+import { FooterNoteDialog, FOOTER_NOTES } from './SiteFooter'
 
 export function AccountMenu() {
   const { user, logout } = useAuth()
   const { profiles, activeProfile, clearActive, selectProfile } = useProfiles()
   const navigate = useNavigate()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
+  const [helpOpen, setHelpOpen] = useState(false)
 
   if (!user || !activeProfile) return null
 
@@ -84,10 +87,16 @@ export function AccountMenu() {
             <PersonIcon className="icon" />
             Account
           </Link>
-          <Link to="/account" onClick={() => setOpen(false)}>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false)
+              setHelpOpen(true)
+            }}
+          >
             <HelpCircleIcon className="icon" />
             Help Center
-          </Link>
+          </button>
           <div className="account-dropdown-rule" />
           <button
             type="button"
@@ -100,6 +109,13 @@ export function AccountMenu() {
             Sign out of Flix
           </button>
         </div>
+      ) : null}
+      {helpOpen ? (
+        <FooterNoteDialog
+          title="Help Center"
+          body={FOOTER_NOTES['Help Center']}
+          onClose={() => setHelpOpen(false)}
+        />
       ) : null}
     </div>
   )

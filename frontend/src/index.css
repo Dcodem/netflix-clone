@@ -5317,6 +5317,14 @@ img.is-logo-pending {
     display: none;
   }
 
+  .row-heading-link .row-heading-caret {
+    opacity: 1;
+    transform: none;
+    color: #fff;
+    width: 18px;
+    height: 18px;
+  }
+
   .login-card {
     padding: 28px 22px 24px;
   }
@@ -5529,7 +5537,7 @@ img.is-logo-pending {
 .cookie-prefs {
   position: fixed;
   inset: 0;
-  z-index: 80;
+  z-index: 2400;
   background: rgba(0, 0, 0, 0.72);
   display: grid;
   place-items: center;
