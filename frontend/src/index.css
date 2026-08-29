@@ -5024,6 +5024,11 @@ img.is-logo-pending {
   color: #141414;
 }
 
+.search-top-play:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .search-top-rank {
   width: 28px;
   flex-shrink: 0;
