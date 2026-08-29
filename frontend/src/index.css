@@ -4509,19 +4509,6 @@ img.is-logo-pending {
     display: none;
   }
 
-  .title-modal-handle::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 10px;
-    width: 42px;
-    height: 5px;
-    border-radius: 99px;
-    background: #8c8c8c;
-    transform: translateX(-50%);
-    box-shadow: none;
-  }
-
   .title-modal-close {
     position: absolute;
     float: none;
@@ -4535,7 +4522,7 @@ img.is-logo-pending {
 
   .title-modal-hero {
     aspect-ratio: 16 / 9;
-    min-height: 240px;
+    min-height: min(56vw, 320px);
     border-radius: 0;
   }
 
@@ -4992,7 +4979,7 @@ img.is-logo-pending {
   box-sizing: border-box;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 5px #b6b6b6;
+  -webkit-text-stroke: 5px #d0d0d0;
   font: inherit;
   letter-spacing: inherit;
   line-height: inherit;
@@ -5586,8 +5573,8 @@ img.is-logo-pending {
 
 @media (min-width: 768px) {
   .is-top10 .row-scroller {
-    padding-left: max(8px, calc(var(--page-gutter) - 78px));
-    scroll-padding-left: max(8px, calc(var(--page-gutter) - 78px));
+    padding-left: max(28px, calc(var(--page-gutter) - 28px));
+    scroll-padding-left: max(28px, calc(var(--page-gutter) - 28px));
   }
 
   .is-top10 .row-scroller .poster-wrap {
@@ -5595,16 +5582,17 @@ img.is-logo-pending {
   }
 
   .rank-num {
-    margin-right: -0.52em;
+    margin-right: -0.38em;
   }
 
   .rank-num.is-first {
-    margin-left: -0.06em;
-    margin-right: -0.44em;
+    margin-left: 0;
+    margin-right: -0.28em;
+    min-width: 0.7em;
   }
 
   .rank-num.is-ten {
-    margin-right: -0.46em;
+    margin-right: -0.36em;
   }
 }
 
