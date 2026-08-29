@@ -8614,9 +8614,9 @@ img.is-logo-pending {
 }
 
 .my-netflix-head {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   width: 100%;
   max-width: 100%;
@@ -8682,7 +8682,7 @@ img.is-logo-pending {
   gap: 6px;
   flex-shrink: 0;
   margin: 0;
-  width: 76px;
+  width: 84px;
   background: none;
   color: #fff;
   border: 0;
@@ -8694,15 +8694,18 @@ img.is-logo-pending {
   line-height: 1.2;
   text-align: center;
   cursor: pointer;
+  position: relative;
+  z-index: 2;
 }
 
 .play-something-disc {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border: 1.6px solid #fff;
   border-radius: 50%;
   display: grid;
   place-items: center;
+  color: #fff;
 }
 
 .play-something .icon {
@@ -9554,7 +9557,7 @@ img.is-logo-pending {
 
 .categories-list {
   display: grid;
-  gap: 12px;
+  gap: 18px;
   text-align: center;
   max-height: calc(100svh - 170px);
   overflow: auto;
@@ -9567,11 +9570,11 @@ img.is-logo-pending {
   background: none;
   border: 0;
   color: #808080;
-  font-size: clamp(22px, 4.8vw, 34px);
-  font-weight: 700;
+  font-size: clamp(20px, 5.2vw, 28px);
+  font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  padding: 4px 8px;
+  padding: 2px 8px;
   font-family: inherit;
 }
 

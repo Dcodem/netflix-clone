@@ -59,27 +59,6 @@ export function CategoriesSheet({
               My List
             </Link>
             <Link
-              to="/browse/shows"
-              className={location.pathname === '/browse/shows' ? 'is-on' : ''}
-              onClick={onClose}
-            >
-              TV Shows
-            </Link>
-            <Link
-              to="/browse/movies"
-              className={location.pathname === '/browse/movies' ? 'is-on' : ''}
-              onClick={onClose}
-            >
-              Movies
-            </Link>
-            <Link
-              to="/browse/latest"
-              className={location.pathname === '/browse/latest' ? 'is-on' : ''}
-              onClick={onClose}
-            >
-              New & Popular
-            </Link>
-            <Link
               to="/browse/languages"
               className={location.pathname === '/browse/languages' ? 'is-on' : ''}
               onClick={onClose}
