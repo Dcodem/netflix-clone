@@ -3951,20 +3951,24 @@ img.is-logo-pending {
     margin-right: -16px;
     padding-left: 16px;
     padding-right: 16px;
-    gap: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   .title-tabs {
-    gap: 14px;
+    flex: 1 1 100%;
+    gap: 16px;
   }
 
   .title-tabs-row .season-menu {
-    width: auto;
+    width: 100%;
+    margin: 8px 0 10px;
   }
 
   .title-tabs-row .season-menu-btn {
-    width: auto;
-    min-height: 36px;
+    width: 100%;
+    min-height: 44px;
+    justify-content: space-between;
   }
 
   .title-tabs > button {
@@ -5322,6 +5326,16 @@ img.is-logo-pending {
 
 .login-footer p {
   margin: 0 0 16px;
+  font-size: 16px;
+}
+
+.login-footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
 }
 
 .login-footer-links {
