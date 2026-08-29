@@ -18,6 +18,7 @@ import {
   SpeedIcon,
   SubtitlesIcon,
 } from '../components/Icons'
+import { CastMenu } from '../components/CastMenu'
 import { MediaImage } from '../components/MediaImage'
 import { SeasonMenu } from '../components/SeasonMenu'
 import { TitleLogo } from '../components/TitleLogo'
@@ -1096,6 +1097,14 @@ export function WatchOverlay() {
                 </div>
               ) : null}
             </div>
+            <CastMenu
+              variant="player"
+              onOpen={() => {
+                setAudioOpen(false)
+                setEpisodesOpen(false)
+                setSpeedOpen(false)
+              }}
+            />
             <button
               type="button"
               className="watch-ctrl"

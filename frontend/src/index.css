@@ -222,6 +222,10 @@ select,
   display: none;
 }
 
+.cast-menu.is-player {
+  display: contents;
+}
+
 .cast-btn {
   flex-shrink: 0;
   width: 32px;
@@ -7308,13 +7312,12 @@ img.is-logo-pending {
   padding: 8px 22px;
 }
 
-.watch-still-hint {
-  margin: 6px 0 0;
-  color: #b3b3b3;
-  font-size: 14px;
-  font-weight: 400;
-  max-width: 340px;
-  line-height: 1.4;
+.watch-overlay .cast-sheet {
+  z-index: 2500;
+}
+
+.watch-overlay .cast-sheet-card {
+  background: #141414;
 }
 
 .watch-help {

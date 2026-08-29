@@ -2,9 +2,16 @@ import { useEffect, useState } from 'react'
 import { playClick } from '../lib/sounds'
 import { CastIcon, CloseIcon } from './Icons'
 
-export function CastMenu() {
+export function CastMenu({
+  variant = 'header',
+  onOpen,
+}: {
+  variant?: 'header' | 'player'
+  onOpen?: () => void
+}) {
   const [open, setOpen] = useState(false)
   const [searching, setSearching] = useState(true)
+  const player = variant === 'player'
 
   useEffect(() => {
     if (!open) return
@@ -15,22 +22,24 @@ export function CastMenu() {
     }
     window.addEventListener('keydown', onKey)
     const previous = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    if (!player) document.body.style.overflow = 'hidden'
     return () => {
       window.clearTimeout(timer)
       window.removeEventListener('keydown', onKey)
-      document.body.style.overflow = previous
+      if (!player) document.body.style.overflow = previous
     }
-  }, [open])
+  }, [open, player])
 
   return (
-    <div className="cast-menu">
+    <div className={`cast-menu ${player ? 'is-player' : ''}`}>
       <button
         type="button"
-        className="cast-btn"
+        className={player ? 'watch-ctrl' : 'cast-btn'}
         aria-label="Cast"
-        onClick={() => {
+        onClick={(event) => {
+          event.stopPropagation()
           playClick()
+          onOpen?.()
           setOpen(true)
         }}
       >
@@ -60,7 +69,7 @@ export function CastMenu() {
               <>
                 <p className="cast-sheet-status">No devices found</p>
                 <p className="cast-sheet-hint">
-                  Make sure your TV or speaker is on and connected to the same Wi-Fi as this phone.
+                  Make sure your TV or speaker is on and connected to the same Wi-Fi as this device.
                 </p>
               </>
             )}
