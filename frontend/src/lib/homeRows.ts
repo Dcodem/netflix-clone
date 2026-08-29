@@ -67,7 +67,7 @@ function pushRow(rows: HomeRow[], row: HomeRow) {
   })
 }
 
-function stillWatching(entry: WatchHistoryItem) {
+export function stillWatching(entry: { progress?: number; kind?: string }) {
   const progress = entry.progress ?? 0
   if (progress < 0.05) return false
   if (progress < 0.9) return true

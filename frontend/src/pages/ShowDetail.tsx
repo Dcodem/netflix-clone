@@ -10,6 +10,7 @@ import { Spinner } from '../components/Spinner'
 import { TasteButtons } from '../components/TasteButtons'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
+import { stillWatching } from '../lib/homeRows'
 import { formatRating, formatRuntime, genresOf } from '../lib/media'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
@@ -120,7 +121,7 @@ export function ShowDetail() {
               <div className="detail-actions">
                 <button type="button" className="btn btn-play" onClick={onWatchShow} disabled={!watchHref}>
                   <PlayIcon className="icon" />
-                  {last?.progress && last.progress > 0.05 ? 'Resume' : 'Play'}
+                  {last && stillWatching(last) ? 'Resume' : 'Play'}
                 </button>
                 <Link className="btn btn-info" to="/browse">
                   Back

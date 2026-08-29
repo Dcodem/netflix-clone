@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
+import { stillWatching } from '../lib/homeRows'
 import { formatRuntime, genresOf, isShow, remainingLabel } from '../lib/media'
 import { isNewEpisodes, matchPercent, maturityLabel } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -173,7 +174,7 @@ export function TitleHoverCard({
           detail={detail}
           watchHref={watchHref}
           size="sm"
-          continueMode={Boolean(progress && progress > 0.05)}
+          continueMode={stillWatching({ progress, kind: item.kind })}
         />
         <div className="jawbone-meta">
           <span className="match">{match}% Match</span>

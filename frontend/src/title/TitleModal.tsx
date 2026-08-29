@@ -13,6 +13,7 @@ import { FeatureBadges } from '../components/FeatureBadges'
 import { GenreDots } from '../components/GenreDots'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
+import { stillWatching } from '../lib/homeRows'
 import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
 import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes, filterByMaturity } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
@@ -121,7 +122,7 @@ export function TitleModal() {
   const watchHref = isShow(item)
     ? last?.watch_href || resumeEpisode?.watch_href || detail?.watch_href
     : detail?.watch_href
-  const continueMode = Boolean(last?.progress && last.progress > 0.05)
+  const continueMode = Boolean(last && stillWatching(last))
   const activeTab = tab ?? (isShow(item) ? 'episodes' : 'more')
 
   function selectTab(next: 'episodes' | 'more' | 'trailers') {

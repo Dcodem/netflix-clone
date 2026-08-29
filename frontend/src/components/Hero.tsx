@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem } from '../api/types'
+import { stillWatching } from '../lib/homeRows'
 import { genresOf, isShow } from '../lib/media'
 import { buildWatchSession } from '../lib/watchSession'
 import { maturityLabel, toLiked } from '../lib/netflix'
@@ -173,7 +174,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
         <div className="hero-actions">
           <button type="button" className="btn btn-play" onClick={onWatch} disabled={!sessionReady}>
             <PlayIcon className="icon" />
-            {last?.progress && last.progress > 0.05 ? 'Resume' : 'Play'}
+            {last && stillWatching(last) ? 'Resume' : 'Play'}
           </button>
           <button type="button" className="btn btn-info hero-more" onClick={() => openTitle(item)}>
             <InfoIcon className="icon" />

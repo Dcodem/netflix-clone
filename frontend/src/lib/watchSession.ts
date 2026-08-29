@@ -23,6 +23,7 @@ export function buildWatchSession(
       : detail?.watch_href || history?.watch_href) ||
     undefined
   if (!href) return null
+  const replayMovie = !isShow(item) && (history?.progress ?? 0) >= 0.9
   return {
     href,
     payload: {
@@ -34,7 +35,7 @@ export function buildWatchSession(
       genres: genresOf(detail ?? item),
       watch_href: href,
       runtime: resumeEpisode?.duration ?? detail?.runtime ?? history?.runtime ?? null,
-      progress: restart ? 0 : history?.progress,
+      progress: restart || replayMovie ? 0 : history?.progress,
       seasonNumber: history?.seasonNumber ?? resumeSeason?.season_number,
       episodeNumber: history?.episodeNumber ?? resumeEpisode?.number,
       episodeId: history?.episodeId ?? resumeEpisode?.id,

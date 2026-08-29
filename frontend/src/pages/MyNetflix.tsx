@@ -9,7 +9,7 @@ import { MediaRow } from '../components/MediaRow'
 import { useAuth } from '../auth/AuthContext'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
-import { historyToListItems, likedToItems } from '../lib/homeRows'
+import { historyToListItems, likedToItems, stillWatching } from '../lib/homeRows'
 import { isShow, uniqueById } from '../lib/media'
 import { catalogNotices, filterByMaturity } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
@@ -31,7 +31,7 @@ export function MyNetflix() {
   const catalog = filterByMaturity(movies.data ?? [], activeProfile)
   const continueItems = historyToListItems(
     (activeProfile?.history ?? []).filter(
-      (item) => item.progress && item.progress > 0.05 && !activeProfile?.hiddenContinueIds.includes(item.id),
+      (item) => stillWatching(item) && !activeProfile?.hiddenContinueIds.includes(item.id),
     ),
   )
   const progressById = Object.fromEntries(
