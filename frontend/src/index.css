@@ -1429,7 +1429,7 @@ select,
 }
 
 .episode.is-resume {
-  background: #2a2a2a;
+  background: #2f2f2f;
 }
 
 .ep-meta,
@@ -4115,7 +4115,11 @@ img.is-logo-pending {
 
 .episode-btn.is-resume,
 .episode.is-resume {
-  background: #2a2a2a;
+  background: #2f2f2f;
+  border-radius: 4px;
+  margin: 0 -8px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .browse-menu summary {
@@ -4803,6 +4807,12 @@ img.is-logo-pending {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+}
+
+.more-like-year {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .more-like-art:hover img,

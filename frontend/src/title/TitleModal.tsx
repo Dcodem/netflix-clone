@@ -265,11 +265,12 @@ export function TitleModal() {
                 {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
                 {item.year ? <span>{item.year}</span> : null}
                 <span className="maturity">{maturity}</span>
-                {runtime ? <span>{runtime}</span> : null}
                 {isShow(item) && seasons.length ? (
                   <span>
                     {seasons.length} {seasons.length === 1 ? 'Season' : 'Seasons'}
                   </span>
+                ) : runtime ? (
+                  <span>{runtime}</span>
                 ) : null}
                 <FeatureBadges quality={item.quality || detail?.quality} />
               </div>
@@ -353,16 +354,16 @@ export function TitleModal() {
                     const src = stillUrl(file)
                     if (!src) return null
                     const captions = [
-                      `Trailer: ${item.title}`,
-                      `Teaser: ${item.title}`,
-                      'Clip 1',
+                      'Trailer',
+                      'Teaser',
+                      'Clip',
                       'Recap',
                       'Featurette',
+                      'Behind the Scenes',
                       'Clip 2',
-                      'Clip 3',
-                      'Bonus clip',
+                      'Bonus',
                     ]
-                    const caption = captions[index] ?? `Clip ${index}`
+                    const caption = captions[index] ?? `Clip ${index + 1}`
                     return (
                       <button
                         type="button"
@@ -390,6 +391,11 @@ export function TitleModal() {
 
           <section className="title-about title-section">
             <h2>About {item.title}</h2>
+            {item.year ? (
+              <p>
+                <span className="title-kicker">Release year:</span> {item.year}
+              </p>
+            ) : null}
             {detail?.cast?.length ? (
               <p>
                 <span className="title-kicker">Cast:</span> {detail.cast.join(', ')}
