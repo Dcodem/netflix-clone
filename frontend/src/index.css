@@ -7440,7 +7440,7 @@ img.is-logo-pending {
   line-height: 1;
   color: var(--accent);
   text-transform: uppercase;
-  animation: flix-ident-bump 1.7s ease both;
+  animation: flix-ident-bump 2.2s ease both;
 }
 
 @keyframes flix-ident-bump {
