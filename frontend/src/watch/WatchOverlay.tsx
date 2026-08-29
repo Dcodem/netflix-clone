@@ -1198,12 +1198,17 @@ export function WatchOverlay() {
           ) : null}
           <div className="watch-still-inner">
             <p className="watch-still-kicker">{session.history?.title || session.title}</p>
+            {episodeLabel ? (
+              <p className="watch-still-ep">
+                {episodeLabel}
+                {playing?.episode.title ? ` ${playing.episode.title}` : ''}
+              </p>
+            ) : null}
             <h2>Are you still watching?</h2>
             <button type="button" className="btn btn-play" onClick={continueWatching}>
               <PlayIcon className="icon" />
               Continue Watching
             </button>
-            <p className="watch-still-hint">If you don&apos;t select Continue Watching, playback will pause.</p>
           </div>
         </div>
       ) : null}

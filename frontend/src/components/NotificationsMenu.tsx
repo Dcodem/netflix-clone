@@ -33,6 +33,7 @@ export function NotificationsMenu() {
       </button>
       {open ? (
         <div className="notify-dropdown" role="menu">
+          <p className="notify-head">Notifications</p>
           {notices.length ? (
             <div className="notify-list">
               {notices.map(({ item, kicker, stamp }) => (
