@@ -1,11 +1,15 @@
 import { type FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { AvatarArt } from '../components/AvatarArt'
 import { ChevronRightIcon } from '../components/Icons'
+import { useProfiles } from '../profiles/ProfileContext'
+import { avatarFor } from '../profiles/types'
 import { envKeys } from '../trailers/types'
 
 export function Account() {
   const { user, updateKeys } = useAuth()
+  const { profiles } = useProfiles()
   const env = envKeys()
   const [ivaKey, setIvaKey] = useState(user?.ivaKey ?? '')
   const [tmdbKey, setTmdbKey] = useState(user?.tmdbKey ?? '')
@@ -56,15 +60,21 @@ export function Account() {
       </section>
 
       <section className="account-list">
-        <h2>Security & Privacy</h2>
-        <Link className="account-row is-link" to="/" state={{ manage: true }}>
-          <span>Profile & parental controls</span>
-          <ChevronRightIcon className="icon" />
-        </Link>
-        <Link className="account-row is-link" to="/" state={{ manage: true }}>
-          <span>Manage profiles</span>
-          <ChevronRightIcon className="icon" />
-        </Link>
+        <h2>Profile & Parental Controls</h2>
+        {profiles.map((profile) => {
+          const avatar = avatarFor(profile)
+          return (
+            <Link className="account-row is-link" key={profile.id} to="/" state={{ manage: true }}>
+              <span className="account-profile">
+                <span className="account-avatar" style={{ background: avatar.color }}>
+                  <AvatarArt avatar={avatar} alt={profile.name} />
+                </span>
+                {profile.name}
+              </span>
+              <ChevronRightIcon className="icon" />
+            </Link>
+          )
+        })}
       </section>
 
       <details className="account-extras">

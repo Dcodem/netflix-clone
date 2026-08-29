@@ -1213,7 +1213,7 @@ select,
   align-items: center;
   padding: 16px 12px;
   border-bottom: 1px solid #2f2f2f;
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 .episode-btn:hover {
@@ -1917,19 +1917,51 @@ select,
   font-size: 14px;
 }
 
+.account-page .account-lead,
+.account-page .account-hint {
+  color: #737373;
+}
+
+.app-shell:has(.account-page) {
+  background: #f3f3f3;
+}
+
+.app-shell:has(.account-page) .site-footer {
+  color: #737373;
+  background: #f3f3f3;
+}
+
+.app-shell:has(.account-page) .site-footer-social a,
+.app-shell:has(.account-page) .site-footer-grid a {
+  color: #737373;
+}
+
+.app-shell:has(.account-page) .site-footer-social a:hover,
+.app-shell:has(.account-page) .site-footer-grid a:hover {
+  color: #221f1f;
+}
+
+.app-shell:has(.account-page) .service-code {
+  border-color: #737373;
+  color: #737373;
+}
+
 .account-page {
   max-width: 1024px;
+  color: #333;
+  padding-bottom: 48px;
 }
 
 .account-page h1 {
   margin: 0 0 22px;
   font-size: clamp(28px, 4vw, 36px);
   font-weight: 700;
+  color: #333;
 }
 
 .account-membership {
   padding: 0 0 28px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #ccc;
   margin: 0 0 28px;
   max-width: 720px;
 }
@@ -1947,8 +1979,8 @@ select,
 .account-list h2 {
   margin: 0 0 4px;
   font-size: 18px;
-  font-weight: 500;
-  color: #808080;
+  font-weight: 400;
+  color: #e50914;
 }
 
 .account-row {
@@ -1957,26 +1989,26 @@ select,
   justify-content: space-between;
   gap: 16px;
   padding: 16px 0;
-  border-top: 1px solid #2a2a2a;
-  color: #fff;
+  border-top: 1px solid #ccc;
+  color: #333;
   font-size: 16px;
   text-decoration: none;
   background: none;
 }
 
 .account-row span:last-child {
-  color: #808080;
+  color: #737373;
 }
 
 .account-row.is-link {
-  color: #fff;
+  color: #333;
   cursor: pointer;
 }
 
 .account-row.is-link .icon {
   width: 20px;
   height: 20px;
-  color: #808080;
+  color: #737373;
   flex-shrink: 0;
 }
 
@@ -1984,10 +2016,54 @@ select,
   text-decoration: underline;
 }
 
+.account-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  color: #333;
+  font-weight: 600;
+}
+
+.account-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.account-avatar img,
+.account-avatar span {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: grid;
+  place-items: center;
+}
+
+.account-page .spec-badge {
+  border-color: #333;
+  color: #333;
+}
+
+.account-page .account-form input {
+  background: #fff;
+  border: 1px solid #b3b3b3;
+  color: #333;
+}
+
+.account-page .btn-primary {
+  justify-self: start;
+}
+
 .account-extras {
   max-width: 720px;
   margin: 8px 0 40px;
-  color: #808080;
+  color: #737373;
 }
 
 .account-extras summary {
@@ -1999,6 +2075,10 @@ select,
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.account-page .account-extras summary {
+  color: #333;
 }
 
 .account-extras summary::-webkit-details-marker {
@@ -2044,7 +2124,7 @@ select,
 }
 
 .account-email {
-  color: #fff;
+  color: #333;
   font-size: 16px;
   font-weight: 600;
 }
@@ -2053,7 +2133,7 @@ select,
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #fff;
+  color: #333;
 }
 
 .account-card a {
@@ -2090,6 +2170,11 @@ select,
 .account-form a,
 .account-hint a {
   color: #fff;
+}
+
+.account-page .account-form a,
+.account-page .account-hint a {
+  color: #0071eb;
 }
 
 .account-menu {
@@ -4362,10 +4447,10 @@ img.is-logo-pending {
 }
 
 .search-recommended-title {
-  margin: 4px 0 12px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #e5e5e5;
+  margin: 4px 0 16px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
 }
 
 .search-page {
@@ -4379,7 +4464,6 @@ img.is-logo-pending {
 
 @media (min-width: 768px) {
   .search-page .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8px;
   }
 
@@ -4390,14 +4474,14 @@ img.is-logo-pending {
 }
 
 @media (min-width: 1100px) {
-  .search-page .grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+  .search-page .grid.is-poster-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1500px) {
-  .search-page .grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+@media (min-width: 1600px) {
+  .search-page .grid.is-poster-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
   }
 }
 
@@ -4591,10 +4675,15 @@ img.is-logo-pending {
   inset: 0;
   display: grid;
   place-items: center;
-  opacity: 0.88;
+  opacity: 0;
   transition: opacity 0.15s ease, background 0.15s ease;
   background: transparent;
   pointer-events: none;
+}
+
+.episode-btn:hover .ep-play,
+.episode-btn:focus-visible .ep-play {
+  opacity: 1;
 }
 
 .ep-play .icon {
@@ -4944,7 +5033,7 @@ img.is-logo-pending {
 }
 
 .app-shell:has(.search-page) .site-footer {
-  display: none;
+  display: block;
 }
 
 .site-footer-inner {
@@ -7790,7 +7879,7 @@ img.is-logo-pending {
 
 .title-about p {
   margin: 0 0 10px;
-  color: #d2d2d2;
+  color: #fff;
   font-size: 14px;
   line-height: 1.45;
 }
