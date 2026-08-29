@@ -3428,18 +3428,18 @@ body:has(.account-page),
   float: right;
   top: 12px;
   z-index: 12;
-  width: 36px;
-  height: 36px;
-  margin: 16px 16px -52px 0;
+  width: 40px;
+  height: 40px;
+  margin: 16px 16px -56px 0;
   border-radius: 50%;
   border: 0;
-  background: #181818;
+  background: #141414;
   color: #fff;
   font-size: 24px;
   cursor: pointer;
   display: grid;
   place-items: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
 }
 
 .title-modal-close .icon {

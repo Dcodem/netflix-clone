@@ -172,6 +172,16 @@ const EPISODE_BEATS_BY_GENRE = {
     'The new kid in class has a secret that does not fit in a backpack.',
     'A race to the festival starts with the wrong shoes and the right friends.',
     'Home is one street over, and somehow still a whole world away.',
+    'A cardboard fort is declared a sovereign nation before lunch.',
+    'The last biscuit starts a negotiation that lasts all afternoon.',
+    'A backyard game needs a referee. The dog volunteers.',
+    'Someone draws a map of the house and forgets the most important room.',
+    'A rainy-day plan escapes the living room and takes the street with it.',
+    'The fancy outfit survives everything except the puddle by the gate.',
+    'A bedtime story gets rewritten by the people who are supposed to be asleep.',
+    'The keep-away game works until the keep-away object has opinions.',
+    'A borrowed cape turns a regular walk into a parade of two.',
+    'The treasure was under the couch the whole time. Getting it out is the plot.',
   ],
   Comedy: [
     'A well-meant plan collapses in front of the one person who cannot laugh yet.',
@@ -202,6 +212,14 @@ const EPISODE_BEATS_BY_GENRE = {
     'The school play needs a lead. The understudy has other plans.',
     'A promise made at breakfast has to survive the long way home.',
     'Everyone wants to be the hero. The dog already is.',
+    'The science fair volcano was supposed to be a model. It is not.',
+    'A sleepover rulebook is written, signed, and immediately ignored.',
+    'The long way home includes a detour that nobody will admit to planning.',
+    'Someone has to return the library book. The book has other ideas.',
+    'A family photo needs everyone looking at the same camera at the same time.',
+    'The leftover cake is missing. The investigation is not subtle.',
+    'A weekend chore chart becomes a heist movie with snacks.',
+    'The guest room is ready. The guest is a raccoon with confidence.',
   ],
   Fantasy: [
     'A door that was painted shut opens for the one person who was told not to knock.',
@@ -581,9 +599,12 @@ function episodeTitleFor(item, seasonNumber, number) {
 
 function episodeSynopsisFor(item, seasonNumber, number) {
   const genre = item.genres[0] ?? 'Drama'
-  const pool = EPISODE_BEATS_BY_GENRE[genre] ?? EPISODE_BEATS
-  const n = hashString(`${item.id}:s${seasonNumber}e${number}`)
-  return pool[n % pool.length]
+  const genrePool = EPISODE_BEATS_BY_GENRE[genre] ?? []
+  const kid = genre === 'Animation' || genre === 'Family'
+  const extra = kid ? [] : EPISODE_BEATS
+  const pool = [...genrePool, ...extra]
+  const start = hashString(`${item.id}:s${seasonNumber}`) % pool.length
+  return pool[(start + number - 1) % pool.length]
 }
 
 function makeItem(index, kind) {

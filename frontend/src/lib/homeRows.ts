@@ -173,6 +173,13 @@ export function buildBrowseRows(opts: {
   const newTitle = filter === 'movies' ? 'New Movies' : filter === 'shows' ? 'New TV Shows' : 'New Releases'
   pushRow(rows, { id: 'new', title: newTitle, items: sortByYear(pool) })
 
+  pushRow(rows, {
+    id: 'watch-again',
+    title: 'Watch It Again',
+    items: historyToListItems(becauseHistory.filter((entry) => (entry.progress ?? 0) >= 0.9)),
+    loop: false,
+  })
+
   for (const row of becauseYouWatchedRows(pool, becauseHistory, filter === 'home' ? 3 : 4)) {
     pushRow(rows, {
       id: row.id,
