@@ -67,6 +67,17 @@ function pushRow(rows: HomeRow[], row: HomeRow) {
   })
 }
 
+function stillWatching(entry: WatchHistoryItem) {
+  const progress = entry.progress ?? 0
+  if (progress < 0.05) return false
+  if (progress < 0.9) return true
+  return entry.kind === 'show'
+}
+
+function finishedMovie(entry: WatchHistoryItem) {
+  return entry.kind !== 'show' && (entry.progress ?? 0) >= 0.9
+}
+
 export function catalogGenres(items: MovieListItem[]): string[] {
   return [...new Set(items.flatMap((item) => genresOf(item)))].sort()
 }
@@ -134,10 +145,13 @@ export function buildBrowseRows(opts: {
   }
 
   const hidden = new Set(profile?.hiddenContinueIds ?? [])
+  const continueIds = new Set(
+    becauseHistory.filter((entry) => !hidden.has(entry.id) && stillWatching(entry)).map((entry) => entry.id),
+  )
   pushRow(rows, {
     id: 'continue',
     title: profile?.name ? `Continue Watching for ${profile.name}` : 'Continue Watching',
-    items: historyPool.filter((item) => !hidden.has(item.id)),
+    items: historyPool.filter((item) => continueIds.has(item.id)),
     variant: 'continue',
     loop: false,
   })
@@ -170,13 +184,19 @@ export function buildBrowseRows(opts: {
     })
   }
 
+  pushRow(rows, {
+    id: 'only-flix',
+    title: 'Only on FLIX',
+    items: recommendRail(filter === 'movies' ? movies : filter === 'shows' ? shows : shows, profile),
+  })
+
   const newTitle = filter === 'movies' ? 'New Movies' : filter === 'shows' ? 'New TV Shows' : 'New Releases'
   pushRow(rows, { id: 'new', title: newTitle, items: sortByYear(pool) })
 
   pushRow(rows, {
     id: 'watch-again',
     title: 'Watch It Again',
-    items: historyToListItems(becauseHistory.filter((entry) => (entry.progress ?? 0) >= 0.9)),
+    items: historyToListItems(becauseHistory.filter(finishedMovie)),
     loop: false,
   })
 
