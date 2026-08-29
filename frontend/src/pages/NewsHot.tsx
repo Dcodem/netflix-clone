@@ -235,15 +235,14 @@ function NewsHotFeed() {
   const chipBtnRefs = useRef<Partial<Record<NewsChip, HTMLButtonElement | null>>>({})
   const jumpingRef = useRef(false)
   const [chip, setChip] = useState<NewsChip | null>(null)
-  const coming = useMemo(
-    () =>
-      catalog
-        .filter(comingSoon)
-        .slice()
-        .sort((a, b) => comingDate(a.id).getTime() - comingDate(b.id).getTime())
-        .slice(0, 12),
-    [catalog],
-  )
+  const coming = useMemo(() => {
+    const soon = catalog.filter(comingSoon)
+    const series = soon.filter(isShow)
+    const films = soon.filter((item) => !isShow(item))
+    return uniqueById([...series.slice(0, 4), ...films.slice(0, 10)]).sort(
+      (a, b) => comingDate(a.id).getTime() - comingDate(b.id).getTime(),
+    )
+  }, [catalog])
   const watching = useMemo(() => {
     const seen = new Set(coming.map((item) => item.id))
     return sortByRating(catalog.filter((item) => !seen.has(item.id))).slice(0, 12)
