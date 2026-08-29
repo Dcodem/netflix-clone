@@ -88,6 +88,7 @@ export function AccountMenu() {
             <HelpCircleIcon className="icon" />
             Help Center
           </Link>
+          <div className="account-dropdown-rule" />
           <button
             type="button"
             onClick={() => {

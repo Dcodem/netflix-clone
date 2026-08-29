@@ -114,7 +114,7 @@ function FeedCard({
         </div>
       ) : null}
       {ranked ? (
-        <div className="news-rank" aria-hidden="true">
+        <div className="news-rank" data-rank={rank} aria-hidden="true">
           {rank}
         </div>
       ) : null}

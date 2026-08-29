@@ -329,7 +329,9 @@ export function Login() {
         </p>
       </div>
       <footer className="login-footer">
-        <p>Questions? This clone keeps accounts on this device.</p>
+        <p>
+          Questions? Call <a href="tel:18445052993">1-844-505-2993</a>
+        </p>
         <ul className="login-footer-links">
           <li>FAQ</li>
           <li>Help Center</li>

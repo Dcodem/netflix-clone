@@ -72,7 +72,12 @@ export function PosterCard({
       onPointerLeave={onLeave}
     >
       {ranked ? (
-        <span className={`rank-num ${rank === 1 ? 'is-first' : ''} ${rank === 10 ? 'is-ten' : ''}`}>{rank}</span>
+        <span
+          className={`rank-num ${rank === 1 ? 'is-first' : ''} ${rank === 10 ? 'is-ten' : ''}`}
+          data-rank={rank}
+        >
+          {rank}
+        </span>
       ) : null}
       <button
         type="button"
