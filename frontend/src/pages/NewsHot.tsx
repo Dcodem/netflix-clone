@@ -7,11 +7,12 @@ import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { GenreDots } from '../components/GenreDots'
 import { Spinner } from '../components/Spinner'
+import { TitleLogo } from '../components/TitleLogo'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { Home } from './Home'
 import { genresOf, isShow, ofKind, sortByRating, uniqueById } from '../lib/media'
-import { matchPercent, maturityLabel, toLiked } from '../lib/netflix'
+import { filterByMaturity, matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -87,20 +88,11 @@ function FeedCard({
         return
       }
     } catch {
-      /* fall through to constructed play href */
+      /* fall through to the title preview */
     } finally {
       setPlaying(false)
     }
-    const href = `/watch/play/${item.id}`
-    openWatch(href, item.title, {
-      id: item.id,
-      kind: item.kind ?? 'movie',
-      title: item.title,
-      year: item.year,
-      poster_url: item.poster_url ?? null,
-      genres: item.genres ?? [],
-      watch_href: href,
-    })
+    openTitle(item)
   }
 
   return (
@@ -125,7 +117,7 @@ function FeedCard({
         <div className="news-title-row">
           <div className="news-title-copy">
             {mode === 'watching' && kicker ? <p className="news-kicker">{kicker}</p> : null}
-            <h2>{item.title}</h2>
+            <TitleLogo item={item} className="news-title-logo" titleClassName="news-title-text" />
           </div>
           <div className="news-icon-actions">
             {mode === 'soon' ? (
@@ -137,7 +129,7 @@ function FeedCard({
                 <span className="news-icon-disc">
                   {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
                 </span>
-                {onList ? 'Reminded' : 'Remind Me'}
+                Remind Me
               </button>
             ) : (
               <button type="button" className="news-icon-btn is-play" onClick={() => void playNow()} disabled={playing}>
@@ -208,9 +200,10 @@ function NewsHotFeed() {
     return uniqueById([...catalogMovies, ...catalogShows])
   }, 'news-catalog')
 
+  const { activeProfile } = useProfiles()
   const catalog = useMemo(
-    () => uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]),
-    [movies.data, extras.data],
+    () => filterByMaturity(uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]), activeProfile),
+    [movies.data, extras.data, activeProfile],
   )
   const comingRef = useRef<HTMLElement>(null)
   const watchingRef = useRef<HTMLElement>(null)

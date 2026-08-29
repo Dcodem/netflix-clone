@@ -10,6 +10,7 @@ import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { sortByRating, uniqueById } from '../lib/media'
+import { filterByMaturity } from '../lib/netflix'
 import { clearRecentSearches, listRecentSearches, removeRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { relatedSearchResults } from '../profiles/taste'
@@ -39,19 +40,23 @@ export function Search() {
   }, 'search-catalog')
   const popular = useFetch(() => getMovies(), 'search-popular', { enabled: !enabled })
   const [recents, setRecents] = useState(listRecentSearches)
-  const pool = useMemo(() => catalog.data ?? [], [catalog.data])
+  const pool = useMemo(
+    () => filterByMaturity(catalog.data ?? [], activeProfile),
+    [catalog.data, activeProfile],
+  )
   const hits = useMemo(() => {
-    const fromApi = data ?? []
+    const fromApi = filterByMaturity(data ?? [], activeProfile)
     return uniqueById([...fromApi, ...catalogHits(q, pool)])
-  }, [data, q, pool])
-  const items = useMemo(
-    () => relatedSearchResults(hits, pool, activeProfile, 48),
-    [hits, pool, activeProfile],
-  )
+  }, [data, q, pool, activeProfile])
+  const related = useMemo(() => {
+    const hitIds = new Set(hits.map((item) => item.id))
+    return relatedSearchResults(hits, pool, activeProfile, 48).filter((item) => !hitIds.has(item.id))
+  }, [hits, pool, activeProfile])
   const popularItems = useMemo(
-    () => sortByRating(popular.data ?? []).slice(0, 18),
-    [popular.data],
+    () => sortByRating(filterByMaturity(popular.data ?? [], activeProfile)).slice(0, 18),
+    [popular.data, activeProfile],
   )
+  const desktopItems = useMemo(() => uniqueById([...hits, ...related]), [hits, related])
   const phone = useMediaQuery('(max-width: 767px)')
 
   useEffect(() => {
@@ -111,9 +116,9 @@ export function Search() {
               {phone ? 'Top Searches' : 'Recommended TV Shows and Movies'}
             </h2>
             {phone ? (
-              <SearchHitsList items={popularItems} ranked />
+              <SearchHitsList items={popularItems.slice(0, 10)} ranked />
             ) : (
-              <MediaGrid items={popularItems} />
+              <MediaGrid items={popularItems} layout="poster" />
             )}
           </>
         ) : null}
@@ -137,31 +142,45 @@ export function Search() {
     )
   }
 
+  if (!hits.length && !related.length) {
+    return (
+      <main className="page page-pad search-page">
+        <div className="search-empty">
+          <p>Your search for “{q}” did not have any matches.</p>
+          <p className="search-empty-kicker">Suggestions:</p>
+          <ul>
+            <li>Try different keywords</li>
+            <li>Looking for a movie or TV show?</li>
+            <li>Try using a movie, TV show title, an actor or director</li>
+            <li>Try a genre, like comedy, romance, sports, or drama</li>
+          </ul>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="page page-pad search-page">
-      {items.length ? (
+      {phone ? (
         <>
-          <h1 className="search-heading">
-            Explore titles related to: <span>{q}</span>
-          </h1>
-          {phone ? (
-            <SearchHitsList items={items} />
-          ) : (
-            <MediaGrid items={items} />
-          )}
+          {hits.length ? <SearchHitsList items={hits} /> : null}
+          {related.length ? (
+            <>
+              <h1 className={`search-heading ${hits.length ? 'is-related' : ''}`}>
+                Explore titles related to: <span>{q}</span>
+              </h1>
+              <SearchHitsList items={related} />
+            </>
+          ) : null}
         </>
       ) : (
         <>
-          <div className="search-empty">
-            <p>Your search for “{q}” did not have any matches.</p>
-            <p className="search-empty-kicker">Suggestions:</p>
-            <ul>
-              <li>Try different keywords</li>
-              <li>Looking for a movie or TV show?</li>
-              <li>Try using a movie, TV show title, an actor or director</li>
-              <li>Try a genre, like comedy, romance, sports, or drama</li>
-            </ul>
-          </div>
+          {!hits.length && related.length ? (
+            <h1 className="search-heading">
+              Explore titles related to: <span>{q}</span>
+            </h1>
+          ) : null}
+          <MediaGrid items={desktopItems} layout="poster" />
         </>
       )}
     </main>

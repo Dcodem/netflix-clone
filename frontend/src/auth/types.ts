@@ -7,6 +7,7 @@ export type UserAccount = {
   createdAt: number
   ivaKey: string
   tmdbKey: string
+  phone?: string | null
 }
 
 export type AuthStore = {

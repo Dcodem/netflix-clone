@@ -9,10 +9,22 @@ const COLUMNS = [
   ['Media Center', 'Buy Gift Cards', 'Cookie Preferences', 'Legal Notices'],
 ] as const
 
-const HREFS: Record<string, string> = {
-  Account: '/account',
-  'Help Center': '/account',
-  FAQ: '/account',
+export const FOOTER_NOTES: Record<string, string> = {
+  FAQ: 'FLIX is a browser-only demo. There is no live FAQ beyond Account and what’s on this device.',
+  'Help Center': 'Help for this device lives in Account. There is no live chat or phone support for FLIX.',
+  'Terms of Use': 'This clone is for demonstration. It is not affiliated with Netflix.',
+  Privacy: 'Profile picks and watch history stay in this browser. Catalog artwork may load from TMDB.',
+  'Legal Notices': 'FLIX is an independent demo. Title names and artwork come from the catalog and TMDB.',
+  'Corporate Information': 'There is no FLIX corporation. This app runs in your browser.',
+  'Investor Relations': 'FLIX is not a public company and has no investor site.',
+  Jobs: 'There are no open roles for this demo.',
+  'Ways to Watch': 'Watch in this browser with Play. There is no TV app or extra device download.',
+  'Contact Us': 'There is no support inbox for this demo.',
+  'Speed Test': 'Playback uses this device’s connection. There is no separate speed test.',
+  'Media Center': 'There is no press kit for this demo.',
+  'Redeem Gift Cards': 'Gift cards and promo codes are not used on this device.',
+  'Buy Gift Cards': 'Gift cards are not sold on this device.',
+  'Transfer Profile': 'Profile transfer isn’t available on this device. Use Manage Profiles to edit who’s watching.',
 }
 
 const FOOTER_LANGS = [
@@ -86,21 +98,23 @@ export function FooterLang({ className }: { className?: string }) {
 
 export function SiteFooter() {
   const [code, setCode] = useState<string | null>(null)
+  const [cookies, setCookies] = useState(false)
+  const [note, setNote] = useState<string | null>(null)
 
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
         <div className="site-footer-social">
-          <a href="https://www.facebook.com/netflix" target="_blank" rel="noreferrer" aria-label="Facebook">
+          <a href="#facebook" onClick={(event) => event.preventDefault()} aria-label="Facebook">
             <FacebookIcon className="icon" />
           </a>
-          <a href="https://www.instagram.com/netflix" target="_blank" rel="noreferrer" aria-label="Instagram">
+          <a href="#instagram" onClick={(event) => event.preventDefault()} aria-label="Instagram">
             <InstagramIcon className="icon" />
           </a>
-          <a href="https://twitter.com/netflix" target="_blank" rel="noreferrer" aria-label="X">
+          <a href="#x" onClick={(event) => event.preventDefault()} aria-label="X">
             <TwitterIcon className="icon" />
           </a>
-          <a href="https://www.youtube.com/netflix" target="_blank" rel="noreferrer" aria-label="YouTube">
+          <a href="#youtube" onClick={(event) => event.preventDefault()} aria-label="YouTube">
             <YoutubeIcon className="icon" />
           </a>
         </div>
@@ -109,7 +123,17 @@ export function SiteFooter() {
             <ul key={index}>
               {column.map((label) => (
                 <li key={label}>
-                  <Link to={HREFS[label] ?? '/account'}>{label}</Link>
+                  {label === 'Cookie Preferences' ? (
+                    <button type="button" className="site-footer-link" onClick={() => setCookies(true)}>
+                      Cookie Preferences
+                    </button>
+                  ) : label === 'Account' ? (
+                    <Link to="/account">Account</Link>
+                  ) : (
+                    <button type="button" className="site-footer-link" onClick={() => setNote(label)}>
+                      {label}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -122,8 +146,94 @@ export function SiteFooter() {
         >
           {code ?? 'Service Code'}
         </button>
+        <FooterLang />
         <p className="site-footer-copy">© 1997-{new Date().getFullYear()} Flix, Inc.</p>
       </div>
+      <CookiePrefsDialog open={cookies} onClose={() => setCookies(false)} />
+      {note && FOOTER_NOTES[note] ? (
+        <FooterNoteDialog title={note} body={FOOTER_NOTES[note]} onClose={() => setNote(null)} />
+      ) : null}
     </footer>
+  )
+}
+
+export function FooterNoteDialog({
+  title,
+  body,
+  onClose,
+}: {
+  title: string
+  body: string
+  onClose: () => void
+}) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  return (
+    <div className="cookie-prefs" role="presentation" onClick={onClose}>
+      <div
+        className="cookie-prefs-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="footer-note-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2 id="footer-note-title">{title}</h2>
+        <p>{body}</p>
+        <button type="button" className="btn btn-primary" onClick={onClose}>
+          Close
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export function CookiePrefsDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (!open) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, onClose])
+
+  if (!open) return null
+
+  return (
+    <div className="cookie-prefs" role="presentation" onClick={onClose}>
+      <div
+        className="cookie-prefs-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cookie-prefs-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2 id="cookie-prefs-title">Cookie Preferences</h2>
+        <p>FLIX uses necessary cookies to keep you signed in on this device. Optional cookies stay off.</p>
+        <ul className="cookie-prefs-list">
+          <li>
+            Necessary <em>Always on</em>
+          </li>
+          <li>
+            Performance <em>Off</em>
+          </li>
+          <li>
+            Functional <em>Off</em>
+          </li>
+          <li>
+            Advertising <em>Off</em>
+          </li>
+        </ul>
+        <button type="button" className="btn btn-primary" onClick={onClose}>
+          Save settings
+        </button>
+      </div>
+    </div>
   )
 }

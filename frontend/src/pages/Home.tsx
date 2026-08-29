@@ -13,7 +13,8 @@ import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { buildBrowseRows, catalogGenres, type BrowseFilter } from '../lib/homeRows'
-import { ofKind, pickHero, uniqueById } from '../lib/media'
+import { isShow, ofKind, pickHero, sortByRating, uniqueById } from '../lib/media'
+import { filterByMaturity } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 
 const HEADINGS: Record<BrowseFilter, string | null> = {
@@ -73,8 +74,8 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     const extraMovies = extras.data?.catalogMovies ?? []
     const extraShows = extras.data?.catalogShows ?? []
     const merged = uniqueById([...homeItems, ...extraMovies, ...extraShows])
-    return merged
-  }, [movies.data, extras.data])
+    return filterByMaturity(merged, activeProfile)
+  }, [movies.data, extras.data, activeProfile])
 
   const kindPool = useMemo(
     () => ofKind(catalog, filter === 'home' || filter === 'popular' ? 'all' : filter),
@@ -85,7 +86,19 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     () => (genre ? kindPool.filter((item) => (item.genres ?? []).includes(genre)) : kindPool),
     [kindPool, genre],
   )
-  const hero = useMemo(() => pickHero(pool), [pool])
+  const top10 = useMemo(() => sortByRating(pool).slice(0, 10), [pool])
+  const hero = useMemo(() => pickHero(top10.length ? top10 : pool), [top10, pool])
+  const heroRank = useMemo(() => {
+    if (!hero) return 0
+    const index = top10.findIndex((item) => item.id === hero.id)
+    return index >= 0 ? index + 1 : 0
+  }, [hero, top10])
+  const heroRankLabel =
+    filter === 'movies'
+      ? 'Movies Today'
+      : filter === 'shows' || (hero ? isShow(hero) : false)
+        ? 'TV Shows Today'
+        : 'Movies Today'
   const rows = useMemo(
     () =>
       buildBrowseRows({
@@ -225,7 +238,9 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           </button>
         </div>
       ) : null}
-      {hero && filter !== 'popular' ? <Hero item={hero} /> : null}
+      {hero && filter !== 'popular' ? (
+        <Hero item={hero} rank={heroRank || undefined} rankLabel={heroRank ? heroRankLabel : undefined} />
+      ) : null}
       {rows.map((row) => (
         <MediaRow
           key={row.id}

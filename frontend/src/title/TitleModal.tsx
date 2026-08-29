@@ -14,7 +14,7 @@ import { GenreDots } from '../components/GenreDots'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
-import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes } from '../lib/netflix'
+import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes, filterByMaturity } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
@@ -101,6 +101,7 @@ export function TitleModal() {
       : pool.filter((entry) => !seen.has(entry.id))
     return uniqueById([...byGenre, ...rest]).slice(0, 12)
   }, [item, catalog.data, activeProfile])
+  const similarSafe = useMemo(() => filterByMaturity(similar, activeProfile), [similar, activeProfile])
 
   if (!item) return null
 
@@ -251,7 +252,11 @@ export function TitleModal() {
               layout="sheet"
             />
           </div>
-          {detailFetch.loading && !detail ? <Spinner label="Loading" /> : null}
+          {detailFetch.loading && !detail ? (
+            <div className="title-modal-loading">
+              <Spinner label="Loading" />
+            </div>
+          ) : null}
           {detailFetch.error ? <ErrorState message={detailFetch.error} onRetry={detailFetch.retry} /> : null}
           <div className="title-modal-split">
             <div className="title-modal-split-main">
@@ -273,17 +278,17 @@ export function TitleModal() {
             <div className="title-modal-split-side">
               {detail?.cast?.length ? (
                 <p className="title-modal-cast">
-                  <span>Cast:</span> {detail.cast.join(', ')}
+                  <span className="title-kicker">Cast:</span> {detail.cast.join(', ')}
                 </p>
               ) : null}
               {genres.length ? (
                 <p className="title-modal-cast">
-                  <span>Genres:</span> {genres.join(', ')}
+                  <span className="title-kicker">Genres:</span> {genres.join(', ')}
                 </p>
               ) : null}
               {moods.length ? (
                 <div className="title-modal-cast">
-                  <span>This {isShow(item) ? 'show' : 'movie'} is:</span>
+                  <span className="title-kicker">This {isShow(item) ? 'show' : 'movie'} is:</span>
                   <GenreDots genres={moods} className="title-moods" />
                 </div>
               ) : null}
@@ -293,23 +298,27 @@ export function TitleModal() {
           <div className="title-tabs-row">
             <nav className="title-tabs" aria-label="Title sections">
               {isShow(item) ? (
-                <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => selectTab('episodes')}>
-                  Episodes
-                </button>
-              ) : null}
-              {!isShow(item) ? (
-                <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
-                  More Like This
-                </button>
-              ) : null}
-              <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
-                Trailers & More
-              </button>
-              {isShow(item) ? (
-                <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
-                  More Like This
-                </button>
-              ) : null}
+                <>
+                  <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => selectTab('episodes')}>
+                    Episodes
+                  </button>
+                  <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
+                    Trailers & More
+                  </button>
+                  <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
+                    More Like This
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
+                    More Like This
+                  </button>
+                  <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
+                    Trailers & More
+                  </button>
+                </>
+              )}
             </nav>
             {isShow(item) && activeTab === 'episodes' ? (
               <SeasonPicker seasons={seasons} history={last} value={seasonNumber} onChange={setSeasonNumber} />
@@ -332,7 +341,7 @@ export function TitleModal() {
 
           {activeTab === 'more' ? (
             <div className="title-section">
-              <MoreLikeGrid items={similar} />
+              <MoreLikeGrid items={similarSafe} />
             </div>
           ) : null}
 
@@ -383,22 +392,22 @@ export function TitleModal() {
             <h2>About {item.title}</h2>
             {detail?.cast?.length ? (
               <p>
-                <span>Cast:</span> {detail.cast.join(', ')}
+                <span className="title-kicker">Cast:</span> {detail.cast.join(', ')}
               </p>
             ) : null}
             {genres.length ? (
               <p>
-                <span>Genres:</span> {genres.join(', ')}
+                <span className="title-kicker">Genres:</span> {genres.join(', ')}
               </p>
             ) : null}
             {moods.length ? (
               <div className="title-about-row">
-                <span>This {isShow(item) ? 'show' : 'movie'} is:</span>
+                <span className="title-kicker">This {isShow(item) ? 'show' : 'movie'} is:</span>
                 <GenreDots genres={moods} className="title-moods" />
               </div>
             ) : null}
             <div className="title-about-maturity">
-              <span>Maturity rating:</span>
+              <span className="title-kicker">Maturity rating:</span>
               <p>
                 <span className="maturity">{maturity}</span>
                 {maturityBlurb(maturity)}

@@ -89,10 +89,15 @@ export function EpisodeList({
                 <span className="ep-num">{episode.number}</span>
                 <div className="ep-thumb-wrap" style={{ '--focal': stillFocus(episode.number) } as CSSProperties}>
                   <MediaImage src={episodeStill(stills, episode.number, episode.thumb_url)} alt="" className="ep-thumb" />
+                  {done ? (
+                    <span className="ep-watched-mark" aria-hidden="true">
+                      <CheckIcon className="icon" />
+                    </span>
+                  ) : null}
                   <span className="ep-play">
-                    {done ? <CheckIcon className="icon" /> : <PlayIcon className="icon" />}
+                    <PlayIcon className="icon" />
                   </span>
-                  {started ? (
+                  {started && !done ? (
                     <div className="progress-track ep-progress">
                       <div style={{ width: `${Math.round(Math.min(1, progress) * 100)}%` }} />
                     </div>

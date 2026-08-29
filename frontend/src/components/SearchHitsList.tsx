@@ -1,6 +1,14 @@
+import { useState } from 'react'
+import { getMovie, getShow } from '../api/client'
 import type { MovieListItem } from '../api/types'
+import { isShow } from '../lib/media'
+import { playClick } from '../lib/sounds'
+import { buildWatchSession } from '../lib/watchSession'
+import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
+import { useWatch } from '../watch/WatchContext'
 import { CatalogImage } from './CatalogImage'
+import { PlayIcon } from './Icons'
 
 export function SearchHitsList({
   items,
@@ -10,6 +18,29 @@ export function SearchHitsList({
   ranked?: boolean
 }) {
   const { openTitle } = useTitleModal()
+  const { openWatch } = useWatch()
+  const { activeProfile } = useProfiles()
+  const [playingId, setPlayingId] = useState<string | null>(null)
+
+  async function playNow(item: MovieListItem) {
+    if (playingId) return
+    playClick()
+    setPlayingId(item.id)
+    try {
+      const detail = isShow(item) ? await getShow(item.id) : await getMovie(item.id)
+      const history = activeProfile?.history.find((entry) => entry.id === item.id)
+      const session = buildWatchSession(item, detail, history)
+      if (session) {
+        openWatch(session.href, item.title, session.payload)
+        return
+      }
+    } catch {
+      /* fall through to the title preview */
+    } finally {
+      setPlayingId(null)
+    }
+    openTitle(item)
+  }
 
   return (
     <ul className={`search-top ${ranked ? 'is-ranked' : ''}`}>
@@ -22,6 +53,17 @@ export function SearchHitsList({
             </span>
             <span className="search-top-title">{item.title}</span>
           </button>
+          {ranked ? null : (
+            <button
+              type="button"
+              className="search-top-play"
+              aria-label={`Play ${item.title}`}
+              disabled={playingId === item.id}
+              onClick={() => void playNow(item)}
+            >
+              <PlayIcon className="icon" />
+            </button>
+          )}
         </li>
       ))}
     </ul>

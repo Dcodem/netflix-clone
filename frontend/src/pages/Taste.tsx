@@ -7,7 +7,7 @@ import { MediaRow } from '../components/MediaRow'
 import { useFetch } from '../hooks/useFetch'
 import { historyToListItems } from '../lib/homeRows'
 import { uniqueById } from '../lib/media'
-import { toLiked } from '../lib/netflix'
+import { toLiked, filterByMaturity } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { genreWeights, recommendSimilar, topGenres } from '../profiles/taste'
 import { TASTE_GENRES } from '../profiles/types'
@@ -43,8 +43,11 @@ export function Taste() {
   }, [query])
 
   const profile = activeProfile
-  const pool = useMemo(() => catalog.data ?? [], [catalog.data])
-  const searchHits = hits
+  const pool = useMemo(
+    () => filterByMaturity(catalog.data ?? [], profile),
+    [catalog.data, profile],
+  )
+  const searchHits = useMemo(() => filterByMaturity(hits, profile), [hits, profile])
 
   if (!profile) return null
 

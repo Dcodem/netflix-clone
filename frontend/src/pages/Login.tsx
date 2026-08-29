@@ -5,7 +5,7 @@ import type { MovieListItem } from '../api/types'
 import { uniqueById } from '../lib/media'
 import { useAuth } from '../auth/AuthContext'
 import { CatalogImage } from '../components/CatalogImage'
-import { FooterLang } from '../components/SiteFooter'
+import { FooterLang, CookiePrefsDialog, FooterNoteDialog, FOOTER_NOTES } from '../components/SiteFooter'
 
 const REMEMBER_KEY = 'flix.remember'
 
@@ -135,6 +135,9 @@ export function Login() {
   const [codeGuess, setCodeGuess] = useState('')
   const [remember, setRemember] = useState(() => localStorage.getItem(REMEMBER_KEY) !== '0')
   const [help, setHelp] = useState(false)
+  const [legalOpen, setLegalOpen] = useState(false)
+  const [cookies, setCookies] = useState(false)
+  const [note, setNote] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [wall, setWall] = useState<MovieListItem[]>([])
@@ -324,24 +327,48 @@ export function Login() {
           </button>
         </p>
         <p className="login-legal">
-          This page is protected by Google reCAPTCHA to ensure you're not a bot.{' '}
-          <span>Learn more.</span>
+          This page is protected by Google reCAPTCHA to ensure you&apos;re not a bot.{' '}
+          {legalOpen ? null : (
+            <button type="button" className="login-legal-more" onClick={() => setLegalOpen(true)}>
+              Learn more.
+            </button>
+          )}
         </p>
+        {legalOpen ? (
+          <p className="login-legal-extra">
+            The information collected by Google reCAPTCHA is subject to the Google Privacy Policy and Terms of
+            Service, and is used for providing, maintaining, and improving the reCAPTCHA service and for general
+            security purposes (it is not used for personalized advertising by Google).
+          </p>
+        ) : null}
       </div>
       <footer className="login-footer">
         <p>
           Questions? Call <a href="tel:18445052993">1-844-505-2993</a>
         </p>
         <ul className="login-footer-links">
-          <li>FAQ</li>
-          <li>Help Center</li>
-          <li>Terms of Use</li>
-          <li>Privacy</li>
-          <li>Cookie Preferences</li>
-          <li>Corporate Information</li>
+          {(['FAQ', 'Help Center', 'Terms of Use', 'Privacy', 'Cookie Preferences', 'Corporate Information'] as const).map(
+            (label) => (
+              <li key={label}>
+                {label === 'Cookie Preferences' ? (
+                  <button type="button" className="login-footer-link" onClick={() => setCookies(true)}>
+                    Cookie Preferences
+                  </button>
+                ) : (
+                  <button type="button" className="login-footer-link" onClick={() => setNote(label)}>
+                    {label}
+                  </button>
+                )}
+              </li>
+            ),
+          )}
         </ul>
         <FooterLang className="login-lang" />
       </footer>
+      <CookiePrefsDialog open={cookies} onClose={() => setCookies(false)} />
+      {note && FOOTER_NOTES[note] ? (
+        <FooterNoteDialog title={note} body={FOOTER_NOTES[note]} onClose={() => setNote(null)} />
+      ) : null}
     </main>
   )
 }

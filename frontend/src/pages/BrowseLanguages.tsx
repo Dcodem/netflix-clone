@@ -7,6 +7,7 @@ import { MediaGrid } from '../components/MediaGrid'
 import { OutlineSelect } from '../components/OutlineSelect'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import {
   LANGUAGE_SORTS,
   ORIGINAL_LANGUAGES,
@@ -16,11 +17,13 @@ import {
   type LanguageSort,
 } from '../lib/languages'
 import { uniqueById } from '../lib/media'
+import { filterByMaturity, profileLanguageCode } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 
 export function BrowseLanguages() {
   const { activeProfile } = useProfiles()
-  const [language, setLanguage] = useState<LanguageCode>('en')
+  const desktop = useMediaQuery('(min-width: 768px)')
+  const [language, setLanguage] = useState<LanguageCode>(profileLanguageCode(activeProfile?.language))
   const [sort, setSort] = useState<LanguageSort>('suggestions')
   const catalog = useFetch(async () => {
     const [movies, shows] = await Promise.all([
@@ -31,7 +34,7 @@ export function BrowseLanguages() {
   }, 'browse-languages')
 
   const items = useMemo(() => {
-    const pool = titlesInLanguage(catalog.data ?? [], language)
+    const pool = titlesInLanguage(filterByMaturity(catalog.data ?? [], activeProfile), language)
     return sortLanguageTitles(pool, sort, activeProfile)
   }, [catalog.data, language, sort, activeProfile])
 
@@ -69,7 +72,7 @@ export function BrowseLanguages() {
         </div>
       </header>
       {items.length ? (
-        <MediaGrid items={items} layout="poster" hoverable={false} />
+        <MediaGrid items={items} layout="poster" hoverable={desktop} />
       ) : (
         <EmptyState title="No titles in this language" detail="Pick another original language." />
       )}

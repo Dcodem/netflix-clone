@@ -533,6 +533,16 @@ export function DownloadIcon({ className }: { className?: string }) {
   )
 }
 
+export function MoreVertIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="5" r="1.85" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.85" fill="currentColor" />
+      <circle cx="12" cy="19" r="1.85" fill="currentColor" />
+    </svg>
+  )
+}
+
 export function ShareIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
@@ -560,6 +570,28 @@ export function GlobeIcon({ className }: { className?: string }) {
         stroke="currentColor"
         strokeWidth="1.7"
       />
+    </svg>
+  )
+}
+
+export function CastIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M3 5.6h18v12.8H12.2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M3 18.4c0-3.05 2.47-5.52 5.52-5.52M3 18.4c0-1.82 1.48-3.3 3.3-3.3M3 18.4c0-.62.5-1.12 1.12-1.12"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <circle cx="3.2" cy="18.4" r="1.05" fill="currentColor" />
     </svg>
   )
 }

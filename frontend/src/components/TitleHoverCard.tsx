@@ -9,7 +9,7 @@ import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
 import { GenreDots } from './GenreDots'
-import { SpeakerIcon } from './Icons'
+import { SpeakerIcon, MoreVertIcon } from './Icons'
 import { TitleActions } from './TitleActions'
 import { TitleLogo } from './TitleLogo'
 
@@ -26,11 +26,12 @@ export function TitleHoverCard({
   onClose: () => void
   onKeep: () => void
 }) {
-  const { activeProfile } = useProfiles()
+  const { activeProfile, hideContinue } = useProfiles()
   const trailerRef = useRef<TrailerHandle>(null)
   const [detail, setDetail] = useState<MovieDetail | null>(null)
   const [trailerReady, setTrailerReady] = useState(false)
   const [muted, setMuted] = useState(true)
+  const [rowMenu, setRowMenu] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -131,6 +132,40 @@ export function TitleHoverCard({
             <SpeakerIcon muted={muted} className="icon" />
           </button>
         ) : null}
+        {progress ? (
+          <div className={`continue-more jawbone-more ${rowMenu ? 'is-open' : ''}`}>
+            <button
+              type="button"
+              className="continue-hide"
+              onClick={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                setRowMenu((open) => !open)
+              }}
+              aria-label="More"
+              aria-expanded={rowMenu}
+            >
+              <MoreVertIcon className="icon" />
+            </button>
+            {rowMenu ? (
+              <div className="continue-menu" role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    hideContinue(item.id)
+                    setRowMenu(false)
+                    onClose()
+                  }}
+                >
+                  Remove from row
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
       <div className="jawbone-body">
         <TitleActions
@@ -146,19 +181,20 @@ export function TitleHoverCard({
           <span className="maturity">{maturity}</span>
           {remainingLabel(progress, detail?.runtime) ? (
             <span>{remainingLabel(progress, detail?.runtime)}</span>
-          ) : runtime ? (
-            <span>{runtime}</span>
-          ) : null}
-          <FeatureBadges quality={quality} />
-          {isShow(item) ? (
+          ) : isShow(item) ? (
             <span>
               {seasons.length > 1
                 ? `${seasons.length} Seasons`
-                : episodeCount
-                  ? `${episodeCount} Episodes`
-                  : 'TV Show'}
+                : seasons.length === 1
+                  ? '1 Season'
+                  : episodeCount
+                    ? `${episodeCount} Episodes`
+                    : 'TV Show'}
             </span>
+          ) : runtime ? (
+            <span>{runtime}</span>
           ) : null}
+          <FeatureBadges quality={quality} compact />
         </div>
         {genres.length ? <GenreDots genres={genres} className="jawbone-genres" /> : null}
       </div>

@@ -8,9 +8,10 @@ import { CaretIcon, DownloadIcon, ShuffleIcon } from '../components/Icons'
 import { MediaRow } from '../components/MediaRow'
 import { useAuth } from '../auth/AuthContext'
 import { useFetch } from '../hooks/useFetch'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import { historyToListItems, likedToItems } from '../lib/homeRows'
 import { isShow, uniqueById } from '../lib/media'
-import { catalogNotices } from '../lib/netflix'
+import { catalogNotices, filterByMaturity } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -24,9 +25,10 @@ export function MyNetflix() {
   const { activeProfile, clearActive } = useProfiles()
   const { openTitle } = useTitleModal()
   const { openWatch } = useWatch()
+  const desktop = useMediaQuery('(min-width: 768px)')
   const navigate = useNavigate()
   const movies = useFetch(() => getMovies(), 'home-movies')
-  const catalog = movies.data ?? []
+  const catalog = filterByMaturity(movies.data ?? [], activeProfile)
   const continueItems = historyToListItems(
     (activeProfile?.history ?? []).filter(
       (item) => item.progress && item.progress > 0.05 && !activeProfile?.hiddenContinueIds.includes(item.id),
@@ -128,11 +130,14 @@ export function MyNetflix() {
       <section className="my-netflix-downloads">
         <h2 className="section-title">Downloads</h2>
         <div className="downloads-empty">
-          <DownloadIcon className="icon" />
-          <div>
-            <strong>Downloads for You</strong>
-            <p>Movies and TV shows you download appear here.</p>
-          </div>
+          <span className="downloads-empty-icon">
+            <DownloadIcon className="icon" />
+          </span>
+          <strong>Downloads for You</strong>
+          <p>Movies and TV shows you download appear here.</p>
+          <Link to="/browse" className="downloads-find">
+            Find Something to Download
+          </Link>
         </div>
       </section>
 
@@ -142,16 +147,16 @@ export function MyNetflix() {
           items={continueItems}
           progressById={progressById}
           continueMode
-          hoverable={false}
+          hoverable={desktop}
           variant="continue"
         />
       ) : null}
-      {listItems.length ? <MediaRow title="My List" items={listItems} hoverable={false} /> : null}
+      {listItems.length ? <MediaRow title="My List" items={listItems} hoverable={desktop} /> : null}
       {because.map((row) => (
-        <MediaRow key={row.id} title={row.title} items={row.items} seed={row.seed} hoverable={false} />
+        <MediaRow key={row.id} title={row.title} items={row.items} seed={row.seed} hoverable={desktop} />
       ))}
       {suggested.length ? (
-        <MediaRow title="We Think You’ll Like These" items={suggested} hoverable={false} />
+        <MediaRow title="We Think You’ll Like These" items={suggested} hoverable={desktop} />
       ) : null}
 
       <div className="my-netflix-links">

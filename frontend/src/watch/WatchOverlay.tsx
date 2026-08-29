@@ -18,6 +18,7 @@ import {
   SpeedIcon,
   SubtitlesIcon,
 } from '../components/Icons'
+import { CastMenu } from '../components/CastMenu'
 import { MediaImage } from '../components/MediaImage'
 import { SeasonMenu } from '../components/SeasonMenu'
 import { TitleLogo } from '../components/TitleLogo'
@@ -136,7 +137,7 @@ export function WatchOverlay() {
   const [audioOpen, setAudioOpen] = useState(false)
   const [speedOpen, setSpeedOpen] = useState(false)
   const [speed, setSpeed] = useState(1)
-  const [subs, setSubs] = useState<'off' | 'en'>('off')
+  const [subs, setSubs] = useState<'off' | 'en' | 'cc'>('off')
   const [audioTrack, setAudioTrack] = useState<'en' | 'ad'>('en')
   const [introSkipped, setIntroSkipped] = useState(false)
   const [recapSkipped, setRecapSkipped] = useState(false)
@@ -148,6 +149,7 @@ export function WatchOverlay() {
   const [nextDismissed, setNextDismissed] = useState(false)
   const [stillWatching, setStillWatching] = useState(false)
   const [identOn, setIdentOn] = useState(true)
+  const [helpOpen, setHelpOpen] = useState(false)
   const [clockKey, setClockKey] = useState('')
   const flashTimer = useRef(0)
   const tapRef = useRef({ at: 0, x: 0, play: 0 })
@@ -175,8 +177,10 @@ export function WatchOverlay() {
     setIdentOn(startProgress < 0.02)
     setIntroSkipped(false)
     setRecapSkipped(false)
+    setHelpOpen(false)
   }
-  const keepChrome = !stillWatching && (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover)
+  const keepChrome =
+    !stillWatching && (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover || helpOpen)
   const continueWatchingRef = useRef<() => void>(() => {})
 
   const post = useCallback((payload: Record<string, unknown>) => {
@@ -383,6 +387,12 @@ export function WatchOverlay() {
       const typing = (event.target as HTMLElement)?.tagName === 'INPUT' || (event.target as HTMLElement)?.tagName === 'SELECT'
       if (typing) return
       if (event.key === 'Escape') {
+        if (helpOpen) {
+          event.preventDefault()
+          event.stopImmediatePropagation()
+          setHelpOpen(false)
+          return
+        }
         if (episodesOpen || audioOpen || speedOpen) {
           event.preventDefault()
           event.stopImmediatePropagation()
@@ -390,6 +400,11 @@ export function WatchOverlay() {
           setAudioOpen(false)
           setSpeedOpen(false)
         }
+        return
+      }
+      if (event.key === '?' || (event.shiftKey && event.key === '/')) {
+        event.preventDefault()
+        setHelpOpen((open) => !open)
         return
       }
       if (stillWatching) {
@@ -492,7 +507,7 @@ export function WatchOverlay() {
       window.removeEventListener('message', onMessage)
       document.removeEventListener('fullscreenchange', onFs)
     }
-  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped])
+  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped, helpOpen])
 
   useEffect(() => {
     const length = duration || runtimeSec
@@ -599,7 +614,7 @@ export function WatchOverlay() {
       ? `S${session.history?.seasonNumber ?? 1}:E${session.history?.episodeNumber ?? 1}`
       : null
   const showSkipIntro =
-    isShow && !introSkipped && !identOn && current < 110 && !episodesOpen && !audioOpen && !speedOpen
+    isShow && !introSkipped && current > 2.4 && current < 110 && !episodesOpen && !audioOpen && !speedOpen
   const showSkipRecap =
     isShow &&
     !recapSkipped &&
@@ -614,7 +629,7 @@ export function WatchOverlay() {
   const countingDown = remaining <= AUTO_IN && activeProfile?.autoplayNext !== false
   const nextCount = countingDown ? Math.max(1, Math.ceil(remaining)) : null
   const nextProgress = countingDown ? Math.min(1, remaining / AUTO_IN) : 1
-  const caption = subs === 'en' ? CAPTIONS[Math.floor(current / 9) % CAPTIONS.length] : null
+  const caption = subs === 'off' ? null : CAPTIONS[Math.floor(current / 9) % CAPTIONS.length]
 
   function ratioFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect()
@@ -642,9 +657,20 @@ export function WatchOverlay() {
     post({ cmd: 'seek', seconds: SKIP_RECAP_AT })
   }
 
-  function playEpisode(season: Season, episode: Episode) {
+  function playEpisode(season: Season, episode: Episode, binge = false) {
     if (!session?.history) return
-    streakRef.current = 0
+    if (binge) {
+      if (streakRef.current >= 2) {
+        setStillWatching(true)
+        setPaused(true)
+        post({ cmd: 'pause' })
+        ambienceRef.current?.setPlaying(false)
+        return
+      }
+      streakRef.current += 1
+    } else {
+      streakRef.current = 0
+    }
     setStillWatching(false)
     playClick()
     openWatch(episode.watch_href, session.history.title, {
@@ -666,13 +692,18 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
       onClick={(event) => {
         if (stillWatching) {
           event.preventDefault()
+          return
+        }
+        if (helpOpen) {
+          event.preventDefault()
+          setHelpOpen(false)
           return
         }
         if (episodesOpen || audioOpen || speedOpen) {
@@ -741,7 +772,6 @@ export function WatchOverlay() {
             item={trailerSearch(session)}
             className="watch-ident-logo"
             titleClassName="watch-ident-title"
-            imageOnly
           />
           {isShow ? (
             <p className="watch-ident-ep">
@@ -835,7 +865,7 @@ export function WatchOverlay() {
             className="next-ep-body"
             onClick={(event) => {
               event.stopPropagation()
-              playEpisode(upcoming.season, upcoming.episode)
+              playEpisode(upcoming.season, upcoming.episode, true)
             }}
           >
             <span className="next-ep-thumb">
@@ -843,15 +873,18 @@ export function WatchOverlay() {
               <PlayIcon className="icon" />
             </span>
             <span className="next-ep-copy">
-              <em>
-                S{upcoming.season.season_number}:E{upcoming.episode.number} {upcoming.episode.title}
-              </em>
+              <em>{upcoming.episode.title}</em>
+              <span className="next-ep-code">
+                S{upcoming.season.season_number}:E{upcoming.episode.number}
+              </span>
               {upcoming.episode.synopsis ? <small>{upcoming.episode.synopsis}</small> : null}
             </span>
           </button>
         </div>
       ) : null}
-      {caption ? <p className={`watch-caption ${chrome ? 'is-raised' : ''}`}>{caption}</p> : null}
+      {caption ? (
+        <p className={`watch-caption ${chrome ? 'is-raised' : ''} ${subs === 'cc' ? 'is-cc' : ''}`}>{caption}</p>
+      ) : null}
       <div className="watch-center">
         <button
           type="button"
@@ -860,7 +893,7 @@ export function WatchOverlay() {
             event.stopPropagation()
             skip(-10)
           }}
-          aria-label="Back 10 Seconds"
+          aria-label="Skip Back 10 Seconds"
         >
           <SkipBackIcon className="icon" />
         </button>
@@ -882,7 +915,7 @@ export function WatchOverlay() {
             event.stopPropagation()
             skip(10)
           }}
-          aria-label="Forward 10 Seconds"
+          aria-label="Skip Forward 10 Seconds"
         >
           <SkipForwardIcon className="icon" />
         </button>
@@ -935,10 +968,10 @@ export function WatchOverlay() {
             <button type="button" className="watch-ctrl watch-transport" onClick={togglePlay} aria-label={paused ? 'Play' : 'Pause'}>
               {paused ? <PlayIcon className="icon" /> : <PauseIcon className="icon" />}
             </button>
-            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(-10)} aria-label="Back 10 Seconds">
+            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(-10)} aria-label="Skip Back 10 Seconds">
               <SkipBackIcon className="icon" />
             </button>
-            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(10)} aria-label="Forward 10 Seconds">
+            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(10)} aria-label="Skip Forward 10 Seconds">
               <SkipForwardIcon className="icon" />
             </button>
             <div
@@ -989,21 +1022,12 @@ export function WatchOverlay() {
               </div>
             </div>
           </div>
-          <div className="watch-now-playing">
-            <p className="watch-now-title">{session.history?.title || session.title}</p>
-            {episodeLabel ? (
-              <p className="watch-now-ep">
-                {episodeLabel}
-                {playing?.episode.title ? ` ${playing.episode.title}` : ''}
-              </p>
-            ) : null}
-          </div>
           <div className="watch-controls-right">
             {isShow && upcoming ? (
               <button
                 type="button"
                 className="watch-ctrl"
-                onClick={() => playEpisode(upcoming.season, upcoming.episode)}
+                onClick={() => playEpisode(upcoming.season, upcoming.episode, true)}
                 aria-label="Next Episode"
               >
                 <NextEpisodeIcon className="icon" />
@@ -1075,6 +1099,14 @@ export function WatchOverlay() {
                 </div>
               ) : null}
             </div>
+            <CastMenu
+              variant="player"
+              onOpen={() => {
+                setAudioOpen(false)
+                setEpisodesOpen(false)
+                setSpeedOpen(false)
+              }}
+            />
             <button
               type="button"
               className="watch-ctrl"
@@ -1099,6 +1131,72 @@ export function WatchOverlay() {
           }}
         />
       ) : null}
+      {helpOpen ? (
+        <div
+          className="watch-help"
+          role="dialog"
+          aria-label="Keyboard Shortcuts"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <h2>Keyboard Shortcuts</h2>
+          <dl>
+            <div>
+              <dt>Seek Backward</dt>
+              <dd>
+                <kbd>J</kbd>
+                <kbd>←</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>Seek Forward</dt>
+              <dd>
+                <kbd>L</kbd>
+                <kbd>→</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>Play / Pause</dt>
+              <dd>
+                <kbd>K</kbd>
+                <kbd>Space</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>Mute</dt>
+              <dd>
+                <kbd>M</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>Volume</dt>
+              <dd>
+                <kbd>↑</kbd>
+                <kbd>↓</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>Full Screen</dt>
+              <dd>
+                <kbd>F</kbd>
+              </dd>
+            </div>
+            {isShow ? (
+              <div>
+                <dt>Skip Intro</dt>
+                <dd>
+                  <kbd>S</kbd>
+                </dd>
+              </div>
+            ) : null}
+            <div>
+              <dt>Shortcuts</dt>
+              <dd>
+                <kbd>?</kbd>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      ) : null}
       {stillWatching ? (
         <div
           className="watch-still"
@@ -1115,19 +1213,24 @@ export function WatchOverlay() {
           ) : null}
           <div className="watch-still-inner">
             <p className="watch-still-kicker">{session.history?.title || session.title}</p>
+            {episodeLabel ? (
+              <p className="watch-still-ep">
+                {episodeLabel}
+                {playing?.episode.title ? ` ${playing.episode.title}` : ''}
+              </p>
+            ) : null}
             <h2>Are you still watching?</h2>
             <button type="button" className="btn btn-play" onClick={continueWatching}>
               <PlayIcon className="icon" />
               Continue Watching
             </button>
-            <p className="watch-still-hint">If you don&apos;t select Continue Watching, playback will pause.</p>
           </div>
         </div>
       ) : null}
       {episodesOpen ? (
         <div className="watch-panel watch-episodes" onClick={(event) => event.stopPropagation()}>
           <div className="watch-ep-head">
-            <h2>Episodes</h2>
+            <h2>{session.history?.title || session.title}</h2>
             {showDetail && showDetail.seasons && showDetail.seasons.length > 1 ? (
               <SeasonMenu
                 seasons={showDetail.seasons}
@@ -1148,18 +1251,24 @@ export function WatchOverlay() {
                 ? watchForEpisode({ ...session.history, watchedAt: 0 }, season.season_number, episode)
                 : undefined
               const epProgress = active ? progress : (watched?.progress ?? 0)
+              const done = !active && epProgress >= 0.9
               return (
                 <button
                   type="button"
                   key={episode.id}
-                  className={`watch-ep ${active ? 'is-on' : ''}`}
+                  className={`watch-ep ${active ? 'is-on' : ''} ${done ? 'is-watched' : ''}`}
                   onClick={() => playEpisode(season, episode)}
                 >
                   <span className="watch-ep-num">{episode.number}</span>
                     <span className="watch-ep-thumb" style={{ '--focal': stillFocus(episode.number) } as CSSProperties}>
                     <MediaImage src={episodeStill(galleryUrls, episode.number, episode.thumb_url)} alt="" />
+                    {done ? (
+                      <span className="watch-ep-watched" aria-hidden="true">
+                        <CheckIcon className="icon" />
+                      </span>
+                    ) : null}
                     <PlayIcon className="icon" />
-                    {epProgress > 0.05 && epProgress < 0.92 ? (
+                    {epProgress > 0.05 && epProgress < 0.9 ? (
                       <div className="progress-track watch-ep-progress">
                         <div style={{ width: `${Math.round(Math.min(1, epProgress) * 100)}%` }} />
                       </div>
@@ -1183,7 +1292,12 @@ export function WatchOverlay() {
         </div>
       ) : null}
       {audioOpen ? (
-        <div className="watch-panel watch-audio" onClick={(event) => event.stopPropagation()}>
+        <div
+          className="watch-panel watch-audio"
+          role="dialog"
+          aria-label="Audio & Subtitles"
+          onClick={(event) => event.stopPropagation()}
+        >
           <div className="watch-audio-head">
             <span className="watch-sheet-handle" aria-hidden="true" />
             <p>Audio & Subtitles</p>
@@ -1192,7 +1306,7 @@ export function WatchOverlay() {
             <h2>Audio</h2>
             <button type="button" className={audioTrack === 'en' ? 'is-on' : ''} onClick={() => setAudioTrack('en')}>
               {audioTrack === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-              English
+              English [Original]
             </button>
             <button type="button" className={audioTrack === 'ad' ? 'is-on' : ''} onClick={() => setAudioTrack('ad')}>
               {audioTrack === 'ad' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
@@ -1200,7 +1314,7 @@ export function WatchOverlay() {
             </button>
           </div>
           <div>
-            <h2>Subtitles/CC</h2>
+            <h2>Subtitles</h2>
             <button type="button" className={subs === 'off' ? 'is-on' : ''} onClick={() => setSubs('off')}>
               {subs === 'off' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               Off
@@ -1208,6 +1322,10 @@ export function WatchOverlay() {
             <button type="button" className={subs === 'en' ? 'is-on' : ''} onClick={() => setSubs('en')}>
               {subs === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English
+            </button>
+            <button type="button" className={subs === 'cc' ? 'is-on' : ''} onClick={() => setSubs('cc')}>
+              {subs === 'cc' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+              English [CC]
             </button>
           </div>
         </div>
