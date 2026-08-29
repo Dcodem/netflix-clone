@@ -33,7 +33,6 @@ export function NotificationsMenu() {
       </button>
       {open ? (
         <div className="notify-dropdown" role="menu">
-          <p className="notify-head">Notifications</p>
           {notices.length ? (
             <div className="notify-list">
               {notices.map(({ item, kicker, stamp }) => (
@@ -56,7 +55,7 @@ export function NotificationsMenu() {
               ))}
             </div>
           ) : (
-            <p>You’re all caught up</p>
+            <p>No recent notifications.</p>
           )}
         </div>
       ) : null}

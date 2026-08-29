@@ -6732,7 +6732,7 @@ img.is-logo-pending {
 .notify-row strong {
   font-size: 13px;
   font-weight: 600;
-  color: #54b9c5;
+  color: #fff;
 }
 
 .notify-row em {
@@ -6752,8 +6752,8 @@ img.is-logo-pending {
 .jawbone-mute {
   position: absolute;
   right: 12px;
-  top: 12px;
-  bottom: auto;
+  bottom: 12px;
+  top: auto;
   z-index: 4;
   width: 34px;
   height: 34px;
@@ -6761,8 +6761,8 @@ img.is-logo-pending {
 }
 
 .jawbone-mute.has-progress {
-  top: 12px;
-  bottom: auto;
+  bottom: 22px;
+  top: auto;
 }
 
 .jawbone-mute .icon {
@@ -6785,7 +6785,7 @@ img.is-logo-pending {
 }
 
 .jawbone-art:has(.jawbone-more) .jawbone-mute {
-  right: 48px;
+  right: 12px;
 }
 
 .title-actions.play-labeled .btn-play {
