@@ -4458,10 +4458,6 @@ img.is-logo-pending {
     padding-right: 72px;
   }
 
-  .title-modal-split-side {
-    display: none;
-  }
-
   .title-tabs-row {
     margin: 10px -16px 4px;
     padding-left: 16px;
@@ -4684,6 +4680,12 @@ img.is-logo-pending {
 .title-modal-split-side {
   display: grid;
   gap: 8px;
+}
+
+@media (max-width: 767px) {
+  .title-modal-split-side {
+    display: none;
+  }
 }
 
 .title-modal-split-side .title-modal-cast {
