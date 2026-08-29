@@ -298,16 +298,27 @@ export function TitleModal() {
           <div className="title-tabs-row">
             <nav className="title-tabs" aria-label="Title sections">
               {isShow(item) ? (
-                <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => selectTab('episodes')}>
-                  Episodes
-                </button>
-              ) : null}
-              <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
-                More Like This
-              </button>
-              <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
-                Trailers & More
-              </button>
+                <>
+                  <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => selectTab('episodes')}>
+                    Episodes
+                  </button>
+                  <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
+                    Trailers & More
+                  </button>
+                  <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
+                    More Like This
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
+                    More Like This
+                  </button>
+                  <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
+                    Trailers & More
+                  </button>
+                </>
+              )}
             </nav>
             {isShow(item) && activeTab === 'episodes' ? (
               <SeasonPicker seasons={seasons} history={last} value={seasonNumber} onChange={setSeasonNumber} />

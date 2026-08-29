@@ -1250,18 +1250,24 @@ export function WatchOverlay() {
                 ? watchForEpisode({ ...session.history, watchedAt: 0 }, season.season_number, episode)
                 : undefined
               const epProgress = active ? progress : (watched?.progress ?? 0)
+              const done = !active && epProgress >= 0.9
               return (
                 <button
                   type="button"
                   key={episode.id}
-                  className={`watch-ep ${active ? 'is-on' : ''}`}
+                  className={`watch-ep ${active ? 'is-on' : ''} ${done ? 'is-watched' : ''}`}
                   onClick={() => playEpisode(season, episode)}
                 >
                   <span className="watch-ep-num">{episode.number}</span>
                     <span className="watch-ep-thumb" style={{ '--focal': stillFocus(episode.number) } as CSSProperties}>
                     <MediaImage src={episodeStill(galleryUrls, episode.number, episode.thumb_url)} alt="" />
+                    {done ? (
+                      <span className="watch-ep-watched" aria-hidden="true">
+                        <CheckIcon className="icon" />
+                      </span>
+                    ) : null}
                     <PlayIcon className="icon" />
-                    {epProgress > 0.05 && epProgress < 0.92 ? (
+                    {epProgress > 0.05 && epProgress < 0.9 ? (
                       <div className="progress-track watch-ep-progress">
                         <div style={{ width: `${Math.round(Math.min(1, epProgress) * 100)}%` }} />
                       </div>
