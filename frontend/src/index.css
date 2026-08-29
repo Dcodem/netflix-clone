@@ -2074,6 +2074,12 @@ select,
   background: #f3f3f3;
 }
 
+html:has(.account-page),
+body:has(.account-page),
+#root:has(.account-page) {
+  background: #f3f3f3;
+}
+
 .app-shell:has(.account-page) .site-header,
 .app-shell:has(.account-page) .site-header.is-scrolled,
 .app-shell:has(.account-page) .site-header.is-searching {
