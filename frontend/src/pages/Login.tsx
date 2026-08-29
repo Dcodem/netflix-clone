@@ -5,7 +5,7 @@ import type { MovieListItem } from '../api/types'
 import { uniqueById } from '../lib/media'
 import { useAuth } from '../auth/AuthContext'
 import { CatalogImage } from '../components/CatalogImage'
-import { FooterLang, CookiePrefsDialog } from '../components/SiteFooter'
+import { FooterLang, CookiePrefsDialog, FooterNoteDialog, FOOTER_NOTES } from '../components/SiteFooter'
 
 const REMEMBER_KEY = 'flix.remember'
 
@@ -137,6 +137,7 @@ export function Login() {
   const [help, setHelp] = useState(false)
   const [legalOpen, setLegalOpen] = useState(false)
   const [cookies, setCookies] = useState(false)
+  const [note, setNote] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [wall, setWall] = useState<MovieListItem[]>([])
@@ -346,20 +347,28 @@ export function Login() {
           Questions? Call <a href="tel:18445052993">1-844-505-2993</a>
         </p>
         <ul className="login-footer-links">
-          <li>FAQ</li>
-          <li>Help Center</li>
-          <li>Terms of Use</li>
-          <li>Privacy</li>
-          <li>
-            <button type="button" className="login-footer-link" onClick={() => setCookies(true)}>
-              Cookie Preferences
-            </button>
-          </li>
-          <li>Corporate Information</li>
+          {(['FAQ', 'Help Center', 'Terms of Use', 'Privacy', 'Cookie Preferences', 'Corporate Information'] as const).map(
+            (label) => (
+              <li key={label}>
+                {label === 'Cookie Preferences' ? (
+                  <button type="button" className="login-footer-link" onClick={() => setCookies(true)}>
+                    Cookie Preferences
+                  </button>
+                ) : (
+                  <button type="button" className="login-footer-link" onClick={() => setNote(label)}>
+                    {label}
+                  </button>
+                )}
+              </li>
+            ),
+          )}
         </ul>
         <FooterLang className="login-lang" />
       </footer>
       <CookiePrefsDialog open={cookies} onClose={() => setCookies(false)} />
+      {note && FOOTER_NOTES[note] ? (
+        <FooterNoteDialog title={note} body={FOOTER_NOTES[note]} onClose={() => setNote(null)} />
+      ) : null}
     </main>
   )
 }
