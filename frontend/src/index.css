@@ -5111,9 +5111,9 @@ img.is-logo-pending {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  border: 2px solid #fff;
-  background: #fff;
-  color: #141414;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  background: rgba(20, 20, 20, 0.35);
+  color: #fff;
   display: grid;
   place-items: center;
   padding: 0;
@@ -5130,8 +5130,8 @@ img.is-logo-pending {
 .search-top-play:hover,
 .search-top-play:focus-visible,
 .search-top-play:active {
-  background: #e6e6e6;
-  border-color: #e6e6e6;
+  background: #fff;
+  border-color: #fff;
   color: #141414;
 }
 
@@ -5141,15 +5141,15 @@ img.is-logo-pending {
 }
 
 .search-top-rank {
-  width: 28px;
+  width: 34px;
   flex-shrink: 0;
-  color: #808080;
+  color: #6b6b6b;
   font-family: var(--display);
-  font-weight: 400;
-  font-size: 28px;
+  font-weight: 200;
+  font-size: 36px;
   line-height: 1;
   text-align: center;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.06em;
 }
 
 .search-top.is-ranked .search-top-play {
@@ -5157,8 +5157,8 @@ img.is-logo-pending {
 }
 
 .search-top-still {
-  width: 128px;
-  height: 72px;
+  width: 146px;
+  height: 82px;
   flex-shrink: 0;
   border-radius: 4px;
   overflow: hidden;
@@ -9478,7 +9478,7 @@ img.is-logo-pending {
 
 .news-card.is-soon,
 .news-card.is-ranked {
-  grid-template-columns: 48px 1fr;
+  grid-template-columns: 64px 1fr;
   align-items: start;
 }
 
@@ -9492,7 +9492,7 @@ img.is-logo-pending {
   justify-items: center;
   align-content: start;
   padding-top: 2px;
-  min-width: 48px;
+  min-width: 64px;
   color: #fff;
 }
 
@@ -9517,9 +9517,9 @@ img.is-logo-pending {
 
 .news-kind {
   margin-top: 8px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #808080;
 }
