@@ -77,7 +77,7 @@ export function PosterCard({
   }
 
   function onEnter(event: PointerEvent<HTMLDivElement>) {
-    if (!hoverable || event.pointerType !== 'mouse') return
+    if (!hoverable || event.pointerType !== 'mouse' || rowMenu) return
     cancelClose()
     takeLock()
     setPeek(true)
@@ -140,10 +140,15 @@ export function PosterCard({
           <button
             type="button"
             className="continue-hide"
+            onPointerDown={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              dropLock()
+              setRowMenu((open) => !open)
+            }}
             onClick={(event) => {
               event.preventDefault()
               event.stopPropagation()
-              setRowMenu((open) => !open)
             }}
             aria-label="More"
             aria-expanded={rowMenu}

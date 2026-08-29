@@ -4968,8 +4968,8 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller {
-    padding-left: 36px;
-    padding-right: 16px;
+    padding-left: 52px;
+    padding-right: 20px;
     padding-top: 44px;
   }
 
@@ -4986,9 +4986,9 @@ img.is-logo-pending {
   }
 
   .rank-num.is-first {
-    min-width: 0.58em;
+    min-width: 0.62em;
     margin-right: 0;
-    padding-left: 0.36em;
+    padding-left: 0.42em;
   }
 
   .rank-num.is-ten {
@@ -6263,6 +6263,24 @@ img.is-logo-pending {
 .jawbone-mute .icon {
   width: 16px;
   height: 16px;
+}
+
+.jawbone-more {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 6;
+}
+
+.jawbone-more .continue-hide {
+  opacity: 1;
+  width: 32px;
+  height: 32px;
+  background: rgba(20, 20, 20, 0.55);
+}
+
+.jawbone-art:has(.jawbone-more) .jawbone-mute {
+  right: 48px;
 }
 
 .title-actions.play-labeled .btn-play {
