@@ -143,7 +143,6 @@ export function TitleHoverCard({
         <div className="jawbone-meta">
           <span className="match">{match}% Match</span>
           {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
-          {item.year ? <span>{item.year}</span> : null}
           <span className="maturity">{maturity}</span>
           {remainingLabel(progress, detail?.runtime) ? (
             <span>{remainingLabel(progress, detail?.runtime)}</span>

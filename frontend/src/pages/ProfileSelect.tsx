@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AvatarArt } from '../components/AvatarArt'
-import { ChevronLeftIcon, LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
+import { ChevronLeftIcon, ChevronRightIcon, LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { playProfileSting } from '../lib/sounds'
 import { PROFILE_AVATARS, avatarFor, type Profile } from '../profiles/types'
+
+const PROFILE_LANGUAGES = ['English', 'Español', 'Français'] as const
+const PROFILE_MATURITY = ['All Maturity Ratings', 'Teens and below', 'Kids'] as const
+type EditPanel = 'language' | 'maturity' | 'lock' | null
 
 function PinBoxes({
   value,
@@ -95,6 +99,9 @@ export function ProfileSelect() {
   const [removePin, setRemovePin] = useState(false)
   const [editAutoplayNext, setEditAutoplayNext] = useState(true)
   const [editAutoplayPreview, setEditAutoplayPreview] = useState(true)
+  const [editLang, setEditLang] = useState<(typeof PROFILE_LANGUAGES)[number]>('English')
+  const [editMaturity, setEditMaturity] = useState<(typeof PROFILE_MATURITY)[number]>('All Maturity Ratings')
+  const [editPanel, setEditPanel] = useState<EditPanel>(null)
   const [pinTarget, setPinTarget] = useState<Profile | null>(null)
   const [pinGuess, setPinGuess] = useState('')
   const [pinError, setPinError] = useState<string | null>(null)
@@ -146,7 +153,14 @@ export function ProfileSelect() {
     setRemovePin(false)
     setEditAutoplayNext(profile.autoplayNext !== false)
     setEditAutoplayPreview(profile.autoplayPreview !== false)
+    setEditLang('English')
+    setEditMaturity('All Maturity Ratings')
+    setEditPanel(null)
     setPickingAvatar(false)
+  }
+
+  function toggleEditPanel(panel: Exclude<EditPanel, null>) {
+    setEditPanel((current) => (current === panel ? null : panel))
   }
 
   async function onSelect(profile: Profile) {
@@ -322,70 +336,131 @@ export function ProfileSelect() {
                 maxLength={20}
                 aria-label="Profile name"
               />
-              <div className="edit-meta">
-                <span>Language</span>
-                <span>English</span>
-              </div>
-              <div className="edit-meta">
-                <span>Maturity Settings</span>
-                <span>All Maturity Ratings</span>
-              </div>
-              <div className="edit-meta">
-                <span>Profile Lock</span>
-                <span>{editing.pinHash && !removePin ? 'On' : 'Off'}</span>
-              </div>
-              <input
-                className="edit-pin-field"
-                inputMode="numeric"
-                pattern="\d{4}"
-                maxLength={4}
-                value={editPin}
-                onChange={(event) => {
-                  setRemovePin(false)
-                  setEditPin(event.target.value.replace(/\D/g, '').slice(0, 4))
-                }}
-                placeholder={editing.pinHash && !removePin ? 'New PIN' : 'Set a PIN'}
-                aria-label="Profile PIN"
-              />
-              {editing.pinHash ? (
-                <label className="profile-check">
+              <button
+                type="button"
+                className={`edit-row ${editPanel === 'language' ? 'is-open' : ''}`}
+                onClick={() => toggleEditPanel('language')}
+              >
+                <span className="edit-row-copy">
+                  <strong>Language</strong>
+                  <em>{editLang}</em>
+                </span>
+                <ChevronRightIcon className="icon" />
+              </button>
+              {editPanel === 'language' ? (
+                <div className="edit-row-panel" role="listbox" aria-label="Language">
+                  {PROFILE_LANGUAGES.map((lang) => (
+                    <button
+                      type="button"
+                      key={lang}
+                      className={lang === editLang ? 'is-on' : ''}
+                      onClick={() => {
+                        setEditLang(lang)
+                        setEditPanel(null)
+                      }}
+                    >
+                      {lang}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+              <button
+                type="button"
+                className={`edit-row ${editPanel === 'maturity' ? 'is-open' : ''}`}
+                onClick={() => toggleEditPanel('maturity')}
+              >
+                <span className="edit-row-copy">
+                  <strong>Maturity Settings</strong>
+                  <em>{editMaturity}</em>
+                </span>
+                <ChevronRightIcon className="icon" />
+              </button>
+              {editPanel === 'maturity' ? (
+                <div className="edit-row-panel" role="listbox" aria-label="Maturity Settings">
+                  {PROFILE_MATURITY.map((level) => (
+                    <button
+                      type="button"
+                      key={level}
+                      className={level === editMaturity ? 'is-on' : ''}
+                      onClick={() => {
+                        setEditMaturity(level)
+                        setEditPanel(null)
+                      }}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+              <button
+                type="button"
+                className={`edit-row ${editPanel === 'lock' ? 'is-open' : ''}`}
+                onClick={() => toggleEditPanel('lock')}
+              >
+                <span className="edit-row-copy">
+                  <strong>Profile Lock</strong>
+                  <em>{editing.pinHash && !removePin ? 'On' : 'Off'}</em>
+                </span>
+                <ChevronRightIcon className="icon" />
+              </button>
+              {editPanel === 'lock' ? (
+                <div className="edit-row-panel edit-lock-panel">
+                  <p>Require a PIN to select this profile from Who&apos;s watching.</p>
                   <input
-                    type="checkbox"
-                    checked={removePin}
+                    className="edit-pin-field"
+                    inputMode="numeric"
+                    pattern="\d{4}"
+                    maxLength={4}
+                    value={editPin}
                     onChange={(event) => {
-                      setRemovePin(event.target.checked)
-                      if (event.target.checked) setEditPin('')
+                      setRemovePin(false)
+                      setEditPin(event.target.value.replace(/\D/g, '').slice(0, 4))
                     }}
+                    placeholder={editing.pinHash && !removePin ? 'New PIN' : 'Set a PIN'}
+                    aria-label="Profile PIN"
                   />
-                  Remove PIN
-                </label>
+                  {editing.pinHash ? (
+                    <label className="profile-check">
+                      <input
+                        type="checkbox"
+                        checked={removePin}
+                        onChange={(event) => {
+                          setRemovePin(event.target.checked)
+                          if (event.target.checked) setEditPin('')
+                        }}
+                      />
+                      Remove PIN
+                    </label>
+                  ) : null}
+                </div>
               ) : null}
             </div>
           </div>
-          <label className="edit-toggle">
-            <span>
-              Autoplay next episode
-              <small>Play the next episode automatically on all devices.</small>
-            </span>
-            <input
-              type="checkbox"
-              role="switch"
-              checked={editAutoplayNext}
-              onChange={(event) => setEditAutoplayNext(event.target.checked)}
-            />
-          </label>
-          <label className="edit-toggle">
-            <span>
-              Autoplay previews
-              <small>Play previews while browsing on all devices.</small>
-            </span>
-            <input
-              type="checkbox"
-              role="switch"
-              checked={editAutoplayPreview}
-              onChange={(event) => setEditAutoplayPreview(event.target.checked)}
-            />
-          </label>
+          <div className="edit-autoplay">
+            <h2>Autoplay controls</h2>
+            <label className="edit-check">
+              <input
+                type="checkbox"
+                checked={editAutoplayNext}
+                onChange={(event) => setEditAutoplayNext(event.target.checked)}
+              />
+              <span>
+                Autoplay next episode
+                <small>Play the next episode automatically on all devices.</small>
+              </span>
+            </label>
+            <label className="edit-check">
+              <input
+                type="checkbox"
+                checked={editAutoplayPreview}
+                onChange={(event) => setEditAutoplayPreview(event.target.checked)}
+              />
+              <span>
+                Autoplay previews
+                <small>Play previews while browsing on all devices.</small>
+              </span>
+            </label>
+          </div>
           <div className="add-profile-actions">
             <button type="submit" className="btn btn-light">
               Save
@@ -396,6 +471,7 @@ export function ProfileSelect() {
               onClick={() => {
                 setEditingId(null)
                 setPickingAvatar(false)
+                setEditPanel(null)
               }}
             >
               Cancel
