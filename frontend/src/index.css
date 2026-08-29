@@ -4337,12 +4337,12 @@ img.is-logo-pending {
     position: absolute;
     left: 50%;
     top: 10px;
-    width: 56px;
-    height: 6px;
+    width: 44px;
+    height: 5px;
     border-radius: 99px;
-    background: #f2f2f2;
+    background: #fff;
     transform: translateX(-50%);
-    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 0.45);
   }
 
   .title-modal-close {
@@ -6728,7 +6728,7 @@ img.is-logo-pending {
 
 .watch-controls {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 12px;
   color: #fff;
@@ -6876,17 +6876,18 @@ img.is-logo-pending {
   bottom: calc(100% + 2px);
   transform: translateX(-50%) scaleY(0.35);
   transform-origin: bottom center;
-  width: 36px;
-  height: 118px;
+  width: 40px;
+  height: 128px;
   opacity: 0;
   pointer-events: none;
   z-index: 8;
   display: flex;
   align-items: stretch;
   justify-content: center;
-  padding: 8px 0 6px;
-  background: none;
-  border-radius: 0;
+  padding: 12px 0 10px;
+  background: rgba(20, 20, 20, 0.82);
+  border-radius: 4px;
+  backdrop-filter: blur(10px);
   transition: opacity 0.12s ease, transform 0.12s ease;
 }
 
@@ -6900,7 +6901,7 @@ img.is-logo-pending {
 
 .watch-vol-track {
   position: relative;
-  width: 5px;
+  width: 4px;
   height: 100%;
   background: rgba(255, 255, 255, 0.32);
   border-radius: 99px;
@@ -7550,7 +7551,7 @@ img.is-logo-pending {
 
 .watch-controls {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 8px;
   overflow: visible;
@@ -7685,8 +7686,8 @@ img.is-logo-pending {
   border-radius: 2px;
   padding: 11px 18px 11px 20px;
   font-size: 16px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: none;
   backdrop-filter: blur(8px);
   opacity: 0;

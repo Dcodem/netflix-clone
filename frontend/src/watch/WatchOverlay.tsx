@@ -1022,15 +1022,6 @@ export function WatchOverlay() {
               </div>
             </div>
           </div>
-          <div className="watch-now-playing">
-            <p className="watch-now-title">{session.history?.title || session.title}</p>
-            {episodeLabel ? (
-              <p className="watch-now-ep">
-                {episodeLabel}
-                {playing?.episode.title ? ` ${playing.episode.title}` : ''}
-              </p>
-            ) : null}
-          </div>
           <div className="watch-controls-right">
             {isShow && upcoming ? (
               <button
