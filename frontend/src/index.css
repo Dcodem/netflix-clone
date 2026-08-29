@@ -6683,11 +6683,7 @@ img.is-logo-pending {
 }
 
 .watch-now-playing {
-  min-width: 0;
-  max-width: 42vw;
-  text-align: center;
-  pointer-events: none;
-  justify-self: center;
+  display: none;
 }
 
 .watch-now-title,
@@ -6728,10 +6724,6 @@ img.is-logo-pending {
   .title-actions.play-labeled .btn-play {
     width: 100%;
     justify-content: center;
-  }
-
-  .watch-now-playing {
-    display: none;
   }
 
   .title-modal {
