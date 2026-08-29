@@ -6776,8 +6776,8 @@ img.is-logo-pending {
   margin-left: 8px;
 }
 
-.my-list-page > .page-title {
-  margin-top: 4px;
+.my-list-page.browse-page:not(:has(.hero)) {
+  padding-top: calc(var(--header-offset) + 92px);
 }
 
 .service-code:hover {
