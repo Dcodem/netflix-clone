@@ -105,6 +105,7 @@ function FeedCard({
         <div className="news-date" aria-label={date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}>
           <em>{monthLabel(date)}</em>
           <strong>{date.getDate()}</strong>
+          <span className="news-kind">{isShow(item) ? 'Series' : 'Film'}</span>
         </div>
       ) : null}
       {ranked ? (
