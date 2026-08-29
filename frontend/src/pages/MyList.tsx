@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { EmptyState } from '../components/EmptyState'
 import { CaretIcon } from '../components/Icons'
 import { MediaGrid } from '../components/MediaGrid'
+import { useFineHover } from '../hooks/useFineHover'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { catalogGenres, likedToItems } from '../lib/homeRows'
 import { genresOf } from '../lib/media'
@@ -13,6 +14,7 @@ export function MyList() {
   const { activeProfile } = useProfiles()
   const items = filterByMaturity(likedToItems(activeProfile?.myList ?? []), activeProfile)
   const desktop = useMediaQuery('(min-width: 768px)')
+  const fineHover = useFineHover()
   const [genre, setGenre] = useState('')
   const [genreMenuOpen, setGenreMenuOpen] = useState(false)
   const [headingStuck, setHeadingStuck] = useState(false)
@@ -99,7 +101,7 @@ export function MyList() {
       </div>
       {items.length ? (
         visible.length ? (
-          <MediaGrid items={visible} layout="poster" hoverable />
+          <MediaGrid items={visible} layout="poster" hoverable={fineHover} />
         ) : (
           <EmptyState title="No titles in this genre" detail="Pick another genre from the menu." />
         )

@@ -8,6 +8,7 @@ import { CaretIcon, DownloadIcon, ShuffleIcon } from '../components/Icons'
 import { MediaRow } from '../components/MediaRow'
 import { useAuth } from '../auth/AuthContext'
 import { useFetch } from '../hooks/useFetch'
+import { useFineHover } from '../hooks/useFineHover'
 import { historyToListItems, likedToItems } from '../lib/homeRows'
 import { isShow, uniqueById } from '../lib/media'
 import { catalogNotices, filterByMaturity } from '../lib/netflix'
@@ -24,6 +25,7 @@ export function MyNetflix() {
   const { activeProfile, clearActive } = useProfiles()
   const { openTitle } = useTitleModal()
   const { openWatch } = useWatch()
+  const fineHover = useFineHover()
   const navigate = useNavigate()
   const movies = useFetch(() => getMovies(), 'home-movies')
   const catalog = filterByMaturity(movies.data ?? [], activeProfile)
@@ -145,16 +147,16 @@ export function MyNetflix() {
           items={continueItems}
           progressById={progressById}
           continueMode
-          hoverable={false}
+          hoverable={fineHover}
           variant="continue"
         />
       ) : null}
-      {listItems.length ? <MediaRow title="My List" items={listItems} hoverable={false} /> : null}
+      {listItems.length ? <MediaRow title="My List" items={listItems} hoverable={fineHover} /> : null}
       {because.map((row) => (
-        <MediaRow key={row.id} title={row.title} items={row.items} seed={row.seed} hoverable={false} />
+        <MediaRow key={row.id} title={row.title} items={row.items} seed={row.seed} hoverable={fineHover} />
       ))}
       {suggested.length ? (
-        <MediaRow title="We Think You’ll Like These" items={suggested} hoverable={false} />
+        <MediaRow title="We Think You’ll Like These" items={suggested} hoverable={fineHover} />
       ) : null}
 
       <div className="my-netflix-links">

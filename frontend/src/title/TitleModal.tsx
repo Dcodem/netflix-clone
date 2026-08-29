@@ -252,7 +252,11 @@ export function TitleModal() {
               layout="sheet"
             />
           </div>
-          {detailFetch.loading && !detail ? <Spinner label="Loading" /> : null}
+          {detailFetch.loading && !detail ? (
+            <div className="title-modal-loading">
+              <Spinner label="Loading" />
+            </div>
+          ) : null}
           {detailFetch.error ? <ErrorState message={detailFetch.error} onRetry={detailFetch.retry} /> : null}
           <div className="title-modal-split">
             <div className="title-modal-split-main">
