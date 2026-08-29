@@ -739,6 +739,19 @@ const REAL_SHOWS = [
 const MOVIES = [...REAL_MOVIES]
 const SHOWS = [...REAL_SHOWS]
 
+function episodeDurationFor(item, index, number) {
+  const genres = new Set((item.genres ?? []).map((genre) => String(genre).toLowerCase()))
+  const kidsShort =
+    genres.has('family') && genres.has('comedy') && !genres.has('adventure') && !genres.has('action')
+  if (kidsShort) return 7
+  if (genres.has('animation') && (genres.has('comedy') || genres.has('family'))) return 22
+  if (genres.has('comedy') && !genres.has('crime') && !genres.has('drama') && !genres.has('sci-fi') && !genres.has('action')) {
+    return 22
+  }
+  if (genres.has('comedy') && genres.has('drama') && !genres.has('crime')) return 30
+  return 42 + ((index + number) % 10)
+}
+
 function seasonsFor(item, index) {
   const known = {
     'The Office': 9,
@@ -766,7 +779,7 @@ function seasonsFor(item, index) {
         id: `${item.id}-s${seasonNumber}e${number}`,
         number,
         title: episodeTitleFor(item, seasonNumber, number),
-        duration: 24 + ((index + number) % 22),
+        duration: episodeDurationFor(item, index, number),
         synopsis: episodeSynopsisFor(item, seasonNumber, number),
         thumb_url: item.backdrop_url || `/art/thumb/${item.id}?s=${seasonNumber}&e=${number}`,
         watch_href: `/watch/play/${item.id}?s=${seasonNumber}&e=${number}`,

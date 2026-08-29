@@ -216,7 +216,7 @@ function NewsHotFeed() {
     window.clearTimeout(remindTimer.current)
     if (!onList) {
       setRemindNote(`We’ll remind you when ${item.title} is ready to watch.`)
-      remindTimer.current = window.setTimeout(() => setRemindNote(null), 2800)
+      remindTimer.current = window.setTimeout(() => setRemindNote(null), 4200)
     } else {
       setRemindNote(null)
     }

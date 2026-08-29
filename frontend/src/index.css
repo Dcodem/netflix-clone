@@ -9592,7 +9592,7 @@ img.is-logo-pending {
   left: 16px;
   right: 16px;
   bottom: calc(76px + env(safe-area-inset-bottom, 0px));
-  z-index: 40;
+  z-index: 70;
   margin: 0;
   padding: 14px 16px;
   background: #323232;

@@ -453,11 +453,11 @@ export function WatchOverlay() {
         event.key.toLowerCase() === 's' &&
         isShow &&
         !introSkipped &&
-        currentRef.current < skipMarks(runtimeSec).introUntil
+        currentRef.current < skipMarks(runtimeSec, session?.history?.genres).introUntil
       ) {
         event.preventDefault()
         setIntroSkipped(true)
-        post({ cmd: 'seek', seconds: skipMarks(runtimeSec).introAt })
+        post({ cmd: 'seek', seconds: skipMarks(runtimeSec, session?.history?.genres).introAt })
         show()
       } else if (event.key.toLowerCase() === 'f') {
         event.preventDefault()
@@ -617,7 +617,7 @@ export function WatchOverlay() {
     : isShow
       ? `S${session.history?.seasonNumber ?? 1}:E${session.history?.episodeNumber ?? 1}`
       : null
-  const marks = skipMarks(runtimeSec)
+  const marks = skipMarks(runtimeSec, session.history?.genres)
   const showSkipIntro =
     isShow &&
     !introSkipped &&
