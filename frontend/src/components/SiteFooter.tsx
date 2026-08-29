@@ -91,16 +91,16 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="site-footer-inner">
         <div className="site-footer-social">
-          <a href="https://www.facebook.com/netflix" target="_blank" rel="noreferrer" aria-label="Facebook">
+          <a href="#facebook" onClick={(event) => event.preventDefault()} aria-label="Facebook">
             <FacebookIcon className="icon" />
           </a>
-          <a href="https://www.instagram.com/netflix" target="_blank" rel="noreferrer" aria-label="Instagram">
+          <a href="#instagram" onClick={(event) => event.preventDefault()} aria-label="Instagram">
             <InstagramIcon className="icon" />
           </a>
-          <a href="https://twitter.com/netflix" target="_blank" rel="noreferrer" aria-label="X">
+          <a href="#x" onClick={(event) => event.preventDefault()} aria-label="X">
             <TwitterIcon className="icon" />
           </a>
-          <a href="https://www.youtube.com/netflix" target="_blank" rel="noreferrer" aria-label="YouTube">
+          <a href="#youtube" onClick={(event) => event.preventDefault()} aria-label="YouTube">
             <YoutubeIcon className="icon" />
           </a>
         </div>

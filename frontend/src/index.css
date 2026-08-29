@@ -2066,6 +2066,27 @@ select,
   font-weight: 600;
 }
 
+.account-profile-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.account-profile-copy strong {
+  font-weight: 600;
+  color: #333;
+}
+
+.account-profile-copy em {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  color: #737373;
+}
+
+.account-row.is-link:hover .account-profile-copy strong {
+  text-decoration: underline;
+}
+
 .account-avatar {
   width: 48px;
   height: 48px;
@@ -5540,8 +5561,25 @@ img.is-logo-pending {
   line-height: 1.4;
 }
 
-.login-legal span {
+.login-legal span,
+.login-legal-more {
   color: #0071eb;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.login-legal-more:hover {
+  text-decoration: underline;
+}
+
+.login-legal-extra {
+  margin: 10px 0 0;
+  color: #8c8c8c;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .login-footer {
@@ -7244,6 +7282,28 @@ img.is-logo-pending {
 .watch-controls .watch-ctrl:focus-visible::before {
   opacity: 1;
   transition-delay: 0.38s;
+}
+
+.watch-controls-left .watch-ctrl:first-child[aria-label]::after {
+  left: 0;
+  transform: none;
+}
+
+.watch-controls-left .watch-ctrl:first-child[aria-label]::before {
+  left: 18px;
+  transform: none;
+}
+
+.watch-controls-right .watch-ctrl:last-child[aria-label]::after {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.watch-controls-right .watch-ctrl:last-child[aria-label]::before {
+  left: auto;
+  right: 16px;
+  transform: none;
 }
 
 .watch-controls .watch-ctrl.is-on::after,

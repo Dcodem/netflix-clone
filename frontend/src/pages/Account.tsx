@@ -69,7 +69,10 @@ export function Account() {
                 <span className="account-avatar" style={{ background: avatar.color }}>
                   <AvatarArt avatar={avatar} alt={profile.name} />
                 </span>
-                {profile.name}
+                <span className="account-profile-copy">
+                  <strong>{profile.name}</strong>
+                  <em>{profile.maturity || 'All Maturity Ratings'}</em>
+                </span>
               </span>
               <ChevronRightIcon className="icon" />
             </Link>

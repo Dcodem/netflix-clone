@@ -135,6 +135,7 @@ export function Login() {
   const [codeGuess, setCodeGuess] = useState('')
   const [remember, setRemember] = useState(() => localStorage.getItem(REMEMBER_KEY) !== '0')
   const [help, setHelp] = useState(false)
+  const [legalOpen, setLegalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [wall, setWall] = useState<MovieListItem[]>([])
@@ -324,9 +325,20 @@ export function Login() {
           </button>
         </p>
         <p className="login-legal">
-          This page is protected by Google reCAPTCHA to ensure you're not a bot.{' '}
-          <span>Learn more.</span>
+          This page is protected by Google reCAPTCHA to ensure you&apos;re not a bot.{' '}
+          {legalOpen ? null : (
+            <button type="button" className="login-legal-more" onClick={() => setLegalOpen(true)}>
+              Learn more.
+            </button>
+          )}
         </p>
+        {legalOpen ? (
+          <p className="login-legal-extra">
+            The information collected by Google reCAPTCHA is subject to the Google Privacy Policy and Terms of
+            Service, and is used for providing, maintaining, and improving the reCAPTCHA service and for general
+            security purposes (it is not used for personalized advertising by Google).
+          </p>
+        ) : null}
       </div>
       <footer className="login-footer">
         <p>
