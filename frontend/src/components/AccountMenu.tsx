@@ -14,6 +14,7 @@ export function AccountMenu() {
   const navigate = useNavigate()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
   const [helpOpen, setHelpOpen] = useState(false)
+  const [transferOpen, setTransferOpen] = useState(false)
 
   if (!user || !activeProfile) return null
 
@@ -79,10 +80,16 @@ export function AccountMenu() {
             <ExitIcon className="icon" />
             Exit Profile
           </Link>
-          <Link to="/account" onClick={() => setOpen(false)}>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false)
+              setTransferOpen(true)
+            }}
+          >
             <TransferIcon className="icon" />
             Transfer Profile
-          </Link>
+          </button>
           <Link to="/account" onClick={() => setOpen(false)}>
             <PersonIcon className="icon" />
             Account
@@ -115,6 +122,13 @@ export function AccountMenu() {
           title="Help Center"
           body={FOOTER_NOTES['Help Center']}
           onClose={() => setHelpOpen(false)}
+        />
+      ) : null}
+      {transferOpen ? (
+        <FooterNoteDialog
+          title="Transfer Profile"
+          body={FOOTER_NOTES['Transfer Profile']}
+          onClose={() => setTransferOpen(false)}
         />
       ) : null}
     </div>

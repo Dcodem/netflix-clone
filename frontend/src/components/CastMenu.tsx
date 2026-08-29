@@ -55,7 +55,7 @@ export function CastMenu({
             onClick={(event) => event.stopPropagation()}
           >
             <div className="cast-sheet-head">
-              <h2 id="cast-sheet-title">Cast to a device</h2>
+              <h2 id="cast-sheet-title">Cast to a Device</h2>
               <button type="button" className="cast-sheet-close" onClick={() => setOpen(false)} aria-label="Close">
                 <CloseIcon className="icon" />
               </button>
