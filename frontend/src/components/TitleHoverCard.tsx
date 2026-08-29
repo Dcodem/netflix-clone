@@ -181,11 +181,7 @@ export function TitleHoverCard({
           <span className="maturity">{maturity}</span>
           {remainingLabel(progress, detail?.runtime) ? (
             <span>{remainingLabel(progress, detail?.runtime)}</span>
-          ) : runtime ? (
-            <span>{runtime}</span>
-          ) : null}
-          <FeatureBadges quality={quality} />
-          {isShow(item) ? (
+          ) : isShow(item) ? (
             <span>
               {seasons.length > 1
                 ? `${seasons.length} Seasons`
@@ -195,7 +191,10 @@ export function TitleHoverCard({
                     ? `${episodeCount} Episodes`
                     : 'TV Show'}
             </span>
+          ) : runtime ? (
+            <span>{runtime}</span>
           ) : null}
+          <FeatureBadges quality={quality} compact />
         </div>
         {genres.length ? <GenreDots genres={genres} className="jawbone-genres" /> : null}
       </div>

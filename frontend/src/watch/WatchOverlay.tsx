@@ -1273,7 +1273,12 @@ export function WatchOverlay() {
         </div>
       ) : null}
       {audioOpen ? (
-        <div className="watch-panel watch-audio" onClick={(event) => event.stopPropagation()}>
+        <div
+          className="watch-panel watch-audio"
+          role="dialog"
+          aria-label="Audio & Subtitles"
+          onClick={(event) => event.stopPropagation()}
+        >
           <div className="watch-audio-head">
             <span className="watch-sheet-handle" aria-hidden="true" />
             <p>Audio & Subtitles</p>
@@ -1282,7 +1287,7 @@ export function WatchOverlay() {
             <h2>Audio</h2>
             <button type="button" className={audioTrack === 'en' ? 'is-on' : ''} onClick={() => setAudioTrack('en')}>
               {audioTrack === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-              English
+              English [Original]
             </button>
             <button type="button" className={audioTrack === 'ad' ? 'is-on' : ''} onClick={() => setAudioTrack('ad')}>
               {audioTrack === 'ad' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
@@ -1290,7 +1295,7 @@ export function WatchOverlay() {
             </button>
           </div>
           <div>
-            <h2>Subtitles/CC</h2>
+            <h2>Subtitles</h2>
             <button type="button" className={subs === 'off' ? 'is-on' : ''} onClick={() => setSubs('off')}>
               {subs === 'off' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               Off

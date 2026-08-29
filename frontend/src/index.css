@@ -3787,18 +3787,13 @@ img.is-logo-pending {
   padding-right: 0;
 }
 
-.title-modal .episode-heading,
-.title-modal .more-like > .section-title {
+.title-modal .episode-heading {
   display: none;
 }
 
 .title-modal .episode-header {
   justify-content: flex-end;
   margin-top: 0;
-}
-
-.title-modal .more-like .section-title {
-  display: none;
 }
 
 .title-modal .title-about > h2 {
@@ -7004,7 +6999,7 @@ img.is-logo-pending {
 .watch-audio {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px 24px;
+  gap: 8px 32px;
   width: min(420px, calc(100% - 32px));
 }
 
@@ -7726,8 +7721,8 @@ img.is-logo-pending {
   border-radius: 2px;
   padding: 11px 18px 11px 20px;
   font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 500;
+  letter-spacing: 0;
   text-transform: none;
   backdrop-filter: blur(8px);
   opacity: 0;
@@ -8175,8 +8170,8 @@ img.is-logo-pending {
 }
 
 .watch-panel.watch-audio {
-  width: min(560px, calc(100% - 32px));
-  padding: 22px 28px 18px;
+  width: min(640px, calc(100% - 48px));
+  padding: 28px 32px 24px;
   border: 0;
   border-radius: 4px;
   background: rgba(20, 20, 20, 0.96);
@@ -8197,19 +8192,22 @@ img.is-logo-pending {
 }
 
 .watch-audio h2 {
-  margin: 0 0 8px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
   color: #808080;
 }
 
 .watch-audio button {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   color: #b3b3b3;
+  font-size: 16px;
+  padding: 10px 8px;
+  margin: 0 -8px;
 }
 
 .watch-audio .icon,

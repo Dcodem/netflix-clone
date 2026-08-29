@@ -67,7 +67,6 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
 
   return (
     <div className="more-like">
-      <h2 className="section-title">More Like This</h2>
       <div className="more-like-grid">
         {slice.map((item) => {
           const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
@@ -109,7 +108,7 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
                 <div className="more-like-meta">
                   <span className="match">{match}% Match</span>
                   <span className="maturity">{maturityLabel(item)}</span>
-                  <FeatureBadges quality={item.quality} />
+                  <FeatureBadges quality={item.quality} compact />
                 </div>
                 {info?.synopsis ? <p className="more-like-syn">{info.synopsis}</p> : <p className="more-like-title">{item.title}</p>}
               </div>
