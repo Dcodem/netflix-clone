@@ -11,7 +11,7 @@ import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { Home } from './Home'
 import { genresOf, isShow, ofKind, sortByRating, uniqueById } from '../lib/media'
-import { matchPercent, maturityLabel, toLiked } from '../lib/netflix'
+import { filterByMaturity, matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -208,9 +208,10 @@ function NewsHotFeed() {
     return uniqueById([...catalogMovies, ...catalogShows])
   }, 'news-catalog')
 
+  const { activeProfile } = useProfiles()
   const catalog = useMemo(
-    () => uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]),
-    [movies.data, extras.data],
+    () => filterByMaturity(uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]), activeProfile),
+    [movies.data, extras.data, activeProfile],
   )
   const comingRef = useRef<HTMLElement>(null)
   const watchingRef = useRef<HTMLElement>(null)

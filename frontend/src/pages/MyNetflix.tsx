@@ -10,7 +10,7 @@ import { useAuth } from '../auth/AuthContext'
 import { useFetch } from '../hooks/useFetch'
 import { historyToListItems, likedToItems } from '../lib/homeRows'
 import { isShow, uniqueById } from '../lib/media'
-import { catalogNotices } from '../lib/netflix'
+import { catalogNotices, filterByMaturity } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -26,7 +26,7 @@ export function MyNetflix() {
   const { openWatch } = useWatch()
   const navigate = useNavigate()
   const movies = useFetch(() => getMovies(), 'home-movies')
-  const catalog = movies.data ?? []
+  const catalog = filterByMaturity(movies.data ?? [], activeProfile)
   const continueItems = historyToListItems(
     (activeProfile?.history ?? []).filter(
       (item) => item.progress && item.progress > 0.05 && !activeProfile?.hiddenContinueIds.includes(item.id),

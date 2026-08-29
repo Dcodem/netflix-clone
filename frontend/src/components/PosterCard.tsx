@@ -3,7 +3,7 @@ import type { MovieListItem } from '../api/types'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
-import { CloseIcon } from './Icons'
+import { MoreVertIcon } from './Icons'
 import { TitleHoverCard } from './TitleHoverCard'
 
 type HoverLock = { dismiss: () => void }
@@ -30,6 +30,7 @@ export function PosterCard({
   const [hover, setHover] = useState(false)
   const [peek, setPeek] = useState(false)
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
+  const [rowMenu, setRowMenu] = useState(false)
   const timer = useRef<number>(0)
   const lock = useRef<HoverLock>({ dismiss() {} }).current
   const ranked = typeof rank === 'number'
@@ -57,6 +58,15 @@ export function PosterCard({
     },
     [lock],
   )
+
+  useEffect(() => {
+    if (!rowMenu) return
+    const onDoc = (event: globalThis.PointerEvent) => {
+      if (!rootRef.current?.parentElement?.contains(event.target as Node)) setRowMenu(false)
+    }
+    document.addEventListener('pointerdown', onDoc)
+    return () => document.removeEventListener('pointerdown', onDoc)
+  }, [rowMenu])
 
   useEffect(() => {
     if (openItem) dropLock()
@@ -88,7 +98,7 @@ export function PosterCard({
 
   return (
     <div
-      className={`poster-wrap ${ranked ? 'is-ranked' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'} ${peek ? 'is-peeking' : ''} ${hover ? 'is-previewing' : ''}`}
+      className={`poster-wrap ${ranked ? 'is-ranked' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'} ${peek ? 'is-peeking' : ''} ${hover ? 'is-previewing' : ''} ${rowMenu ? 'is-row-menu' : ''}`}
       onPointerEnter={onEnter}
       onPointerLeave={onLeave}
     >
@@ -126,18 +136,37 @@ export function PosterCard({
         </div>
       ) : null}
       {continueMode ? (
-        <button
-          type="button"
-          className="continue-hide"
-          onClick={(event) => {
-            event.preventDefault()
-            event.stopPropagation()
-            hideContinue(item.id)
-          }}
-          aria-label="Remove from Continue Watching"
-        >
-          <CloseIcon className="icon" />
-        </button>
+        <div className={`continue-more ${rowMenu ? 'is-open' : ''}`}>
+          <button
+            type="button"
+            className="continue-hide"
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              setRowMenu((open) => !open)
+            }}
+            aria-label="More"
+            aria-expanded={rowMenu}
+          >
+            <MoreVertIcon className="icon" />
+          </button>
+          {rowMenu ? (
+            <div className="continue-menu" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  hideContinue(item.id)
+                  setRowMenu(false)
+                }}
+              >
+                Remove from row
+              </button>
+            </div>
+          ) : null}
+        </div>
       ) : null}
       {hover && anchor && !openItem ? (
         <TitleHoverCard

@@ -10,6 +10,7 @@ import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { sortByRating, uniqueById } from '../lib/media'
+import { filterByMaturity } from '../lib/netflix'
 import { clearRecentSearches, listRecentSearches, removeRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { relatedSearchResults } from '../profiles/taste'
@@ -39,18 +40,21 @@ export function Search() {
   }, 'search-catalog')
   const popular = useFetch(() => getMovies(), 'search-popular', { enabled: !enabled })
   const [recents, setRecents] = useState(listRecentSearches)
-  const pool = useMemo(() => catalog.data ?? [], [catalog.data])
+  const pool = useMemo(
+    () => filterByMaturity(catalog.data ?? [], activeProfile),
+    [catalog.data, activeProfile],
+  )
   const hits = useMemo(() => {
-    const fromApi = data ?? []
+    const fromApi = filterByMaturity(data ?? [], activeProfile)
     return uniqueById([...fromApi, ...catalogHits(q, pool)])
-  }, [data, q, pool])
+  }, [data, q, pool, activeProfile])
   const related = useMemo(() => {
     const hitIds = new Set(hits.map((item) => item.id))
     return relatedSearchResults(hits, pool, activeProfile, 48).filter((item) => !hitIds.has(item.id))
   }, [hits, pool, activeProfile])
   const popularItems = useMemo(
-    () => sortByRating(popular.data ?? []).slice(0, 18),
-    [popular.data],
+    () => sortByRating(filterByMaturity(popular.data ?? [], activeProfile)).slice(0, 18),
+    [popular.data, activeProfile],
   )
   const phone = useMediaQuery('(max-width: 767px)')
 

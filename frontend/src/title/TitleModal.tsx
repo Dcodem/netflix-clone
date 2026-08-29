@@ -14,7 +14,7 @@ import { GenreDots } from '../components/GenreDots'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
-import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes } from '../lib/netflix'
+import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes, filterByMaturity } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
@@ -101,6 +101,7 @@ export function TitleModal() {
       : pool.filter((entry) => !seen.has(entry.id))
     return uniqueById([...byGenre, ...rest]).slice(0, 12)
   }, [item, catalog.data, activeProfile])
+  const similarSafe = useMemo(() => filterByMaturity(similar, activeProfile), [similar, activeProfile])
 
   if (!item) return null
 
@@ -325,7 +326,7 @@ export function TitleModal() {
 
           {activeTab === 'more' ? (
             <div className="title-section">
-              <MoreLikeGrid items={similar} />
+              <MoreLikeGrid items={similarSafe} />
             </div>
           ) : null}
 

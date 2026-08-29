@@ -38,6 +38,11 @@ export type ProfileAvatar = {
   label: string
 }
 
+export const PROFILE_LANGUAGES = ['English', 'Español', 'Français'] as const
+export const PROFILE_MATURITY = ['All Maturity Ratings', 'Teens and below', 'Kids'] as const
+export type ProfileLanguage = (typeof PROFILE_LANGUAGES)[number]
+export type ProfileMaturity = (typeof PROFILE_MATURITY)[number]
+
 export type Profile = {
   id: string
   name: string
@@ -47,6 +52,8 @@ export type Profile = {
   pinHash: string | null
   autoplayNext: boolean
   autoplayPreview: boolean
+  language: ProfileLanguage
+  maturity: ProfileMaturity
   createdAt: number
   history: WatchHistoryItem[]
   favoriteGenres: string[]

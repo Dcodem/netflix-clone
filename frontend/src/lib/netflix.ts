@@ -1,7 +1,7 @@
 import type { MovieListItem } from '../api/types'
 import { genresOf, isShow } from './media'
 import { genreWeights } from '../profiles/taste'
-import type { Profile } from '../profiles/types'
+import type { Profile, ProfileLanguage, ProfileMaturity } from '../profiles/types'
 
 export function maturityLabel(item: { kind?: string; genres?: string[] }): string {
   const genres = genresOf(item)
@@ -9,6 +9,31 @@ export function maturityLabel(item: { kind?: string; genres?: string[] }): strin
   if (genres.includes('Horror')) return '18+'
   if (genres.includes('Thriller') || genres.includes('Crime') || genres.includes('War')) return '16+'
   return isShow(item) ? 'TV-14' : '13+'
+}
+
+export function allowedByMaturity(
+  item: { kind?: string; genres?: string[] },
+  profile: Profile | null,
+): boolean {
+  const level: ProfileMaturity = profile?.maturity ?? 'All Maturity Ratings'
+  if (level === 'All Maturity Ratings') return true
+  const label = maturityLabel(item)
+  if (level === 'Kids') return label === 'PG'
+  return label !== '18+' && label !== 'TV-MA'
+}
+
+export function filterByMaturity<T extends { kind?: string; genres?: string[] }>(
+  items: T[],
+  profile: Profile | null,
+): T[] {
+  if (!profile || profile.maturity === 'All Maturity Ratings') return items
+  return items.filter((item) => allowedByMaturity(item, profile))
+}
+
+export function profileLanguageCode(language?: ProfileLanguage | null): 'en' | 'es' | 'fr' {
+  if (language === 'Español') return 'es'
+  if (language === 'Français') return 'fr'
+  return 'en'
 }
 
 /** Netflix About copy under the boxed rating. */

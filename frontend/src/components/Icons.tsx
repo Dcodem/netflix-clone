@@ -533,6 +533,16 @@ export function DownloadIcon({ className }: { className?: string }) {
   )
 }
 
+export function MoreVertIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="5" r="1.85" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.85" fill="currentColor" />
+      <circle cx="12" cy="19" r="1.85" fill="currentColor" />
+    </svg>
+  )
+}
+
 export function ShareIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

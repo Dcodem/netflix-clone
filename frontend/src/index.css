@@ -789,15 +789,22 @@ select,
   transition: transform 0.4s cubic-bezier(0.33, 0, 0.2, 1);
 }
 
-.continue-hide {
+.continue-more {
   position: absolute;
   top: 6px;
   right: 6px;
   z-index: 5;
-  width: 24px;
-  height: 24px;
+}
+
+.continue-hide {
+  position: relative;
+  top: auto;
+  right: auto;
+  z-index: 5;
+  width: 28px;
+  height: 28px;
   border: 0;
-  border-radius: 0;
+  border-radius: 50%;
   background: transparent;
   color: #fff;
   font-size: 18px;
@@ -805,22 +812,56 @@ select,
   cursor: pointer;
   opacity: 0;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.9));
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity 0.15s ease, background 0.15s ease;
 }
 
 .poster-wrap:hover .continue-hide,
 .poster-wrap:focus-within .continue-hide,
-.poster-wrap.is-peeking .continue-hide {
+.poster-wrap.is-peeking .continue-hide,
+.poster-wrap.is-row-menu .continue-hide,
+.continue-more.is-open .continue-hide {
   opacity: 1;
 }
 
 .continue-hide:hover,
 .continue-hide:focus-visible {
-  transform: scale(1.14);
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.continue-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 8;
+  min-width: 176px;
+  padding: 8px 0;
+  background: #181818;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+
+.continue-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  background: none;
+  border: 0;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.continue-menu button:hover,
+.continue-menu button:focus-visible {
+  background: #333;
 }
 
 @media (pointer: coarse) {
-  .continue-hide {
+  .continue-more .continue-hide {
     opacity: 1;
     width: 36px;
     height: 36px;
@@ -1210,15 +1251,15 @@ select,
 
 .episode {
   display: flex;
-  gap: 16px;
+  gap: 18px;
   align-items: center;
-  padding: 16px 12px;
+  padding: 18px 16px 18px 8px;
   border-bottom: 1px solid #2f2f2f;
   border-radius: 0;
 }
 
 .episode-btn:hover {
-  background: #333;
+  background: #2f2f2f;
 }
 
 .ep-thumb,
@@ -4927,17 +4968,17 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller {
-    padding-left: 20px;
+    padding-left: 36px;
     padding-right: 16px;
-    padding-top: 40px;
+    padding-top: 44px;
   }
 
   .rank-num {
     font-size: 96px;
     margin-right: -0.04em;
-    min-width: 0.68em;
+    min-width: 0.72em;
     letter-spacing: -0.1em;
-    padding-left: 0.18em;
+    padding-left: 0.28em;
   }
 
   .rank-num::before {
@@ -4945,16 +4986,16 @@ img.is-logo-pending {
   }
 
   .rank-num.is-first {
-    min-width: 0.52em;
+    min-width: 0.58em;
     margin-right: 0;
-    padding-left: 0.22em;
+    padding-left: 0.36em;
   }
 
   .rank-num.is-ten {
     font-size: 72px;
-    min-width: 1.12em;
+    min-width: 1.16em;
     margin-right: -0.08em;
-    padding-left: 0.1em;
+    padding-left: 0.14em;
   }
 
   .ep-num {
@@ -6918,6 +6959,75 @@ img.is-logo-pending {
   line-height: 1.4;
 }
 
+.watch-help {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2400;
+  transform: translate(-50%, -50%);
+  width: min(420px, calc(100% - 40px));
+  padding: 28px 32px 24px;
+  background: rgba(20, 20, 20, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+  color: #fff;
+}
+
+.watch-help h2 {
+  margin: 0 0 18px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.watch-help dl {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.watch-help dl > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.watch-help dt {
+  font-size: 15px;
+  font-weight: 500;
+  color: #e5e5e5;
+}
+
+.watch-help dd {
+  margin: 0;
+  display: flex;
+  gap: 6px;
+}
+
+.watch-help kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 2px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.watch-overlay.is-help .watch-center,
+.watch-overlay.is-help .skip-intro,
+.watch-overlay.is-help .next-ep-card,
+.watch-overlay.is-help .watch-credits {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .watch-overlay.is-still .watch-topbar {
   opacity: 1;
   background: none;
@@ -7076,7 +7186,7 @@ img.is-logo-pending {
   content: attr(aria-label);
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 10px);
+  bottom: calc(100% + 14px);
   transform: translateX(-50%);
   background: #fff;
   color: #141414;
@@ -7091,17 +7201,41 @@ img.is-logo-pending {
   pointer-events: none;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   z-index: 5;
+  transition: opacity 0.08s ease;
+  transition-delay: 0s;
+}
+
+.watch-controls .watch-ctrl[aria-label]::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 2px);
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 6;
+  transition: opacity 0.08s ease;
+  transition-delay: 0s;
 }
 
 .watch-controls .watch-ctrl:hover::after,
-.watch-controls .watch-ctrl:focus-visible::after {
+.watch-controls .watch-ctrl:focus-visible::after,
+.watch-controls .watch-ctrl:hover::before,
+.watch-controls .watch-ctrl:focus-visible::before {
   opacity: 1;
+  transition-delay: 0.38s;
 }
 
 .watch-controls .watch-ctrl.is-on::after,
+.watch-controls .watch-ctrl.is-on::before,
 .watch-vol.is-open .watch-ctrl::after,
-.watch-speed.is-open .watch-ctrl::after {
+.watch-vol.is-open .watch-ctrl::before,
+.watch-speed.is-open .watch-ctrl::after,
+.watch-speed.is-open .watch-ctrl::before {
   opacity: 0;
+  transition-delay: 0s;
 }
 
 .skip-intro,
@@ -8361,7 +8495,8 @@ img.is-logo-pending {
 
   .poster-wrap:hover .continue-hide,
   .poster-wrap:focus-within .continue-hide,
-  .poster-wrap.is-peeking .continue-hide {
+  .poster-wrap.is-peeking .continue-hide,
+  .poster-wrap.is-row-menu .continue-hide {
     opacity: 1;
   }
 

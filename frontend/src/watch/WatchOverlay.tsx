@@ -148,6 +148,7 @@ export function WatchOverlay() {
   const [nextDismissed, setNextDismissed] = useState(false)
   const [stillWatching, setStillWatching] = useState(false)
   const [identOn, setIdentOn] = useState(true)
+  const [helpOpen, setHelpOpen] = useState(false)
   const [clockKey, setClockKey] = useState('')
   const flashTimer = useRef(0)
   const tapRef = useRef({ at: 0, x: 0, play: 0 })
@@ -175,8 +176,10 @@ export function WatchOverlay() {
     setIdentOn(startProgress < 0.02)
     setIntroSkipped(false)
     setRecapSkipped(false)
+    setHelpOpen(false)
   }
-  const keepChrome = !stillWatching && (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover)
+  const keepChrome =
+    !stillWatching && (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover || helpOpen)
   const continueWatchingRef = useRef<() => void>(() => {})
 
   const post = useCallback((payload: Record<string, unknown>) => {
@@ -383,6 +386,12 @@ export function WatchOverlay() {
       const typing = (event.target as HTMLElement)?.tagName === 'INPUT' || (event.target as HTMLElement)?.tagName === 'SELECT'
       if (typing) return
       if (event.key === 'Escape') {
+        if (helpOpen) {
+          event.preventDefault()
+          event.stopImmediatePropagation()
+          setHelpOpen(false)
+          return
+        }
         if (episodesOpen || audioOpen || speedOpen) {
           event.preventDefault()
           event.stopImmediatePropagation()
@@ -390,6 +399,11 @@ export function WatchOverlay() {
           setAudioOpen(false)
           setSpeedOpen(false)
         }
+        return
+      }
+      if (event.key === '?' || (event.shiftKey && event.key === '/')) {
+        event.preventDefault()
+        setHelpOpen((open) => !open)
         return
       }
       if (stillWatching) {
@@ -492,7 +506,7 @@ export function WatchOverlay() {
       window.removeEventListener('message', onMessage)
       document.removeEventListener('fullscreenchange', onFs)
     }
-  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped])
+  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped, helpOpen])
 
   useEffect(() => {
     const length = duration || runtimeSec
@@ -666,13 +680,18 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
       onClick={(event) => {
         if (stillWatching) {
           event.preventDefault()
+          return
+        }
+        if (helpOpen) {
+          event.preventDefault()
+          setHelpOpen(false)
           return
         }
         if (episodesOpen || audioOpen || speedOpen) {
@@ -862,7 +881,7 @@ export function WatchOverlay() {
             event.stopPropagation()
             skip(-10)
           }}
-          aria-label="Back 10 Seconds"
+          aria-label="Skip Back 10 Seconds"
         >
           <SkipBackIcon className="icon" />
         </button>
@@ -884,7 +903,7 @@ export function WatchOverlay() {
             event.stopPropagation()
             skip(10)
           }}
-          aria-label="Forward 10 Seconds"
+          aria-label="Skip Forward 10 Seconds"
         >
           <SkipForwardIcon className="icon" />
         </button>
@@ -937,10 +956,10 @@ export function WatchOverlay() {
             <button type="button" className="watch-ctrl watch-transport" onClick={togglePlay} aria-label={paused ? 'Play' : 'Pause'}>
               {paused ? <PlayIcon className="icon" /> : <PauseIcon className="icon" />}
             </button>
-            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(-10)} aria-label="Back 10 Seconds">
+            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(-10)} aria-label="Skip Back 10 Seconds">
               <SkipBackIcon className="icon" />
             </button>
-            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(10)} aria-label="Forward 10 Seconds">
+            <button type="button" className="watch-ctrl watch-transport" onClick={() => skip(10)} aria-label="Skip Forward 10 Seconds">
               <SkipForwardIcon className="icon" />
             </button>
             <div
@@ -1100,6 +1119,59 @@ export function WatchOverlay() {
             setSpeedOpen(false)
           }}
         />
+      ) : null}
+      {helpOpen ? (
+        <div
+          className="watch-help"
+          role="dialog"
+          aria-label="Keyboard Shortcuts"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <h2>Keyboard Shortcuts</h2>
+          <dl>
+            <div>
+              <dt>Seek Backward</dt>
+              <dd>
+                <kbd>J</kbd>
+                <kbd>←</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>Seek Forward</dt>
+              <dd>
+                <kbd>L</kbd>
+                <kbd>→</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>Play / Pause</dt>
+              <dd>
+                <kbd>K</kbd>
+                <kbd>Space</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>Mute</dt>
+              <dd>
+                <kbd>M</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>Full Screen</dt>
+              <dd>
+                <kbd>F</kbd>
+              </dd>
+            </div>
+            {isShow ? (
+              <div>
+                <dt>Skip Intro</dt>
+                <dd>
+                  <kbd>S</kbd>
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+        </div>
       ) : null}
       {stillWatching ? (
         <div

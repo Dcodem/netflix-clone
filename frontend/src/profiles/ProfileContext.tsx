@@ -4,9 +4,13 @@ import { useAuth } from '../auth/AuthContext'
 import {
   HISTORY_LIMIT,
   PROFILE_AVATARS,
+  PROFILE_LANGUAGES,
+  PROFILE_MATURITY,
   STORAGE_KEY,
   type LikedTitle,
   type Profile,
+  type ProfileLanguage,
+  type ProfileMaturity,
   type ProfileStore,
   type WatchHistoryItem,
 } from './types'
@@ -21,6 +25,14 @@ function hydrateHistoryItem(raw: WatchHistoryItem): WatchHistoryItem {
     episodeProgress:
       raw.episodeProgress && typeof raw.episodeProgress === 'object' ? raw.episodeProgress : {},
   }
+}
+
+function isLanguage(value: unknown): value is ProfileLanguage {
+  return PROFILE_LANGUAGES.includes(value as ProfileLanguage)
+}
+
+function isMaturity(value: unknown): value is ProfileMaturity {
+  return PROFILE_MATURITY.includes(value as ProfileMaturity)
 }
 
 function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
@@ -40,6 +52,8 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     pinHash: raw.pinHash ?? null,
     autoplayNext: raw.autoplayNext !== false,
     autoplayPreview: raw.autoplayPreview !== false,
+    language: isLanguage(raw.language) ? raw.language : 'English',
+    maturity: isMaturity(raw.maturity) ? raw.maturity : 'All Maturity Ratings',
     color: raw.color || PROFILE_AVATARS[0].color,
   }
 }
@@ -87,6 +101,8 @@ export type UpdateProfileOpts = {
   pin?: string | null
   autoplayNext?: boolean
   autoplayPreview?: boolean
+  language?: ProfileLanguage
+  maturity?: ProfileMaturity
 }
 
 type ProfileContextValue = {
@@ -155,6 +171,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         pinHash,
         autoplayNext: true,
         autoplayPreview: true,
+        language: 'English',
+        maturity: 'All Maturity Ratings',
         createdAt: Date.now(),
         history: [],
         favoriteGenres: [],
@@ -217,6 +235,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             color: avatar?.color ?? profile.color,
             autoplayNext: opts.autoplayNext ?? profile.autoplayNext,
             autoplayPreview: opts.autoplayPreview ?? profile.autoplayPreview,
+            language: opts.language ?? profile.language,
+            maturity: opts.maturity ?? profile.maturity,
             pinSalt: pinSalt !== undefined ? pinSalt : profile.pinSalt,
             pinHash: pinHash !== undefined ? pinHash : profile.pinHash,
           }

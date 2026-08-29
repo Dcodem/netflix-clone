@@ -14,6 +14,7 @@ import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { buildBrowseRows, catalogGenres, type BrowseFilter } from '../lib/homeRows'
 import { isShow, ofKind, pickHero, sortByRating, uniqueById } from '../lib/media'
+import { filterByMaturity } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 
 const HEADINGS: Record<BrowseFilter, string | null> = {
@@ -73,8 +74,8 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     const extraMovies = extras.data?.catalogMovies ?? []
     const extraShows = extras.data?.catalogShows ?? []
     const merged = uniqueById([...homeItems, ...extraMovies, ...extraShows])
-    return merged
-  }, [movies.data, extras.data])
+    return filterByMaturity(merged, activeProfile)
+  }, [movies.data, extras.data, activeProfile])
 
   const kindPool = useMemo(
     () => ofKind(catalog, filter === 'home' || filter === 'popular' ? 'all' : filter),

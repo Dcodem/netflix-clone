@@ -16,11 +16,12 @@ import {
   type LanguageSort,
 } from '../lib/languages'
 import { uniqueById } from '../lib/media'
+import { filterByMaturity, profileLanguageCode } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 
 export function BrowseLanguages() {
   const { activeProfile } = useProfiles()
-  const [language, setLanguage] = useState<LanguageCode>('en')
+  const [language, setLanguage] = useState<LanguageCode>(profileLanguageCode(activeProfile?.language))
   const [sort, setSort] = useState<LanguageSort>('suggestions')
   const catalog = useFetch(async () => {
     const [movies, shows] = await Promise.all([
@@ -31,7 +32,7 @@ export function BrowseLanguages() {
   }, 'browse-languages')
 
   const items = useMemo(() => {
-    const pool = titlesInLanguage(catalog.data ?? [], language)
+    const pool = titlesInLanguage(filterByMaturity(catalog.data ?? [], activeProfile), language)
     return sortLanguageTitles(pool, sort, activeProfile)
   }, [catalog.data, language, sort, activeProfile])
 

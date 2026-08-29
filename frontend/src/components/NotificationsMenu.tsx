@@ -1,16 +1,18 @@
 import { getMovies } from '../api/client'
 import { useHoverMenu } from '../hooks/useHoverMenu'
-import { catalogNotices } from '../lib/netflix'
+import { catalogNotices, filterByMaturity } from '../lib/netflix'
 import { useFetch } from '../hooks/useFetch'
 import { useTitleModal } from '../title/TitleModalContext'
+import { useProfiles } from '../profiles/ProfileContext'
 import { CatalogImage } from './CatalogImage'
 import { BellIcon } from './Icons'
 
 export function NotificationsMenu() {
   const { openTitle } = useTitleModal()
+  const { activeProfile } = useProfiles()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
   const movies = useFetch(() => getMovies(), 'home-movies')
-  const notices = catalogNotices(movies.data ?? [], 8)
+  const notices = catalogNotices(filterByMaturity(movies.data ?? [], activeProfile), 8)
 
   return (
     <div

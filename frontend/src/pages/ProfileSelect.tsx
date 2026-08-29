@@ -5,10 +5,14 @@ import { ChevronLeftIcon, ChevronRightIcon, LockIcon, PencilIcon, PlusIcon } fro
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { playProfileSting } from '../lib/sounds'
-import { PROFILE_AVATARS, avatarFor, type Profile } from '../profiles/types'
+import {
+  PROFILE_AVATARS,
+  PROFILE_LANGUAGES,
+  PROFILE_MATURITY,
+  avatarFor,
+  type Profile,
+} from '../profiles/types'
 
-const PROFILE_LANGUAGES = ['English', 'Español', 'Français'] as const
-const PROFILE_MATURITY = ['All Maturity Ratings', 'Teens and below', 'Kids'] as const
 type EditPanel = 'language' | 'maturity' | 'lock' | null
 
 function PinBoxes({
@@ -153,8 +157,8 @@ export function ProfileSelect() {
     setRemovePin(false)
     setEditAutoplayNext(profile.autoplayNext !== false)
     setEditAutoplayPreview(profile.autoplayPreview !== false)
-    setEditLang('English')
-    setEditMaturity('All Maturity Ratings')
+    setEditLang(profile.language || 'English')
+    setEditMaturity(profile.maturity || 'All Maturity Ratings')
     setEditPanel(null)
     setPickingAvatar(false)
   }
@@ -207,6 +211,8 @@ export function ProfileSelect() {
       pin: removePin ? null : editPin.length === 4 ? editPin : undefined,
       autoplayNext: editAutoplayNext,
       autoplayPreview: editAutoplayPreview,
+      language: editLang,
+      maturity: editMaturity,
     })
     setEditingId(null)
     setPickingAvatar(false)
