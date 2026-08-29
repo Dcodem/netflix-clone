@@ -85,12 +85,13 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     () => (genre ? kindPool.filter((item) => (item.genres ?? []).includes(genre)) : kindPool),
     [kindPool, genre],
   )
-  const hero = useMemo(() => pickHero(pool), [pool])
+  const top10 = useMemo(() => sortByRating(pool).slice(0, 10), [pool])
+  const hero = useMemo(() => pickHero(top10.length ? top10 : pool), [top10, pool])
   const heroRank = useMemo(() => {
     if (!hero) return 0
-    const index = sortByRating(pool).slice(0, 10).findIndex((item) => item.id === hero.id)
+    const index = top10.findIndex((item) => item.id === hero.id)
     return index >= 0 ? index + 1 : 0
-  }, [hero, pool])
+  }, [hero, top10])
   const heroRankLabel =
     filter === 'movies'
       ? 'Movies Today'
