@@ -4,6 +4,12 @@
   "buildCommand": "npm --prefix frontend run build",
   "outputDirectory": "frontend/dist",
   "ignoreCommand": "[ \"$VERCEL_PROJECT_ID\" = \"prj_jl13z9YWovLshbQwiJHVq7e9TuKM\" ]",
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "cursor/*": false
+    }
+  },
   "functions": {
     "api/catalog.js": {
       "includeFiles": "mock/**"
