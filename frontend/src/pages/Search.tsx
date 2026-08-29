@@ -116,7 +116,7 @@ export function Search() {
               {phone ? 'Top Searches' : 'Recommended TV Shows and Movies'}
             </h2>
             {phone ? (
-              <SearchHitsList items={popularItems} ranked />
+              <SearchHitsList items={popularItems.slice(0, 10)} ranked />
             ) : (
               <MediaGrid items={popularItems} layout="poster" />
             )}

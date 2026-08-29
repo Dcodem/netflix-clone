@@ -772,7 +772,6 @@ export function WatchOverlay() {
             item={trailerSearch(session)}
             className="watch-ident-logo"
             titleClassName="watch-ident-title"
-            imageOnly
           />
           {isShow ? (
             <p className="watch-ident-ep">

@@ -1633,7 +1633,7 @@ select,
   aspect-ratio: 1;
   height: auto;
   border-radius: 4px;
-  border: 4px solid transparent;
+  border: 3px solid #808080;
   font-size: 52px;
   cursor: pointer;
   display: grid;
@@ -1769,15 +1769,16 @@ select,
   border-color: #e6e6e6;
 }
 
-.manage-profiles.is-danger {
-  color: #e50914;
-  border-color: #e50914;
+.manage-profiles.is-danger,
+.manage-profiles.is-danger:hover {
+  color: #808080;
+  border-color: #808080;
+  background: transparent;
 }
 
 .manage-profiles.is-danger:hover {
   color: #fff;
   border-color: #fff;
-  background: #e50914;
 }
 
 @media (min-width: 480px) {
@@ -4253,6 +4254,12 @@ img.is-logo-pending {
     aspect-ratio: 16 / 9;
   }
 
+  .search-top-rank {
+    width: 32px;
+    font-size: 36px;
+    font-weight: 400;
+  }
+
   .site-header.is-searching {
     background: #141414;
   }
@@ -5018,14 +5025,15 @@ img.is-logo-pending {
 }
 
 .search-top-rank {
-  width: 42px;
+  width: 28px;
   flex-shrink: 0;
   color: #808080;
   font-family: var(--display);
-  font-weight: 700;
-  font-size: 36px;
+  font-weight: 400;
+  font-size: 28px;
   line-height: 1;
   text-align: center;
+  letter-spacing: -0.04em;
 }
 
 .search-top.is-ranked .search-top-play {
@@ -5179,12 +5187,19 @@ img.is-logo-pending {
   inset: 0;
   display: grid;
   place-items: center;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.42);
 }
 
 .profile-pencil .icon {
-  width: 36px;
-  height: 36px;
+  width: 44%;
+  height: 44%;
+  max-width: 72px;
+  max-height: 72px;
+  padding: 10px;
+  border: 2.5px solid #fff;
+  border-radius: 50%;
+  color: #fff;
+  box-sizing: border-box;
 }
 
 .profile-add {
@@ -8119,17 +8134,20 @@ img.is-logo-pending {
   right: min(460px, calc(100% - 48px));
   bottom: 118px;
   z-index: 2150;
-  background: none;
-  border: 0;
+  background: rgba(42, 42, 42, 0.55);
+  border: 1px solid #fff;
+  border-radius: 4px;
   color: #fff;
   font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-weight: 500;
+  letter-spacing: 0;
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  text-shadow: 0 1px 8px #000;
-  padding: 10px 8px;
+  text-shadow: none;
+  padding: 10px 16px;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
 }
 
 .watch-credits.is-visible {
@@ -8138,7 +8156,9 @@ img.is-logo-pending {
 }
 
 .watch-credits:hover {
-  text-decoration: underline;
+  background: #fff;
+  color: #141414;
+  text-decoration: none;
 }
 
 .watch-ep-empty {
@@ -8239,14 +8259,14 @@ img.is-logo-pending {
     left: 16px;
     right: auto;
     bottom: 108px;
-    padding: 8px 4px;
-    font-size: 15px;
+    padding: 8px 12px;
+    font-size: 14px;
     z-index: 2300;
     white-space: nowrap;
   }
 
   .next-ep-card {
-    width: min(248px, calc(100% - 132px));
+    width: min(248px, calc(100% - 148px));
     z-index: 2300;
   }
 
@@ -8468,7 +8488,8 @@ img.is-logo-pending {
 }
 
 .skip-intro:hover,
-.next-episode:hover {
+.next-episode:hover,
+.watch-credits:hover {
   background: #fff;
   color: #141414;
   border-color: #fff;
@@ -9388,10 +9409,10 @@ img.is-logo-pending {
 .news-kicker {
   margin: 0 0 4px;
   color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .news-coming {
@@ -9580,7 +9601,8 @@ img.is-logo-pending {
 }
 
 .languages-page .is-poster-grid,
-.my-list-page .is-poster-grid {
+.my-list-page .is-poster-grid,
+.search-page .is-poster-grid {
   overflow: visible;
   padding-top: 8px;
 }
@@ -9605,8 +9627,8 @@ img.is-logo-pending {
 
 .languages-head h1 {
   margin: 0;
-  font-size: clamp(28px, 4vw, 38px);
-  font-weight: 700;
+  font-size: clamp(26px, 3.6vw, 36px);
+  font-weight: 600;
   letter-spacing: -0.02em;
 }
 

@@ -348,7 +348,7 @@ export function ProfileSelect() {
                 onClick={() => toggleEditPanel('language')}
               >
                 <span className="edit-row-copy">
-                  <strong>Language</strong>
+                  <strong>Display Language</strong>
                   <em>{editLang}</em>
                 </span>
                 <ChevronRightIcon className="icon" />
