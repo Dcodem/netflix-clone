@@ -1216,10 +1216,16 @@ select,
 }
 
 .now-badge {
-  color: #46d369;
+  display: inline-block;
+  color: #fff;
+  background: #e50914;
+  font-size: 11px;
   font-weight: 700;
-  font-size: 14px;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 2px;
+  line-height: 1.25;
 }
 
 .season-menu {
