@@ -422,7 +422,7 @@ function NewsHotFeed() {
         </section>
       ) : null}
       {remindNote ? (
-        <p className="news-remind-toast" role="status">
+        <p className="news-remind-toast" role="alert">
           {remindNote}
         </p>
       ) : null}
