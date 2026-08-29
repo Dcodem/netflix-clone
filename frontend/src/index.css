@@ -5973,6 +5973,21 @@ img.is-logo-pending {
   text-decoration: underline;
 }
 
+.login-footer-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.login-footer-link:hover,
+.login-footer-link:focus-visible {
+  text-decoration: underline;
+}
+
 .login-footer-links {
   list-style: none;
   margin: 0;

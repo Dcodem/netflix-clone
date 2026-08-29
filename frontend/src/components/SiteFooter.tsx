@@ -88,15 +88,6 @@ export function SiteFooter() {
   const [code, setCode] = useState<string | null>(null)
   const [cookies, setCookies] = useState(false)
 
-  useEffect(() => {
-    if (!cookies) return
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setCookies(false)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [cookies])
-
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
@@ -141,37 +132,52 @@ export function SiteFooter() {
         <FooterLang />
         <p className="site-footer-copy">© 1997-{new Date().getFullYear()} Flix, Inc.</p>
       </div>
-      {cookies ? (
-        <div className="cookie-prefs" role="presentation" onClick={() => setCookies(false)}>
-          <div
-            className="cookie-prefs-card"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cookie-prefs-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h2 id="cookie-prefs-title">Cookie Preferences</h2>
-            <p>FLIX uses necessary cookies to keep you signed in on this device. Optional cookies stay off.</p>
-            <ul className="cookie-prefs-list">
-              <li>
-                Necessary <em>Always on</em>
-              </li>
-              <li>
-                Performance <em>Off</em>
-              </li>
-              <li>
-                Functional <em>Off</em>
-              </li>
-              <li>
-                Advertising <em>Off</em>
-              </li>
-            </ul>
-            <button type="button" className="btn btn-primary" onClick={() => setCookies(false)}>
-              Save settings
-            </button>
-          </div>
-        </div>
-      ) : null}
+      <CookiePrefsDialog open={cookies} onClose={() => setCookies(false)} />
     </footer>
+  )
+}
+
+export function CookiePrefsDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (!open) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, onClose])
+
+  if (!open) return null
+
+  return (
+    <div className="cookie-prefs" role="presentation" onClick={onClose}>
+      <div
+        className="cookie-prefs-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cookie-prefs-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2 id="cookie-prefs-title">Cookie Preferences</h2>
+        <p>FLIX uses necessary cookies to keep you signed in on this device. Optional cookies stay off.</p>
+        <ul className="cookie-prefs-list">
+          <li>
+            Necessary <em>Always on</em>
+          </li>
+          <li>
+            Performance <em>Off</em>
+          </li>
+          <li>
+            Functional <em>Off</em>
+          </li>
+          <li>
+            Advertising <em>Off</em>
+          </li>
+        </ul>
+        <button type="button" className="btn btn-primary" onClick={onClose}>
+          Save settings
+        </button>
+      </div>
+    </div>
   )
 }

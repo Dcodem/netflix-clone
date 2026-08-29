@@ -5,7 +5,7 @@ import type { MovieListItem } from '../api/types'
 import { uniqueById } from '../lib/media'
 import { useAuth } from '../auth/AuthContext'
 import { CatalogImage } from '../components/CatalogImage'
-import { FooterLang } from '../components/SiteFooter'
+import { FooterLang, CookiePrefsDialog } from '../components/SiteFooter'
 
 const REMEMBER_KEY = 'flix.remember'
 
@@ -136,6 +136,7 @@ export function Login() {
   const [remember, setRemember] = useState(() => localStorage.getItem(REMEMBER_KEY) !== '0')
   const [help, setHelp] = useState(false)
   const [legalOpen, setLegalOpen] = useState(false)
+  const [cookies, setCookies] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [wall, setWall] = useState<MovieListItem[]>([])
@@ -349,11 +350,16 @@ export function Login() {
           <li>Help Center</li>
           <li>Terms of Use</li>
           <li>Privacy</li>
-          <li>Cookie Preferences</li>
+          <li>
+            <button type="button" className="login-footer-link" onClick={() => setCookies(true)}>
+              Cookie Preferences
+            </button>
+          </li>
           <li>Corporate Information</li>
         </ul>
         <FooterLang className="login-lang" />
       </footer>
+      <CookiePrefsDialog open={cookies} onClose={() => setCookies(false)} />
     </main>
   )
 }
