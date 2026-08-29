@@ -1217,7 +1217,7 @@ export function WatchOverlay() {
       {episodesOpen ? (
         <div className="watch-panel watch-episodes" onClick={(event) => event.stopPropagation()}>
           <div className="watch-ep-head">
-            <h2>Episodes</h2>
+            <h2>{session.history?.title || session.title}</h2>
             {showDetail && showDetail.seasons && showDetail.seasons.length > 1 ? (
               <SeasonMenu
                 seasons={showDetail.seasons}
