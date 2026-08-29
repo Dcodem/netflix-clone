@@ -8613,13 +8613,6 @@ img.is-logo-pending {
   max-width: 560px;
 }
 
-@media (min-width: 768px) {
-  .my-netflix-downloads,
-  .my-netflix-links {
-    display: none;
-  }
-}
-
 .downloads-empty {
   display: grid;
   justify-items: start;
@@ -8757,6 +8750,13 @@ img.is-logo-pending {
   font-size: 16px;
   cursor: pointer;
   text-decoration: none;
+}
+
+@media (min-width: 768px) {
+  .my-netflix-downloads,
+  .my-netflix-links {
+    display: none;
+  }
 }
 
 .my-netflix-page .media-row {
