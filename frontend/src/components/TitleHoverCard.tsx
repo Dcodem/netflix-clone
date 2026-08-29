@@ -189,9 +189,11 @@ export function TitleHoverCard({
             <span>
               {seasons.length > 1
                 ? `${seasons.length} Seasons`
-                : episodeCount
-                  ? `${episodeCount} Episodes`
-                  : 'TV Show'}
+                : seasons.length === 1
+                  ? '1 Season'
+                  : episodeCount
+                    ? `${episodeCount} Episodes`
+                    : 'TV Show'}
             </span>
           ) : null}
         </div>
