@@ -4809,8 +4809,9 @@ img.is-logo-pending {
 .is-top10 .row-scroller {
   gap: 4px;
   scroll-snap-type: none;
-  scroll-padding-left: var(--page-gutter);
+  scroll-padding-left: max(8px, calc(var(--page-gutter) - 40px));
   padding-top: 36px;
+  padding-left: max(8px, calc(var(--page-gutter) - 40px));
 }
 
 .poster-wrap.is-ranked .poster-card {
@@ -4863,9 +4864,10 @@ img.is-logo-pending {
 
 .rank-num.is-first {
   letter-spacing: 0;
+  margin-left: -0.12em;
   margin-right: -0.1em;
   min-width: 0.58em;
-  padding-left: 0.16em;
+  padding-left: 0.08em;
 }
 
 .rank-num.is-first::before {
@@ -5373,10 +5375,10 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller {
-    padding-left: 6px;
+    padding-left: 0;
     padding-right: 20px;
     padding-top: 44px;
-    scroll-padding-left: 6px;
+    scroll-padding-left: 0;
   }
 
   .rank-num {
@@ -5393,7 +5395,7 @@ img.is-logo-pending {
 
   .rank-num.is-first {
     min-width: 0.86em;
-    margin-left: -0.42em;
+    margin-left: -0.58em;
     margin-right: -0.18em;
     padding-left: 0;
   }
@@ -7302,13 +7304,13 @@ img.is-logo-pending {
   z-index: 2105;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.38) 32%, transparent 58%),
-    linear-gradient(180deg, transparent 42%, rgba(0, 0, 0, 0.52) 100%);
+    linear-gradient(90deg, rgba(0, 0, 0, 0.52) 0%, rgba(0, 0, 0, 0.18) 26%, transparent 54%),
+    linear-gradient(180deg, transparent 48%, rgba(0, 0, 0, 0.4) 100%);
 }
 
 .watch-overlay.is-ident .watch-frame {
-  filter: brightness(0.78) saturate(0.96);
-  transform: scale(1.03);
+  filter: brightness(0.9) saturate(1);
+  transform: scale(1.02);
 }
 
 .watch-ident {
@@ -7336,8 +7338,8 @@ img.is-logo-pending {
 
 .watch-ident-logo {
   display: block;
-  max-width: min(52vw, 560px);
-  max-height: min(22vh, 168px);
+  max-width: min(58vw, 640px);
+  max-height: min(26vh, 196px);
   width: auto;
   height: auto;
   object-fit: contain;
