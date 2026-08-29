@@ -1167,6 +1167,13 @@ export function WatchOverlay() {
               </dd>
             </div>
             <div>
+              <dt>Volume</dt>
+              <dd>
+                <kbd>↑</kbd>
+                <kbd>↓</kbd>
+              </dd>
+            </div>
+            <div>
               <dt>Full Screen</dt>
               <dd>
                 <kbd>F</kbd>
@@ -1180,6 +1187,12 @@ export function WatchOverlay() {
                 </dd>
               </div>
             ) : null}
+            <div>
+              <dt>Shortcuts</dt>
+              <dd>
+                <kbd>?</kbd>
+              </dd>
+            </div>
           </dl>
         </div>
       ) : null}

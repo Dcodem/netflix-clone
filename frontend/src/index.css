@@ -7438,9 +7438,9 @@ img.is-logo-pending {
   top: 50%;
   z-index: 2400;
   transform: translate(-50%, -50%);
-  width: min(420px, calc(100% - 40px));
-  padding: 28px 32px 24px;
-  background: rgba(20, 20, 20, 0.94);
+  width: min(460px, calc(100% - 40px));
+  padding: 28px 32px 22px;
+  background: rgba(20, 20, 20, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 4px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
@@ -7456,7 +7456,7 @@ img.is-logo-pending {
 .watch-help dl {
   margin: 0;
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .watch-help dl > div {
@@ -7481,15 +7481,15 @@ img.is-logo-pending {
 .watch-help kbd {
   display: inline-grid;
   place-items: center;
-  min-width: 28px;
-  height: 28px;
+  min-width: 32px;
+  height: 32px;
   padding: 0 8px;
-  background: #141414;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: #333;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 2px;
   color: #fff;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 
