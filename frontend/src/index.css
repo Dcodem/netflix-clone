@@ -3955,7 +3955,7 @@ img.is-logo-pending {
   }
 
   .title-tabs {
-    gap: 18px;
+    gap: 14px;
   }
 
   .title-tabs-row .season-menu {
@@ -3968,7 +3968,9 @@ img.is-logo-pending {
   }
 
   .title-tabs > button {
-    font-size: 14px;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    padding: 14px 0 10px;
   }
 
   .title-actions .circle-btn {
