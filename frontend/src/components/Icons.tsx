@@ -84,15 +84,25 @@ export function SearchIcon({ className }: { className?: string }) {
   )
 }
 
-export function SpeakerIcon({ muted, className }: { muted?: boolean; className?: string }) {
+export function SpeakerIcon({
+  muted,
+  level,
+  className,
+}: {
+  muted?: boolean
+  level?: number
+  className?: string
+}) {
+  const silent = muted || (level != null && level <= 0.01)
+  const waves = silent ? 0 : level == null ? 2 : level < 0.34 ? 1 : 2
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
       <path fill="currentColor" d="M4 9.5v5h3.2L12 18.8V5.2L7.2 9.5H4z" />
-      {muted ? (
+      {silent ? (
         <path d="M16 9l5 6m0-6l-5 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       ) : (
         <path
-          d="M15.2 8.8a4.2 4.2 0 010 6.4M17.4 6.6a7.2 7.2 0 010 10.8"
+          d={waves === 1 ? 'M15.2 8.8a4.2 4.2 0 010 6.4' : 'M15.2 8.8a4.2 4.2 0 010 6.4M17.4 6.6a7.2 7.2 0 010 10.8'}
           fill="none"
           stroke="currentColor"
           strokeWidth="1.8"

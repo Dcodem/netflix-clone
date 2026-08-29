@@ -18,12 +18,14 @@ import {
   SpeedIcon,
   SubtitlesIcon,
 } from '../components/Icons'
+import { AvatarArt } from '../components/AvatarArt'
 import { CastMenu } from '../components/CastMenu'
 import { MediaImage } from '../components/MediaImage'
 import { SeasonMenu } from '../components/SeasonMenu'
 import { TitleLogo } from '../components/TitleLogo'
 import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
+import { avatarFor } from '../profiles/types'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { stillFocus, episodeStill } from '../lib/media'
 import { skipMarks } from '../lib/skipMarks'
@@ -148,6 +150,7 @@ export function WatchOverlay() {
   const [nextDismissed, setNextDismissed] = useState(false)
   const [stillWatching, setStillWatching] = useState(false)
   const [identOn, setIdentOn] = useState(true)
+  const [identPhase, setIdentPhase] = useState<'logo' | 'title' | 'off'>('logo')
   const [helpOpen, setHelpOpen] = useState(false)
   const [clockKey, setClockKey] = useState('')
   const flashTimer = useRef(0)
@@ -174,6 +177,7 @@ export function WatchOverlay() {
     setNextDismissed(false)
     setStillWatching(false)
     setIdentOn(startProgress < 0.02)
+    setIdentPhase(startProgress < 0.02 ? 'logo' : 'off')
     setIntroSkipped(false)
     setRecapSkipped(false)
     setHelpOpen(false)
@@ -301,15 +305,21 @@ export function WatchOverlay() {
     if (!sessionKey) return
     const fromStart = startProgress < 0.02
     setIdentOn(fromStart)
+    setIdentPhase(fromStart ? 'logo' : 'off')
     if (!fromStart) {
       showChromeRef.current()
       return
     }
+    const toTitle = window.setTimeout(() => setIdentPhase('title'), 1800)
     const timer = window.setTimeout(() => {
       setIdentOn(false)
+      setIdentPhase('off')
       showChromeRef.current()
     }, 5200)
-    return () => window.clearTimeout(timer)
+    return () => {
+      window.clearTimeout(toTitle)
+      window.clearTimeout(timer)
+    }
   }, [sessionKey, startProgress])
 
   useEffect(() => {
@@ -620,6 +630,7 @@ export function WatchOverlay() {
   const marks = skipMarks(runtimeSec, session.history?.genres)
   const showSkipIntro =
     isShow &&
+    identPhase !== 'logo' &&
     !introSkipped &&
     current > 2.4 &&
     current < marks.introUntil &&
@@ -704,7 +715,7 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identPhase === 'logo' && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
@@ -778,7 +789,11 @@ export function WatchOverlay() {
           {flash === 'fwd' ? <SkipForwardIcon className="icon" /> : null}
         </div>
       ) : null}
-      {stillWatching ? null : (
+      {stillWatching ? null : identPhase === 'logo' ? (
+        <div className="watch-ident-bump" aria-hidden="true">
+          <strong>FLIX</strong>
+        </div>
+      ) : (
         <div className={`watch-ident ${chrome && !identOn ? 'is-raised' : ''} ${identOn ? 'is-on' : ''}`} aria-hidden="true">
           <TitleLogo
             item={trailerSearch(session)}
@@ -888,8 +903,8 @@ export function WatchOverlay() {
               <em>{upcoming.episode.title}</em>
               <span className="next-ep-code">
                 S{upcoming.season.season_number}:E{upcoming.episode.number}
+                {upcoming.episode.duration ? ` · ${upcoming.episode.duration}m` : ''}
               </span>
-              {upcoming.episode.synopsis ? <small>{upcoming.episode.synopsis}</small> : null}
             </span>
           </button>
         </div>
@@ -1000,7 +1015,7 @@ export function WatchOverlay() {
                 }}
                 aria-label={muted ? 'Unmute' : 'Mute'}
               >
-                <SpeakerIcon muted={muted || volume <= 0.01} className="icon" />
+                <SpeakerIcon muted={muted || volume <= 0.01} level={muted ? 0 : volume} className="icon" />
               </button>
               <div
                 className="watch-vol-rail"
@@ -1224,6 +1239,14 @@ export function WatchOverlay() {
             />
           ) : null}
           <div className="watch-still-inner">
+            {activeProfile ? (
+              <div className="watch-still-profile">
+                <span className="watch-still-avatar">
+                  <AvatarArt avatar={avatarFor(activeProfile)} alt="" />
+                </span>
+                <span>{activeProfile.name}</span>
+              </div>
+            ) : null}
             <p className="watch-still-kicker">{session.history?.title || session.title}</p>
             {episodeLabel ? (
               <p className="watch-still-ep">
@@ -1232,10 +1255,22 @@ export function WatchOverlay() {
               </p>
             ) : null}
             <h2>Are you still watching?</h2>
-            <button type="button" className="btn btn-play" onClick={continueWatching}>
-              <PlayIcon className="icon" />
-              Continue Watching
-            </button>
+            <div className="watch-still-actions">
+              <button type="button" className="btn btn-play" onClick={continueWatching}>
+                <PlayIcon className="icon" />
+                Continue Watching
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => {
+                  streakRef.current = 0
+                  closeWatch()
+                }}
+              >
+                Exit
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
