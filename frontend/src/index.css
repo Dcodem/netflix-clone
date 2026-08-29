@@ -6152,10 +6152,10 @@ img.is-logo-pending {
 
 .notify-row {
   display: grid;
-  grid-template-columns: 112px 1fr;
-  gap: 12px;
+  grid-template-columns: 128px 1fr;
+  gap: 14px;
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 16px;
   background: none;
   border: 0;
   border-bottom: 1px solid #222;
@@ -6171,8 +6171,8 @@ img.is-logo-pending {
 .notify-row img,
 .notify-row .media-fallback,
 .notify-art-fallback {
-  width: 112px;
-  height: 63px;
+  width: 128px;
+  height: 72px;
   object-fit: cover;
   background: #222;
   display: block;
@@ -7329,6 +7329,15 @@ img.is-logo-pending {
   bottom: 128px;
 }
 
+.watch-caption.is-cc {
+  background: none;
+  padding: 0;
+  text-shadow:
+    0 0 4px #000,
+    0 1px 2px #000,
+    1px 1px 0 #000;
+}
+
 @media (max-width: 767px) {
   .watch-vol-rail {
     width: 40px;
@@ -8074,31 +8083,53 @@ img.is-logo-pending {
 }
 
 .downloads-empty {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  margin-top: 10px;
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 14px;
   color: #e5e5e5;
+  max-width: 420px;
+}
+
+.downloads-empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #2a2a2a;
+  display: grid;
+  place-items: center;
+  margin-bottom: 4px;
 }
 
 .downloads-empty .icon {
   width: 28px;
   height: 28px;
-  flex-shrink: 0;
   color: #808080;
 }
 
 .downloads-empty strong {
   display: block;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
 }
 
 .downloads-empty p {
-  margin: 4px 0 0;
+  margin: 0;
   color: #808080;
   font-size: 14px;
   line-height: 1.4;
+}
+
+.downloads-find {
+  margin-top: 6px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.downloads-find:hover {
+  text-decoration: underline;
 }
 
 .my-netflix-notes {

@@ -136,7 +136,7 @@ export function WatchOverlay() {
   const [audioOpen, setAudioOpen] = useState(false)
   const [speedOpen, setSpeedOpen] = useState(false)
   const [speed, setSpeed] = useState(1)
-  const [subs, setSubs] = useState<'off' | 'en'>('off')
+  const [subs, setSubs] = useState<'off' | 'en' | 'cc'>('off')
   const [audioTrack, setAudioTrack] = useState<'en' | 'ad'>('en')
   const [introSkipped, setIntroSkipped] = useState(false)
   const [recapSkipped, setRecapSkipped] = useState(false)
@@ -614,7 +614,7 @@ export function WatchOverlay() {
   const countingDown = remaining <= AUTO_IN && activeProfile?.autoplayNext !== false
   const nextCount = countingDown ? Math.max(1, Math.ceil(remaining)) : null
   const nextProgress = countingDown ? Math.min(1, remaining / AUTO_IN) : 1
-  const caption = subs === 'en' ? CAPTIONS[Math.floor(current / 9) % CAPTIONS.length] : null
+  const caption = subs === 'off' ? null : CAPTIONS[Math.floor(current / 9) % CAPTIONS.length]
 
   function ratioFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect()
@@ -851,7 +851,9 @@ export function WatchOverlay() {
           </button>
         </div>
       ) : null}
-      {caption ? <p className={`watch-caption ${chrome ? 'is-raised' : ''}`}>{caption}</p> : null}
+      {caption ? (
+        <p className={`watch-caption ${chrome ? 'is-raised' : ''} ${subs === 'cc' ? 'is-cc' : ''}`}>{caption}</p>
+      ) : null}
       <div className="watch-center">
         <button
           type="button"
@@ -1208,6 +1210,10 @@ export function WatchOverlay() {
             <button type="button" className={subs === 'en' ? 'is-on' : ''} onClick={() => setSubs('en')}>
               {subs === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English
+            </button>
+            <button type="button" className={subs === 'cc' ? 'is-on' : ''} onClick={() => setSubs('cc')}>
+              {subs === 'cc' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+              English [CC]
             </button>
           </div>
         </div>

@@ -128,11 +128,14 @@ export function MyNetflix() {
       <section className="my-netflix-downloads">
         <h2 className="section-title">Downloads</h2>
         <div className="downloads-empty">
-          <DownloadIcon className="icon" />
-          <div>
-            <strong>Downloads for You</strong>
-            <p>Movies and TV shows you download appear here.</p>
-          </div>
+          <span className="downloads-empty-icon">
+            <DownloadIcon className="icon" />
+          </span>
+          <strong>Downloads for You</strong>
+          <p>Movies and TV shows you download appear here.</p>
+          <Link to="/browse" className="downloads-find">
+            Find Something to Download
+          </Link>
         </div>
       </section>
 
