@@ -1253,7 +1253,7 @@ select,
   display: flex;
   gap: 18px;
   align-items: center;
-  padding: 18px 16px 18px 8px;
+  padding: 20px 16px 20px 8px;
   border-bottom: 1px solid #2f2f2f;
   border-radius: 0;
 }
@@ -1988,6 +1988,41 @@ select,
   color: #737373;
 }
 
+.app-shell:has(.account-page) .footer-lang-btn {
+  color: #737373;
+  border-color: #737373;
+}
+
+.app-shell:has(.account-page) .footer-lang-btn:hover,
+.app-shell:has(.account-page) .footer-lang-btn:focus-visible,
+.app-shell:has(.account-page) .footer-lang.is-open .footer-lang-btn {
+  color: #221f1f;
+  border-color: #221f1f;
+}
+
+.app-shell:has(.account-page) .footer-lang-menu {
+  background: #fff;
+  border-color: #ccc;
+}
+
+.app-shell:has(.account-page) .footer-lang-menu button {
+  color: #333;
+}
+
+.app-shell:has(.account-page) .footer-lang-menu button:hover,
+.app-shell:has(.account-page) .footer-lang-menu button.is-on {
+  background: #f3f3f3;
+  color: #221f1f;
+}
+
+.app-shell:has(.account-page) .site-footer-grid .site-footer-link {
+  color: #737373;
+}
+
+.app-shell:has(.account-page) .site-footer-grid .site-footer-link:hover {
+  color: #221f1f;
+}
+
 .account-page {
   max-width: 1024px;
   color: #333;
@@ -2034,6 +2069,10 @@ select,
 
 .account-block-body {
   min-width: 0;
+}
+
+.account-block-body > .account-row:first-child {
+  border-top: 0;
 }
 
 @media (min-width: 768px) {
@@ -2085,6 +2124,35 @@ select,
 .account-change:hover,
 .account-change:focus-visible {
   text-decoration: underline;
+}
+
+.account-row.is-actions {
+  justify-content: flex-end;
+}
+
+.account-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  background: transparent;
+  border: 1px solid #333;
+  color: #333;
+  padding: 12px 20px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.account-cancel:hover,
+.account-cancel:focus-visible {
+  background: #e6e6e6;
+}
+
+.account-membership .account-inline-note {
+  margin-top: 12px;
 }
 
 .account-inline {
@@ -4100,32 +4168,35 @@ img.is-logo-pending {
 
   .title-modal-handle {
     display: block;
-    position: sticky;
-    top: 0;
-    z-index: 20;
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    z-index: 22;
     width: 100%;
-    height: 20px;
+    height: 0;
     margin: 0;
-    background: #181818;
-    border-radius: 12px 12px 0 0;
+    background: none;
+    pointer-events: none;
   }
 
   .title-modal-handle::after {
     content: '';
     position: absolute;
     left: 50%;
-    top: 8px;
-    width: 42px;
+    top: 0;
+    width: 36px;
     height: 5px;
     border-radius: 99px;
-    background: #8b8b8b;
+    background: rgba(255, 255, 255, 0.62);
     transform: translateX(-50%);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
   }
 
   .title-modal-close {
     position: sticky;
     float: right;
-    top: 26px;
+    top: 12px;
     z-index: 21;
     width: 36px;
     height: 36px;
@@ -5074,7 +5145,7 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller {
-    padding-left: 52px;
+    padding-left: 72px;
     padding-right: 20px;
     padding-top: 44px;
   }
@@ -5094,7 +5165,7 @@ img.is-logo-pending {
   .rank-num.is-first {
     min-width: 0.62em;
     margin-right: 0;
-    padding-left: 0.42em;
+    padding-left: 0.55em;
   }
 
   .rank-num.is-ten {
@@ -5253,14 +5324,76 @@ img.is-logo-pending {
   gap: 12px;
 }
 
-.site-footer-grid a {
+.site-footer-grid a,
+.site-footer-grid .site-footer-link {
   color: #808080;
   font-size: 13px;
   text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
 }
 
-.site-footer-grid a:hover {
+.site-footer-grid a:hover,
+.site-footer-grid .site-footer-link:hover,
+.site-footer-grid .site-footer-link:focus-visible {
   text-decoration: underline;
+}
+
+.cookie-prefs {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0, 0, 0, 0.72);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.cookie-prefs-card {
+  width: min(480px, 100%);
+  background: #141414;
+  color: #fff;
+  padding: 28px 24px;
+  border-radius: 4px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+.cookie-prefs-card h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.cookie-prefs-card p {
+  margin: 0 0 16px;
+  color: #b3b3b3;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.cookie-prefs-list {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: grid;
+}
+
+.cookie-prefs-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid #333;
+  font-size: 14px;
+}
+
+.cookie-prefs-list em {
+  font-style: normal;
+  color: #808080;
 }
 
 .service-code {
@@ -8199,7 +8332,7 @@ img.is-logo-pending {
 }
 
 .title-about {
-  margin-top: 28px;
+  margin-top: 36px;
 }
 
 .title-about h2 {
@@ -8435,10 +8568,10 @@ img.is-logo-pending {
 
 .notify-rail {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
   margin: 8px calc(var(--page-gutter) * -1) 0;
-  padding: 4px var(--page-gutter) 10px;
+  padding: 4px var(--page-gutter) 14px;
   scrollbar-width: none;
 }
 
@@ -8627,7 +8760,8 @@ img.is-logo-pending {
   }
 
   .app-shell:has(.watch-overlay) .mobile-dock,
-  .app-shell:has(.search-page) .mobile-dock {
+  .app-shell:has(.search-page) .mobile-dock,
+  .app-shell:has(.title-modal-backdrop) .mobile-dock {
     display: none;
   }
 

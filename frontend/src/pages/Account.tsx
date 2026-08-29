@@ -7,7 +7,18 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { envKeys } from '../trailers/types'
 
-type AccountPanel = 'email' | 'password' | 'phone' | 'plan' | null
+type AccountPanel =
+  | 'email'
+  | 'password'
+  | 'phone'
+  | 'plan'
+  | 'payment'
+  | 'gift'
+  | 'cancel'
+  | 'playback'
+  | 'devices'
+  | 'signout'
+  | null
 
 export function Account() {
   const { user, updateKeys, updateAccount } = useAuth()
@@ -66,6 +77,14 @@ export function Account() {
           <span className="spec-badge">HD</span>
         </p>
         <p className="account-hint">Membership on this device. There is no monthly bill.</p>
+        <button type="button" className="account-cancel" onClick={() => togglePanel('cancel')}>
+          Cancel Membership
+        </button>
+        {panel === 'cancel' ? (
+          <p className="account-inline-note">
+            There is no membership to cancel on this device. FLIX stays available in this browser.
+          </p>
+        ) : null}
       </section>
 
       <section className="account-block">
@@ -159,6 +178,23 @@ export function Account() {
               </div>
             </form>
           ) : null}
+          <div className="account-row">
+            <span>No payment method</span>
+            <button type="button" className="account-change" onClick={() => togglePanel('payment')}>
+              Update payment method
+            </button>
+          </div>
+          {panel === 'payment' ? (
+            <p className="account-inline-note">This device has no monthly bill, so there is no card on file.</p>
+          ) : null}
+          <div className="account-row is-actions">
+            <button type="button" className="account-change" onClick={() => togglePanel('gift')}>
+              Redeem gift card or promo code
+            </button>
+          </div>
+          {panel === 'gift' ? (
+            <p className="account-inline-note">Gift cards and promo codes are not used on this device.</p>
+          ) : null}
         </div>
       </section>
 
@@ -202,6 +238,44 @@ export function Account() {
               </Link>
             )
           })}
+        </div>
+      </section>
+
+      <section className="account-block">
+        <h2>Settings</h2>
+        <div className="account-block-body">
+          <div className="account-row">
+            <span>Appearance</span>
+            <span>Dark</span>
+          </div>
+          <div className="account-row">
+            <span>Playback settings</span>
+            <button type="button" className="account-change" onClick={() => togglePanel('playback')}>
+              Change
+            </button>
+          </div>
+          {panel === 'playback' ? (
+            <p className="account-inline-note">Autoplay next episode and previews follow this profile’s playback extras.</p>
+          ) : null}
+          <div className="account-row">
+            <span>Manage devices</span>
+            <button type="button" className="account-change" onClick={() => togglePanel('devices')}>
+              Change
+            </button>
+          </div>
+          {panel === 'devices' ? (
+            <p className="account-inline-note">You’re watching on this browser. There are no other streaming devices to manage.</p>
+          ) : null}
+          <div className="account-row is-actions">
+            <button type="button" className="account-change" onClick={() => togglePanel('signout')}>
+              Sign out of all devices
+            </button>
+          </div>
+          {panel === 'signout' ? (
+            <p className="account-inline-note">
+              You’re signed in on this device only. Use Switch Profiles to change who’s watching.
+            </p>
+          ) : null}
         </div>
       </section>
 

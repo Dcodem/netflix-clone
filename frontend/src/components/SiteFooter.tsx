@@ -86,6 +86,16 @@ export function FooterLang({ className }: { className?: string }) {
 
 export function SiteFooter() {
   const [code, setCode] = useState<string | null>(null)
+  const [cookies, setCookies] = useState(false)
+
+  useEffect(() => {
+    if (!cookies) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setCookies(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [cookies])
 
   return (
     <footer className="site-footer">
@@ -109,7 +119,13 @@ export function SiteFooter() {
             <ul key={index}>
               {column.map((label) => (
                 <li key={label}>
-                  <Link to={HREFS[label] ?? '/account'}>{label}</Link>
+                  {label === 'Cookie Preferences' ? (
+                    <button type="button" className="site-footer-link" onClick={() => setCookies(true)}>
+                      Cookie Preferences
+                    </button>
+                  ) : (
+                    <Link to={HREFS[label] ?? '/account'}>{label}</Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -122,8 +138,40 @@ export function SiteFooter() {
         >
           {code ?? 'Service Code'}
         </button>
+        <FooterLang />
         <p className="site-footer-copy">© 1997-{new Date().getFullYear()} Flix, Inc.</p>
       </div>
+      {cookies ? (
+        <div className="cookie-prefs" role="presentation" onClick={() => setCookies(false)}>
+          <div
+            className="cookie-prefs-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cookie-prefs-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2 id="cookie-prefs-title">Cookie Preferences</h2>
+            <p>FLIX uses necessary cookies to keep you signed in on this device. Optional cookies stay off.</p>
+            <ul className="cookie-prefs-list">
+              <li>
+                Necessary <em>Always on</em>
+              </li>
+              <li>
+                Performance <em>Off</em>
+              </li>
+              <li>
+                Functional <em>Off</em>
+              </li>
+              <li>
+                Advertising <em>Off</em>
+              </li>
+            </ul>
+            <button type="button" className="btn btn-primary" onClick={() => setCookies(false)}>
+              Save settings
+            </button>
+          </div>
+        </div>
+      ) : null}
     </footer>
   )
 }

@@ -87,20 +87,11 @@ function FeedCard({
         return
       }
     } catch {
-      /* fall through to constructed play href */
+      /* fall through to the title preview */
     } finally {
       setPlaying(false)
     }
-    const href = `/watch/play/${item.id}`
-    openWatch(href, item.title, {
-      id: item.id,
-      kind: item.kind ?? 'movie',
-      title: item.title,
-      year: item.year,
-      poster_url: item.poster_url ?? null,
-      genres: item.genres ?? [],
-      watch_href: href,
-    })
+    openTitle(item)
   }
 
   return (
