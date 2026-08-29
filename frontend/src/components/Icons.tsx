@@ -573,3 +573,24 @@ export function GlobeIcon({ className }: { className?: string }) {
     </svg>
   )
 }
+
+export function CastIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M3.6 6.4h16.8v11.2h-7.2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M3.6 18.6c0-2.6 2.1-4.7 4.7-4.7M3.6 18.6c0-1.35 1.1-2.45 2.45-2.45M3.6 18.6h.02"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}

@@ -218,6 +218,108 @@ select,
   height: 22px;
 }
 
+.cast-menu {
+  display: none;
+}
+
+.cast-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.cast-btn .icon {
+  width: 22px;
+  height: 22px;
+}
+
+.cast-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0, 0, 0, 0.72);
+  display: grid;
+  align-items: end;
+  padding: 0;
+}
+
+.cast-sheet-card {
+  background: #181818;
+  color: #fff;
+  padding: 20px 20px calc(20px + var(--safe-bottom));
+  border-radius: 12px 12px 0 0;
+}
+
+.cast-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.cast-sheet-head h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.cast-sheet-close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: #333;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cast-sheet-close .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.cast-sheet-status {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cast-sheet-spin {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #555;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: cast-spin 0.7s linear infinite;
+}
+
+@keyframes cast-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cast-sheet-hint {
+  margin: 10px 0 0;
+  color: #b3b3b3;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 .search-wrap input {
   flex: 1;
   min-width: 0;
@@ -4084,7 +4186,8 @@ img.is-logo-pending {
   .site-header.is-searching .browse-menu,
   .site-header.is-searching .notify-menu,
   .site-header.is-searching .logo,
-  .site-header.is-searching .account-menu {
+  .site-header.is-searching .account-menu,
+  .site-header.is-searching .cast-menu {
     display: none;
   }
 
@@ -8694,6 +8797,10 @@ img.is-logo-pending {
     display: none;
   }
 
+  .cast-menu {
+    display: block;
+  }
+
   .site-footer {
     display: none;
   }
@@ -8742,7 +8849,8 @@ img.is-logo-pending {
 
   .app-shell:has(.watch-overlay) .mobile-dock,
   .app-shell:has(.search-page) .mobile-dock,
-  .app-shell:has(.title-modal-backdrop) .mobile-dock {
+  .app-shell:has(.title-modal-backdrop) .mobile-dock,
+  .app-shell:has(.cast-sheet) .mobile-dock {
     display: none;
   }
 

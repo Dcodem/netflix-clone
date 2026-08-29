@@ -4,6 +4,7 @@ import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { pushRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
+import { CastMenu } from './CastMenu'
 import { NotificationsMenu } from './NotificationsMenu'
 import { ChevronLeftIcon, CloseIcon, SearchIcon } from './Icons'
 
@@ -163,6 +164,7 @@ export function Header() {
           ))}
         </nav>
         <div className="header-tools">
+          <CastMenu />
           <div className={`search-wrap ${open ? 'is-open' : ''}`} ref={searchRef}>
             <button type="button" className="search-toggle" aria-label="Search" onClick={toggleSearch}>
               <SearchIcon className="icon" />
