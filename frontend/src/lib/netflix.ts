@@ -146,7 +146,7 @@ export function catalogNotices(catalog: MovieListItem[], limit = 8) {
     if (out.length >= limit) break
     if (r < now.length) {
       const item = now[r++]
-      out.push({ item, kicker: 'Now on Flix', stamp: noticeStamp(item.id) })
+      out.push({ item, kicker: 'New Arrival', stamp: noticeStamp(item.id) })
     }
   }
   return out
