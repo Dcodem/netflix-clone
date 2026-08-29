@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
-import { pushRecentSearch } from '../lib/recentSearch'
+import { isLiveSearchInput, pushRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
 import { CastMenu } from './CastMenu'
@@ -58,7 +58,7 @@ export function Header() {
       return
     }
     if (debounced !== live) return
-    if (/^https?:\/\//i.test(debounced)) return
+    if (!isLiveSearchInput(debounced)) return
     pushRecentSearch(debounced)
     if (location.pathname !== '/search' || searchParams.get('q') !== debounced) {
       navigate(`/search?q=${encodeURIComponent(debounced)}`, { replace: location.pathname === '/search' })
