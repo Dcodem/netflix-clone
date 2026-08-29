@@ -5290,10 +5290,10 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller {
-    padding-left: 0;
+    padding-left: 12px;
     padding-right: 20px;
     padding-top: 44px;
-    scroll-padding-left: 0;
+    scroll-padding-left: 12px;
   }
 
   .rank-num {
@@ -5309,9 +5309,9 @@ img.is-logo-pending {
   }
 
   .rank-num.is-first {
-    min-width: 0.7em;
-    margin-left: -0.52em;
-    margin-right: -0.18em;
+    min-width: 0.78em;
+    margin-left: -0.28em;
+    margin-right: -0.16em;
     padding-left: 0;
   }
 
