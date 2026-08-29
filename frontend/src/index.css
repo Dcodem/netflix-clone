@@ -3414,14 +3414,14 @@ img.is-logo-pending {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: start;
   gap: 8px;
-  padding: 4px 8px 2px;
+  padding: 6px 4px 4px;
 }
 
 .title-sheet-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
   background: none;
   border: 0;
@@ -3432,15 +3432,27 @@ img.is-logo-pending {
 }
 
 .title-sheet-btn .icon {
-  width: 26px;
-  height: 26px;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  padding: 11px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
 }
 
 .title-sheet-btn span {
   color: #808080;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.01em;
+}
+
+.title-sheet-btn.is-on .icon,
+.title-sheet-btn:hover .icon,
+.title-sheet-btn:focus-visible .icon {
+  background: #fff;
+  color: #141414;
+  border-color: #fff;
 }
 
 .title-sheet-btn.is-on span,
@@ -4168,14 +4180,12 @@ img.is-logo-pending {
 
   .title-modal-handle {
     display: block;
-    position: absolute;
-    top: 10px;
-    left: 0;
-    right: 0;
+    position: sticky;
+    top: 0;
     z-index: 22;
     width: 100%;
-    height: 0;
-    margin: 0;
+    height: 22px;
+    margin: 0 0 -22px;
     background: none;
     pointer-events: none;
   }
@@ -4184,11 +4194,11 @@ img.is-logo-pending {
     content: '';
     position: absolute;
     left: 50%;
-    top: 0;
-    width: 36px;
+    top: 10px;
+    width: 40px;
     height: 5px;
     border-radius: 99px;
-    background: rgba(255, 255, 255, 0.62);
+    background: rgba(255, 255, 255, 0.78);
     transform: translateX(-50%);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
   }
@@ -4197,7 +4207,7 @@ img.is-logo-pending {
     position: sticky;
     float: right;
     top: 12px;
-    z-index: 21;
+    z-index: 23;
     width: 36px;
     height: 36px;
     margin: 8px 12px -44px 0;
@@ -4206,7 +4216,7 @@ img.is-logo-pending {
   .title-modal-hero {
     aspect-ratio: 16 / 9;
     min-height: 240px;
-    border-radius: 0;
+    border-radius: 12px 12px 0 0;
   }
 
   .title-modal-desktop-actions {
@@ -4247,12 +4257,6 @@ img.is-logo-pending {
     transform: none;
   }
 
-  .title-modal-close {
-    top: 26px;
-    width: 36px;
-    height: 36px;
-  }
-
   .title-modal-hero-body,
   .title-modal-main {
     padding-left: 16px;
@@ -4260,7 +4264,7 @@ img.is-logo-pending {
   }
 
   .title-modal-hero-body {
-    padding-right: 118px;
+    padding-right: 72px;
   }
 
   .title-tabs-row {
@@ -6712,40 +6716,17 @@ img.is-logo-pending {
 .next-episode {
   position: absolute;
   right: 24px;
+  bottom: 118px;
   z-index: 2150;
-  background: rgba(42, 42, 42, 0.62);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  border-radius: 4px;
-  padding: 8px 18px;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  backdrop-filter: blur(8px);
-  cursor: pointer;
   opacity: 0;
   pointer-events: none;
+  cursor: pointer;
 }
 
 .skip-intro.is-visible,
 .next-episode.is-visible {
   opacity: 1;
   pointer-events: auto;
-}
-
-.skip-intro {
-  bottom: 118px;
-}
-
-.next-episode {
-  bottom: 118px;
-}
-
-.skip-intro:hover,
-.next-episode:hover {
-  background: #fff;
-  color: #141414;
-  border-color: #fff;
 }
 
 .watch-vol {
