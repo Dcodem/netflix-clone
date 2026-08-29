@@ -6,6 +6,9 @@ import { CatalogImage } from './CatalogImage'
 import { CloseIcon } from './Icons'
 import { TitleHoverCard } from './TitleHoverCard'
 
+type HoverLock = { dismiss: () => void }
+let activeLock: HoverLock | null = null
+
 export function PosterCard({
   item,
   progress,
@@ -28,15 +31,35 @@ export function PosterCard({
   const [peek, setPeek] = useState(false)
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
   const timer = useRef<number>(0)
+  const lock = useRef<HoverLock>({ dismiss() {} }).current
   const ranked = typeof rank === 'number'
 
-  useEffect(() => () => window.clearTimeout(timer.current), [])
+  lock.dismiss = () => {
+    window.clearTimeout(timer.current)
+    setHover(false)
+    setPeek(false)
+  }
+
+  function takeLock() {
+    if (activeLock && activeLock !== lock) activeLock.dismiss()
+    activeLock = lock
+  }
+
+  function dropLock() {
+    lock.dismiss()
+    if (activeLock === lock) activeLock = null
+  }
+
+  useEffect(
+    () => () => {
+      window.clearTimeout(timer.current)
+      if (activeLock === lock) activeLock = null
+    },
+    [lock],
+  )
 
   useEffect(() => {
-    if (openItem) {
-      setHover(false)
-      setPeek(false)
-    }
+    if (openItem) dropLock()
   }, [openItem])
 
   function cancelClose() {
@@ -46,6 +69,7 @@ export function PosterCard({
   function onEnter(event: PointerEvent<HTMLDivElement>) {
     if (!hoverable || event.pointerType !== 'mouse') return
     cancelClose()
+    takeLock()
     setPeek(true)
     timer.current = window.setTimeout(() => {
       const rect = rootRef.current?.getBoundingClientRect()
@@ -53,16 +77,13 @@ export function PosterCard({
         setAnchor(rect)
         setHover(true)
       }
-      }, 400)
+    }, 400)
   }
 
   function onLeave(event: PointerEvent<HTMLDivElement>) {
     if (event.pointerType !== 'mouse') return
     cancelClose()
-    timer.current = window.setTimeout(() => {
-      setHover(false)
-      setPeek(false)
-    }, 140)
+    timer.current = window.setTimeout(() => dropLock(), 140)
   }
 
   return (
@@ -84,8 +105,7 @@ export function PosterCard({
         className="poster-card"
         ref={rootRef}
         onClick={() => {
-          setHover(false)
-          setPeek(false)
+          dropLock()
           openTitle(item)
         }}
         aria-label={item.title}
@@ -125,10 +145,7 @@ export function PosterCard({
           anchor={anchor}
           progress={progress}
           onKeep={cancelClose}
-          onClose={() => {
-            setHover(false)
-            setPeek(false)
-          }}
+          onClose={dropLock}
         />
       ) : null}
     </div>

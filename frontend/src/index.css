@@ -441,7 +441,8 @@ select,
 .hero.is-settled .hero-syn,
 .hero.is-settled .hero-meta,
 .hero.is-settled .billboard-kicker,
-.hero.is-settled .hero-genre-dots {
+.hero.is-settled .hero-genre-dots,
+.hero.is-settled .hero-rank {
   opacity: 0;
   max-height: 0;
   margin: 0;
@@ -3754,7 +3755,8 @@ img.is-logo-pending {
   }
 
   .browse-page:not(.has-browse-heading) .hero.is-settled .billboard-kicker,
-  .browse-page:not(.has-browse-heading) .hero.is-settled .hero-genre-dots {
+  .browse-page:not(.has-browse-heading) .hero.is-settled .hero-genre-dots,
+  .browse-page:not(.has-browse-heading) .hero.is-settled .hero-rank {
     opacity: 1;
     max-height: none;
     overflow: visible;
@@ -4189,6 +4191,25 @@ img.is-logo-pending {
   line-height: 1;
 }
 
+.hero-rank {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 10px 0 0;
+  max-height: 2.2em;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.75);
+  transition: opacity 0.75s ease, max-height 0.75s ease, margin 0.75s ease;
+}
+
+.hero-rank span {
+  font-size: 22px;
+  font-weight: 800;
+}
+
 .hero-genre-dots {
   display: none;
   margin: 8px 0 0;
@@ -4207,6 +4228,15 @@ img.is-logo-pending {
 @media (max-width: 767px) {
   .hero-genre-dots {
     display: flex;
+  }
+
+  .hero-rank {
+    font-size: 15px;
+    margin-top: 8px;
+  }
+
+  .hero-rank span {
+    font-size: 18px;
   }
 }
 

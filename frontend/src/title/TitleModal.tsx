@@ -297,19 +297,12 @@ export function TitleModal() {
                   Episodes
                 </button>
               ) : null}
-              {!isShow(item) ? (
-                <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
-                  More Like This
-                </button>
-              ) : null}
+              <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
+                More Like This
+              </button>
               <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
                 Trailers & More
               </button>
-              {isShow(item) ? (
-                <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
-                  More Like This
-                </button>
-              ) : null}
             </nav>
             {isShow(item) && activeTab === 'episodes' ? (
               <SeasonPicker seasons={seasons} history={last} value={seasonNumber} onChange={setSeasonNumber} />

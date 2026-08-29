@@ -13,7 +13,7 @@ import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { buildBrowseRows, catalogGenres, type BrowseFilter } from '../lib/homeRows'
-import { ofKind, pickHero, uniqueById } from '../lib/media'
+import { isShow, ofKind, pickHero, sortByRating, uniqueById } from '../lib/media'
 import { useProfiles } from '../profiles/ProfileContext'
 
 const HEADINGS: Record<BrowseFilter, string | null> = {
@@ -86,6 +86,17 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     [kindPool, genre],
   )
   const hero = useMemo(() => pickHero(pool), [pool])
+  const heroRank = useMemo(() => {
+    if (!hero) return 0
+    const index = sortByRating(pool).slice(0, 10).findIndex((item) => item.id === hero.id)
+    return index >= 0 ? index + 1 : 0
+  }, [hero, pool])
+  const heroRankLabel =
+    filter === 'movies'
+      ? 'Movies Today'
+      : filter === 'shows' || (hero ? isShow(hero) : false)
+        ? 'TV Shows Today'
+        : 'Movies Today'
   const rows = useMemo(
     () =>
       buildBrowseRows({
@@ -225,7 +236,9 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           </button>
         </div>
       ) : null}
-      {hero && filter !== 'popular' ? <Hero item={hero} /> : null}
+      {hero && filter !== 'popular' ? (
+        <Hero item={hero} rank={heroRank || undefined} rankLabel={heroRank ? heroRankLabel : undefined} />
+      ) : null}
       {rows.map((row) => (
         <MediaRow
           key={row.id}

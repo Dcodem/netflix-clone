@@ -23,7 +23,7 @@ function coverScale(width: number, height: number) {
   return fill * 1.18
 }
 
-export function Hero({ item }: { item: MovieListItem }) {
+export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: number; rankLabel?: string }) {
   const { openWatch, session } = useWatch()
   const { openTitle, item: openItem } = useTitleModal()
   const { activeProfile, toggleMyList } = useProfiles()
@@ -163,6 +163,11 @@ export function Hero({ item }: { item: MovieListItem }) {
           <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
         </div>
         <TitleLogo item={item} className="hero-logo" titleClassName="hero-title" />
+        {rank && rankLabel ? (
+          <p className="hero-rank">
+            <span>#{rank}</span> in {rankLabel}
+          </p>
+        ) : null}
         {genres.length ? <GenreDots genres={genres} className="hero-genre-dots" /> : null}
         {synopsis ? <p className="hero-syn">{synopsis}</p> : null}
         <div className="hero-actions">
