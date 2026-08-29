@@ -7244,8 +7244,8 @@ img.is-logo-pending {
 }
 
 .watch-overlay.is-ident .watch-frame {
-  filter: brightness(0.52) blur(16px) saturate(0.82);
-  transform: scale(1.12);
+  filter: brightness(0.78) saturate(0.96);
+  transform: scale(1.03);
 }
 
 .watch-ident {
@@ -7303,7 +7303,6 @@ img.is-logo-pending {
 .watch-overlay.is-ident .watch-now-playing,
 .watch-overlay.is-ident .watch-title-stack,
 .watch-overlay.is-ident .watch-topbar,
-.watch-overlay.is-ident .skip-intro,
 .watch-overlay.is-ident .watch-bottombar,
 .watch-overlay.is-ident .watch-center {
   opacity: 0 !important;
@@ -7718,8 +7717,8 @@ img.is-logo-pending {
   background: rgba(42, 42, 42, 0.55);
   color: #fff;
   border: 1px solid #fff;
-  border-radius: 2px;
-  padding: 11px 18px 11px 20px;
+  border-radius: 4px;
+  padding: 10px 16px 10px 18px;
   font-size: 16px;
   font-weight: 500;
   letter-spacing: 0;
@@ -8410,7 +8409,7 @@ img.is-logo-pending {
 
   .watch-ident {
     left: 20px;
-    right: 20px;
+    right: 168px;
     bottom: 96px;
     max-width: none;
     z-index: 2270;
@@ -8429,13 +8428,8 @@ img.is-logo-pending {
   }
 
   .watch-ident-logo {
-    max-width: min(78vw, 320px);
+    max-width: min(58vw, 280px);
     max-height: 16vh;
-  }
-
-  .watch-overlay.is-ident .skip-intro {
-    opacity: 0 !important;
-    pointer-events: none !important;
   }
 
   .watch-still {
@@ -8454,7 +8448,11 @@ img.is-logo-pending {
   transition: bottom 0.28s ease, opacity 0.2s ease;
 }
 
-.watch-overlay.is-chrome .skip-intro,
+.watch-overlay.is-ident .skip-intro {
+  bottom: calc(36px + env(safe-area-inset-bottom, 0px));
+}
+
+.watch-overlay.is-chrome:not(.is-ident) .skip-intro,
 .watch-overlay.is-chrome .next-ep-card,
 .watch-overlay.is-chrome .watch-credits {
   bottom: 118px;
@@ -8483,7 +8481,7 @@ img.is-logo-pending {
 }
 
 @media (max-width: 767px) {
-  .watch-overlay.is-chrome .skip-intro,
+  .watch-overlay.is-chrome:not(.is-ident) .skip-intro,
   .watch-overlay.is-chrome .next-ep-card,
   .watch-overlay.is-chrome .watch-credits {
     bottom: 108px;

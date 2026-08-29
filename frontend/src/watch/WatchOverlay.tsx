@@ -614,7 +614,7 @@ export function WatchOverlay() {
       ? `S${session.history?.seasonNumber ?? 1}:E${session.history?.episodeNumber ?? 1}`
       : null
   const showSkipIntro =
-    isShow && !introSkipped && !identOn && current < 110 && !episodesOpen && !audioOpen && !speedOpen
+    isShow && !introSkipped && current > 2.4 && current < 110 && !episodesOpen && !audioOpen && !speedOpen
   const showSkipRecap =
     isShow &&
     !recapSkipped &&
