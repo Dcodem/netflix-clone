@@ -657,9 +657,20 @@ export function WatchOverlay() {
     post({ cmd: 'seek', seconds: SKIP_RECAP_AT })
   }
 
-  function playEpisode(season: Season, episode: Episode) {
+  function playEpisode(season: Season, episode: Episode, binge = false) {
     if (!session?.history) return
-    streakRef.current = 0
+    if (binge) {
+      if (streakRef.current >= 2) {
+        setStillWatching(true)
+        setPaused(true)
+        post({ cmd: 'pause' })
+        ambienceRef.current?.setPlaying(false)
+        return
+      }
+      streakRef.current += 1
+    } else {
+      streakRef.current = 0
+    }
     setStillWatching(false)
     playClick()
     openWatch(episode.watch_href, session.history.title, {
@@ -855,7 +866,7 @@ export function WatchOverlay() {
             className="next-ep-body"
             onClick={(event) => {
               event.stopPropagation()
-              playEpisode(upcoming.season, upcoming.episode)
+              playEpisode(upcoming.season, upcoming.episode, true)
             }}
           >
             <span className="next-ep-thumb">
@@ -1025,7 +1036,7 @@ export function WatchOverlay() {
               <button
                 type="button"
                 className="watch-ctrl"
-                onClick={() => playEpisode(upcoming.season, upcoming.episode)}
+                onClick={() => playEpisode(upcoming.season, upcoming.episode, true)}
                 aria-label="Next Episode"
               >
                 <NextEpisodeIcon className="icon" />
