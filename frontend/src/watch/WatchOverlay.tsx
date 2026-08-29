@@ -310,7 +310,7 @@ export function WatchOverlay() {
       showChromeRef.current()
       return
     }
-    const toTitle = window.setTimeout(() => setIdentPhase('title'), 1800)
+    const toTitle = window.setTimeout(() => setIdentPhase('title'), 2400)
     const timer = window.setTimeout(() => {
       setIdentOn(false)
       setIdentPhase('off')
