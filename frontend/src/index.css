@@ -4288,7 +4288,8 @@ img.is-logo-pending {
   margin: 0 -0.16em 0 0;
   min-width: 0.7em;
   text-align: left;
-  padding: 0;
+  padding: 0 0.04em 0 0.12em;
+  box-sizing: content-box;
   user-select: none;
   pointer-events: none;
   transform: none;
@@ -4299,6 +4300,8 @@ img.is-logo-pending {
   position: absolute;
   inset: 0;
   z-index: -1;
+  padding: inherit;
+  box-sizing: border-box;
   color: transparent;
   -webkit-text-fill-color: transparent;
   -webkit-text-stroke: 5px #b6b6b6;
@@ -4311,6 +4314,7 @@ img.is-logo-pending {
   letter-spacing: 0;
   margin-right: -0.1em;
   min-width: 0.58em;
+  padding-left: 0.16em;
 }
 
 .rank-num.is-first::before {
@@ -4787,16 +4791,17 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller {
-    padding-left: 28px;
+    padding-left: 20px;
     padding-right: 16px;
     padding-top: 40px;
   }
 
   .rank-num {
-    font-size: 108px;
-    margin-right: -0.05em;
-    min-width: 0.62em;
+    font-size: 96px;
+    margin-right: -0.04em;
+    min-width: 0.68em;
     letter-spacing: -0.1em;
+    padding-left: 0.18em;
   }
 
   .rank-num::before {
@@ -4804,14 +4809,16 @@ img.is-logo-pending {
   }
 
   .rank-num.is-first {
-    min-width: 0.5em;
+    min-width: 0.52em;
     margin-right: 0;
+    padding-left: 0.22em;
   }
 
   .rank-num.is-ten {
-    font-size: 78px;
-    min-width: 1.05em;
+    font-size: 72px;
+    min-width: 1.12em;
     margin-right: -0.08em;
+    padding-left: 0.1em;
   }
 
   .ep-num {
@@ -8393,6 +8400,8 @@ img.is-logo-pending {
   position: absolute;
   inset: 0;
   z-index: -1;
+  padding: inherit;
+  box-sizing: border-box;
   color: transparent;
   -webkit-text-fill-color: transparent;
   -webkit-text-stroke: 2px #8b8b8b;
