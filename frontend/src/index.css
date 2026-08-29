@@ -1654,10 +1654,7 @@ select,
 }
 
 .profile-cell:hover .profile-avatar,
-.profile-cell:focus-visible .profile-avatar,
-.profile-cell:hover .profile-add,
-.profile-cell:focus-visible .profile-add,
-.profile-add:hover {
+.profile-cell:focus-visible .profile-avatar {
   border-color: #fff;
 }
 
@@ -5497,16 +5494,6 @@ img.is-logo-pending {
   text-align: center;
 }
 
-.notify-head {
-  margin: 0;
-  padding: 12px 16px 8px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  text-align: left;
-  border-bottom: 1px solid #333;
-}
-
 .site-footer {
   margin-top: auto;
   padding: 40px var(--page-gutter) 80px;
@@ -6679,16 +6666,6 @@ img.is-logo-pending {
 
 .notify-dropdown p {
   padding: 28px 20px;
-}
-
-.notify-dropdown .notify-head {
-  padding: 12px 16px 8px;
-  margin: 0;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 700;
-  text-align: left;
-  border-bottom: 1px solid #222;
 }
 
 .notify-group h3 {
