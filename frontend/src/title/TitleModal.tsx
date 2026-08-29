@@ -278,17 +278,17 @@ export function TitleModal() {
             <div className="title-modal-split-side">
               {detail?.cast?.length ? (
                 <p className="title-modal-cast">
-                  <span>Cast:</span> {detail.cast.join(', ')}
+                  <span className="title-kicker">Cast:</span> {detail.cast.join(', ')}
                 </p>
               ) : null}
               {genres.length ? (
                 <p className="title-modal-cast">
-                  <span>Genres:</span> {genres.join(', ')}
+                  <span className="title-kicker">Genres:</span> {genres.join(', ')}
                 </p>
               ) : null}
               {moods.length ? (
                 <div className="title-modal-cast">
-                  <span>This {isShow(item) ? 'show' : 'movie'} is:</span>
+                  <span className="title-kicker">This {isShow(item) ? 'show' : 'movie'} is:</span>
                   <GenreDots genres={moods} className="title-moods" />
                 </div>
               ) : null}
@@ -381,22 +381,22 @@ export function TitleModal() {
             <h2>About {item.title}</h2>
             {detail?.cast?.length ? (
               <p>
-                <span>Cast:</span> {detail.cast.join(', ')}
+                <span className="title-kicker">Cast:</span> {detail.cast.join(', ')}
               </p>
             ) : null}
             {genres.length ? (
               <p>
-                <span>Genres:</span> {genres.join(', ')}
+                <span className="title-kicker">Genres:</span> {genres.join(', ')}
               </p>
             ) : null}
             {moods.length ? (
               <div className="title-about-row">
-                <span>This {isShow(item) ? 'show' : 'movie'} is:</span>
+                <span className="title-kicker">This {isShow(item) ? 'show' : 'movie'} is:</span>
                 <GenreDots genres={moods} className="title-moods" />
               </div>
             ) : null}
             <div className="title-about-maturity">
-              <span>Maturity rating:</span>
+              <span className="title-kicker">Maturity rating:</span>
               <p>
                 <span className="maturity">{maturity}</span>
                 {maturityBlurb(maturity)}

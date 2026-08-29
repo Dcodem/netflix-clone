@@ -3733,6 +3733,7 @@ img.is-logo-pending {
   font-size: 14px;
 }
 
+.title-modal-cast .title-kicker,
 .title-modal-cast span {
   color: #777;
 }
@@ -4327,7 +4328,7 @@ img.is-logo-pending {
     width: 100%;
     height: 28px;
     margin: 0 0 -28px;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.18) 70%, transparent 100%);
+    background: none;
     pointer-events: none;
   }
 
@@ -4335,13 +4336,13 @@ img.is-logo-pending {
     content: '';
     position: absolute;
     left: 50%;
-    top: 11px;
-    width: 48px;
-    height: 5px;
+    top: 10px;
+    width: 56px;
+    height: 6px;
     border-radius: 99px;
-    background: #f0f0f0;
+    background: #f2f2f2;
     transform: translateX(-50%);
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(0, 0, 0, 0.35);
   }
 
   .title-modal-close {
@@ -8452,8 +8453,9 @@ img.is-logo-pending {
   line-height: 1.45;
 }
 
-.title-about span {
+.title-kicker {
   color: #777;
+  font-weight: 400;
 }
 
 .title-about-row {
@@ -8609,6 +8611,13 @@ img.is-logo-pending {
 .my-netflix-downloads {
   margin: 8px 0 28px;
   max-width: 560px;
+}
+
+@media (min-width: 768px) {
+  .my-netflix-downloads,
+  .my-netflix-links {
+    display: none;
+  }
 }
 
 .downloads-empty {
