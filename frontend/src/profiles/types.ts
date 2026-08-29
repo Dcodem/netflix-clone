@@ -61,6 +61,7 @@ export type Profile = {
   lovedIds: string[]
   dislikedIds: string[]
   myList: LikedTitle[]
+  downloads: LikedTitle[]
   hiddenContinueIds: string[]
 }
 

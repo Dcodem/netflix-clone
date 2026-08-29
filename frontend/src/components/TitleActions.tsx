@@ -11,6 +11,7 @@ import {
   CaretIcon,
   CheckIcon,
   DoubleThumbUpIcon,
+  DownloadIcon,
   PlayIcon,
   PlusIcon,
   RestartIcon,
@@ -40,11 +41,12 @@ export function TitleActions({
 }) {
   const { openWatch } = useWatch()
   const { openTitle, closeTitle } = useTitleModal()
-  const { activeProfile, toggleMyList, rateTitle } = useProfiles()
+  const { activeProfile, toggleMyList, toggleDownload, rateTitle } = useProfiles()
   const fineHover = useFineHover()
   const [rateOpen, setRateOpen] = useState(false)
   const likedItem = toLiked(item)
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
+  const downloaded = activeProfile?.downloads?.some((entry) => entry.id === item.id) ?? false
   const loved = activeProfile?.lovedIds?.includes(item.id) ?? false
   const liked = (activeProfile?.liked.some((entry) => entry.id === item.id) ?? false) && !loved
   const disliked = activeProfile?.dislikedIds.includes(item.id) ?? false
@@ -165,6 +167,19 @@ export function TitleActions({
           <PlayIcon className="icon" />
         </button>
       )}
+      {sheet ? (
+        <button
+          type="button"
+          className={`btn btn-download ${downloaded ? 'is-on' : ''}`}
+          onClick={() => {
+            playClick()
+            toggleDownload(likedItem)
+          }}
+        >
+          {downloaded ? <CheckIcon className="icon" /> : <DownloadIcon className="icon" />}
+          {downloaded ? 'Downloaded' : 'Download'}
+        </button>
+      ) : null}
       {continueMode && playStyle === 'labeled' && !sheet ? (
         <button type="button" className="circle-btn" onClick={() => play(true)} disabled={!href} aria-label="Play from beginning">
           <RestartIcon className="icon" />

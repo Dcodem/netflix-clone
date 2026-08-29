@@ -15,6 +15,7 @@ import {
   SkipForwardIcon,
   SkipIntroIcon,
   SpeakerIcon,
+  LockIcon,
   SpeedIcon,
   SubtitlesIcon,
 } from '../components/Icons'
@@ -152,6 +153,7 @@ export function WatchOverlay() {
   const [identOn, setIdentOn] = useState(true)
   const [identPhase, setIdentPhase] = useState<'logo' | 'title' | 'off'>('logo')
   const [helpOpen, setHelpOpen] = useState(false)
+  const [locked, setLocked] = useState(false)
   const [clockKey, setClockKey] = useState('')
   const flashTimer = useRef(0)
   const tapRef = useRef({ at: 0, x: 0, play: 0 })
@@ -181,9 +183,12 @@ export function WatchOverlay() {
     setIntroSkipped(false)
     setRecapSkipped(false)
     setHelpOpen(false)
+    setLocked(false)
   }
   const keepChrome =
-    !stillWatching && (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover || helpOpen)
+    !stillWatching &&
+    !locked &&
+    (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover || helpOpen)
   const continueWatchingRef = useRef<() => void>(() => {})
 
   const post = useCallback((payload: Record<string, unknown>) => {
@@ -278,6 +283,7 @@ export function WatchOverlay() {
     setBarHover(false)
     setIntroSkipped(false)
     setRecapSkipped(false)
+    setLocked(false)
     setSeasonNumber(session.history?.seasonNumber ?? null)
     setFlash(null)
     const hasVideo = Boolean(youtubeIdFromHit(peekTrailer(trailerSearch(session))))
@@ -384,17 +390,29 @@ export function WatchOverlay() {
     if (!session) return
     let timer = 0
     const show = () => {
+      if (locked) {
+        setChrome(false)
+        return
+      }
       setChrome(true)
       window.clearTimeout(timer)
       if (!keepChrome) timer = window.setTimeout(() => setChrome(false), 2800)
     }
     showChromeRef.current = show
     const coarse = window.matchMedia('(pointer: coarse)').matches
-    if (keepChrome) setChrome(true)
+    if (locked) setChrome(false)
+    else if (keepChrome) setChrome(true)
     else timer = window.setTimeout(() => setChrome(false), 2800)
     const onKey = (event: KeyboardEvent) => {
       const typing = (event.target as HTMLElement)?.tagName === 'INPUT' || (event.target as HTMLElement)?.tagName === 'SELECT'
       if (typing) return
+      if (locked) {
+        if (event.key === 'Escape' || event.code === 'Space') {
+          event.preventDefault()
+          setLocked(false)
+        }
+        return
+      }
       if (event.key === 'Escape') {
         if (helpOpen) {
           event.preventDefault()
@@ -521,7 +539,7 @@ export function WatchOverlay() {
       window.removeEventListener('message', onMessage)
       document.removeEventListener('fullscreenchange', onFs)
     }
-  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped, helpOpen])
+  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped, helpOpen, locked])
 
   useEffect(() => {
     const length = duration || runtimeSec
@@ -715,11 +733,15 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identPhase === 'logo' && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identPhase === 'logo' && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''} ${locked ? 'is-locked' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
       onClick={(event) => {
+        if (locked) {
+          event.preventDefault()
+          return
+        }
         if (stillWatching) {
           event.preventDefault()
           return
@@ -781,6 +803,20 @@ export function WatchOverlay() {
           post({ cmd: 'volume', value: audio.muted ? 0 : audio.volume })
         }}
       />
+      {locked ? (
+        <button
+          type="button"
+          className="watch-unlock"
+          aria-label="Unlock"
+          onClick={(event) => {
+            event.stopPropagation()
+            setLocked(false)
+            setChrome(true)
+          }}
+        >
+          <LockIcon className="icon" />
+        </button>
+      ) : null}
       {flash ? (
         <div className={`watch-flash is-${flash}`} aria-hidden="true">
           {flash === 'play' ? <PlayIcon className="icon" /> : null}
@@ -992,6 +1028,20 @@ export function WatchOverlay() {
         </div>
         <div className="watch-controls">
           <div className="watch-controls-left">
+            <button
+              type="button"
+              className="watch-ctrl watch-lock"
+              onClick={() => {
+                setLocked(true)
+                setChrome(false)
+                setEpisodesOpen(false)
+                setAudioOpen(false)
+                setSpeedOpen(false)
+              }}
+              aria-label="Lock screen"
+            >
+              <LockIcon className="icon" />
+            </button>
             <button type="button" className="watch-ctrl watch-transport" onClick={togglePlay} aria-label={paused ? 'Play' : 'Pause'}>
               {paused ? <PlayIcon className="icon" /> : <PauseIcon className="icon" />}
             </button>

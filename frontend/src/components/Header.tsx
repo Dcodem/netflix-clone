@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import { isLiveSearchInput, pushRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
@@ -30,6 +31,7 @@ export function Header() {
     setQuery(urlQuery)
   }
   const [scrolled, setScrolled] = useState(false)
+  const phone = useMediaQuery('(max-width: 767px)')
   const [searchOpen, setSearchOpen] = useState(Boolean(urlQuery) || location.pathname === '/search')
   const inputRef = useRef<HTMLInputElement>(null)
   const searchRef = useRef<HTMLDivElement>(null)
@@ -176,7 +178,7 @@ export function Header() {
                   type="text"
                   inputMode="search"
                   autoComplete="off"
-                  placeholder="Titles, people, genres"
+                  placeholder={phone ? 'Search' : 'Titles, people, genres'}
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   aria-label="Search"

@@ -40,6 +40,7 @@ export function MyNetflix() {
       .map((item) => [item.id, item.progress as number]),
   )
   const listItems = likedToItems(activeProfile?.myList ?? [])
+  const downloadItems = likedToItems(activeProfile?.downloads ?? [])
   const notices = catalogNotices(catalog, 8)
   const because = useMemo(
     () => (activeProfile ? becauseYouWatchedRows(catalog, activeProfile.history, 1) : []),
@@ -129,16 +130,34 @@ export function MyNetflix() {
 
       <section className="my-netflix-downloads">
         <h2 className="section-title">Downloads</h2>
-        <div className="downloads-empty">
-          <span className="downloads-empty-icon">
-            <DownloadIcon className="icon" />
-          </span>
-          <strong>Downloads for You</strong>
-          <p>Movies and TV shows you download appear here.</p>
-          <Link to="/browse" className="downloads-find">
-            Find Something to Download
-          </Link>
-        </div>
+        {downloadItems.length ? (
+          <ul className="download-list">
+            {downloadItems.map((item) => (
+              <li key={item.id}>
+                <button type="button" className="download-row" onClick={() => openTitle(item)}>
+                  <span className="download-still">
+                    <CatalogImage item={item} prefer="backdrop" alt="" />
+                  </span>
+                  <span className="download-copy">
+                    <strong>{item.title}</strong>
+                    <em>Download complete</em>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="downloads-empty">
+            <span className="downloads-empty-icon">
+              <DownloadIcon className="icon" />
+            </span>
+            <strong>Downloads for You</strong>
+            <p>Movies and TV shows you download appear here.</p>
+            <Link to="/browse" className="downloads-find">
+              Find Something to Download
+            </Link>
+          </div>
+        )}
       </section>
 
       {continueItems.length ? (

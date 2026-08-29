@@ -46,6 +46,7 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     lovedIds: Array.isArray(raw.lovedIds) ? raw.lovedIds : [],
     dislikedIds: Array.isArray(raw.dislikedIds) ? raw.dislikedIds : [],
     myList: Array.isArray(raw.myList) ? raw.myList : [],
+    downloads: Array.isArray(raw.downloads) ? raw.downloads : [],
     hiddenContinueIds: Array.isArray(raw.hiddenContinueIds) ? raw.hiddenContinueIds : [],
     avatarId: raw.avatarId || 'red',
     pinSalt: raw.pinSalt ?? null,
@@ -118,6 +119,7 @@ type ProfileContextValue = {
   setFavoriteGenres: (genres: string[]) => void
   rateTitle: (item: LikedTitle, direction: 'up' | 'love' | 'down' | null) => void
   toggleMyList: (item: LikedTitle) => void
+  toggleDownload: (item: LikedTitle) => void
   unlockProfile: (id: string, pin: string) => Promise<boolean>
   clearActive: () => void
 }
@@ -180,6 +182,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         lovedIds: [],
         dislikedIds: [],
         myList: [],
+        downloads: [],
         hiddenContinueIds: [],
       }
       updateStore((prev) => {
@@ -383,6 +386,26 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const toggleDownload = useCallback(
+    (item: LikedTitle) => {
+      updateStore((prev) => ({
+        ...prev,
+        profiles: prev.profiles.map((profile) => {
+          if (profile.id !== prev.activeProfileId) return profile
+          const downloads = profile.downloads ?? []
+          const exists = downloads.some((entry) => entry.id === item.id)
+          return {
+            ...profile,
+            downloads: exists
+              ? downloads.filter((entry) => entry.id !== item.id)
+              : [item, ...downloads].slice(0, HISTORY_LIMIT),
+          }
+        }),
+      }))
+    },
+    [updateStore],
+  )
+
   const unlockProfile = useCallback(async (id: string, pin: string) => {
     const profile = store.profiles.find((entry) => entry.id === id)
     if (!profile?.pinHash || !profile.pinSalt) return false
@@ -411,6 +434,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       setFavoriteGenres,
       rateTitle,
       toggleMyList,
+      toggleDownload,
       unlockProfile,
       clearActive,
     }),
@@ -427,6 +451,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       setFavoriteGenres,
       rateTitle,
       toggleMyList,
+      toggleDownload,
       unlockProfile,
       clearActive,
     ],

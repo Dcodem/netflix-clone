@@ -3610,12 +3610,35 @@ img.is-logo-pending {
 .title-actions.is-sheet {
   flex-direction: column;
   align-items: stretch;
-  gap: 16px;
+  gap: 10px;
 }
 
-.title-actions.is-sheet .btn-play {
+.title-actions.is-sheet .btn-play,
+.title-actions.is-sheet .btn-download {
   width: 100%;
   justify-content: center;
+  min-height: 48px;
+  font-size: 18px;
+}
+
+.btn-download {
+  background: #2f2f2f;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 8px 24px;
+  min-height: 48px;
+  border-radius: 4px;
+  gap: 10px;
+}
+
+.btn-download:hover,
+.btn-download:focus-visible {
+  background: #3d3d3d;
+}
+
+.btn-download.is-on {
+  background: #2f2f2f;
 }
 
 .title-sheet-tools {
@@ -4301,26 +4324,54 @@ img.is-logo-pending {
     color: #fff;
   }
 
+  .search-top {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0 0 20px;
+  }
+
   .search-top li {
-    padding-right: 16px;
+    padding-right: 12px;
+    background: #2f2f2f;
+    gap: 8px;
+  }
+
+  .search-top li + li {
+    border-top: 0;
   }
 
   .search-top-hit,
   .search-top li button.search-top-hit {
-    padding: 8px 0 8px 16px;
-    gap: 12px;
+    padding: 0;
+    gap: 14px;
+  }
+
+  .search-top-hit:hover,
+  .search-top-hit:focus-visible,
+  .search-top li button.search-top-hit:hover,
+  .search-top li button.search-top-hit:focus-visible {
+    background: transparent;
   }
 
   .search-top-play {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
+    border-width: 1.5px;
+    background: transparent;
   }
 
   .search-top-still {
-    width: 38vw;
-    max-width: 148px;
-    height: auto;
-    aspect-ratio: 16 / 9;
+    width: 146px;
+    max-width: 42vw;
+    height: 82px;
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+
+  .search-top-title {
+    font-size: 15px;
+    font-weight: 500;
   }
 
   .search-top-rank {
@@ -7034,6 +7085,44 @@ img.is-logo-pending {
   }
 }
 
+.watch-lock {
+  display: none;
+}
+
+.watch-unlock {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2400;
+  width: 72px;
+  height: 72px;
+  transform: translate(-50%, -50%);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: rgba(20, 20, 20, 0.42);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.watch-unlock .icon {
+  width: 28px;
+  height: 28px;
+}
+
+.watch-overlay.is-locked .watch-topbar,
+.watch-overlay.is-locked .watch-bottombar,
+.watch-overlay.is-locked .watch-center,
+.watch-overlay.is-locked .skip-intro,
+.watch-overlay.is-locked .next-ep-card,
+.watch-overlay.is-locked .watch-credits,
+.watch-overlay.is-locked .watch-flash {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .watch-vol {
   position: relative;
   display: flex;
@@ -8662,6 +8751,10 @@ img.is-logo-pending {
     display: none;
   }
 
+  .watch-lock {
+    display: grid;
+  }
+
   .watch-caption {
     font-size: 15px;
   }
@@ -9022,6 +9115,66 @@ img.is-logo-pending {
 
 .downloads-find:hover {
   text-decoration: underline;
+}
+
+.download-list {
+  list-style: none;
+  margin: 4px 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.download-list li {
+  background: #2f2f2f;
+}
+
+.download-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 0 14px 0 0;
+  background: none;
+  border: 0;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.download-still {
+  width: 146px;
+  height: 82px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #222;
+}
+
+.download-still img,
+.download-still .media-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.download-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.download-copy strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.download-copy em {
+  color: #808080;
+  font-size: 13px;
+  font-style: normal;
 }
 
 .my-netflix-notes {
