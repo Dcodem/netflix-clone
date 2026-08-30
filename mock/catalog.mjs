@@ -704,13 +704,13 @@ const REAL_MOVIES = [
   namedItem('movie', 50, "The End of Oak Street", 2026, 6.4, ["Sci-Fi","Mystery","Thriller"], "https://image.tmdb.org/t/p/w500/fYXqpgPmHMphSF2W30GbTeJVIa5.jpg", "https://image.tmdb.org/t/p/w1280/b9q9VmbXDvJmTziRqkwdEmFdwhr.jpg"),
   namedItem('movie', 51, "Shape of My Heart", 2024, 6.2, ["Romance"], "https://image.tmdb.org/t/p/w500/3r0O6BW9USoZ9mteCVyNKMQriRL.jpg", "https://image.tmdb.org/t/p/w1280/yjK3ardrgdS8suZG8KMU82Q7U38.jpg"),
   namedItem('movie', 52, "Scary Movie", 2026, 6.4, ["Comedy"], "https://image.tmdb.org/t/p/w500/znHT8peERZRWG1ME3r0Db0EV8k8.jpg", "https://image.tmdb.org/t/p/w1280/xWBiXclrRmTggQHMRsIn84YHavs.jpg"),
-  namedItem('movie', 53, "Crazy Rich Asians", 2018, 7.0, ["Romance", "Comedy"]),
-  namedItem('movie', 54, "To All the Boys I've Loved Before", 2018, 7.2, ["Romance", "Comedy"]),
-  namedItem('movie', 55, "Anyone But You", 2023, 6.3, ["Romance", "Comedy"]),
-  namedItem('movie', 56, "The Proposal", 2009, 6.7, ["Romance", "Comedy"]),
-  namedItem('movie', 57, "Pretty Woman", 1990, 7.1, ["Romance", "Comedy"]),
-  namedItem('movie', 58, "Notting Hill", 1999, 7.2, ["Romance", "Comedy"]),
-  namedItem('movie', 59, "10 Things I Hate About You", 1999, 7.3, ["Romance", "Comedy"]),
+  namedItem('movie', 53, "Crazy Rich Asians", 2018, 7.0, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/1XxL4LJ5WHdrcYcihEZUCgNCpAW.jpg", "https://image.tmdb.org/t/p/w1280/zeHB7aP46Xs3u4aFLuAq2GFeUGb.jpg"),
+  namedItem('movie', 54, "To All the Boys I've Loved Before", 2018, 7.2, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/hKHZhUbIyUAjcSrqJThFGYIR6kI.jpg", "https://image.tmdb.org/t/p/w1280/xXhta1NIKn09IXy0mfp68cabdWS.jpg"),
+  namedItem('movie', 55, "Anyone But You", 2023, 6.3, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/5qHoazZiaLe7oFBok7XlUhg96f2.jpg", "https://image.tmdb.org/t/p/w1280/j9eOeLlTGoHoM8BNUJVNyWmIvCi.jpg"),
+  namedItem('movie', 56, "The Proposal", 2009, 6.7, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/6stnAm1wSek8ZrislwK4xGTyCnt.jpg", "https://image.tmdb.org/t/p/w1280/ojgXOhVi9Yk8irDpRfDkIzdD1LK.jpg"),
+  namedItem('movie', 57, "Pretty Woman", 1990, 7.1, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/hVHUfT801LQATGd26VPzhorIYza.jpg", "https://image.tmdb.org/t/p/w1280/sGEqHTylawwS6hwKultk1mKUjdB.jpg"),
+  namedItem('movie', 58, "Notting Hill", 1999, 7.2, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/hHRIf2XHeQMbyRb3HUx19SF5Ujw.jpg", "https://image.tmdb.org/t/p/w1280/enTZhfxAdgOCdFdbj52MR3F10yC.jpg"),
+  namedItem('movie', 59, "10 Things I Hate About You", 1999, 7.3, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/ujERk3aKABXU3NDXOAxEQYTHe9A.jpg", "https://image.tmdb.org/t/p/w1280/yvPbncYhMu9FfTjDhq0N5lgnVkO.jpg"),
 ]
 
 const REAL_SHOWS = [
@@ -750,8 +750,8 @@ const REAL_SHOWS = [
   namedItem('show', 34, "NCIS", 2003, 7.6, ["Crime","Drama","Action"], "https://image.tmdb.org/t/p/w500/mBcu8d6x6zB1el3MPNl7cZQEQ31.jpg", "https://image.tmdb.org/t/p/w1280/nn3SuLTO4hum8yAxaY4ql8h6kRk.jpg"),
   namedItem('show', 35, "Supernatural", 2005, 8.3, ["Drama","Mystery","Sci-Fi"], "https://image.tmdb.org/t/p/w500/8iixmfGx5EIFPdpNvB2JvI3VIqX.jpg", "https://image.tmdb.org/t/p/w1280/ro0tlgnsco4SwbdAgmscLkSlMSL.jpg"),
   namedItem('show', 36, "Criminal Minds", 2005, 8.3, ["Crime","Drama","Mystery"], "https://image.tmdb.org/t/p/w500/hWSb4UnIjlTvnvrP98NbFSO60HA.jpg", "https://image.tmdb.org/t/p/w1280/tUtXfyVy54BY7eJnRtI8Xnmr1ZL.jpg"),
-  namedItem('show', 37, "Emily in Paris", 2020, 6.9, ["Romance", "Comedy", "Drama"]),
-  namedItem('show', 38, "Never Have I Ever", 2020, 7.8, ["Romance", "Comedy", "Drama"]),
+  namedItem('show', 37, "Emily in Paris", 2020, 6.9, ["Romance", "Comedy", "Drama"], "https://image.tmdb.org/t/p/w500/c0bkO416OU7YGdOFktk45H8REgL.jpg", "https://image.tmdb.org/t/p/w1280/jXTZaHarR9TZiMoQwiQWsGYXqnS.jpg"),
+  namedItem('show', 38, "Never Have I Ever", 2020, 7.8, ["Romance", "Comedy", "Drama"], "https://image.tmdb.org/t/p/w500/hd5fnBixab6IzfUwjC5wfdbX3eM.jpg", "https://image.tmdb.org/t/p/w1280/umVYLVZ7T85TkIHudxK799lPnLQ.jpg"),
 ]
 
 const MOVIES = [...REAL_MOVIES]
