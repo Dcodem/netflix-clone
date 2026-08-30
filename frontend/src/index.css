@@ -2562,6 +2562,29 @@ body:has(.account-page),
   justify-content: flex-end;
 }
 
+.account-billing {
+  padding: 0 0 16px;
+}
+
+.account-billing-row {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
+}
+
+.account-billing-row strong {
+  font-size: 16px;
+}
+
+.account-billing-row span {
+  color: #555;
+  font-size: 14px;
+}
+
 .account-cancel {
   display: inline-flex;
   align-items: center;

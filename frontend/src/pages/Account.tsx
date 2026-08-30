@@ -28,6 +28,7 @@ type AccountPanel =
   | 'phone'
   | 'plan'
   | 'payment'
+  | 'billing'
   | 'gift'
   | 'cancel'
   | 'playback'
@@ -56,6 +57,10 @@ export function Account() {
     date.setDate(date.getDate() + 28)
     return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
   }, [])
+  const lastBilled = useMemo(
+    () => new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    [],
+  )
 
   function togglePanel(next: AccountPanel) {
     setAccountError(null)
@@ -300,6 +305,30 @@ export function Account() {
                 </button>
               </div>
             </form>
+          ) : null}
+          <div className="account-row">
+            <span>Billing details</span>
+            <button type="button" className="account-change" onClick={() => togglePanel('billing')}>
+              {panel === 'billing' ? 'Hide' : 'Open'}
+            </button>
+          </div>
+          {panel === 'billing' ? (
+            <div className="account-billing">
+              <div className="account-billing-row">
+                <strong>{lastBilled}</strong>
+                <span>
+                  {plan.name} · {plan.price}
+                </span>
+                <span>
+                  {user?.paymentLast4
+                    ? `${user.paymentBrand || 'Card'} •••• ${user.paymentLast4}`
+                    : 'No payment method'}
+                </span>
+              </div>
+              <p className="account-inline-note">
+                Next payment {nextPay}. FLIX does not store receipts or charge a card on this device.
+              </p>
+            </div>
           ) : null}
           <div className="account-row is-actions">
             <button type="button" className="account-change" onClick={() => togglePanel('gift')}>
