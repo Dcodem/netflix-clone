@@ -9220,7 +9220,7 @@ img.is-logo-pending {
 }
 
 .watch-caption-size-label {
-  margin-top: 18px;
+  margin-top: 12px;
 }
 
 .watch-caption.is-bg-none {
@@ -9476,9 +9476,11 @@ img.is-logo-pending {
   left: auto;
   right: 40px;
   top: auto;
-  bottom: 124px;
+  bottom: 96px;
   width: min(640px, calc(100% - 80px));
-  padding: 28px 32px 24px;
+  max-height: min(72vh, calc(100% - 120px));
+  overflow-y: auto;
+  padding: 22px 28px 20px;
   border: 0;
   border-radius: 4px;
   background: rgba(20, 20, 20, 0.96);
