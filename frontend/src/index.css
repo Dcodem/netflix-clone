@@ -1603,6 +1603,7 @@ select,
 .watch-overlay.is-pip .watch-panel,
 .watch-overlay.is-pip .watch-scrim,
 .watch-overlay.is-pip .watch-help,
+.watch-overlay.is-pip .watch-report-btn,
 .watch-overlay.is-pip .watch-speed,
 .watch-overlay.is-pip .cast-menu,
 .watch-overlay.is-pip .watch-ctrl[aria-label='Next Episode'],
@@ -9047,6 +9048,77 @@ img.is-logo-pending {
   margin: 0;
   display: flex;
   gap: 6px;
+}
+
+.watch-report-btn {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.watch-topbar.is-visible .watch-report-btn {
+  opacity: 1;
+}
+
+.watch-report-btn .icon {
+  width: 22px;
+  height: 22px;
+}
+
+.watch-report-btn.is-on,
+.watch-report-btn:hover,
+.watch-report-btn:focus-visible {
+  color: #fff;
+}
+
+.watch-report-lead,
+.watch-report-thanks {
+  margin: 0 0 12px;
+  color: #e5e5e5;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.watch-report-form {
+  display: grid;
+  gap: 8px;
+}
+
+.watch-report-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.watch-report-check input {
+  accent-color: #e50914;
+}
+
+.watch-report-submit {
+  justify-self: start;
+  margin-top: 8px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 2px;
+  background: #fff;
+  color: #141414;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .watch-help kbd {

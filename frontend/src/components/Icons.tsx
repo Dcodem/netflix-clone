@@ -296,6 +296,27 @@ export function PersonIcon({ className }: { className?: string }) {
   )
 }
 
+export function FlagIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M6 4.5v15"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M6.9 5.2h9.4c.7 0 1.1.8.7 1.4L15.2 9.8l1.8 3.2c.4.6 0 1.4-.7 1.4H6.9"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 export function HelpCircleIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

@@ -53,6 +53,11 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: 'Watching',
     articles: [
       {
+        id: 'report',
+        title: 'Report a problem',
+        body: 'While watching, use the flag in the top bar to report a problem. Choose video, buffering, picture, sound, captions, or something else. FLIX does not send the report anywhere.',
+      },
+      {
         id: 'shortcuts',
         title: 'Keyboard shortcuts',
         body: 'While watching, press ? for shortcuts: Space or K play/pause, F full screen, P miniplayer, C captions, M mute, N next episode, S skip intro, Esc back. Digit keys 0–9 jump by 10%.',
