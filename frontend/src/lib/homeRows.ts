@@ -103,7 +103,7 @@ function rail(items: MovieListItem[], cap = RAIL): MovieListItem[] {
 
 function uniqueRail(items: MovieListItem[], used: Set<string>, cap = RAIL): MovieListItem[] {
   const fresh = uniqueById(items.filter((item) => !used.has(item.id)))
-  const picked = (fresh.length >= 6 ? fresh : uniqueById(items)).slice(0, cap)
+  const picked = (fresh.length ? fresh : uniqueById(items)).slice(0, cap)
   for (const item of picked) used.add(item.id)
   return picked
 }
@@ -301,13 +301,14 @@ export function buildBrowseRows(opts: {
   })
 
   for (const row of becauseYouWatchedRows(pool, becauseHistory, filter === 'home' ? 3 : 4)) {
+    if (row.seed) recUsed.add(row.seed.id)
     pushRecRow(
       rows,
       {
         id: row.id,
         title: row.title,
         subtitle: row.subtitle,
-        items: row.items,
+        items: row.items.filter((item) => item.id !== row.seed?.id),
         seed: row.seed,
         loop: false,
       },
@@ -336,12 +337,13 @@ export function buildBrowseRows(opts: {
   }
 
   for (const row of becauseYouLikedRows(pool, profile?.liked ?? [], 2)) {
+    if (row.seed) recUsed.add(row.seed.id)
     pushRecRow(
       rows,
       {
         id: row.id,
         title: row.title,
-        items: row.items,
+        items: row.items.filter((item) => item.id !== row.seed?.id),
         seed: row.seed,
         loop: false,
       },
