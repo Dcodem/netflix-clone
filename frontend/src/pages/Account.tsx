@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { commsFor, extraMemberSlots, extraMembersFor, testsOn } from '../auth/types'
+import { commsFor, extraMemberSlots, extraMembersFor, hasPurchasePin, purchasePinRequired, testsOn } from '../auth/types'
 import { currentDeviceId, formatDeviceUsed, upsertCurrentDevice } from '../auth/device'
 import { AvatarArt } from '../components/AvatarArt'
 import { ChevronRightIcon } from '../components/Icons'
@@ -62,6 +62,7 @@ type AccountPanel =
   | 'privacy'
   | 'downloads'
   | 'tests'
+  | 'pin'
   | 'extra'
   | 'devices'
   | 'signout'
@@ -75,6 +76,9 @@ export function Account() {
     addExtraMember,
     removeExtraMember,
     ensureReferralCode,
+    setPurchasePin,
+    clearPurchasePin,
+    verifyPurchasePin,
     signOutDevice,
     signOutOtherDevices,
   } = useAuth()
@@ -98,6 +102,9 @@ export function Account() {
   const [cancelReason, setCancelReason] = useState<(typeof CANCEL_REASONS)[number]['id'] | null>(null)
   const [cancelDone, setCancelDone] = useState(false)
   const [referralCopied, setReferralCopied] = useState(false)
+  const [pinDraft, setPinDraft] = useState('')
+  const [pinConfirm, setPinConfirm] = useState('')
+  const [actionPin, setActionPin] = useState('')
   const referralCode = user?.referralCode ?? ''
   const extraMembers = extraMembersFor(user)
   const extraSlots = extraMemberSlots(planId)
@@ -131,6 +138,9 @@ export function Account() {
     setExtraEmail('')
     setCancelReason(null)
     setCancelDone(false)
+    setPinDraft('')
+    setPinConfirm('')
+    setActionPin('')
     setPanel((current) => (current === next ? null : next))
   }
 
@@ -176,15 +186,31 @@ export function Account() {
     }
   }
 
+  async function confirmPurchasePin() {
+    if (!purchasePinRequired(user)) return true
+    if (!/^\d{4}$/.test(actionPin)) {
+      setAccountError('Enter your 4-digit purchase PIN.')
+      return false
+    }
+    const ok = await verifyPurchasePin(actionPin)
+    if (!ok) {
+      setAccountError('That purchase PIN is incorrect.')
+      return false
+    }
+    return true
+  }
+
   async function saveGift(event: FormEvent) {
     event.preventDefault()
     setAccountError(null)
     setGiftApplied(null)
+    if (!(await confirmPurchasePin())) return
     setAccountBusy(true)
     try {
       const amount = await redeemGift(giftDraft)
       setGiftApplied(amount)
       setGiftDraft('')
+      setActionPin('')
     } catch (err) {
       setAccountError(err instanceof Error ? err.message : 'Could not redeem that code.')
     } finally {
@@ -195,9 +221,11 @@ export function Account() {
   async function saveExtra(event: FormEvent) {
     event.preventDefault()
     setAccountError(null)
+    if (!(await confirmPurchasePin())) return
     setAccountBusy(true)
     try {
       await addExtraMember({ name: extraName, email: extraEmail })
+      setActionPin('')
       setExtraName('')
       setExtraEmail('')
       setPanel(null)
@@ -206,6 +234,42 @@ export function Account() {
     } finally {
       setAccountBusy(false)
     }
+  }
+
+  async function savePurchasePin(event: FormEvent) {
+    event.preventDefault()
+    setAccountError(null)
+    if (pinDraft !== pinConfirm) {
+      setAccountError('Those PINs do not match.')
+      return
+    }
+    setAccountBusy(true)
+    try {
+      await setPurchasePin(pinDraft)
+      setPinDraft('')
+      setPinConfirm('')
+    } catch (err) {
+      setAccountError(err instanceof Error ? err.message : 'Could not save that purchase PIN.')
+    } finally {
+      setAccountBusy(false)
+    }
+  }
+
+  function pinField() {
+    if (!purchasePinRequired(user)) return null
+    return (
+      <label>
+        Purchase PIN
+        <input
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          value={actionPin}
+          onChange={(event) => setActionPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
+          maxLength={4}
+          placeholder="••••"
+        />
+      </label>
+    )
   }
 
   return (
@@ -509,6 +573,7 @@ export function Account() {
                   Credit stays on this device and applies to the next payment shown here. FLIX does not charge a card.
                 </p>
               )}
+              {pinField()}
               {accountError ? <p className="account-inline-error">{accountError}</p> : null}
               <div className="account-inline-actions">
                 <button type="submit" className="btn btn-primary" disabled={accountBusy}>
@@ -537,15 +602,22 @@ export function Account() {
           </div>
           {panel === 'plan' ? (
             <div className="account-plan-picker">
+              {purchasePinRequired(user) ? <div className="account-inline">{pinField()}</div> : null}
+              {accountError && panel === 'plan' ? <p className="account-inline-error">{accountError}</p> : null}
               {PLANS.map((entry) => (
                 <button
                   type="button"
                   key={entry.id}
                   className={`account-plan-tile ${entry.id === planId ? 'is-on' : ''}`}
                   onClick={() => {
-                    setPlanId(entry.id)
-                    void updateAccount({ planId: entry.id })
-                    setPanel(null)
+                    void (async () => {
+                      setAccountError(null)
+                      if (!(await confirmPurchasePin())) return
+                      setPlanId(entry.id)
+                      await updateAccount({ planId: entry.id })
+                      setActionPin('')
+                      setPanel(null)
+                    })()
                   }}
                 >
                   <strong>{entry.name}</strong>
@@ -634,6 +706,7 @@ export function Account() {
               <p className="account-inline-note">
                 FLIX does not create another household or charge for extra members. This invite stays on this account.
               </p>
+              {pinField()}
               {accountError && panel === 'extra' ? <p className="account-inline-error">{accountError}</p> : null}
               <div className="account-inline-actions">
                 <button type="submit" className="btn btn-primary" disabled={accountBusy}>
@@ -953,6 +1026,79 @@ export function Account() {
               <p className="account-inline-note">
                 FLIX does not run remote experiments. This choice stays on this account.
               </p>
+            </div>
+          ) : null}
+          <div className="account-row">
+            <span>Purchase PIN</span>
+            <button type="button" className="account-change" onClick={() => togglePanel('pin')}>
+              Change
+            </button>
+          </div>
+          {panel === 'pin' ? (
+            <div className="edit-autoplay account-prefs">
+              {hasPurchasePin(user) ? (
+                <label className="edit-check">
+                  <input
+                    type="checkbox"
+                    checked={purchasePinRequired(user)}
+                    onChange={(event) => {
+                      void updateAccount({ purchasePinOn: event.target.checked })
+                    }}
+                  />
+                  <span>
+                    Require a PIN for extra members, plan changes, and gift cards
+                    <small>Ask for this PIN before those Account changes.</small>
+                  </span>
+                </label>
+              ) : null}
+              <form className="account-inline" onSubmit={(event) => void savePurchasePin(event)}>
+                <label>
+                  {hasPurchasePin(user) ? 'New PIN' : 'Create a PIN'}
+                  <input
+                    inputMode="numeric"
+                    autoComplete="new-password"
+                    value={pinDraft}
+                    onChange={(event) => setPinDraft(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                    maxLength={4}
+                    placeholder="••••"
+                    required
+                  />
+                </label>
+                <label>
+                  Confirm PIN
+                  <input
+                    inputMode="numeric"
+                    autoComplete="new-password"
+                    value={pinConfirm}
+                    onChange={(event) => setPinConfirm(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                    maxLength={4}
+                    placeholder="••••"
+                    required
+                  />
+                </label>
+                <p className="account-inline-note">
+                  FLIX stores this PIN on this account. It is not sent anywhere.
+                </p>
+                {accountError && panel === 'pin' ? <p className="account-inline-error">{accountError}</p> : null}
+                <div className="account-inline-actions">
+                  <button type="submit" className="btn btn-primary" disabled={accountBusy}>
+                    Save PIN
+                  </button>
+                  {hasPurchasePin(user) ? (
+                    <button
+                      type="button"
+                      className="account-change"
+                      onClick={() => {
+                        clearPurchasePin()
+                        setPinDraft('')
+                        setPinConfirm('')
+                      }}
+                    >
+                      Remove PIN
+                    </button>
+                  ) : null}
+                </div>
+              </form>
             </div>
           ) : null}
           <div className="account-row">

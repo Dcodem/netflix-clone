@@ -54,7 +54,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         id: 'comms-privacy',
         title: 'Communication and privacy',
-        body: 'Communication settings choose which emails this account would receive. Privacy controls personalized recommendations and sharing viewing activity. Recommendations off uses popular titles instead of your taste. Test participation opts this account into product tests on this device.',
+        body: 'Communication settings choose which emails this account would receive. Privacy controls personalized recommendations and sharing viewing activity. Recommendations off uses popular titles instead of your taste. Test participation opts this account into product tests on this device. Purchase PIN can require a 4-digit PIN for extra members, plan changes, and gift cards.',
       },
     ],
   },

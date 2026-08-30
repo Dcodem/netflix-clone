@@ -44,6 +44,9 @@ export type UserAccount = {
   tests?: boolean
   extraMembers?: ExtraMember[]
   referralCode?: string
+  purchasePinSalt?: string | null
+  purchasePinHash?: string | null
+  purchasePinOn?: boolean
 }
 
 export type ExtraMember = {
@@ -77,6 +80,20 @@ export function makeReferralCode() {
 
 export function isReferralCode(value: string | null | undefined) {
   return Boolean(value && /^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(value))
+}
+
+export function hasPurchasePin(user: { purchasePinHash?: string | null; purchasePinSalt?: string | null } | null | undefined) {
+  return Boolean(user?.purchasePinHash && user?.purchasePinSalt)
+}
+
+export function purchasePinRequired(
+  user: {
+    purchasePinHash?: string | null
+    purchasePinSalt?: string | null
+    purchasePinOn?: boolean
+  } | null | undefined,
+) {
+  return hasPurchasePin(user) && user?.purchasePinOn !== false
 }
 
 export type AuthStore = {

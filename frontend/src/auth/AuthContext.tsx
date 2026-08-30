@@ -53,11 +53,15 @@ type AuthContextValue = {
     paymentLast4?: string | null
     comms?: Partial<CommunicationPrefs>
     tests?: boolean
+    purchasePinOn?: boolean
   }) => Promise<void>
   redeemGift: (code: string) => Promise<number>
   addExtraMember: (input: { name: string; email: string }) => Promise<ExtraMember>
   removeExtraMember: (id: string) => void
   ensureReferralCode: () => string
+  setPurchasePin: (pin: string) => Promise<void>
+  clearPurchasePin: () => void
+  verifyPurchasePin: (pin: string) => Promise<boolean>
   signOutDevice: (deviceId: string) => void
   signOutOtherDevices: () => void
 }
@@ -148,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       paymentLast4?: string | null
       comms?: Partial<CommunicationPrefs>
       tests?: boolean
+      purchasePinOn?: boolean
     }) => {
       const current = loadStore()
       const sessionId = current.sessionUserId
@@ -180,6 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             paymentLast4: opts.paymentLast4 !== undefined ? opts.paymentLast4 : user.paymentLast4,
             comms: opts.comms ? { ...commsFor(user), ...opts.comms } : user.comms,
             tests: opts.tests !== undefined ? opts.tests : user.tests,
+            purchasePinOn: opts.purchasePinOn !== undefined ? opts.purchasePinOn : user.purchasePinOn,
             passwordSalt: passwordSalt ?? user.passwordSalt,
             passwordHash: passwordHash ?? user.passwordHash,
           }
@@ -273,6 +279,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const setPurchasePin = useCallback(
+    async (pin: string) => {
+      const digits = pin.replace(/\D/g, '')
+      if (!/^\d{4}$/.test(digits)) throw new Error('Enter a 4-digit PIN')
+      const current = loadStore()
+      if (!current.sessionUserId) throw new Error('Sign in to set a purchase PIN.')
+      const hashed = await hashPassword(digits)
+      updateStore((prev) => ({
+        ...prev,
+        users: prev.users.map((entry) => {
+          if (entry.id !== prev.sessionUserId) return entry
+          return {
+            ...entry,
+            purchasePinSalt: hashed.salt,
+            purchasePinHash: hashed.hash,
+            purchasePinOn: entry.purchasePinOn !== false,
+          }
+        }),
+      }))
+    },
+    [updateStore],
+  )
+
+  const clearPurchasePin = useCallback(() => {
+    updateStore((prev) => ({
+      ...prev,
+      users: prev.users.map((entry) => {
+        if (entry.id !== prev.sessionUserId) return entry
+        return { ...entry, purchasePinSalt: null, purchasePinHash: null, purchasePinOn: false }
+      }),
+    }))
+  }, [updateStore])
+
+  const verifyPurchasePin = useCallback(async (pin: string) => {
+    const current = loadStore()
+    const user = current.users.find((entry) => entry.id === current.sessionUserId)
+    if (!user?.purchasePinHash || !user.purchasePinSalt) return false
+    return passwordsMatch(pin.replace(/\D/g, ''), user.purchasePinSalt, user.purchasePinHash)
+  }, [])
+
   const ensureReferralCode = useCallback(() => {
     const current = loadStore()
     const user = current.users.find((entry) => entry.id === current.sessionUserId)
@@ -352,6 +398,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       addExtraMember,
       removeExtraMember,
       ensureReferralCode,
+      setPurchasePin,
+      clearPurchasePin,
+      verifyPurchasePin,
       signOutDevice,
       signOutOtherDevices,
     }),
@@ -366,6 +415,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       addExtraMember,
       removeExtraMember,
       ensureReferralCode,
+      setPurchasePin,
+      clearPurchasePin,
+      verifyPurchasePin,
       signOutDevice,
       signOutOtherDevices,
     ],
