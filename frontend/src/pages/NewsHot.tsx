@@ -51,6 +51,18 @@ function monthLabel(date: Date) {
   return date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
 }
 
+function comingLine(date: Date) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const target = new Date(date)
+  target.setHours(0, 0, 0, 0)
+  const days = Math.round((target.getTime() - today.getTime()) / 86400000)
+  if (days >= 0 && days <= 6) {
+    return `Coming ${date.toLocaleDateString('en-US', { weekday: 'long' })}`
+  }
+  return `Coming ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
+}
+
 function FeedCard({
   item,
   kicker,
@@ -105,7 +117,7 @@ function FeedCard({
         <div className="news-date" aria-label={date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}>
           <em>{monthLabel(date)}</em>
           <strong>{date.getDate()}</strong>
-          <span className="news-kind">{isShow(item) ? 'Series' : 'Film'}</span>
+          <span className="news-kind">{isShow(item) ? 'SERIES' : 'FILM'}</span>
         </div>
       ) : null}
       {ranked ? (
@@ -175,9 +187,7 @@ function FeedCard({
           </div>
         </div>
         {date ? (
-          <p className="news-coming">
-            Coming {date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
-          </p>
+          <p className="news-coming">{comingLine(date)}</p>
         ) : null}
         <p className="news-meta">
           {mode !== 'soon' ? <span className="match">{match}% Match</span> : null}

@@ -190,6 +190,7 @@ export function WatchOverlay() {
     !locked &&
     (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover || helpOpen)
   const continueWatchingRef = useRef<() => void>(() => {})
+  const playNextRef = useRef<() => void>(() => {})
 
   const post = useCallback((payload: Record<string, unknown>) => {
     frameRef.current?.contentWindow?.postMessage({ source: PLAYER_SOURCE, ...payload }, '*')
@@ -492,6 +493,10 @@ export function WatchOverlay() {
       } else if (event.key.toLowerCase() === 'f') {
         event.preventDefault()
         toggleFullscreen()
+      } else if (event.key.toLowerCase() === 'n' && isShow) {
+        event.preventDefault()
+        playNextRef.current()
+        show()
       } else show()
     }
     const onFs = () => setFullscreen(Boolean(document.fullscreenElement))
@@ -726,6 +731,10 @@ export function WatchOverlay() {
       episodeNumber: episode.number,
       episodeId: episode.id,
     })
+  }
+
+  playNextRef.current = () => {
+    if (upcoming) playEpisode(upcoming.season, upcoming.episode, true)
   }
 
   function onVolume(next: number) {
@@ -1214,10 +1223,15 @@ export function WatchOverlay() {
         <div
           className="watch-help"
           role="dialog"
-          aria-label="Keyboard Shortcuts"
+          aria-labelledby="watch-help-title"
           onClick={(event) => event.stopPropagation()}
         >
-          <h2>Keyboard Shortcuts</h2>
+          <div className="watch-help-head">
+            <h2 id="watch-help-title">Keyboard Shortcuts</h2>
+            <button type="button" className="watch-help-close" onClick={() => setHelpOpen(false)} aria-label="Close">
+              <CloseIcon className="icon" />
+            </button>
+          </div>
           <dl>
             <div>
               <dt>Seek Backward</dt>
@@ -1267,6 +1281,22 @@ export function WatchOverlay() {
                 </dd>
               </div>
             ) : null}
+            {isShow ? (
+              <div>
+                <dt>Next Episode</dt>
+                <dd>
+                  <kbd>N</kbd>
+                </dd>
+              </div>
+            ) : null}
+            <div>
+              <dt>Seek</dt>
+              <dd>
+                <kbd>0</kbd>
+                <span className="watch-help-sep">–</span>
+                <kbd>9</kbd>
+              </dd>
+            </div>
             <div>
               <dt>Shortcuts</dt>
               <dd>

@@ -11,12 +11,14 @@ export function CastMenu({
 }) {
   const [open, setOpen] = useState(false)
   const [searching, setSearching] = useState(true)
+  const [learnMore, setLearnMore] = useState(false)
   const player = variant === 'player'
 
   useEffect(() => {
     if (!open) return
     setSearching(true)
-    const timer = window.setTimeout(() => setSearching(false), 1400)
+    setLearnMore(false)
+    const timer = window.setTimeout(() => setSearching(false), 1600)
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false)
     }
@@ -36,6 +38,7 @@ export function CastMenu({
         type="button"
         className={player ? 'watch-ctrl' : 'cast-btn'}
         aria-label="Cast"
+        aria-expanded={open}
         onClick={(event) => {
           event.stopPropagation()
           playClick()
@@ -54,6 +57,7 @@ export function CastMenu({
             aria-labelledby="cast-sheet-title"
             onClick={(event) => event.stopPropagation()}
           >
+            <div className="cast-sheet-handle" aria-hidden="true" />
             <div className="cast-sheet-head">
               <h2 id="cast-sheet-title">Cast to a Device</h2>
               <button type="button" className="cast-sheet-close" onClick={() => setOpen(false)} aria-label="Close">
@@ -71,6 +75,20 @@ export function CastMenu({
                 <p className="cast-sheet-hint">
                   Make sure your TV or speaker is on and connected to the same Wi-Fi as this device.
                 </p>
+                <button
+                  type="button"
+                  className="cast-sheet-more"
+                  aria-expanded={learnMore}
+                  onClick={() => setLearnMore((next) => !next)}
+                >
+                  Learn more
+                </button>
+                {learnMore ? (
+                  <p className="cast-sheet-hint is-more">
+                    FLIX looks for TVs and speakers on this network. There is no Chromecast pairing in this demo, so
+                    playback stays on this device.
+                  </p>
+                ) : null}
               </>
             )}
           </div>
