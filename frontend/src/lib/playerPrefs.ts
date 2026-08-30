@@ -1,12 +1,18 @@
 const KEY = 'flix.playerPrefs'
 
 export type CaptionSize = 's' | 'm' | 'l'
+export type CaptionBg = 'shadow' | 'box' | 'none'
+export type CaptionFont = 'default' | 'casual' | 'cursive' | 'smallcaps'
+export type CaptionColor = 'white' | 'yellow' | 'cyan' | 'green'
 
 export type PlayerPrefs = {
   volume: number
   muted: boolean
   subs: 'off' | 'en' | 'cc'
   captionSize: CaptionSize
+  captionBg: CaptionBg
+  captionFont: CaptionFont
+  captionColor: CaptionColor
   audioTrack: 'en' | 'ad'
   speed: number
 }
@@ -16,6 +22,9 @@ const DEFAULTS: PlayerPrefs = {
   muted: false,
   subs: 'off',
   captionSize: 'm',
+  captionBg: 'shadow',
+  captionFont: 'default',
+  captionColor: 'white',
   audioTrack: 'en',
   speed: 1,
 }
@@ -32,6 +41,15 @@ export function readPlayerPrefs(): PlayerPrefs {
       muted: Boolean(raw.muted) || volume <= 0.01,
       subs: raw.subs === 'en' || raw.subs === 'cc' ? raw.subs : 'off',
       captionSize: raw.captionSize === 's' || raw.captionSize === 'l' ? raw.captionSize : 'm',
+      captionBg: raw.captionBg === 'box' || raw.captionBg === 'none' ? raw.captionBg : 'shadow',
+      captionFont:
+        raw.captionFont === 'casual' || raw.captionFont === 'cursive' || raw.captionFont === 'smallcaps'
+          ? raw.captionFont
+          : 'default',
+      captionColor:
+        raw.captionColor === 'yellow' || raw.captionColor === 'cyan' || raw.captionColor === 'green'
+          ? raw.captionColor
+          : 'white',
       audioTrack: raw.audioTrack === 'ad' ? 'ad' : 'en',
       speed,
     }

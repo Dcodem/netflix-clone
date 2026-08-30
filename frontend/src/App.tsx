@@ -3,6 +3,9 @@ import { AppLayout } from './AppLayout'
 import { AuthProvider } from './auth/AuthContext'
 import { ProfileProvider } from './profiles/ProfileContext'
 import { Account } from './pages/Account'
+import { Faq } from './pages/Faq'
+import { GiftCards } from './pages/GiftCards'
+import { HelpCenter } from './pages/HelpCenter'
 import { BrowseLanguages } from './pages/BrowseLanguages'
 import { Home } from './pages/Home'
 import { Login } from './pages/Login'
@@ -11,6 +14,8 @@ import { MyNetflix } from './pages/MyNetflix'
 import { NewsHot } from './pages/NewsHot'
 import { ProfileSelect } from './pages/ProfileSelect'
 import { Search } from './pages/Search'
+import { SpeedTest } from './pages/SpeedTest'
+import { WaysToWatch } from './pages/WaysToWatch'
 import { TitleModalProvider, titleHref } from './title/TitleModalContext'
 import { WatchProvider } from './watch/WatchContext'
 
@@ -40,6 +45,11 @@ export default function App() {
                   <Route path="/search" element={<Search />} />
                   <Route path="/taste" element={<Navigate to="/browse" replace />} />
                   <Route path="/account" element={<Account />} />
+                  <Route path="/help" element={<HelpCenter />} />
+                  <Route path="/faq" element={<Faq />} />
+                  <Route path="/gift" element={<GiftCards />} />
+                  <Route path="/speed" element={<SpeedTest />} />
+                  <Route path="/ways" element={<WaysToWatch />} />
                   <Route path="/movie/:id" element={<LegacyTitleRedirect />} />
                   <Route path="/show/:id" element={<LegacyTitleRedirect />} />
                 </Route>

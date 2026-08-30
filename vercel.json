@@ -7,7 +7,8 @@
   "git": {
     "deploymentEnabled": {
       "main": true,
-      "cursor/*": false
+      "cursor/*": false,
+      "cursor/mylist-sort-captions-a7c7": true
     }
   },
   "functions": {
@@ -32,10 +33,16 @@
       "destination": "/index.html"
     },
     { "source": "/search", "destination": "/api/catalog?__p=/search" },
+    { "source": "/browse", "destination": "/index.html" },
     { "source": "/browse/:path*", "destination": "/index.html" },
     { "source": "/login", "destination": "/index.html" },
     { "source": "/taste", "destination": "/index.html" },
     { "source": "/account", "destination": "/index.html" },
+    { "source": "/help", "destination": "/index.html" },
+    { "source": "/faq", "destination": "/index.html" },
+    { "source": "/gift", "destination": "/index.html" },
+    { "source": "/speed", "destination": "/index.html" },
+    { "source": "/ways", "destination": "/index.html" },
     { "source": "/movie/:path*", "destination": "/index.html" },
     { "source": "/show/:path*", "destination": "/index.html" }
   ]

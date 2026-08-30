@@ -17,10 +17,12 @@ import { watchForEpisode } from '../lib/episodeProgress'
 import { comingLineFor, isComingSoon } from '../lib/comingSoon'
 import { stillWatching } from '../lib/homeRows'
 import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
+import { audioTracksFor, subtitleTracksFor } from '../lib/languages'
 import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes, filterByMaturity } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
+import { usesPersonalizedRecs } from '../profiles/types'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTmdbGallery } from '../trailers/useTmdbGallery'
 import { useTmdbVideos } from '../trailers/useTmdbVideos'
@@ -110,7 +112,7 @@ export function TitleModal() {
     const byGenre = similarByGenres(item, pool, 12)
     if (byGenre.length >= 12) return byGenre
     const seen = new Set([item.id, ...byGenre.map((entry) => entry.id)])
-    const rest = activeProfile
+    const rest = usesPersonalizedRecs(activeProfile)
       ? rankByTaste(
           pool.filter((entry) => !seen.has(entry.id)),
           activeProfile,
@@ -554,6 +556,12 @@ export function TitleModal() {
                 <GenreDots genres={moods} className="title-moods" onSelect={goSearch} />
               </div>
             ) : null}
+            <p>
+              <span className="title-kicker">Audio:</span> {audioTracksFor(item).join(', ')}
+            </p>
+            <p>
+              <span className="title-kicker">Subtitles:</span> {subtitleTracksFor(item).join(', ')}
+            </p>
             <div className="title-about-maturity">
               <span className="title-kicker">Maturity rating:</span>
               <p>

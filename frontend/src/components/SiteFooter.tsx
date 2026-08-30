@@ -68,22 +68,25 @@ const COLUMNS = [
 ] as const
 
 export const FOOTER_NOTES: Record<string, string> = {
-  FAQ: 'FLIX is a browser-only demo. There is no live FAQ beyond Account and what’s on this device.',
+  FAQ: 'After you sign in, FAQ in the footer covers watching, Account, gift cards, and profiles.',
   'Help Center':
-    'While watching, press ? for shortcuts: Space or K play/pause, F full screen, P miniplayer, C captions, M mute, N next episode, S skip intro, Esc back. Remind Me saves unreleased titles to My List and Notifications. Manage profiles, PIN, maturity, and autoplay from Account or Manage Profiles.',
+    'After you sign in, Help Center covers watching shortcuts, Account, captions, privacy, and My List. While watching, press ? for the player shortcut list. FLIX is a browser-only demo.',
   'Terms of Use': 'This clone is for demonstration. It is not affiliated with Netflix.',
   Privacy: 'Profile picks and watch history stay in this browser. Catalog artwork may load from TMDB.',
   'Legal Notices': 'FLIX is an independent demo. Title names and artwork come from the catalog and TMDB.',
   'Corporate Information': 'There is no FLIX corporation. This app runs in your browser.',
   'Investor Relations': 'FLIX is not a public company and has no investor site.',
   Jobs: 'There are no open roles for this demo.',
-  'Ways to Watch': 'Watch in this browser with Play. There is no TV app or extra device download.',
+  'Ways to Watch':
+    'After you sign in, Ways to Watch lists this browser and phone. There is no TV app or console build.',
   'Contact Us': 'There is no support inbox for this demo.',
-  'Speed Test': 'Playback uses this device’s connection. There is no separate speed test.',
+  'Speed Test': 'After you sign in, Speed Test in the footer measures this browser. Playback still stays on this device.',
   'Media Center': 'There is no press kit for this demo.',
-  'Redeem Gift Cards': 'Gift cards and promo codes are not used on this device.',
+  'Redeem Gift Cards':
+    'Open Account and choose Redeem gift card or promo code. Credit stays on this device and does not charge a card.',
   'Buy Gift Cards': 'Gift cards are not sold on this device.',
-  'Transfer Profile': 'Profile transfer isn’t available on this device. Use Manage Profiles to edit who’s watching.',
+  'Transfer Profile':
+    'Open the account menu and choose Transfer Profile to get a one-time code. Profiles stay on this device.',
 }
 
 const FOOTER_LANGS = [
@@ -202,6 +205,16 @@ export function SiteFooter() {
                     </button>
                   ) : label === 'Account' ? (
                     <Link to="/account">Account</Link>
+                  ) : label === 'FAQ' ? (
+                    <Link to="/faq">FAQ</Link>
+                  ) : label === 'Help Center' ? (
+                    <Link to="/help">Help Center</Link>
+                  ) : label === 'Buy Gift Cards' ? (
+                    <Link to="/gift">Buy Gift Cards</Link>
+                  ) : label === 'Speed Test' ? (
+                    <Link to="/speed">Speed Test</Link>
+                  ) : label === 'Ways to Watch' ? (
+                    <Link to="/ways">Ways to Watch</Link>
                   ) : (
                     <button type="button" className="site-footer-link" onClick={() => setNote(label)}>
                       {label}

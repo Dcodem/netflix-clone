@@ -7,6 +7,7 @@ import {
   ChevronLeftIcon,
   CloseIcon,
   EpisodesIcon,
+  FlagIcon,
   FullscreenIcon,
   PipIcon,
   NextEpisodeIcon,
@@ -31,7 +32,14 @@ import { avatarFor } from '../profiles/types'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { stillFocus, episodeStill } from '../lib/media'
 import { skipMarks } from '../lib/skipMarks'
-import { readPlayerPrefs, writePlayerPrefs, type CaptionSize } from '../lib/playerPrefs'
+import {
+  readPlayerPrefs,
+  writePlayerPrefs,
+  type CaptionBg,
+  type CaptionColor,
+  type CaptionFont,
+  type CaptionSize,
+} from '../lib/playerPrefs'
 import { peekTrailer, resolveTrailer, youtubeIdFromHit } from '../trailers/resolve'
 import { findTmdbGallery, tmdbFileName } from '../trailers/tmdb'
 import { envKeys } from '../trailers/types'
@@ -83,6 +91,15 @@ function playerSrc(href: string, runtimeSec: number, progress: number, yt?: stri
     return href
   }
 }
+
+const REPORT_REASONS = [
+  { id: 'play', label: 'Video won’t play' },
+  { id: 'buffering', label: 'Buffering or loading' },
+  { id: 'picture', label: 'Picture quality' },
+  { id: 'sound', label: 'Sound' },
+  { id: 'subs', label: 'Subtitles or captions' },
+  { id: 'other', label: 'Something else' },
+] as const
 
 function trailerSearch(session: { title: string; history?: { title?: string; year?: number | null; kind?: string } } | null) {
   if (!session) return { title: '', year: null as number | null, kind: 'movie' }
@@ -153,6 +170,9 @@ export function WatchOverlay() {
   const [speed, setSpeed] = useState(initialPrefs.speed)
   const [subs, setSubs] = useState(initialPrefs.subs)
   const [captionSize, setCaptionSize] = useState<CaptionSize>(initialPrefs.captionSize)
+  const [captionBg, setCaptionBg] = useState<CaptionBg>(initialPrefs.captionBg)
+  const [captionFont, setCaptionFont] = useState<CaptionFont>(initialPrefs.captionFont)
+  const [captionColor, setCaptionColor] = useState<CaptionColor>(initialPrefs.captionColor)
   const [audioTrack, setAudioTrack] = useState(initialPrefs.audioTrack)
   const [introSkipped, setIntroSkipped] = useState(false)
   const [recapSkipped, setRecapSkipped] = useState(false)
@@ -166,6 +186,9 @@ export function WatchOverlay() {
   const [identOn, setIdentOn] = useState(true)
   const [identPhase, setIdentPhase] = useState<'logo' | 'title' | 'off'>('logo')
   const [helpOpen, setHelpOpen] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
+  const [reportReason, setReportReason] = useState<(typeof REPORT_REASONS)[number]['id']>('buffering')
+  const [reportSent, setReportSent] = useState(false)
   const [locked, setLocked] = useState(false)
   const [pip, setPip] = useState(false)
   const pipRef = useRef(false)
@@ -199,13 +222,16 @@ export function WatchOverlay() {
     setIntroSkipped(false)
     setRecapSkipped(false)
     setHelpOpen(false)
+    setReportOpen(false)
+    setReportSent(false)
+    setReportReason('buffering')
     setLocked(false)
     setPip(false)
   }
   const keepChrome =
     !stillWatching &&
     !locked &&
-    (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover || helpOpen || pip)
+    (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover || helpOpen || reportOpen || pip)
   const continueWatchingRef = useRef<() => void>(() => {})
   const playNextRef = useRef<() => void>(() => {})
 
@@ -241,6 +267,7 @@ export function WatchOverlay() {
         setAudioOpen(false)
         setSpeedOpen(false)
         setHelpOpen(false)
+        setReportOpen(false)
         setChrome(true)
       }
       return next
@@ -302,8 +329,8 @@ export function WatchOverlay() {
   }, [muted, volume])
 
   useEffect(() => {
-    writePlayerPrefs({ muted, volume, speed, subs, captionSize, audioTrack })
-  }, [muted, volume, speed, subs, captionSize, audioTrack])
+    writePlayerPrefs({ muted, volume, speed, subs, captionSize, captionBg, captionFont, captionColor, audioTrack })
+  }, [muted, volume, speed, subs, captionSize, captionBg, captionFont, captionColor, audioTrack])
 
   useEffect(() => {
     currentRef.current = current
@@ -457,6 +484,13 @@ export function WatchOverlay() {
         return
       }
       if (event.key === 'Escape') {
+        if (reportOpen) {
+          event.preventDefault()
+          event.stopImmediatePropagation()
+          setReportOpen(false)
+          setReportSent(false)
+          return
+        }
         if (helpOpen) {
           event.preventDefault()
           event.stopImmediatePropagation()
@@ -604,7 +638,7 @@ export function WatchOverlay() {
       window.removeEventListener('message', onMessage)
       document.removeEventListener('fullscreenchange', onFs)
     }
-  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, togglePip, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped, helpOpen, locked, closeWatch, pip])
+  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, togglePip, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped, helpOpen, reportOpen, locked, closeWatch, pip])
 
   useEffect(() => {
     if (stillWatching || identOn) setPip(false)
@@ -647,6 +681,41 @@ export function WatchOverlay() {
   const lengthNow = (clockSynced ? duration : runtimeSec) || runtimeSec
   const playhead = clockSynced ? current : startProgress * runtimeSec
   const remainingNow = Math.max(0, lengthNow - playhead)
+
+  useEffect(() => {
+    if (!session || !isShow || !activeProfile?.skipIntros) return
+    if (identPhase === 'logo' || paused || stillWatching) return
+    const marks = skipMarks(runtimeSec, session.history?.genres)
+    if (!introSkipped && current > 2.4 && current < marks.introUntil) {
+      setIntroSkipped(true)
+      post({ cmd: 'seek', seconds: marks.introAt })
+      return
+    }
+    if (
+      marks.recapUntil > marks.recapAt &&
+      !recapSkipped &&
+      !identOn &&
+      current >= marks.introUntil &&
+      current < marks.recapUntil
+    ) {
+      setRecapSkipped(true)
+      setIntroSkipped(true)
+      post({ cmd: 'seek', seconds: marks.recapAt })
+    }
+  }, [
+    session,
+    isShow,
+    activeProfile?.skipIntros,
+    identPhase,
+    identOn,
+    paused,
+    stillWatching,
+    introSkipped,
+    recapSkipped,
+    current,
+    runtimeSec,
+    post,
+  ])
 
   useEffect(() => {
     if (!upcoming || !session?.history) return
@@ -728,6 +797,7 @@ export function WatchOverlay() {
     isShow &&
     identPhase !== 'logo' &&
     !introSkipped &&
+    !activeProfile?.skipIntros &&
     current > 2.4 &&
     current < marks.introUntil &&
     !episodesOpen &&
@@ -739,6 +809,7 @@ export function WatchOverlay() {
     !recapSkipped &&
     !identOn &&
     !showSkipIntro &&
+    !activeProfile?.skipIntros &&
     current >= marks.introUntil &&
     current < marks.recapUntil &&
     !episodesOpen &&
@@ -816,7 +887,7 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identPhase === 'logo' && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''} ${locked ? 'is-locked' : ''} ${pip ? 'is-pip' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identPhase === 'logo' && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''} ${reportOpen ? 'is-report' : ''} ${locked ? 'is-locked' : ''} ${pip ? 'is-pip' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
@@ -827,6 +898,12 @@ export function WatchOverlay() {
         }
         if (stillWatching) {
           event.preventDefault()
+          return
+        }
+        if (reportOpen) {
+          event.preventDefault()
+          setReportOpen(false)
+          setReportSent(false)
           return
         }
         if (helpOpen) {
@@ -886,6 +963,7 @@ export function WatchOverlay() {
           post({ cmd: 'volume', value: audio.muted ? 0 : audio.volume })
         }}
       />
+      <div className="watch-letterbox" aria-hidden="true" />
       {locked ? (
         <button
           type="button"
@@ -953,6 +1031,29 @@ export function WatchOverlay() {
             </p>
           ) : null}
         </div>
+        <button
+          type="button"
+          className={`watch-report-btn ${reportOpen ? 'is-on' : ''}`}
+          aria-label="Report a problem"
+          aria-expanded={reportOpen}
+          onClick={(event) => {
+            event.stopPropagation()
+            playClick()
+            setHelpOpen(false)
+            setEpisodesOpen(false)
+            setAudioOpen(false)
+            setSpeedOpen(false)
+            setReportOpen((open) => {
+              if (open) {
+                setReportSent(false)
+                return false
+              }
+              return true
+            })
+          }}
+        >
+          <FlagIcon className="icon" />
+        </button>
       </div>
       {showSkipIntro ? (
         <button type="button" className="skip-intro is-visible" onClick={skipIntro}>
@@ -1029,7 +1130,9 @@ export function WatchOverlay() {
         </div>
       ) : null}
       {caption ? (
-        <p className={`watch-caption is-${captionSize} ${chrome ? 'is-raised' : ''} ${subs === 'cc' ? 'is-cc' : ''}`}>
+        <p
+          className={`watch-caption is-${captionSize} is-bg-${captionBg} is-font-${captionFont} is-color-${captionColor} ${chrome ? 'is-raised' : ''} ${subs === 'cc' ? 'is-cc' : ''}`}
+        >
           {caption}
         </p>
       ) : null}
@@ -1105,11 +1208,34 @@ export function WatchOverlay() {
                 {formatClock(scrubHint.ratio * length)}
               </span>
             ) : null}
+            {isShow && length > 0 && marks.introUntil > 0 ? (
+              <span
+                className="watch-mark is-intro"
+                style={{ left: `${Math.min(100, (marks.introUntil / length) * 100)}%` }}
+                aria-hidden="true"
+              />
+            ) : null}
+            {isShow && length > 0 && marks.recapUntil > marks.recapAt ? (
+              <span
+                className="watch-mark is-recap"
+                style={{ left: `${Math.min(100, (marks.recapUntil / length) * 100)}%` }}
+                aria-hidden="true"
+              />
+            ) : null}
             <div className="watch-progress-fill" style={{ width: `${Math.round(progress * 1000) / 10}%` }}>
               <span className="watch-knob" />
             </div>
           </div>
           <span className="watch-time">{formatClock(remaining, true)}</span>
+        </div>
+        <div className="watch-now-playing">
+          <p className="watch-now-title">{session.history?.title || session.title}</p>
+          {episodeLabel ? (
+            <p className="watch-now-ep">
+              {episodeLabel}
+              {playing?.episode.title ? ` ${playing.episode.title}` : ''}
+            </p>
+          ) : null}
         </div>
         <div className="watch-controls">
           <div className="watch-controls-left">
@@ -1302,6 +1428,57 @@ export function WatchOverlay() {
             setSpeedOpen(false)
           }}
         />
+      ) : null}
+      {reportOpen ? (
+        <div
+          className="watch-help watch-report"
+          role="dialog"
+          aria-labelledby="watch-report-title"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="watch-help-head">
+            <h2 id="watch-report-title">Report a Problem</h2>
+            <button
+              type="button"
+              className="watch-help-close"
+              onClick={() => {
+                setReportOpen(false)
+                setReportSent(false)
+              }}
+              aria-label="Close"
+            >
+              <CloseIcon className="icon" />
+            </button>
+          </div>
+          {reportSent ? (
+            <p className="watch-report-thanks">Thanks for reporting. Playback stays on this device.</p>
+          ) : (
+            <form
+              className="watch-report-form"
+              onSubmit={(event) => {
+                event.preventDefault()
+                playClick()
+                setReportSent(true)
+              }}
+            >
+              <p className="watch-report-lead">What’s wrong with playback?</p>
+              {REPORT_REASONS.map((reason) => (
+                <label className="watch-report-check" key={reason.id}>
+                  <input
+                    type="radio"
+                    name="watch-report"
+                    checked={reportReason === reason.id}
+                    onChange={() => setReportReason(reason.id)}
+                  />
+                  <span>{reason.label}</span>
+                </label>
+              ))}
+              <button type="submit" className="watch-report-submit">
+                Submit
+              </button>
+            </form>
+          )}
+        </div>
       ) : null}
       {helpOpen ? (
         <div
@@ -1562,6 +1739,62 @@ export function WatchOverlay() {
                 onClick={() => setCaptionSize(value)}
               >
                 {captionSize === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+                {label}
+              </button>
+            ))}
+            <h2 className="watch-caption-size-label">Background</h2>
+            {(
+              [
+                ['shadow', 'Drop shadow'],
+                ['box', 'Opaque'],
+                ['none', 'None'],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                className={captionBg === value ? 'is-on' : ''}
+                onClick={() => setCaptionBg(value)}
+              >
+                {captionBg === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+                {label}
+              </button>
+            ))}
+            <h2 className="watch-caption-size-label">Font</h2>
+            {(
+              [
+                ['default', 'Default'],
+                ['casual', 'Casual'],
+                ['cursive', 'Cursive'],
+                ['smallcaps', 'Small Caps'],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                className={captionFont === value ? 'is-on' : ''}
+                onClick={() => setCaptionFont(value)}
+              >
+                {captionFont === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+                {label}
+              </button>
+            ))}
+            <h2 className="watch-caption-size-label">Font color</h2>
+            {(
+              [
+                ['white', 'White'],
+                ['yellow', 'Yellow'],
+                ['cyan', 'Cyan'],
+                ['green', 'Green'],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                className={captionColor === value ? 'is-on' : ''}
+                onClick={() => setCaptionColor(value)}
+              >
+                {captionColor === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
                 {label}
               </button>
             ))}

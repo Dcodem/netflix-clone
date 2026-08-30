@@ -43,6 +43,27 @@ export const PROFILE_LANGUAGES = ['English', 'Español', 'Français'] as const
 export const PROFILE_MATURITY = ['All Maturity Ratings', 'Teens and below', 'Kids'] as const
 export type ProfileLanguage = (typeof PROFILE_LANGUAGES)[number]
 export type ProfileMaturity = (typeof PROFILE_MATURITY)[number]
+export const DATA_USAGE = ['auto', 'low', 'medium', 'high'] as const
+export type DataUsage = (typeof DATA_USAGE)[number]
+
+export const DATA_USAGE_OPTIONS: { id: DataUsage; label: string; detail: string }[] = [
+  { id: 'auto', label: 'Auto', detail: 'Recommended' },
+  { id: 'low', label: 'Low', detail: 'Basic' },
+  { id: 'medium', label: 'Medium', detail: 'Better' },
+  { id: 'high', label: 'High', detail: 'Best' },
+]
+
+export const DOWNLOAD_QUALITY = ['standard', 'higher'] as const
+export type DownloadQuality = (typeof DOWNLOAD_QUALITY)[number]
+
+export const DOWNLOAD_QUALITY_OPTIONS: { id: DownloadQuality; label: string; detail: string }[] = [
+  { id: 'standard', label: 'Standard', detail: 'Faster downloads, uses less storage' },
+  { id: 'higher', label: 'Higher', detail: 'Best picture, uses more storage' },
+]
+
+export function downloadQualityLabel(quality?: DownloadQuality | null) {
+  return quality === 'higher' ? 'Higher' : 'Standard'
+}
 
 export type Profile = {
   id: string
@@ -53,6 +74,12 @@ export type Profile = {
   pinHash: string | null
   autoplayNext: boolean
   autoplayPreview: boolean
+  skipIntros: boolean
+  dataUsage: DataUsage
+  downloadQuality: DownloadQuality
+  smartDownloads: boolean
+  personalizedRecs: boolean
+  shareActivity: boolean
   language: ProfileLanguage
   maturity: ProfileMaturity
   gameHandle: string
@@ -62,6 +89,7 @@ export type Profile = {
   liked: LikedTitle[]
   lovedIds: string[]
   dislikedIds: string[]
+  disliked: LikedTitle[]
   myList: LikedTitle[]
   downloads: LikedTitle[]
   hiddenContinueIds: string[]
@@ -104,6 +132,12 @@ export const TASTE_GENRES = [
   'Sci-Fi',
   'Thriller',
 ] as const
+
+export function usesPersonalizedRecs<T extends Pick<Profile, 'personalizedRecs'>>(
+  profile?: T | null,
+): profile is T {
+  return profile != null && profile.personalizedRecs !== false
+}
 
 export function avatarFor(profile: Pick<Profile, 'avatarId' | 'color'>): ProfileAvatar {
   return (

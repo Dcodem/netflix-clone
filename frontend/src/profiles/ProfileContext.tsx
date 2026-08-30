@@ -8,6 +8,10 @@ import {
   PROFILE_MATURITY,
   STORAGE_KEY,
   type LikedTitle,
+  DATA_USAGE,
+  DOWNLOAD_QUALITY,
+  type DataUsage,
+  type DownloadQuality,
   type Profile,
   type ProfileLanguage,
   type ProfileMaturity,
@@ -35,6 +39,14 @@ function isMaturity(value: unknown): value is ProfileMaturity {
   return PROFILE_MATURITY.includes(value as ProfileMaturity)
 }
 
+function isDataUsage(value: unknown): value is DataUsage {
+  return DATA_USAGE.includes(value as DataUsage)
+}
+
+function isDownloadQuality(value: unknown): value is DownloadQuality {
+  return DOWNLOAD_QUALITY.includes(value as DownloadQuality)
+}
+
 function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
   const rest = { ...raw }
   delete rest.kids
@@ -45,6 +57,7 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     liked: Array.isArray(raw.liked) ? raw.liked : [],
     lovedIds: Array.isArray(raw.lovedIds) ? raw.lovedIds : [],
     dislikedIds: Array.isArray(raw.dislikedIds) ? raw.dislikedIds : [],
+    disliked: Array.isArray(raw.disliked) ? raw.disliked : [],
     myList: Array.isArray(raw.myList) ? raw.myList : [],
     downloads: Array.isArray(raw.downloads) ? raw.downloads : [],
     hiddenContinueIds: Array.isArray(raw.hiddenContinueIds) ? raw.hiddenContinueIds : [],
@@ -53,6 +66,12 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     pinHash: raw.pinHash ?? null,
     autoplayNext: raw.autoplayNext !== false,
     autoplayPreview: raw.autoplayPreview !== false,
+    skipIntros: Boolean(raw.skipIntros),
+    dataUsage: isDataUsage(raw.dataUsage) ? raw.dataUsage : 'auto',
+    downloadQuality: isDownloadQuality(raw.downloadQuality) ? raw.downloadQuality : 'standard',
+    smartDownloads: raw.smartDownloads !== false,
+    personalizedRecs: raw.personalizedRecs !== false,
+    shareActivity: raw.shareActivity !== false,
     language: isLanguage(raw.language) ? raw.language : 'English',
     maturity: isMaturity(raw.maturity) ? raw.maturity : 'All Maturity Ratings',
     gameHandle: typeof raw.gameHandle === 'string' ? raw.gameHandle : '',
@@ -103,6 +122,12 @@ export type UpdateProfileOpts = {
   pin?: string | null
   autoplayNext?: boolean
   autoplayPreview?: boolean
+  skipIntros?: boolean
+  dataUsage?: DataUsage
+  downloadQuality?: DownloadQuality
+  smartDownloads?: boolean
+  personalizedRecs?: boolean,
+  shareActivity?: boolean
   language?: ProfileLanguage
   maturity?: ProfileMaturity
   gameHandle?: string
@@ -120,7 +145,7 @@ type ProfileContextValue = {
   hideContinue: (id: string) => void
   removeHistory: (profileId: string, titleId: string) => void
   setFavoriteGenres: (genres: string[]) => void
-  rateTitle: (item: LikedTitle, direction: 'up' | 'love' | 'down' | null) => void
+  rateTitle: (item: LikedTitle, direction: 'up' | 'love' | 'down' | null, profileId?: string) => void
   toggleMyList: (item: LikedTitle) => void
   toggleDownload: (item: LikedTitle) => void
   unlockProfile: (id: string, pin: string) => Promise<boolean>
@@ -176,6 +201,12 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         pinHash,
         autoplayNext: true,
         autoplayPreview: true,
+        skipIntros: false,
+        dataUsage: 'auto',
+        downloadQuality: 'standard',
+        smartDownloads: true,
+        personalizedRecs: true,
+        shareActivity: true,
         language: 'English',
         maturity: 'All Maturity Ratings',
         gameHandle: '',
@@ -185,6 +216,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         liked: [],
         lovedIds: [],
         dislikedIds: [],
+        disliked: [],
         myList: [],
         downloads: [],
         hiddenContinueIds: [],
@@ -242,6 +274,12 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             color: avatar?.color ?? profile.color,
             autoplayNext: opts.autoplayNext ?? profile.autoplayNext,
             autoplayPreview: opts.autoplayPreview ?? profile.autoplayPreview,
+            skipIntros: opts.skipIntros ?? profile.skipIntros,
+            dataUsage: opts.dataUsage ?? profile.dataUsage,
+            downloadQuality: opts.downloadQuality ?? profile.downloadQuality,
+            smartDownloads: opts.smartDownloads ?? profile.smartDownloads,
+            personalizedRecs: opts.personalizedRecs ?? profile.personalizedRecs,
+            shareActivity: opts.shareActivity ?? profile.shareActivity,
             language: opts.language ?? profile.language,
             maturity: opts.maturity ?? profile.maturity,
             gameHandle: opts.gameHandle !== undefined ? opts.gameHandle.trim() : profile.gameHandle,
@@ -369,22 +407,27 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   )
 
   const rateTitle = useCallback(
-    (item: LikedTitle, direction: 'up' | 'love' | 'down' | null) => {
+    (item: LikedTitle, direction: 'up' | 'love' | 'down' | null, profileId?: string) => {
       updateStore((prev) => ({
         ...prev,
         profiles: prev.profiles.map((profile) => {
-          if (profile.id !== prev.activeProfileId) return profile
+          if (profile.id !== (profileId ?? prev.activeProfileId)) return profile
           const liked = profile.liked.filter((entry) => entry.id !== item.id)
           const lovedIds = (profile.lovedIds ?? []).filter((entryId) => entryId !== item.id)
           const dislikedIds = profile.dislikedIds.filter((entryId) => entryId !== item.id)
+          const disliked = (profile.disliked ?? []).filter((entry) => entry.id !== item.id)
           if (direction === 'up' || direction === 'love') liked.unshift(item)
           if (direction === 'love') lovedIds.unshift(item.id)
-          if (direction === 'down') dislikedIds.unshift(item.id)
+          if (direction === 'down') {
+            dislikedIds.unshift(item.id)
+            disliked.unshift(item)
+          }
           return {
             ...profile,
             liked: liked.slice(0, HISTORY_LIMIT),
             lovedIds: lovedIds.slice(0, HISTORY_LIMIT),
             dislikedIds: dislikedIds.slice(0, HISTORY_LIMIT),
+            disliked: disliked.slice(0, HISTORY_LIMIT),
           }
         }),
       }))

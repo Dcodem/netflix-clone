@@ -20,7 +20,7 @@ export function AppLayout() {
   }
 
   if (!activeProfile) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/" replace state={location.state} />
   }
 
   return (

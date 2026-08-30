@@ -12,13 +12,14 @@ import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { isComingSoon } from '../lib/comingSoon'
 import { historyToListItems, likedToItems, stillWatching } from '../lib/homeRows'
-import { isShow, uniqueById } from '../lib/media'
+import { isShow, sortByRating, uniqueById } from '../lib/media'
 import { catalogNotices, filterByMaturity } from '../lib/netflix'
+import { withNotifySeen } from '../lib/notifySeen'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
 import { becauseYouWatchedRows, rankByTaste } from '../profiles/taste'
-import { avatarFor } from '../profiles/types'
+import { avatarFor, downloadQualityLabel, usesPersonalizedRecs } from '../profiles/types'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 
@@ -50,9 +51,12 @@ export function MyNetflix() {
   )
   const listItems = likedToItems(activeProfile?.myList ?? [])
   const downloadItems = likedToItems(activeProfile?.downloads ?? [])
-  const notices = catalogNotices(catalog, activeProfile, 8)
+  const notices = withNotifySeen(catalogNotices(catalog, activeProfile, 8), activeProfile?.id)
   const because = useMemo(
-    () => (activeProfile ? becauseYouWatchedRows(catalog, activeProfile.history, 1) : []),
+    () =>
+      activeProfile && usesPersonalizedRecs(activeProfile)
+        ? becauseYouWatchedRows(catalog, activeProfile.history, 1)
+        : [],
     [catalog, activeProfile],
   )
   const suggested = useMemo(() => {
@@ -62,7 +66,10 @@ export function MyNetflix() {
       ...listItems.map((item) => item.id),
       ...because.flatMap((row) => row.items.map((item) => item.id)),
     ])
-    return uniqueById(rankByTaste(catalog, activeProfile).filter((item) => !skip.has(item.id))).slice(0, 24)
+    const pool = usesPersonalizedRecs(activeProfile)
+      ? rankByTaste(catalog, activeProfile)
+      : sortByRating(catalog)
+    return uniqueById(pool.filter((item) => !skip.has(item.id))).slice(0, 24)
   }, [activeProfile, because, catalog, continueItems, listItems])
   const avatar = activeProfile ? avatarFor(activeProfile) : null
 
@@ -155,7 +162,10 @@ export function MyNetflix() {
                   </span>
                   <span className="download-copy">
                     <strong>{item.title}</strong>
-                    <em>Download complete</em>
+                    <em>
+                      Download complete · {downloadQualityLabel(activeProfile.downloadQuality)}
+                      {activeProfile.smartDownloads !== false ? ' · Smart Downloads' : ''}
+                    </em>
                   </span>
                 </button>
               </li>
@@ -190,7 +200,11 @@ export function MyNetflix() {
         <MediaRow key={row.id} title={row.title} items={row.items} seed={row.seed} hoverable={desktop} />
       ))}
       {suggested.length ? (
-        <MediaRow title="We Think You’ll Like These" items={suggested} hoverable={desktop} />
+        <MediaRow
+          title={usesPersonalizedRecs(activeProfile) ? 'We Think You’ll Like These' : 'Popular on FLIX'}
+          items={suggested}
+          hoverable={desktop}
+        />
       ) : null}
 
       <div className="my-netflix-links">

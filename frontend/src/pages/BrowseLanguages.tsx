@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { getCatalogMany } from '../api/client'
 import type { MovieListItem } from '../api/types'
@@ -13,6 +13,7 @@ import { useMediaQuery } from '../hooks/useMediaQuery'
 import {
   LANGUAGE_SORTS,
   ORIGINAL_LANGUAGES,
+  languageOptionsFor,
   originalLanguageOf,
   sortLanguageTitles,
   titlesInLanguage,
@@ -27,14 +28,39 @@ function isLanguageCode(value: string | null): value is LanguageCode {
   return Boolean(value && ORIGINAL_LANGUAGES.some((entry) => entry.code === value))
 }
 
+const SORT_VALUES = new Set(LANGUAGE_SORTS.map((entry) => entry.id))
+
+function sortKey(profileId?: string | null) {
+  return profileId ? `flix.languageSort.${profileId}` : null
+}
+
+function readLanguageSort(profileId?: string | null): LanguageSort {
+  const key = sortKey(profileId)
+  if (!key) return 'suggestions'
+  try {
+    const raw = localStorage.getItem(key)
+    if (raw && SORT_VALUES.has(raw as LanguageSort)) return raw as LanguageSort
+  } catch {
+    /* ignore */
+  }
+  return 'suggestions'
+}
+
+function writeLanguageSort(profileId: string, sort: LanguageSort) {
+  try {
+    localStorage.setItem(sortKey(profileId) as string, sort)
+  } catch {
+    /* ignore */
+  }
+}
+
 export function BrowseLanguages() {
   const { activeProfile } = useProfiles()
   const desktop = useMediaQuery('(min-width: 768px)')
   const [params, setParams] = useSearchParams()
   const langParam = params.get('lang')
   const picked = isLanguageCode(langParam) ? langParam : null
-  const language = picked ?? (desktop ? profileLanguageCode(activeProfile?.language) : null)
-  const [sort, setSort] = useState<LanguageSort>('suggestions')
+  const [sort, setSort] = useState<LanguageSort>(() => readLanguageSort(activeProfile?.id))
   const catalog = useFetch(async () => {
     const [movies, shows] = await Promise.all([
       getCatalogMany('movies').catch(() => [] as MovieListItem[]),
@@ -42,28 +68,42 @@ export function BrowseLanguages() {
     ])
     return uniqueById([...movies, ...shows])
   }, 'browse-languages')
+  const matureCatalog = useMemo(
+    () => filterByMaturity(catalog.data ?? [], activeProfile),
+    [catalog.data, activeProfile],
+  )
+  const offered = useMemo(() => languageOptionsFor(matureCatalog, picked), [matureCatalog, picked])
+  const language = useMemo(() => {
+    if (picked) return picked
+    if (!desktop) return null
+    const profileCode = profileLanguageCode(activeProfile?.language)
+    if (!catalog.data || offered.some((entry) => entry.code === profileCode)) return profileCode
+    return 'en'
+  }, [picked, desktop, activeProfile?.language, catalog.data, offered])
 
   const items = useMemo(() => {
     if (!language) return []
-    const pool = titlesInLanguage(filterByMaturity(catalog.data ?? [], activeProfile), language)
-    return sortLanguageTitles(pool, sort, activeProfile)
-  }, [catalog.data, language, sort, activeProfile])
+    return sortLanguageTitles(titlesInLanguage(matureCatalog, language), sort, activeProfile)
+  }, [matureCatalog, language, sort, activeProfile])
 
   const tileArt = useMemo(() => {
-    const pool = filterByMaturity(catalog.data ?? [], activeProfile)
     const art = new Map<LanguageCode, MovieListItem>()
-    for (const item of pool) {
+    for (const item of matureCatalog) {
       const code = originalLanguageOf(item)
       if (!art.has(code)) art.set(code, item)
     }
     return art
-  }, [catalog.data, activeProfile])
+  }, [matureCatalog])
 
   function pickLanguage(code: LanguageCode) {
     const next = new URLSearchParams(params)
     next.set('lang', code)
     setParams(next)
   }
+
+  useEffect(() => {
+    setSort(readLanguageSort(activeProfile?.id))
+  }, [activeProfile?.id])
 
   if (catalog.loading && !catalog.data) {
     return (
@@ -84,7 +124,7 @@ export function BrowseLanguages() {
           <h1>Browse by Languages</h1>
         </header>
         <div className="languages-tiles" role="list">
-          {ORIGINAL_LANGUAGES.map((entry) => {
+          {offered.map((entry) => {
             const art = tileArt.get(entry.code)
             return (
               <button
@@ -114,14 +154,18 @@ export function BrowseLanguages() {
             value={language}
             searchable
             searchPlaceholder="Search languages"
-            options={ORIGINAL_LANGUAGES.map((entry) => ({ value: entry.code, label: entry.label }))}
+            options={offered.map((entry) => ({ value: entry.code, label: entry.label }))}
             onChange={(next) => pickLanguage(next as LanguageCode)}
           />
           <OutlineSelect
             label="Sort by"
             value={sort}
             options={LANGUAGE_SORTS.map((entry) => ({ value: entry.id, label: entry.label }))}
-            onChange={(next) => setSort(next as LanguageSort)}
+            onChange={(next) => {
+              const value = next as LanguageSort
+              setSort(value)
+              if (activeProfile?.id) writeLanguageSort(activeProfile.id, value)
+            }}
           />
         </div>
       </header>

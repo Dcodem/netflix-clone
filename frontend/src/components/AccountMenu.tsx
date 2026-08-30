@@ -6,14 +6,13 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { AvatarArt } from './AvatarArt'
 import { CaretIcon, ExitIcon, HelpCircleIcon, MyNetflixIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
-import { FooterNoteDialog, FOOTER_NOTES } from './SiteFooter'
+import { TransferProfileDialog } from './TransferProfileDialog'
 
 export function AccountMenu() {
   const { user, logout } = useAuth()
   const { profiles, activeProfile, clearActive, selectProfile } = useProfiles()
   const navigate = useNavigate()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
-  const [helpOpen, setHelpOpen] = useState(false)
   const [transferOpen, setTransferOpen] = useState(false)
 
   if (!user || !activeProfile) return null
@@ -46,8 +45,13 @@ export function AccountMenu() {
                 onClick={() => {
                   setOpen(false)
                   if (profile.pinHash) {
+                    try {
+                      sessionStorage.setItem('flix.unlockProfile', profile.id)
+                    } catch {
+                      /* quota */
+                    }
                     clearActive()
-                    navigate('/')
+                    navigate('/', { state: { pinProfileId: profile.id } })
                     return
                   }
                   selectProfile(profile.id)
@@ -98,16 +102,10 @@ export function AccountMenu() {
             <PersonIcon className="icon" />
             Account
           </Link>
-          <button
-            type="button"
-            onClick={() => {
-              setOpen(false)
-              setHelpOpen(true)
-            }}
-          >
+          <Link to="/help" onClick={() => setOpen(false)}>
             <HelpCircleIcon className="icon" />
             Help Center
-          </button>
+          </Link>
           <div className="account-dropdown-rule" />
           <button
             type="button"
@@ -121,20 +119,7 @@ export function AccountMenu() {
           </button>
         </div>
       ) : null}
-      {helpOpen ? (
-        <FooterNoteDialog
-          title="Help Center"
-          body={FOOTER_NOTES['Help Center']}
-          onClose={() => setHelpOpen(false)}
-        />
-      ) : null}
-      {transferOpen ? (
-        <FooterNoteDialog
-          title="Transfer Profile"
-          body={FOOTER_NOTES['Transfer Profile']}
-          onClose={() => setTransferOpen(false)}
-        />
-      ) : null}
+      <TransferProfileDialog open={transferOpen} onClose={() => setTransferOpen(false)} />
     </div>
   )
 }

@@ -16,8 +16,60 @@ import {
   type MyListSort,
 } from '../lib/homeRows'
 import { filterByMaturity } from '../lib/netflix'
+import { uniqueById } from '../lib/media'
 import { matchesGenreFilter } from '../profiles/taste'
 import { useProfiles } from '../profiles/ProfileContext'
+
+const SORT_VALUES = new Set(MY_LIST_SORTS.map((entry) => entry.value))
+
+function sortKey(profileId?: string | null) {
+  return profileId ? `flix.myListSort.${profileId}` : null
+}
+
+function readMyListSort(profileId?: string | null): MyListSort {
+  const key = sortKey(profileId)
+  if (!key) return 'suggestions'
+  try {
+    const raw = localStorage.getItem(key)
+    if (raw && SORT_VALUES.has(raw as MyListSort)) return raw as MyListSort
+  } catch {
+    /* ignore */
+  }
+  return 'suggestions'
+}
+
+function writeMyListSort(profileId: string, sort: MyListSort) {
+  try {
+    localStorage.setItem(sortKey(profileId) as string, sort)
+  } catch {
+    /* ignore */
+  }
+}
+
+function genreKey(profileId?: string | null) {
+  return profileId ? `flix.myListGenre.${profileId}` : null
+}
+
+function readMyListGenre(profileId?: string | null) {
+  const key = genreKey(profileId)
+  if (!key) return ''
+  try {
+    return localStorage.getItem(key) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+function writeMyListGenre(profileId: string, genre: string) {
+  try {
+    const key = genreKey(profileId)
+    if (!key) return
+    if (genre) localStorage.setItem(key, genre)
+    else localStorage.removeItem(key)
+  } catch {
+    /* ignore */
+  }
+}
 
 export function MyList() {
   const { activeProfile } = useProfiles()
@@ -39,16 +91,24 @@ export function MyList() {
       enrichListItems(filterByMaturity(likedToItems(activeProfile?.myList ?? []), activeProfile), catalog),
     [activeProfile, catalog],
   )
+  const uniqueItems = useMemo(() => uniqueById(items), [items])
   const desktop = useMediaQuery('(min-width: 768px)')
-  const [genre, setGenre] = useState('')
-  const [sort, setSort] = useState<MyListSort>('suggestions')
+  const [genre, setGenre] = useState(() => readMyListGenre(activeProfile?.id))
+  const [sort, setSort] = useState<MyListSort>(() => readMyListSort(activeProfile?.id))
   const [headingStuck, setHeadingStuck] = useState(false)
-  const genres = useMemo(() => catalogGenres(items), [items])
+  const genres = useMemo(() => catalogGenres(uniqueItems), [uniqueItems])
   const visible = useMemo(() => {
-    const filtered = genre ? items.filter((item) => matchesGenreFilter(item, genre)) : items
+    const filtered = genre ? uniqueItems.filter((item) => matchesGenreFilter(item, genre)) : uniqueItems
     return sortMyListItems(filtered, sort, activeProfile)
-  }, [items, genre, sort, activeProfile])
-  const useGenreMenu = desktop && genres.length > 1
+  }, [uniqueItems, genre, sort, activeProfile])
+  const useGenreMenu = genres.length > 1
+  const genreKeyJoin = genres.join('|')
+
+  useEffect(() => {
+    setSort(readMyListSort(activeProfile?.id))
+    const stored = readMyListGenre(activeProfile?.id)
+    if (!stored || !genreKeyJoin || genreKeyJoin.split('|').includes(stored)) setGenre(stored)
+  }, [activeProfile?.id, genreKeyJoin])
 
   useEffect(() => {
     const onScroll = () => setHeadingStuck(window.scrollY > 72)
@@ -62,18 +122,30 @@ export function MyList() {
       <div className={`browse-heading ${headingStuck ? 'is-stuck' : ''}`}>
         <h1>My List</h1>
         {useGenreMenu ? (
-          <GenreSelect value={genre} genres={genres} onChange={setGenre} useMenu />
+          <GenreSelect
+            value={genre}
+            genres={genres}
+            onChange={(next) => {
+              setGenre(next)
+              if (activeProfile?.id) writeMyListGenre(activeProfile.id, next)
+            }}
+            useMenu
+          />
         ) : null}
-        {items.length ? (
+        {uniqueItems.length ? (
           <OutlineSelect
             label="Sort"
             value={sort}
             options={MY_LIST_SORTS}
-            onChange={(next) => setSort(next as MyListSort)}
+            onChange={(next) => {
+              const value = next as MyListSort
+              setSort(value)
+              if (activeProfile?.id) writeMyListSort(activeProfile.id, value)
+            }}
           />
         ) : null}
       </div>
-      {items.length ? (
+      {uniqueItems.length ? (
         visible.length ? (
           <MediaGrid items={visible} layout="poster" hoverable={desktop} />
         ) : (

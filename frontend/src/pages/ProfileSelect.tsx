@@ -2,12 +2,12 @@ import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type 
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AvatarArt } from '../components/AvatarArt'
 import { CatalogImage } from '../components/CatalogImage'
-import { ChevronLeftIcon, ChevronRightIcon, CloseIcon, LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
-import { FooterNoteDialog, FOOTER_NOTES } from '../components/SiteFooter'
+import { ChevronLeftIcon, ChevronRightIcon, CloseIcon, DoubleThumbUpIcon, LockIcon, PencilIcon, PlusIcon, ThumbDownIcon, ThumbUpIcon } from '../components/Icons'
+import { TransferProfileDialog } from '../components/TransferProfileDialog'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { playProfileSting } from '../lib/sounds'
-import { activityStamp } from '../lib/netflix'
+import { activityStamp, profileRatingRows } from '../lib/netflix'
 import {
   PROFILE_AVATARS,
   PROFILE_LANGUAGES,
@@ -16,7 +16,7 @@ import {
   type Profile,
 } from '../profiles/types'
 
-type EditPanel = 'language' | 'maturity' | 'lock' | 'handle' | 'activity' | null
+type EditPanel = 'language' | 'maturity' | 'lock' | 'handle' | 'activity' | 'ratings' | null
 
 function PinBoxes({
   value,
@@ -91,6 +91,7 @@ export function ProfileSelect() {
     deleteProfile,
     unlockProfile,
     removeHistory,
+    rateTitle,
     activeProfile,
   } = useProfiles()
   const navigate = useNavigate()
@@ -107,6 +108,7 @@ export function ProfileSelect() {
   const [removePin, setRemovePin] = useState(false)
   const [editAutoplayNext, setEditAutoplayNext] = useState(true)
   const [editAutoplayPreview, setEditAutoplayPreview] = useState(true)
+  const [editSkipIntros, setEditSkipIntros] = useState(false)
   const [editLang, setEditLang] = useState<(typeof PROFILE_LANGUAGES)[number]>('English')
   const [editMaturity, setEditMaturity] = useState<(typeof PROFILE_MATURITY)[number]>('All Maturity Ratings')
   const [editHandle, setEditHandle] = useState('')
@@ -142,10 +144,29 @@ export function ProfileSelect() {
   }, [pinGuess, pinTarget])
 
   useEffect(() => {
-    if ((location.state as { manage?: boolean } | null)?.manage) {
+    const state = location.state as { manage?: boolean; pinProfileId?: string } | null
+    let storedId: string | null = null
+    try {
+      storedId = sessionStorage.getItem('flix.unlockProfile')
+      if (storedId) sessionStorage.removeItem('flix.unlockProfile')
+    } catch {
+      storedId = null
+    }
+    const pinProfileId = state?.pinProfileId || storedId
+    if (pinProfileId) {
+      const locked = profiles.find((profile) => profile.id === pinProfileId)
+      if (locked?.pinHash) {
+        unlocking.current = false
+        setPinTarget(locked)
+        setPinGuess('')
+        setPinError(null)
+        setManaging(false)
+      }
+    }
+    if (state?.manage || state?.pinProfileId) {
       navigate('.', { replace: true, state: {} })
     }
-  }, [location.state, navigate])
+  }, [location.state, navigate, profiles])
 
   if (!user) {
     return <Navigate to="/login" replace />
@@ -163,6 +184,7 @@ export function ProfileSelect() {
     setRemovePin(false)
     setEditAutoplayNext(profile.autoplayNext !== false)
     setEditAutoplayPreview(profile.autoplayPreview !== false)
+    setEditSkipIntros(Boolean(profile.skipIntros))
     setEditLang(profile.language || 'English')
     setEditMaturity(profile.maturity || 'All Maturity Ratings')
     setEditHandle(profile.gameHandle || '')
@@ -206,6 +228,7 @@ export function ProfileSelect() {
   }
 
   const editing = profiles.find((profile) => profile.id === editingId) ?? null
+  const ratingRows = editing ? profileRatingRows(editing) : []
   const picked = PROFILE_AVATARS.find((avatar) => avatar.id === avatarId) ?? PROFILE_AVATARS[0]
   const editPicked = PROFILE_AVATARS.find((avatar) => avatar.id === editAvatarId) ?? PROFILE_AVATARS[0]
 
@@ -218,6 +241,7 @@ export function ProfileSelect() {
       pin: removePin ? null : editPin.length === 4 ? editPin : undefined,
       autoplayNext: editAutoplayNext,
       autoplayPreview: editAutoplayPreview,
+      skipIntros: editSkipIntros,
       language: editLang,
       maturity: editMaturity,
       gameHandle: editHandle,
@@ -539,6 +563,63 @@ export function ProfileSelect() {
               ) : null}
               <button
                 type="button"
+                className={`edit-row ${editPanel === 'ratings' ? 'is-open' : ''}`}
+                onClick={() => toggleEditPanel('ratings')}
+              >
+                <span className="edit-row-copy">
+                  <strong>Ratings</strong>
+                  <em>
+                    {ratingRows.length
+                      ? `${ratingRows.length} title${ratingRows.length === 1 ? '' : 's'}`
+                      : 'None'}
+                  </em>
+                </span>
+                <ChevronRightIcon className="icon" />
+              </button>
+              {editPanel === 'ratings' ? (
+                <div className="edit-row-panel edit-activity-panel">
+                  {ratingRows.length ? (
+                    ratingRows.map(({ item, rating }) => (
+                      <div className="activity-row" key={`${item.id}-${rating}`}>
+                        <CatalogImage
+                          item={{
+                            title: item.title,
+                            kind: item.kind,
+                            poster_url: item.poster_url,
+                          }}
+                          prefer="backdrop"
+                          alt=""
+                        />
+                        <span className="activity-copy">
+                          <strong>{item.title}</strong>
+                          <em className="activity-rating">
+                            {rating === 'love' ? (
+                              <DoubleThumbUpIcon className="icon" />
+                            ) : rating === 'down' ? (
+                              <ThumbDownIcon className="icon" />
+                            ) : (
+                              <ThumbUpIcon className="icon" />
+                            )}
+                            {rating === 'love' ? 'Loved' : rating === 'down' ? 'Not for me' : 'Liked'}
+                          </em>
+                        </span>
+                        <button
+                          type="button"
+                          className="activity-remove"
+                          aria-label={`Remove rating for ${item.title}`}
+                          onClick={() => rateTitle(item, null, editing.id)}
+                        >
+                          <CloseIcon className="icon" />
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No titles rated on this profile yet.</p>
+                  )}
+                </div>
+              ) : null}
+              <button
+                type="button"
                 className="edit-row"
                 onClick={() => setTransferOpen(true)}
               >
@@ -572,6 +653,17 @@ export function ProfileSelect() {
               <span>
                 Autoplay previews
                 <small>Play previews while browsing on all devices.</small>
+              </span>
+            </label>
+            <label className="edit-check">
+              <input
+                type="checkbox"
+                checked={editSkipIntros}
+                onChange={(event) => setEditSkipIntros(event.target.checked)}
+              />
+              <span>
+                Auto-skip recaps and intros
+                <small>Skip the recap and intro on TV shows.</small>
               </span>
             </label>
           </div>
@@ -669,13 +761,11 @@ export function ProfileSelect() {
           ) : null}
         </>
       )}
-      {transferOpen ? (
-        <FooterNoteDialog
-          title="Transfer Profile"
-          body={FOOTER_NOTES['Transfer Profile']}
-          onClose={() => setTransferOpen(false)}
-        />
-      ) : null}
+      <TransferProfileDialog
+        open={transferOpen}
+        lockedProfile={editing}
+        onClose={() => setTransferOpen(false)}
+      />
     </main>
   )
 }
