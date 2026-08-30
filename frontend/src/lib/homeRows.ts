@@ -6,6 +6,7 @@ import {
   rankByTaste,
   ROM_COM_GENRE,
   romComItems,
+  isRomComGenre,
   tasteGenreRails,
 } from '../profiles/taste'
 import type { LikedTitle, Profile, WatchHistoryItem } from '../profiles/types'
@@ -272,6 +273,9 @@ export function buildBrowseRows(opts: {
 
   const genreLimit = filter === 'home' ? 2 : 3
   for (const row of tasteGenreRails(pool, profile, kind, genreLimit)) {
+    if (opts.genre && (isRomComGenre(opts.genre) ? row.id === 'genre-romcom' : row.id === `genre-${opts.genre}`)) {
+      continue
+    }
     pushRow(rows, { id: row.id, title: row.title, items: row.items })
   }
 
