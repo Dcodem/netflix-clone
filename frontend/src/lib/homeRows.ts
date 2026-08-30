@@ -108,8 +108,9 @@ export function buildBrowseRows(opts: {
   const kind: 'all' | 'movies' | 'shows' =
     filter === 'movies' ? 'movies' : filter === 'shows' ? 'shows' : 'all'
   let pool = ofKind(catalog, kind)
+  const matchesGenre = (item: MovieListItem) => !opts.genre || genresOf(item).includes(opts.genre)
   if (opts.genre) {
-    pool = pool.filter((item) => genresOf(item).includes(opts.genre!))
+    pool = pool.filter(matchesGenre)
   }
   const movies = ofKind(pool, 'movies')
   const shows = ofKind(pool, 'shows')
@@ -177,7 +178,7 @@ export function buildBrowseRows(opts: {
   pushRow(rows, {
     id: 'continue',
     title: profile?.name ? `Continue Watching for ${profile.name}` : 'Continue Watching',
-    items: historyPool.filter((item) => continueIds.has(item.id)),
+    items: historyPool.filter((item) => continueIds.has(item.id) && matchesGenre(item)),
     variant: 'continue',
     loop: false,
   })
@@ -186,7 +187,7 @@ export function buildBrowseRows(opts: {
     pushRow(rows, {
       id: 'mylist',
       title: 'My List',
-      items: ofKind(likedToItems(profile.myList), kind),
+      items: ofKind(likedToItems(profile.myList), kind).filter(matchesGenre),
     })
   }
 
@@ -222,7 +223,7 @@ export function buildBrowseRows(opts: {
   pushRow(rows, {
     id: 'watch-again',
     title: 'Watch It Again',
-    items: historyToListItems(becauseHistory.filter(finishedMovie)),
+    items: historyToListItems(becauseHistory.filter(finishedMovie)).filter(matchesGenre),
     loop: false,
   })
 

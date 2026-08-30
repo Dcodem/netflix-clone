@@ -54,7 +54,11 @@ export function Header() {
 
   useEffect(() => {
     const live = query.trim()
+    // Title-modal / recents set `?q=` while this input is still empty. Do not
+    // strip the URL on that first tick — only after the field has synced.
+    const pendingUrlSync = Boolean(urlQuery.trim()) && query !== urlQuery && syncedQuery !== urlQuery
     if (live.length < 2) {
+      if (pendingUrlSync) return
       if (location.pathname === '/search' && searchParams.get('q')) {
         navigate('/search')
       }
@@ -66,7 +70,7 @@ export function Header() {
     if (location.pathname !== '/search' || searchParams.get('q') !== debounced) {
       navigate(`/search?q=${encodeURIComponent(debounced)}`, { replace: location.pathname === '/search' })
     }
-  }, [debounced, query, location.pathname, navigate, searchParams])
+  }, [debounced, query, urlQuery, syncedQuery, location.pathname, navigate, searchParams])
 
   useEffect(() => {
     if (!open) return
