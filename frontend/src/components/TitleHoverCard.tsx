@@ -33,6 +33,7 @@ export function TitleHoverCard({
   const { activeProfile, hideContinue } = useProfiles()
   const { openTitle } = useTitleModal()
   const trailerRef = useRef<TrailerHandle>(null)
+  const jawRef = useRef<HTMLDivElement>(null)
   const [detail, setDetail] = useState<MovieDetail | null>(null)
   const [trailerReady, setTrailerReady] = useState(false)
   const [muted, setMuted] = useState(true)
@@ -100,6 +101,7 @@ export function TitleHoverCard({
   return createPortal(
     <div
       className="jawbone"
+      ref={jawRef}
       style={
         {
           top,
@@ -169,7 +171,7 @@ export function TitleHoverCard({
                 onDetails={() => {
                   setRowMenu(false)
                   onClose()
-                  openTitle(item)
+                  openTitle(item, jawRef.current)
                 }}
               />
             ) : null}

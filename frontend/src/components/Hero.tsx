@@ -137,7 +137,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
         <button
           type="button"
           className="hero-open-title"
-          onClick={() => openTitle(item)}
+          onClick={(event) => openTitle(item, event.currentTarget)}
           aria-label={`${item.title} details`}
         />
         <CatalogImage
@@ -199,7 +199,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
               {last && stillWatching(last) ? 'Resume' : 'Play'}
             </button>
           )}
-          <button type="button" className="btn btn-info hero-more" onClick={() => openTitle(item)}>
+          <button type="button" className="btn btn-info hero-more" onClick={(event) => openTitle(item, event.currentTarget)}>
             <InfoIcon className="icon" />
             <span className="hero-more-wide">More Info</span>
             <span className="hero-more-short">Info</span>

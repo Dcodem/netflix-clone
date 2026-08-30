@@ -14,7 +14,9 @@ import { MyNetflix } from './pages/MyNetflix'
 import { NewsHot } from './pages/NewsHot'
 import { ProfileSelect } from './pages/ProfileSelect'
 import { Search } from './pages/Search'
+import { SiteInfo } from './pages/SiteInfo'
 import { SpeedTest } from './pages/SpeedTest'
+import { TvPair } from './pages/TvPair'
 import { WaysToWatch } from './pages/WaysToWatch'
 import { TitleModalProvider, titleHref } from './title/TitleModalContext'
 import { WatchProvider } from './watch/WatchContext'
@@ -33,6 +35,14 @@ export default function App() {
             <TitleModalProvider>
               <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/terms" element={<SiteInfo page="terms" />} />
+                <Route path="/privacy" element={<SiteInfo page="privacy" />} />
+                <Route path="/legal" element={<SiteInfo page="legal" />} />
+                <Route path="/corporate" element={<SiteInfo page="corporate" />} />
+                <Route path="/investors" element={<SiteInfo page="investors" />} />
+                <Route path="/jobs" element={<SiteInfo page="jobs" />} />
+                <Route path="/contact" element={<SiteInfo page="contact" />} />
+                <Route path="/media" element={<SiteInfo page="media" />} />
                 <Route path="/" element={<ProfileSelect />} />
                 <Route element={<AppLayout />}>
                   <Route path="/browse" element={<Home filter="home" />} />
@@ -50,6 +60,7 @@ export default function App() {
                   <Route path="/gift" element={<GiftCards />} />
                   <Route path="/speed" element={<SpeedTest />} />
                   <Route path="/ways" element={<WaysToWatch />} />
+                  <Route path="/tv" element={<TvPair />} />
                   <Route path="/movie/:id" element={<LegacyTitleRedirect />} />
                   <Route path="/show/:id" element={<LegacyTitleRedirect />} />
                 </Route>

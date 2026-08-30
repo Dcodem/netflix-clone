@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCatalogMany, getMovie, getShow, proxyImageUrl } from '../api/client'
 import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '../api/types'
@@ -35,7 +35,7 @@ function isShowDetail(detail: MovieDetail): detail is ShowDetail {
 }
 
 export function TitleModal() {
-  const { item, closeTitle } = useTitleModal()
+  const { item, origin, closeTitle } = useTitleModal()
   const { openWatch } = useWatch()
   const navigate = useNavigate()
   const { activeProfile } = useProfiles()
@@ -132,6 +132,15 @@ export function TitleModal() {
   }, [clips, stills])
 
   if (!item) return null
+
+  const fromTile = Boolean(origin && typeof window !== 'undefined' && window.innerWidth >= 768)
+  const fromTileStyle = fromTile && origin
+    ? ({
+        '--modal-ox': `${origin.left + origin.width / 2 - Math.max(0, (window.innerWidth - Math.min(920, window.innerWidth - 24)) / 2)}px`,
+        '--modal-oy': `${Math.max(24, origin.top + origin.height / 2 - 32)}px`,
+        '--modal-from': String(Math.max(0.28, Math.min(0.86, origin.width / Math.min(920, window.innerWidth - 24)))),
+      } as CSSProperties)
+    : undefined
 
   const detail = detailFetch.data
   const seasons = detail && isShowDetail(detail) ? (detail.seasons ?? []) : []
@@ -257,12 +266,12 @@ export function TitleModal() {
   return (
     <div className="title-modal-backdrop" onClick={closeTitle} role="presentation" ref={backdropRef}>
       <div
-        className={`title-modal ${dragY ? 'is-dragging' : ''}`}
+        className={`title-modal ${dragY ? 'is-dragging' : ''} ${fromTile ? 'is-from-tile' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-label={item.title}
         ref={modalRef}
-        style={dragY ? { transform: `translateY(${dragY}px)` } : undefined}
+        style={dragY ? { transform: `translateY(${dragY}px)` } : fromTileStyle}
         onClick={(event) => event.stopPropagation()}
         onPointerDown={onSheetPointerDown}
         onPointerMove={onSheetPointerMove}

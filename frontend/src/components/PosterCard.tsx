@@ -130,7 +130,7 @@ export function PosterCard({
         ref={rootRef}
         onClick={() => {
           dropLock()
-          openTitle(item)
+          openTitle(item, rootRef.current)
         }}
         aria-label={item.title}
       >
@@ -177,7 +177,7 @@ export function PosterCard({
               }}
               onDetails={() => {
                 setRowMenu(false)
-                openTitle(item)
+                openTitle(item, rootRef.current)
               }}
             />
           ) : null}
