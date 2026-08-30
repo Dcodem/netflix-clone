@@ -649,6 +649,41 @@ export function WatchOverlay() {
   const remainingNow = Math.max(0, lengthNow - playhead)
 
   useEffect(() => {
+    if (!session || !isShow || !activeProfile?.skipIntros) return
+    if (identPhase === 'logo' || paused || stillWatching) return
+    const marks = skipMarks(runtimeSec, session.history?.genres)
+    if (!introSkipped && current > 2.4 && current < marks.introUntil) {
+      setIntroSkipped(true)
+      post({ cmd: 'seek', seconds: marks.introAt })
+      return
+    }
+    if (
+      marks.recapUntil > marks.recapAt &&
+      !recapSkipped &&
+      !identOn &&
+      current >= marks.introUntil &&
+      current < marks.recapUntil
+    ) {
+      setRecapSkipped(true)
+      setIntroSkipped(true)
+      post({ cmd: 'seek', seconds: marks.recapAt })
+    }
+  }, [
+    session,
+    isShow,
+    activeProfile?.skipIntros,
+    identPhase,
+    identOn,
+    paused,
+    stillWatching,
+    introSkipped,
+    recapSkipped,
+    current,
+    runtimeSec,
+    post,
+  ])
+
+  useEffect(() => {
     if (!upcoming || !session?.history) return
     if (nextDismissed || stillWatching) return
     if (activeProfile?.autoplayNext === false) return
@@ -728,6 +763,7 @@ export function WatchOverlay() {
     isShow &&
     identPhase !== 'logo' &&
     !introSkipped &&
+    !activeProfile?.skipIntros &&
     current > 2.4 &&
     current < marks.introUntil &&
     !episodesOpen &&
@@ -739,6 +775,7 @@ export function WatchOverlay() {
     !recapSkipped &&
     !identOn &&
     !showSkipIntro &&
+    !activeProfile?.skipIntros &&
     current >= marks.introUntil &&
     current < marks.recapUntil &&
     !episodesOpen &&

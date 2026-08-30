@@ -53,6 +53,7 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     pinHash: raw.pinHash ?? null,
     autoplayNext: raw.autoplayNext !== false,
     autoplayPreview: raw.autoplayPreview !== false,
+    skipIntros: Boolean(raw.skipIntros),
     language: isLanguage(raw.language) ? raw.language : 'English',
     maturity: isMaturity(raw.maturity) ? raw.maturity : 'All Maturity Ratings',
     gameHandle: typeof raw.gameHandle === 'string' ? raw.gameHandle : '',
@@ -103,6 +104,7 @@ export type UpdateProfileOpts = {
   pin?: string | null
   autoplayNext?: boolean
   autoplayPreview?: boolean
+  skipIntros?: boolean
   language?: ProfileLanguage
   maturity?: ProfileMaturity
   gameHandle?: string
@@ -176,6 +178,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         pinHash,
         autoplayNext: true,
         autoplayPreview: true,
+        skipIntros: false,
         language: 'English',
         maturity: 'All Maturity Ratings',
         gameHandle: '',
@@ -242,6 +245,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             color: avatar?.color ?? profile.color,
             autoplayNext: opts.autoplayNext ?? profile.autoplayNext,
             autoplayPreview: opts.autoplayPreview ?? profile.autoplayPreview,
+            skipIntros: opts.skipIntros ?? profile.skipIntros,
             language: opts.language ?? profile.language,
             maturity: opts.maturity ?? profile.maturity,
             gameHandle: opts.gameHandle !== undefined ? opts.gameHandle.trim() : profile.gameHandle,

@@ -53,6 +53,7 @@ export type Profile = {
   pinHash: string | null
   autoplayNext: boolean
   autoplayPreview: boolean
+  skipIntros: boolean
   language: ProfileLanguage
   maturity: ProfileMaturity
   gameHandle: string

@@ -414,9 +414,22 @@ export function Account() {
                     <small>Play previews while browsing on all devices.</small>
                   </span>
                 </label>
+                <label className="edit-check">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(activeProfile.skipIntros)}
+                    onChange={(event) => {
+                      void updateProfile(activeProfile.id, { skipIntros: event.target.checked })
+                    }}
+                  />
+                  <span>
+                    Auto-skip recaps and intros
+                    <small>Skip the recap and intro on TV shows.</small>
+                  </span>
+                </label>
               </div>
             ) : (
-              <p className="account-inline-note">Choose a profile to change autoplay next episode and previews.</p>
+              <p className="account-inline-note">Choose a profile to change autoplay next episode, previews, and skip intros.</p>
             )
           ) : null}
           <div className="account-row">

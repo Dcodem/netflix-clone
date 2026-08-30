@@ -107,6 +107,7 @@ export function ProfileSelect() {
   const [removePin, setRemovePin] = useState(false)
   const [editAutoplayNext, setEditAutoplayNext] = useState(true)
   const [editAutoplayPreview, setEditAutoplayPreview] = useState(true)
+  const [editSkipIntros, setEditSkipIntros] = useState(false)
   const [editLang, setEditLang] = useState<(typeof PROFILE_LANGUAGES)[number]>('English')
   const [editMaturity, setEditMaturity] = useState<(typeof PROFILE_MATURITY)[number]>('All Maturity Ratings')
   const [editHandle, setEditHandle] = useState('')
@@ -163,6 +164,7 @@ export function ProfileSelect() {
     setRemovePin(false)
     setEditAutoplayNext(profile.autoplayNext !== false)
     setEditAutoplayPreview(profile.autoplayPreview !== false)
+    setEditSkipIntros(Boolean(profile.skipIntros))
     setEditLang(profile.language || 'English')
     setEditMaturity(profile.maturity || 'All Maturity Ratings')
     setEditHandle(profile.gameHandle || '')
@@ -218,6 +220,7 @@ export function ProfileSelect() {
       pin: removePin ? null : editPin.length === 4 ? editPin : undefined,
       autoplayNext: editAutoplayNext,
       autoplayPreview: editAutoplayPreview,
+      skipIntros: editSkipIntros,
       language: editLang,
       maturity: editMaturity,
       gameHandle: editHandle,
@@ -572,6 +575,17 @@ export function ProfileSelect() {
               <span>
                 Autoplay previews
                 <small>Play previews while browsing on all devices.</small>
+              </span>
+            </label>
+            <label className="edit-check">
+              <input
+                type="checkbox"
+                checked={editSkipIntros}
+                onChange={(event) => setEditSkipIntros(event.target.checked)}
+              />
+              <span>
+                Auto-skip recaps and intros
+                <small>Skip the recap and intro on TV shows.</small>
               </span>
             </label>
           </div>
