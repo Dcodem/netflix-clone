@@ -186,7 +186,18 @@ export function TitleActions({
         </button>
       ) : null}
       {sheet ? (
-        <div className="title-sheet-tools">
+        <div className={`title-sheet-tools ${continueMode ? 'is-continue' : ''}`}>
+          {continueMode ? (
+            <button
+              type="button"
+              className="title-sheet-btn"
+              onClick={() => play(true)}
+              disabled={!href}
+            >
+              <RestartIcon className="icon" />
+              <span>Restart</span>
+            </button>
+          ) : null}
           <button
             type="button"
             className={`title-sheet-btn ${onList ? 'is-on' : ''}`}

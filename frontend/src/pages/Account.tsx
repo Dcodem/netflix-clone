@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { AvatarArt } from '../components/AvatarArt'
@@ -43,6 +43,11 @@ export function Account() {
   const [accountBusy, setAccountBusy] = useState(false)
   const [planId, setPlanId] = useState<PlanId>('standard')
   const plan = PLANS.find((entry) => entry.id === planId) ?? PLANS[0]
+  const nextPay = useMemo(() => {
+    const date = new Date()
+    date.setDate(date.getDate() + 28)
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  }, [])
 
   function togglePanel(next: AccountPanel) {
     setAccountError(null)
@@ -92,9 +97,9 @@ export function Account() {
           </p>
           <div className="account-next-pay">
             <span>Next payment</span>
-            <strong>None</strong>
+            <strong>{nextPay}</strong>
           </div>
-          <p className="account-hint">Membership on this device. There is no monthly bill.</p>
+          <p className="account-hint">Billed monthly on this device.</p>
           <button type="button" className="account-cancel" onClick={() => togglePanel('cancel')}>
             Cancel Membership
           </button>

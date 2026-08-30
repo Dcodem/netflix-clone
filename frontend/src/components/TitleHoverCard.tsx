@@ -6,10 +6,12 @@ import { stillWatching } from '../lib/homeRows'
 import { formatRuntime, genresOf, isShow, remainingLabel } from '../lib/media'
 import { isNewEpisodes, matchPercent, maturityLabel } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
+import { useTitleModal } from '../title/TitleModalContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
 import { GenreDots } from './GenreDots'
+import { ContinueMenu } from './ContinueMenu'
 import { SpeakerIcon, MoreVertIcon } from './Icons'
 import { TitleActions } from './TitleActions'
 import { TitleLogo } from './TitleLogo'
@@ -28,6 +30,7 @@ export function TitleHoverCard({
   onKeep: () => void
 }) {
   const { activeProfile, hideContinue } = useProfiles()
+  const { openTitle } = useTitleModal()
   const trailerRef = useRef<TrailerHandle>(null)
   const [detail, setDetail] = useState<MovieDetail | null>(null)
   const [trailerReady, setTrailerReady] = useState(false)
@@ -149,21 +152,18 @@ export function TitleHoverCard({
               <MoreVertIcon className="icon" />
             </button>
             {rowMenu ? (
-              <div className="continue-menu" role="menu">
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={(event) => {
-                    event.preventDefault()
-                    event.stopPropagation()
-                    hideContinue(item.id)
-                    setRowMenu(false)
-                    onClose()
-                  }}
-                >
-                  Remove from row
-                </button>
-              </div>
+              <ContinueMenu
+                onRemove={() => {
+                  hideContinue(item.id)
+                  setRowMenu(false)
+                  onClose()
+                }}
+                onDetails={() => {
+                  setRowMenu(false)
+                  onClose()
+                  openTitle(item)
+                }}
+              />
             ) : null}
           </div>
         ) : null}

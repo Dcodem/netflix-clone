@@ -986,7 +986,7 @@ select,
   top: calc(100% + 4px);
   right: 0;
   z-index: 8;
-  min-width: 176px;
+  min-width: 248px;
   padding: 8px 0;
   background: #181818;
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -3381,8 +3381,8 @@ body:has(.account-page),
 }
 
 .jawbone-art.is-playing .jawbone-logo {
-  opacity: 1;
-  transition: opacity 0.35s ease;
+  opacity: 0;
+  transition: opacity 0.55s ease;
 }
 
 .jawbone-wordmark {
@@ -3855,6 +3855,10 @@ img.is-logo-pending {
   align-items: start;
   gap: 8px;
   padding: 6px 4px 4px;
+}
+
+.title-sheet-tools.is-continue {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .title-sheet-btn {
@@ -9052,6 +9056,10 @@ img.is-logo-pending {
   }
 }
 
+.watch-sheet-handle {
+  display: none;
+}
+
 .watch-ep-head {
   display: flex;
   align-items: center;
@@ -9305,6 +9313,10 @@ img.is-logo-pending {
     height: 4px;
     border-radius: 99px;
     background: #4d4d4d;
+  }
+
+  .watch-episodes .watch-sheet-handle {
+    margin: 0 auto 14px;
   }
 
   .watch-speed-menu .watch-sheet-handle {

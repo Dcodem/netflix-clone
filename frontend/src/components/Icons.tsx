@@ -189,12 +189,12 @@ export function ClockIcon({ className }: { className?: string }) {
   )
 }
 
-export function HomeIcon({ className }: { className?: string }) {
+export function HomeIcon({ className, filled }: { className?: string; filled?: boolean }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
       <path
         d="M4.5 11.2L12 4.6l7.5 6.6V20a.8.8 0 01-.8.8h-4.4v-5.2h-4.6V20.8H5.3A.8.8 0 014.5 20v-8.8z"
-        fill="none"
+        fill={filled ? 'currentColor' : 'none'}
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinejoin="round"
@@ -203,7 +203,7 @@ export function HomeIcon({ className }: { className?: string }) {
   )
 }
 
-export function NewsIcon({ className }: { className?: string }) {
+export function NewsIcon({ className, filled: _filled }: { className?: string; filled?: boolean }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
       <path
@@ -214,12 +214,27 @@ export function NewsIcon({ className }: { className?: string }) {
   )
 }
 
-export function MyNetflixIcon({ className }: { className?: string }) {
+export function MyNetflixIcon({ className, filled }: { className?: string; filled?: boolean }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="5" y="4.5" width="14" height="15" rx="2.4" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="12" cy="10" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M8.2 16.4c.8-1.4 2.1-2.1 3.8-2.1s3 .7 3.8 2.1" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <rect
+        x="5"
+        y="4.5"
+        width="14"
+        height="15"
+        rx="2.4"
+        fill={filled ? 'currentColor' : 'none'}
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <circle cx="12" cy="10" r="2.2" fill={filled ? '#141414' : 'none'} stroke={filled ? '#141414' : 'currentColor'} strokeWidth="1.8" />
+      <path
+        d="M8.2 16.4c.8-1.4 2.1-2.1 3.8-2.1s3 .7 3.8 2.1"
+        fill="none"
+        stroke={filled ? '#141414' : 'currentColor'}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   )
 }

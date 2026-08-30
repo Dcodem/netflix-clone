@@ -3,6 +3,7 @@ import type { MovieListItem } from '../api/types'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
+import { ContinueMenu } from './ContinueMenu'
 import { MoreVertIcon } from './Icons'
 import { TitleHoverCard } from './TitleHoverCard'
 
@@ -156,20 +157,16 @@ export function PosterCard({
             <MoreVertIcon className="icon" />
           </button>
           {rowMenu ? (
-            <div className="continue-menu" role="menu">
-              <button
-                type="button"
-                role="menuitem"
-                onClick={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  hideContinue(item.id)
-                  setRowMenu(false)
-                }}
-              >
-                Remove from row
-              </button>
-            </div>
+            <ContinueMenu
+              onRemove={() => {
+                hideContinue(item.id)
+                setRowMenu(false)
+              }}
+              onDetails={() => {
+                setRowMenu(false)
+                openTitle(item)
+              }}
+            />
           ) : null}
         </div>
       ) : null}
