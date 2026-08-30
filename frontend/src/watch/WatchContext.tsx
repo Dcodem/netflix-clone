@@ -55,6 +55,8 @@ export function WatchProvider({ children }: { children: ReactNode }) {
     if (!session) return
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
+      if (event.defaultPrevented) return
+      if (document.querySelector('.watch-overlay.is-pip')) return
       if (document.fullscreenElement) {
         void document.exitFullscreen()
         return

@@ -156,6 +156,8 @@ export function WatchOverlay() {
   const [helpOpen, setHelpOpen] = useState(false)
   const [locked, setLocked] = useState(false)
   const [pip, setPip] = useState(false)
+  const pipRef = useRef(false)
+  pipRef.current = pip
   const [clockKey, setClockKey] = useState('')
   const flashTimer = useRef(0)
   const tapRef = useRef({ at: 0, x: 0, play: 0 })
@@ -456,7 +458,7 @@ export function WatchOverlay() {
           setSpeedOpen(false)
           return
         }
-        if (pip) {
+        if (pipRef.current) {
           event.preventDefault()
           event.stopImmediatePropagation()
           setPip(false)
@@ -594,6 +596,15 @@ export function WatchOverlay() {
   useEffect(() => {
     if (stillWatching || identOn) setPip(false)
   }, [stillWatching, identOn])
+
+  useEffect(() => {
+    if (!pip) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = ''
+    return () => {
+      document.body.style.overflow = previous
+    }
+  }, [pip])
 
   useEffect(() => {
     const length = duration || runtimeSec
