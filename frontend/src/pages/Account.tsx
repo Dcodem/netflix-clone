@@ -6,7 +6,13 @@ import { currentDeviceId, formatDeviceUsed, upsertCurrentDevice } from '../auth/
 import { AvatarArt } from '../components/AvatarArt'
 import { ChevronRightIcon } from '../components/Icons'
 import { useProfiles } from '../profiles/ProfileContext'
-import { DATA_USAGE_OPTIONS, avatarFor, type DataUsage } from '../profiles/types'
+import {
+  DATA_USAGE_OPTIONS,
+  DOWNLOAD_QUALITY_OPTIONS,
+  avatarFor,
+  type DataUsage,
+  type DownloadQuality,
+} from '../profiles/types'
 
 const PLANS = [
   { id: 'standard', name: 'Standard', quality: 'HD', devices: '2 devices at a time', price: '$15.49' },
@@ -45,6 +51,7 @@ type AccountPanel =
   | 'playback'
   | 'comms'
   | 'privacy'
+  | 'downloads'
   | 'devices'
   | 'signout'
   | null
@@ -651,6 +658,56 @@ export function Account() {
               </div>
             ) : (
               <p className="account-inline-note">Choose a profile to change privacy settings.</p>
+            )
+          ) : null}
+          <div className="account-row">
+            <span>Download settings</span>
+            <button type="button" className="account-change" onClick={() => togglePanel('downloads')}>
+              Change
+            </button>
+          </div>
+          {panel === 'downloads' ? (
+            activeProfile ? (
+              <div className="edit-autoplay account-prefs">
+                <fieldset className="account-data-usage is-lead">
+                  <legend>Download video quality</legend>
+                  <p>Standard is faster. Higher looks better and uses more storage.</p>
+                  {DOWNLOAD_QUALITY_OPTIONS.map((entry) => (
+                    <label className="edit-check" key={entry.id}>
+                      <input
+                        type="radio"
+                        name="download-quality"
+                        checked={(activeProfile.downloadQuality ?? 'standard') === entry.id}
+                        onChange={() => {
+                          void updateProfile(activeProfile.id, { downloadQuality: entry.id as DownloadQuality })
+                        }}
+                      />
+                      <span>
+                        {entry.label}
+                        <small>{entry.detail}</small>
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
+                <label className="edit-check">
+                  <input
+                    type="checkbox"
+                    checked={activeProfile.smartDownloads !== false}
+                    onChange={(event) => {
+                      void updateProfile(activeProfile.id, { smartDownloads: event.target.checked })
+                    }}
+                  />
+                  <span>
+                    Smart Downloads
+                    <small>Replace a finished episode with the next one. Downloads still stay on this device.</small>
+                  </span>
+                </label>
+                <p className="account-inline-note">
+                  FLIX does not store video files. These choices label downloads on My Netflix.
+                </p>
+              </div>
+            ) : (
+              <p className="account-inline-note">Choose a profile to change download settings.</p>
             )
           ) : null}
           <div className="account-row">

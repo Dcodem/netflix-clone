@@ -53,6 +53,18 @@ export const DATA_USAGE_OPTIONS: { id: DataUsage; label: string; detail: string 
   { id: 'high', label: 'High', detail: 'Best' },
 ]
 
+export const DOWNLOAD_QUALITY = ['standard', 'higher'] as const
+export type DownloadQuality = (typeof DOWNLOAD_QUALITY)[number]
+
+export const DOWNLOAD_QUALITY_OPTIONS: { id: DownloadQuality; label: string; detail: string }[] = [
+  { id: 'standard', label: 'Standard', detail: 'Faster downloads, uses less storage' },
+  { id: 'higher', label: 'Higher', detail: 'Best picture, uses more storage' },
+]
+
+export function downloadQualityLabel(quality?: DownloadQuality | null) {
+  return quality === 'higher' ? 'Higher' : 'Standard'
+}
+
 export type Profile = {
   id: string
   name: string
@@ -64,6 +76,8 @@ export type Profile = {
   autoplayPreview: boolean
   skipIntros: boolean
   dataUsage: DataUsage
+  downloadQuality: DownloadQuality
+  smartDownloads: boolean
   personalizedRecs: boolean
   shareActivity: boolean
   language: ProfileLanguage

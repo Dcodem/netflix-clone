@@ -19,7 +19,7 @@ import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
 import { becauseYouWatchedRows, rankByTaste } from '../profiles/taste'
-import { avatarFor, usesPersonalizedRecs } from '../profiles/types'
+import { avatarFor, downloadQualityLabel, usesPersonalizedRecs } from '../profiles/types'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 
@@ -162,7 +162,10 @@ export function MyNetflix() {
                   </span>
                   <span className="download-copy">
                     <strong>{item.title}</strong>
-                    <em>Download complete</em>
+                    <em>
+                      Download complete · {downloadQualityLabel(activeProfile.downloadQuality)}
+                      {activeProfile.smartDownloads !== false ? ' · Smart Downloads' : ''}
+                    </em>
                   </span>
                 </button>
               </li>

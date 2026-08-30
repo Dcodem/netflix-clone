@@ -9,7 +9,9 @@ import {
   STORAGE_KEY,
   type LikedTitle,
   DATA_USAGE,
+  DOWNLOAD_QUALITY,
   type DataUsage,
+  type DownloadQuality,
   type Profile,
   type ProfileLanguage,
   type ProfileMaturity,
@@ -41,6 +43,10 @@ function isDataUsage(value: unknown): value is DataUsage {
   return DATA_USAGE.includes(value as DataUsage)
 }
 
+function isDownloadQuality(value: unknown): value is DownloadQuality {
+  return DOWNLOAD_QUALITY.includes(value as DownloadQuality)
+}
+
 function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
   const rest = { ...raw }
   delete rest.kids
@@ -62,6 +68,8 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     autoplayPreview: raw.autoplayPreview !== false,
     skipIntros: Boolean(raw.skipIntros),
     dataUsage: isDataUsage(raw.dataUsage) ? raw.dataUsage : 'auto',
+    downloadQuality: isDownloadQuality(raw.downloadQuality) ? raw.downloadQuality : 'standard',
+    smartDownloads: raw.smartDownloads !== false,
     personalizedRecs: raw.personalizedRecs !== false,
     shareActivity: raw.shareActivity !== false,
     language: isLanguage(raw.language) ? raw.language : 'English',
@@ -116,7 +124,9 @@ export type UpdateProfileOpts = {
   autoplayPreview?: boolean
   skipIntros?: boolean
   dataUsage?: DataUsage
-  personalizedRecs?: boolean
+  downloadQuality?: DownloadQuality
+  smartDownloads?: boolean
+  personalizedRecs?: boolean,
   shareActivity?: boolean
   language?: ProfileLanguage
   maturity?: ProfileMaturity
@@ -193,6 +203,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         autoplayPreview: true,
         skipIntros: false,
         dataUsage: 'auto',
+        downloadQuality: 'standard',
+        smartDownloads: true,
         personalizedRecs: true,
         shareActivity: true,
         language: 'English',
@@ -264,6 +276,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             autoplayPreview: opts.autoplayPreview ?? profile.autoplayPreview,
             skipIntros: opts.skipIntros ?? profile.skipIntros,
             dataUsage: opts.dataUsage ?? profile.dataUsage,
+            downloadQuality: opts.downloadQuality ?? profile.downloadQuality,
+            smartDownloads: opts.smartDownloads ?? profile.smartDownloads,
             personalizedRecs: opts.personalizedRecs ?? profile.personalizedRecs,
             shareActivity: opts.shareActivity ?? profile.shareActivity,
             language: opts.language ?? profile.language,

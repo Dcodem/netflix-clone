@@ -2857,6 +2857,12 @@ body:has(.account-page),
   border-top: 1px solid #ccc;
 }
 
+.account-data-usage.is-lead {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
 .account-data-usage legend {
   padding: 0;
   color: #141414;

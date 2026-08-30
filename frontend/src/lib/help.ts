@@ -74,6 +74,11 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: 'My List & notifications',
     articles: [
       {
+        id: 'downloads',
+        title: 'Downloads',
+        body: 'On a phone, Download on a title adds it to My Netflix. Account Download settings choose Standard or Higher quality and Smart Downloads. FLIX does not store video files.',
+      },
+      {
         id: 'my-list',
         title: 'My List and Remind Me',
         body: 'Add titles with My List. Coming soon titles use Remind Me instead of Play. Reminded titles land on My List and in Notifications.',
