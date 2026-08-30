@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { getCatalogMany } from '../api/client'
 import type { MovieListItem } from '../api/types'
@@ -27,6 +27,32 @@ function isLanguageCode(value: string | null): value is LanguageCode {
   return Boolean(value && ORIGINAL_LANGUAGES.some((entry) => entry.code === value))
 }
 
+const SORT_VALUES = new Set(LANGUAGE_SORTS.map((entry) => entry.id))
+
+function sortKey(profileId?: string | null) {
+  return profileId ? `flix.languageSort.${profileId}` : null
+}
+
+function readLanguageSort(profileId?: string | null): LanguageSort {
+  const key = sortKey(profileId)
+  if (!key) return 'suggestions'
+  try {
+    const raw = localStorage.getItem(key)
+    if (raw && SORT_VALUES.has(raw as LanguageSort)) return raw as LanguageSort
+  } catch {
+    /* ignore */
+  }
+  return 'suggestions'
+}
+
+function writeLanguageSort(profileId: string, sort: LanguageSort) {
+  try {
+    localStorage.setItem(sortKey(profileId) as string, sort)
+  } catch {
+    /* ignore */
+  }
+}
+
 export function BrowseLanguages() {
   const { activeProfile } = useProfiles()
   const desktop = useMediaQuery('(min-width: 768px)')
@@ -34,7 +60,7 @@ export function BrowseLanguages() {
   const langParam = params.get('lang')
   const picked = isLanguageCode(langParam) ? langParam : null
   const language = picked ?? (desktop ? profileLanguageCode(activeProfile?.language) : null)
-  const [sort, setSort] = useState<LanguageSort>('suggestions')
+  const [sort, setSort] = useState<LanguageSort>(() => readLanguageSort(activeProfile?.id))
   const catalog = useFetch(async () => {
     const [movies, shows] = await Promise.all([
       getCatalogMany('movies').catch(() => [] as MovieListItem[]),
@@ -64,6 +90,10 @@ export function BrowseLanguages() {
     next.set('lang', code)
     setParams(next)
   }
+
+  useEffect(() => {
+    setSort(readLanguageSort(activeProfile?.id))
+  }, [activeProfile?.id])
 
   if (catalog.loading && !catalog.data) {
     return (
@@ -121,7 +151,11 @@ export function BrowseLanguages() {
             label="Sort by"
             value={sort}
             options={LANGUAGE_SORTS.map((entry) => ({ value: entry.id, label: entry.label }))}
-            onChange={(next) => setSort(next as LanguageSort)}
+            onChange={(next) => {
+              const value = next as LanguageSort
+              setSort(value)
+              if (activeProfile?.id) writeLanguageSort(activeProfile.id, value)
+            }}
           />
         </div>
       </header>
