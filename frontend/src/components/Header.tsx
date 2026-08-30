@@ -26,10 +26,11 @@ export function Header() {
   const urlQuery = location.pathname === '/search' ? (searchParams.get('q') ?? '') : ''
   const [query, setQuery] = useState(urlQuery)
   const [syncedQuery, setSyncedQuery] = useState(urlQuery)
-  if (urlQuery !== syncedQuery) {
+  useEffect(() => {
+    if (urlQuery === syncedQuery) return
     setSyncedQuery(urlQuery)
     setQuery(urlQuery)
-  }
+  }, [urlQuery, syncedQuery])
   const [scrolled, setScrolled] = useState(false)
   const phone = useMediaQuery('(max-width: 767px)')
   const [searchOpen, setSearchOpen] = useState(Boolean(urlQuery) || location.pathname === '/search')

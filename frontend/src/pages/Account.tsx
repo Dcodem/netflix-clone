@@ -7,6 +7,14 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { envKeys } from '../trailers/types'
 
+const PLANS = [
+  { id: 'standard', name: 'Standard', quality: 'HD', devices: '2 devices at a time' },
+  { id: 'premium', name: 'Premium', quality: 'UHD', devices: '4 devices at a time' },
+  { id: 'basic', name: 'Basic', quality: 'HD', devices: '1 device at a time' },
+] as const
+
+type PlanId = (typeof PLANS)[number]['id']
+
 type AccountPanel =
   | 'email'
   | 'password'
@@ -33,6 +41,8 @@ export function Account() {
   const [phoneDraft, setPhoneDraft] = useState(user?.phone ?? '')
   const [accountError, setAccountError] = useState<string | null>(null)
   const [accountBusy, setAccountBusy] = useState(false)
+  const [planId, setPlanId] = useState<PlanId>('standard')
+  const plan = PLANS.find((entry) => entry.id === planId) ?? PLANS[0]
 
   function togglePanel(next: AccountPanel) {
     setAccountError(null)
@@ -77,8 +87,8 @@ export function Account() {
           </p>
           <p className="account-email">{user?.email}</p>
           <p className="account-plan">
-            <span className="account-plan-name">Standard</span>
-            <span className="spec-badge">HD</span>
+            <span className="account-plan-name">{plan.name}</span>
+            <span className="spec-badge">{plan.quality}</span>
           </p>
           <div className="account-next-pay">
             <span>Next payment</span>
@@ -212,14 +222,31 @@ export function Account() {
         <div className="account-block-body">
           <div className="account-row">
             <span>
-              Standard <span className="spec-badge">HD</span>
+              {plan.name} <span className="spec-badge">{plan.quality}</span>
             </span>
             <button type="button" className="account-change" onClick={() => togglePanel('plan')}>
               Change plan
             </button>
           </div>
           {panel === 'plan' ? (
-            <p className="account-inline-note">Standard is the plan on this device. There is no monthly bill to change.</p>
+            <div className="account-plan-picker">
+              {PLANS.map((entry) => (
+                <button
+                  type="button"
+                  key={entry.id}
+                  className={`account-plan-tile ${entry.id === planId ? 'is-on' : ''}`}
+                  onClick={() => {
+                    setPlanId(entry.id)
+                    setPanel(null)
+                  }}
+                >
+                  <strong>{entry.name}</strong>
+                  <span className="spec-badge">{entry.quality}</span>
+                  <em>{entry.devices}</em>
+                  {entry.id === planId ? <small>Current plan</small> : null}
+                </button>
+              ))}
+            </div>
           ) : null}
           <div className="account-row">
             <span>HD · 5.1 · spatial audio</span>

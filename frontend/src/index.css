@@ -1475,6 +1475,15 @@ select,
   font-size: 16px;
 }
 
+.ep-playing {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
 .episode.is-resume {
   background: #2f2f2f;
 }
@@ -1713,12 +1722,17 @@ select,
   display: grid;
   place-items: center;
   overflow: hidden;
-  transition: border-color 0.12s ease;
+  transition: border-color 0.12s ease, transform 0.16s ease;
 }
 
 .profile-cell:hover .profile-avatar,
 .profile-cell:focus-visible .profile-avatar {
   border-color: #fff;
+}
+
+.profiles-page .profile-cell:hover .profile-avatar:not(.is-managing),
+.profiles-page .profile-cell:focus-visible .profile-avatar:not(.is-managing) {
+  transform: scale(1.05);
 }
 
 .profile-cell:hover .profile-name,
@@ -2337,6 +2351,54 @@ body:has(.account-page),
 .account-plan-name {
   font-size: 22px;
   font-weight: 700;
+}
+
+.account-plan-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 4px 0 12px;
+}
+
+.account-plan-tile {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 14px 12px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  color: #333;
+}
+
+.account-plan-tile strong {
+  font-size: 16px;
+}
+
+.account-plan-tile em {
+  font-style: normal;
+  color: #555;
+  font-size: 13px;
+}
+
+.account-plan-tile small {
+  color: #e50914;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.account-plan-tile.is-on {
+  border-color: #e50914;
+  box-shadow: inset 0 0 0 1px #e50914;
+}
+
+@media (max-width: 767px) {
+  .account-plan-picker {
+    grid-template-columns: 1fr;
+  }
 }
 
 .account-list {
@@ -4043,6 +4105,12 @@ img.is-logo-pending {
   gap: 16px;
 }
 
+.title-modal .episode.is-resume {
+  margin: 0;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
 .title-modal .more-like-grid {
   margin-top: 0;
 }
@@ -5262,6 +5330,11 @@ img.is-logo-pending {
     gap: 8px;
   }
 
+  .search-page .grid:not(.is-poster-grid) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px 8px;
+  }
+
   .search-heading {
     font-size: 18px;
     margin: 6px 0 20px;
@@ -5272,11 +5345,19 @@ img.is-logo-pending {
   .search-page .grid.is-poster-grid {
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
+
+  .search-page .grid:not(.is-poster-grid) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 1600px) {
   .search-page .grid.is-poster-grid {
     grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .search-page .grid:not(.is-poster-grid) {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 
@@ -7053,9 +7134,24 @@ img.is-logo-pending {
   font-size: 17px;
 }
 
+.pin-profile {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.pin-profile strong {
+  color: #808080;
+  font-size: 18px;
+  font-weight: 400;
+}
+
 .pin-avatar {
   width: 120px;
   height: 120px;
+  aspect-ratio: 1;
+  border-width: 3px;
 }
 
 .pin-input {
@@ -7571,9 +7667,9 @@ img.is-logo-pending {
   align-items: stretch;
   justify-content: center;
   padding: 8px 0 6px;
-  background: none;
-  border-radius: 0;
-  box-shadow: none;
+  background: rgba(16, 16, 16, 0.92);
+  border-radius: 4px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
   transition: opacity 0.12s ease, transform 0.12s ease;
 }
 
@@ -10140,6 +10236,15 @@ img.is-logo-pending {
   font-size: 14px;
   font-weight: 600;
   color: #fff;
+}
+
+.trailer-card.is-on .trailer-card-caption {
+  color: #fff;
+}
+
+.trailer-card.is-on .trailer-card-art {
+  outline: 2px solid #fff;
+  outline-offset: 0;
 }
 
 @media (min-width: 768px) {

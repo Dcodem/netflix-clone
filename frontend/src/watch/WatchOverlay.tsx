@@ -469,6 +469,10 @@ export function WatchOverlay() {
         const length = duration || runtimeSec
         post({ cmd: 'seek', seconds: (Number(event.key) / 10) * length })
         show()
+      } else if (event.key.toLowerCase() === 'c') {
+        event.preventDefault()
+        setSubs((current) => (current === 'off' ? 'en' : current === 'en' ? 'cc' : 'off'))
+        show()
       } else if (event.key.toLowerCase() === 'm') {
         toggleMute()
         show()
@@ -1252,6 +1256,12 @@ export function WatchOverlay() {
               <dd>
                 <kbd>K</kbd>
                 <kbd>Space</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>Captions</dt>
+              <dd>
+                <kbd>C</kbd>
               </dd>
             </div>
             <div>

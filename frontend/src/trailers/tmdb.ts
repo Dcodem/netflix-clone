@@ -26,22 +26,62 @@ async function tmdbJson<T>(path: string, key: string, extra: Record<string, stri
   return (await response.json()) as T
 }
 
-function pickYoutube(videos: TmdbVideos['results']): string | null {
-  if (!videos?.length) return null
-  const ranked = [...videos]
+function scoreVideo(video: { type: string; official?: boolean }) {
+  let value = 0
+  if (video.type === 'Trailer') value += 4
+  else if (video.type === 'Teaser') value += 2
+  else if (video.type === 'Clip') value += 1
+  if (video.official) value += 1
+  return value
+}
+
+function rankYoutube(videos: TmdbVideos['results']) {
+  return [...(videos ?? [])]
     .filter((video) => video.site === 'YouTube' && video.key)
-    .sort((a, b) => {
-      const score = (video: { type: string; official?: boolean }) => {
-        let value = 0
-        if (video.type === 'Trailer') value += 4
-        else if (video.type === 'Teaser') value += 2
-        else if (video.type === 'Clip') value += 1
-        if (video.official) value += 1
-        return value
-      }
-      return score(b) - score(a)
+    .sort((a, b) => scoreVideo(b) - scoreVideo(a))
+}
+
+function pickYoutube(videos: TmdbVideos['results']): string | null {
+  return rankYoutube(videos)[0]?.key ?? null
+}
+
+export type TmdbVideoClip = {
+  key: string
+  type: string
+  label: string
+}
+
+const VIDEO_LABELS: Record<string, string> = {
+  Trailer: 'Trailer',
+  Teaser: 'Teaser',
+  Clip: 'Clip',
+  Featurette: 'Featurette',
+  'Behind the Scenes': 'Behind the Scenes',
+  Recap: 'Recap',
+}
+
+export async function findTmdbVideos(item: SearchItem, key: string): Promise<TmdbVideoClip[]> {
+  const match = await findTmdbMatch(item, key)
+  if (!match) return []
+  const isShow = item.kind === 'show'
+  const videos = await tmdbJson<TmdbVideos>(isShow ? `/3/tv/${match.id}/videos` : `/3/movie/${match.id}/videos`, key)
+  const seen = new Set<string>()
+  const clips: TmdbVideoClip[] = []
+  const typeCount: Record<string, number> = {}
+  for (const video of rankYoutube(videos.results)) {
+    if (seen.has(video.key)) continue
+    seen.add(video.key)
+    const base = VIDEO_LABELS[video.type] ?? video.type
+    const count = (typeCount[base] ?? 0) + 1
+    typeCount[base] = count
+    clips.push({
+      key: video.key,
+      type: video.type,
+      label: count > 1 ? `${base} ${count}` : base,
     })
-  return ranked[0]?.key ?? null
+    if (clips.length >= 8) break
+  }
+  return clips
 }
 
 export async function findTmdbTrailer(item: SearchItem, key: string): Promise<TrailerHit | null> {

@@ -109,7 +109,7 @@ export function Search() {
             {phone ? (
               <SearchHitsList items={popularItems.slice(0, 10)} ranked />
             ) : (
-              <MediaGrid items={popularItems} layout="poster" />
+              <MediaGrid items={popularItems} layout="landscape" />
             )}
           </>
         ) : null}
@@ -171,7 +171,7 @@ export function Search() {
               Explore titles related to: <span>{q}</span>
             </h1>
           ) : null}
-          <MediaGrid items={desktopItems} layout="poster" />
+          <MediaGrid items={desktopItems} layout="landscape" />
         </>
       )}
     </main>

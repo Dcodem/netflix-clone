@@ -242,6 +242,12 @@ export function ProfileSelect() {
       </button>
       {pinTarget ? (
         <form className="pin-sheet" onSubmit={onPin}>
+          <div className="pin-profile">
+            <span className="profile-avatar pin-avatar" style={{ background: avatarFor(pinTarget).color }}>
+              <AvatarArt avatar={avatarFor(pinTarget)} alt={pinTarget.name} />
+            </span>
+            <strong>{pinTarget.name}</strong>
+          </div>
           <h1>Profile Lock is currently on.</h1>
           <p className="profiles-sub">Enter your PIN to access this profile.</p>
           <PinBoxes key={pinShake} value={pinGuess} onChange={setPinGuess} error={Boolean(pinError)} />

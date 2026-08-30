@@ -21,6 +21,8 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTmdbGallery } from '../trailers/useTmdbGallery'
+import { useTmdbVideos } from '../trailers/useTmdbVideos'
+import type { TrailerHit } from '../trailers/types'
 import { useTitleModal } from './TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 
@@ -37,7 +39,10 @@ export function TitleModal() {
   const backdropRef = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
   const stills = useTmdbGallery(item)
+  const clips = useTmdbVideos(item)
   const [muted, setMuted] = useState(true)
+  const [clipHit, setClipHit] = useState<TrailerHit | null>(null)
+  const [heroStill, setHeroStill] = useState<string | null>(null)
   const [trailerReady, setTrailerReady] = useState(false)
   const [trailerEnded, setTrailerEnded] = useState(false)
   const [settled, setSettled] = useState(false)
@@ -48,6 +53,8 @@ export function TitleModal() {
     setMuted(true)
     setTrailerReady(false)
     setTrailerEnded(false)
+    setClipHit(null)
+    setHeroStill(null)
     setSettled(false)
     setTab(null)
     setSeasonNumber(last?.seasonNumber ?? 1)
@@ -103,6 +110,15 @@ export function TitleModal() {
     return uniqueById([...byGenre, ...rest]).slice(0, 12)
   }, [item, catalog.data, activeProfile])
   const similarSafe = useMemo(() => filterByMaturity(similar, activeProfile), [similar, activeProfile])
+  const trailerCards = useMemo(() => {
+    const labels = ['Trailer', 'Teaser', 'Clip', 'Recap', 'Featurette', 'Behind the Scenes', 'Clip 2', 'Bonus']
+    const count = Math.max(clips.length, Math.min(8, stills.length))
+    return Array.from({ length: count }, (_, index) => ({
+      label: clips[index]?.label ?? labels[index] ?? `Clip ${index + 1}`,
+      key: clips[index]?.key,
+      still: stills[index] ?? stills[0],
+    }))
+  }, [clips, stills])
 
   if (!item) return null
 
@@ -166,13 +182,18 @@ export function TitleModal() {
     trailerRef.current?.replay()
   }
 
-  function playTrailerClip() {
+  function playTrailerClip(index: number) {
     playClick()
+    const clip = clips[index]
+    if (clip) {
+      setClipHit({ source: 'tmdb', kind: 'youtube', src: clip.key, label: clip.label })
+    }
+    if (stills[index]) setHeroStill(stills[index])
     setMuted(false)
     setTrailerEnded(false)
-    setTrailerReady(true)
+    setTrailerReady(Boolean(clip) || trailerReady)
     trailerRef.current?.setMuted(false)
-    trailerRef.current?.replay()
+    if (!clip) trailerRef.current?.replay()
     modalRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -194,7 +215,11 @@ export function TitleModal() {
           key={item.id}
           className={`title-modal-hero ${trailerPlaying ? 'is-playing' : 'is-cinematic'} ${settled ? 'is-settled' : ''}`}
         >
-          <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
+          <CatalogImage
+            item={{ ...item, backdrop_url: heroStill || detail?.backdrop_url }}
+            alt=""
+            prefer="backdrop"
+          />
           <TrailerPreview
             ref={trailerRef}
             title={item.title}
@@ -202,6 +227,7 @@ export function TitleModal() {
             kind={item.kind}
             className="title-modal-trailer"
             muted={muted}
+            overrideHit={clipHit}
             onReady={() => {
               setTrailerEnded(false)
               setTrailerReady(true)
@@ -349,29 +375,18 @@ export function TitleModal() {
 
           {activeTab === 'trailers' ? (
             <section className="title-trailers title-section">
-              {stills.length ? (
+              {trailerCards.length ? (
                 <div className="trailer-card-grid">
-                  {stills.slice(0, 8).map((file, index) => {
-                    const src = stillUrl(file)
+                  {trailerCards.map((card, index) => {
+                    const src = card.still ? stillUrl(card.still) : null
                     if (!src) return null
-                    const captions = [
-                      'Trailer',
-                      'Teaser',
-                      'Clip',
-                      'Recap',
-                      'Featurette',
-                      'Behind the Scenes',
-                      'Clip 2',
-                      'Bonus',
-                    ]
-                    const caption = captions[index] ?? `Clip ${index + 1}`
                     return (
                       <button
                         type="button"
-                        className="trailer-card"
-                        key={file}
-                        onClick={playTrailerClip}
-                        aria-label={caption}
+                        className={`trailer-card ${clipHit?.src === card.key ? 'is-on' : ''}`}
+                        key={`${card.label}-${card.still}`}
+                        onClick={() => playTrailerClip(index)}
+                        aria-label={card.label}
                       >
                         <span className="trailer-card-art">
                           <img src={proxyImageUrl(src)} alt="" />
@@ -379,7 +394,7 @@ export function TitleModal() {
                             <PlayIcon className="icon" />
                           </span>
                         </span>
-                        <span className="trailer-card-caption">{caption}</span>
+                        <span className="trailer-card-caption">{card.label}</span>
                       </button>
                     )
                   })}
