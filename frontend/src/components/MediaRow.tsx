@@ -9,11 +9,9 @@ import { ChevronLeftIcon, ChevronRightIcon } from './Icons'
 import { PosterCard } from './PosterCard'
 import { TitleLogo } from './TitleLogo'
 
-function exploreHref(title: string, items: MovieListItem[], seed?: MovieListItem) {
+function exploreHref(items: MovieListItem[], seed?: MovieListItem, exploreTo?: string) {
+  if (exploreTo) return exploreTo
   if (seed?.title) return `/search?q=${encodeURIComponent(seed.title)}`
-  if (title.length <= 18 && !/for |because|watch|pick|trend|list/i.test(title)) {
-    return `/search?q=${encodeURIComponent(title)}`
-  }
   const shows = items.filter((item) => item.kind === 'show').length
   return shows > items.length / 2 ? '/browse/shows' : '/browse/movies'
 }
@@ -50,6 +48,7 @@ export function MediaRow({
   loop = false,
   hoverable = true,
   variant = 'default',
+  exploreTo,
 }: {
   title: string
   subtitle?: string
@@ -60,6 +59,7 @@ export function MediaRow({
   loop?: boolean
   hoverable?: boolean
   variant?: 'default' | 'continue' | 'top10'
+  exploreTo?: string
 }) {
   const fineHover = useFineHover()
   const ranked = variant === 'top10'
@@ -76,7 +76,7 @@ export function MediaRow({
     <section className={`media-row ${seed ? 'has-scene' : ''} ${ranked ? 'is-top10' : ''}`}>
       <div className="row-heading">
         {canExplore ? (
-          <Link className="row-heading-link" to={exploreHref(title, items, seed)}>
+          <Link className="row-heading-link" to={exploreHref(items, seed, exploreTo)}>
             <h2 className="section-title">{title}</h2>
             <span className="row-explore">
               Explore All

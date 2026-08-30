@@ -82,6 +82,21 @@ export function catalogGenres(items: MovieListItem[]): string[] {
   return [...new Set(items.flatMap((item) => genresOf(item)))].sort()
 }
 
+export function exploreHrefForRow(row: Pick<HomeRow, 'id' | 'title'>): string | undefined {
+  if (row.id === 'mylist') return '/browse/my-list'
+  if (row.id === 'continue') return undefined
+  if (row.id === 'coming' || row.id === 'watching' || row.id === 'worth' || row.id === 'new-flix') {
+    return '/browse/latest'
+  }
+  if (row.id === 'new-movies' || row.id === 'top10-movies') return '/browse/movies'
+  if (row.id === 'new-shows' || row.id === 'top10-tv') return '/browse/shows'
+  if (row.id.startsWith('genre-')) {
+    const genre = row.id.slice('genre-'.length)
+    return `/browse?genre=${encodeURIComponent(genre)}`
+  }
+  return undefined
+}
+
 export function buildBrowseRows(opts: {
   catalog: MovieListItem[]
   filter: BrowseFilter

@@ -39,7 +39,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
   const [scale, setScale] = useState(1.45)
   const previewActive = !openItem && !session && activeProfile?.autoplayPreview !== false
   const playing = trailerReady && previewActive && !trailerEnded
-  const cinematic = previewActive && !trailerEnded
+  const cinematic = previewActive && !playing
 
   useEffect(() => {
     let cancelled = false

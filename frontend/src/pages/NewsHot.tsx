@@ -11,7 +11,7 @@ import { TitleLogo } from '../components/TitleLogo'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { Home } from './Home'
-import { genresOf, isShow, ofKind, sortByRating, uniqueById } from '../lib/media'
+import { genresOf, isShow, ofKind, sortByRating, sortByYear, uniqueById } from '../lib/media'
 import { filterByMaturity, matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
@@ -22,7 +22,7 @@ import { useWatch } from '../watch/WatchContext'
 const synCache = new Map<string, string>()
 const THIS_YEAR = new Date().getFullYear()
 
-type NewsChip = 'coming' | 'watching' | 'top-tv' | 'top-movies'
+type NewsChip = 'coming' | 'watching' | 'worth' | 'new' | 'top-tv' | 'top-movies'
 type FeedMode = 'soon' | 'watching' | 'ranked'
 
 async function synopsisForItem(item: MovieListItem): Promise<string> {
@@ -243,6 +243,8 @@ function NewsHotFeed() {
   )
   const comingRef = useRef<HTMLElement>(null)
   const watchingRef = useRef<HTMLElement>(null)
+  const worthRef = useRef<HTMLElement>(null)
+  const newRef = useRef<HTMLElement>(null)
   const topTvRef = useRef<HTMLElement>(null)
   const topMoviesRef = useRef<HTMLElement>(null)
   const chipBtnRefs = useRef<Partial<Record<NewsChip, HTMLButtonElement | null>>>({})
@@ -258,24 +260,39 @@ function NewsHotFeed() {
   }, [catalog])
   const watching = useMemo(() => {
     const seen = new Set(coming.map((item) => item.id))
-    return sortByRating(catalog.filter((item) => !seen.has(item.id))).slice(0, 12)
+    return sortByRating(catalog.filter((item) => !seen.has(item.id) && !comingSoon(item))).slice(0, 12)
   }, [catalog, coming])
+  const worth = useMemo(() => {
+    const comingIds = new Set(coming.map((item) => item.id))
+    const watchingIds = new Set(watching.map((item) => item.id))
+    const leftoverSoon = catalog.filter((item) => comingSoon(item) && !comingIds.has(item.id))
+    const fill = sortByRating(
+      catalog.filter((item) => !comingIds.has(item.id) && !watchingIds.has(item.id)),
+    )
+    return uniqueById([...leftoverSoon, ...fill]).slice(0, 10)
+  }, [catalog, coming, watching])
+  const newFlix = useMemo(
+    () => sortByYear(catalog.filter((item) => !comingSoon(item))).slice(0, 10),
+    [catalog],
+  )
   const topTv = useMemo(() => sortByRating(ofKind(catalog, 'shows')).slice(0, 10), [catalog])
   const topMovies = useMemo(() => sortByRating(ofKind(catalog, 'movies')).slice(0, 10), [catalog])
   const chips = useMemo(() => {
     const next: Array<{ id: NewsChip; label: string; show: boolean }> = [
       { id: 'coming', label: 'Coming Soon', show: coming.length > 0 },
       { id: 'watching', label: 'Everyone’s Watching', show: watching.length > 0 },
+      { id: 'worth', label: 'Worth the Wait', show: worth.length > 0 },
+      { id: 'new', label: 'New on FLIX', show: newFlix.length > 0 },
       { id: 'top-tv', label: 'Top 10 TV Shows', show: topTv.length > 0 },
       { id: 'top-movies', label: 'Top 10 Movies', show: topMovies.length > 0 },
     ]
     return next.filter((entry) => entry.show)
-  }, [coming.length, watching.length, topTv.length, topMovies.length])
+  }, [coming.length, watching.length, worth.length, newFlix.length, topTv.length, topMovies.length])
   const activeChip = chip && chips.some((entry) => entry.id === chip) ? chip : (chips[0]?.id ?? 'coming')
   const [synopses, setSynopses] = useState<Record<string, string>>({})
   const feed = useMemo(
-    () => uniqueById([...coming, ...watching, ...topTv, ...topMovies]),
-    [coming, watching, topTv, topMovies],
+    () => uniqueById([...coming, ...watching, ...worth, ...newFlix, ...topTv, ...topMovies]),
+    [coming, watching, worth, newFlix, topTv, topMovies],
   )
   const feedIds = useMemo(() => feed.map((item) => item.id).join(','), [feed])
 
@@ -313,6 +330,8 @@ function NewsHotFeed() {
     const nodes: Array<[NewsChip, HTMLElement | null]> = [
       ['coming', comingRef.current],
       ['watching', watchingRef.current],
+      ['worth', worthRef.current],
+      ['new', newRef.current],
       ['top-tv', topTvRef.current],
       ['top-movies', topMoviesRef.current],
     ]
@@ -332,7 +351,7 @@ function NewsHotFeed() {
     )
     targets.forEach(([, node]) => observer.observe(node))
     return () => observer.disconnect()
-  }, [coming.length, watching.length, topTv.length, topMovies.length])
+  }, [coming.length, watching.length, worth.length, newFlix.length, topTv.length, topMovies.length])
 
   useEffect(() => {
     const btn = chipBtnRefs.current[activeChip]
@@ -350,9 +369,13 @@ function NewsHotFeed() {
         ? comingRef.current
         : next === 'watching'
           ? watchingRef.current
-          : next === 'top-tv'
-            ? topTvRef.current
-            : topMoviesRef.current
+          : next === 'worth'
+            ? worthRef.current
+            : next === 'new'
+              ? newRef.current
+              : next === 'top-tv'
+                ? topTvRef.current
+                : topMoviesRef.current
     node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     window.setTimeout(() => {
       jumpingRef.current = false
@@ -375,6 +398,7 @@ function NewsHotFeed() {
 
   return (
     <main className="page page-pad news-hot-page">
+      <h1 className="news-page-title">New &amp; Hot</h1>
       <nav className="news-chips" aria-label="New & Hot">
         {chips.map((entry) => (
           <button
@@ -392,7 +416,7 @@ function NewsHotFeed() {
       </nav>
       {coming.length ? (
         <section className="news-feed" ref={comingRef} aria-label="Coming Soon">
-          <h1 className="visually-hidden">Coming Soon</h1>
+          <h2 className="news-section-title">Coming Soon</h2>
           {coming.map((item) => (
             <FeedCard
               key={item.id}
@@ -414,6 +438,28 @@ function NewsHotFeed() {
               mode="watching"
               synopsis={synopses[item.id]}
             />
+          ))}
+        </section>
+      ) : null}
+      {worth.length ? (
+        <section className="news-feed" ref={worthRef} aria-label="Worth the Wait">
+          <h2 className="news-section-title">Worth the Wait</h2>
+          {worth.map((item) => (
+            <FeedCard
+              key={item.id}
+              item={item}
+              mode={comingSoon(item) ? 'soon' : 'watching'}
+              synopsis={synopses[item.id]}
+              onRemind={comingSoon(item) ? handleRemind : undefined}
+            />
+          ))}
+        </section>
+      ) : null}
+      {newFlix.length ? (
+        <section className="news-feed" ref={newRef} aria-label="New on FLIX">
+          <h2 className="news-section-title">New on FLIX</h2>
+          {newFlix.map((item) => (
+            <FeedCard key={item.id} item={item} mode="watching" synopsis={synopses[item.id]} />
           ))}
         </section>
       ) : null}

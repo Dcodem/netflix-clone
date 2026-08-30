@@ -12,7 +12,7 @@ import { MediaRow } from '../components/MediaRow'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
-import { buildBrowseRows, catalogGenres, type BrowseFilter } from '../lib/homeRows'
+import { buildBrowseRows, catalogGenres, exploreHrefForRow, type BrowseFilter } from '../lib/homeRows'
 import { isShow, ofKind, pickHero, sortByRating, uniqueById } from '../lib/media'
 import { filterByMaturity } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -207,6 +207,8 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           continueMode={row.variant === 'continue'}
           variant={row.variant}
           loop={row.loop}
+          hoverable={desktop}
+          exploreTo={exploreHrefForRow(row)}
         />
       ))}
       <CategoriesSheet
