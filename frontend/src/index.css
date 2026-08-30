@@ -7617,7 +7617,7 @@ img.is-logo-pending {
   position: relative;
   z-index: 1;
   font-family: var(--display);
-  font-size: clamp(64px, 12vw, 124px);
+  font-size: clamp(80px, 16vw, 220px);
   font-weight: 900;
   letter-spacing: -0.07em;
   line-height: 0.9;
