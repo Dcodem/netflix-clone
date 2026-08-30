@@ -16,6 +16,7 @@ import {
   type MyListSort,
 } from '../lib/homeRows'
 import { filterByMaturity } from '../lib/netflix'
+import { uniqueById } from '../lib/media'
 import { matchesGenreFilter } from '../profiles/taste'
 import { useProfiles } from '../profiles/ProfileContext'
 
@@ -39,15 +40,16 @@ export function MyList() {
       enrichListItems(filterByMaturity(likedToItems(activeProfile?.myList ?? []), activeProfile), catalog),
     [activeProfile, catalog],
   )
+  const uniqueItems = useMemo(() => uniqueById(items), [items])
   const desktop = useMediaQuery('(min-width: 768px)')
   const [genre, setGenre] = useState('')
   const [sort, setSort] = useState<MyListSort>('suggestions')
   const [headingStuck, setHeadingStuck] = useState(false)
-  const genres = useMemo(() => catalogGenres(items), [items])
+  const genres = useMemo(() => catalogGenres(uniqueItems), [uniqueItems])
   const visible = useMemo(() => {
-    const filtered = genre ? items.filter((item) => matchesGenreFilter(item, genre)) : items
+    const filtered = genre ? uniqueItems.filter((item) => matchesGenreFilter(item, genre)) : uniqueItems
     return sortMyListItems(filtered, sort, activeProfile)
-  }, [items, genre, sort, activeProfile])
+  }, [uniqueItems, genre, sort, activeProfile])
   const useGenreMenu = desktop && genres.length > 1
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export function MyList() {
         {useGenreMenu ? (
           <GenreSelect value={genre} genres={genres} onChange={setGenre} useMenu />
         ) : null}
-        {items.length ? (
+        {uniqueItems.length ? (
           <OutlineSelect
             label="Sort"
             value={sort}
@@ -73,7 +75,7 @@ export function MyList() {
           />
         ) : null}
       </div>
-      {items.length ? (
+      {uniqueItems.length ? (
         visible.length ? (
           <MediaGrid items={visible} layout="poster" hoverable={desktop} />
         ) : (

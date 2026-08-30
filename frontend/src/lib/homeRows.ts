@@ -67,8 +67,9 @@ export const MY_LIST_SORTS: { value: MyListSort; label: string }[] = [
 export function enrichListItems(list: MovieListItem[], catalog: MovieListItem[]): MovieListItem[] {
   if (!catalog.length) return list
   const byId = new Map(catalog.map((item) => [item.id, item]))
+  const byTitle = new Map(catalog.map((item) => [item.title.toLowerCase(), item]))
   return list.map((item) => {
-    const hit = byId.get(item.id)
+    const hit = byId.get(item.id) ?? byTitle.get(item.title.toLowerCase())
     if (!hit) return item
     return {
       ...item,
