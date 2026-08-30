@@ -4100,6 +4100,22 @@ img.is-logo-pending {
   color: #777;
 }
 
+.title-link,
+.genre-dot-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.title-link:hover,
+.genre-dot-link:hover {
+  text-decoration: underline;
+}
+
 .title-modal .season-tabs,
 .title-modal .episodes,
 .title-modal .episode-header {

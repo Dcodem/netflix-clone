@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { getCatalogMany, getMovie, getShow, proxyImageUrl } from '../api/client'
 import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '../api/types'
 import { CatalogImage } from '../components/CatalogImage'
@@ -33,6 +34,7 @@ function isShowDetail(detail: MovieDetail): detail is ShowDetail {
 export function TitleModal() {
   const { item, closeTitle } = useTitleModal()
   const { openWatch } = useWatch()
+  const navigate = useNavigate()
   const { activeProfile } = useProfiles()
   const last = activeProfile?.history.find((entry) => entry.id === item?.id)
   const trailerRef = useRef<TrailerHandle>(null)
@@ -222,6 +224,18 @@ export function TitleModal() {
     setDragY(0)
   }
 
+  function goSearch(query: string) {
+    playClick()
+    closeTitle()
+    navigate(`/search?q=${encodeURIComponent(query)}`)
+  }
+
+  function goGenre(genre: string) {
+    playClick()
+    closeTitle()
+    navigate(`/browse?genre=${encodeURIComponent(genre)}`)
+  }
+
   function playTrailerClip(index: number) {
     playClick()
     const clip = clips[index]
@@ -351,18 +365,34 @@ export function TitleModal() {
             <div className="title-modal-split-side">
               {detail?.cast?.length ? (
                 <p className="title-modal-cast">
-                  <span className="title-kicker">Cast:</span> {detail.cast.join(', ')}
+                  <span className="title-kicker">Cast:</span>{' '}
+                  {detail.cast.map((name, index) => (
+                    <span key={name}>
+                      {index ? ', ' : null}
+                      <button type="button" className="title-link" onClick={() => goSearch(name)}>
+                        {name}
+                      </button>
+                    </span>
+                  ))}
                 </p>
               ) : null}
               {genres.length ? (
                 <p className="title-modal-cast">
-                  <span className="title-kicker">Genres:</span> {genres.join(', ')}
+                  <span className="title-kicker">Genres:</span>{' '}
+                  {genres.map((genre, index) => (
+                    <span key={genre}>
+                      {index ? ', ' : null}
+                      <button type="button" className="title-link" onClick={() => goGenre(genre)}>
+                        {genre}
+                      </button>
+                    </span>
+                  ))}
                 </p>
               ) : null}
               {moods.length ? (
                 <div className="title-modal-cast">
                   <span className="title-kicker">This {isShow(item) ? 'show' : 'movie'} is:</span>
-                  <GenreDots genres={moods} className="title-moods" />
+                  <GenreDots genres={moods} className="title-moods" onSelect={goSearch} />
                 </div>
               ) : null}
             </div>
@@ -459,18 +489,34 @@ export function TitleModal() {
             ) : null}
             {detail?.cast?.length ? (
               <p>
-                <span className="title-kicker">Cast:</span> {detail.cast.join(', ')}
+                <span className="title-kicker">Cast:</span>{' '}
+                {detail.cast.map((name, index) => (
+                  <span key={name}>
+                    {index ? ', ' : null}
+                    <button type="button" className="title-link" onClick={() => goSearch(name)}>
+                      {name}
+                    </button>
+                  </span>
+                ))}
               </p>
             ) : null}
             {genres.length ? (
               <p>
-                <span className="title-kicker">Genres:</span> {genres.join(', ')}
+                <span className="title-kicker">Genres:</span>{' '}
+                {genres.map((genre, index) => (
+                  <span key={genre}>
+                    {index ? ', ' : null}
+                    <button type="button" className="title-link" onClick={() => goGenre(genre)}>
+                      {genre}
+                    </button>
+                  </span>
+                ))}
               </p>
             ) : null}
             {moods.length ? (
               <div className="title-about-row">
                 <span className="title-kicker">This {isShow(item) ? 'show' : 'movie'} is:</span>
-                <GenreDots genres={moods} className="title-moods" />
+                <GenreDots genres={moods} className="title-moods" onSelect={goSearch} />
               </div>
             ) : null}
             <div className="title-about-maturity">
