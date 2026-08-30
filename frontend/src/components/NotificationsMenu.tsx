@@ -1,8 +1,10 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { useHoverMenu } from '../hooks/useHoverMenu'
 import { catalogNotices, filterByMaturity } from '../lib/netflix'
+import { noticeKey, withNotifySeen, writeNotifySeen } from '../lib/notifySeen'
 import { uniqueById } from '../lib/media'
 import { useFetch } from '../hooks/useFetch'
 import { useTitleModal } from '../title/TitleModalContext'
@@ -14,6 +16,8 @@ export function NotificationsMenu() {
   const { openTitle } = useTitleModal()
   const { activeProfile } = useProfiles()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
+  const [seenTick, setSeenTick] = useState(0)
+  const openKeys = useRef<string[]>([])
   const movies = useFetch(() => getMovies(), 'home-movies')
   const extras = useFetch(async () => {
     const [catalogMovies, catalogShows] = await Promise.all([
@@ -23,8 +27,26 @@ export function NotificationsMenu() {
     return uniqueById([...catalogMovies, ...catalogShows])
   }, 'notify-catalog')
   const catalog = uniqueById([...(movies.data ?? []), ...(extras.data ?? [])])
-  const notices = catalogNotices(filterByMaturity(catalog, activeProfile), activeProfile, 8)
+  const rawNotices = useMemo(
+    () => catalogNotices(filterByMaturity(catalog, activeProfile), activeProfile, 8),
+    [catalog, activeProfile],
+  )
+  const notices = useMemo(
+    () => withNotifySeen(rawNotices, activeProfile?.id),
+    [rawNotices, activeProfile?.id, seenTick],
+  )
   const unread = notices.some((notice) => notice.unread)
+
+  useEffect(() => {
+    if (open) {
+      openKeys.current = rawNotices.map(noticeKey)
+      return
+    }
+    if (!activeProfile?.id || !openKeys.current.length) return
+    writeNotifySeen(activeProfile.id, openKeys.current)
+    openKeys.current = []
+    setSeenTick((tick) => tick + 1)
+  }, [open, activeProfile?.id, rawNotices])
 
   return (
     <div

@@ -14,6 +14,7 @@ import { isComingSoon } from '../lib/comingSoon'
 import { historyToListItems, likedToItems, stillWatching } from '../lib/homeRows'
 import { isShow, uniqueById } from '../lib/media'
 import { catalogNotices, filterByMaturity } from '../lib/netflix'
+import { withNotifySeen } from '../lib/notifySeen'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -50,7 +51,7 @@ export function MyNetflix() {
   )
   const listItems = likedToItems(activeProfile?.myList ?? [])
   const downloadItems = likedToItems(activeProfile?.downloads ?? [])
-  const notices = catalogNotices(catalog, activeProfile, 8)
+  const notices = withNotifySeen(catalogNotices(catalog, activeProfile, 8), activeProfile?.id)
   const because = useMemo(
     () => (activeProfile ? becauseYouWatchedRows(catalog, activeProfile.history, 1) : []),
     [catalog, activeProfile],
