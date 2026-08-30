@@ -32,7 +32,14 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   updateKeys: (keys: { ivaKey?: string; tmdbKey?: string }) => void
-  updateAccount: (opts: { email?: string; password?: string; phone?: string | null }) => Promise<void>
+  updateAccount: (opts: {
+    email?: string
+    password?: string
+    phone?: string | null
+    planId?: UserAccount['planId']
+    paymentBrand?: string | null
+    paymentLast4?: string | null
+  }) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -112,7 +119,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 
   const updateAccount = useCallback(
-    async (opts: { email?: string; password?: string; phone?: string | null }) => {
+    async (opts: {
+      email?: string
+      password?: string
+      phone?: string | null
+      planId?: UserAccount['planId']
+      paymentBrand?: string | null
+      paymentLast4?: string | null
+    }) => {
       const current = loadStore()
       const sessionId = current.sessionUserId
       if (!sessionId) throw new Error('Sign in to change account details.')
@@ -139,6 +153,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             ...user,
             email: email ?? user.email,
             phone: opts.phone !== undefined ? opts.phone : user.phone,
+            planId: opts.planId ?? user.planId,
+            paymentBrand: opts.paymentBrand !== undefined ? opts.paymentBrand : user.paymentBrand,
+            paymentLast4: opts.paymentLast4 !== undefined ? opts.paymentLast4 : user.paymentLast4,
             passwordSalt: passwordSalt ?? user.passwordSalt,
             passwordHash: passwordHash ?? user.passwordHash,
           }

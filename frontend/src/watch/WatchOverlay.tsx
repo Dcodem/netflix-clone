@@ -47,6 +47,15 @@ const CAPTIONS = [
   'Don’t look back.',
 ]
 
+function captionLines(text?: string | null): string[] {
+  if (!text?.trim()) return CAPTIONS
+  const parts = text
+    .split(/(?<=[.!?])\s+/)
+    .map((line) => line.replace(/\s+/g, ' ').trim())
+    .filter((line) => line.length >= 8)
+  return parts.length ? parts : CAPTIONS
+}
+
 function formatClock(seconds: number, remaining = false) {
   const total = Math.max(0, Math.floor(seconds))
   const hours = Math.floor(total / 3600)
@@ -735,7 +744,8 @@ export function WatchOverlay() {
   const countingDown = remaining <= AUTO_IN && activeProfile?.autoplayNext !== false
   const nextCount = countingDown ? Math.max(1, Math.ceil(remaining)) : null
   const nextProgress = countingDown ? Math.min(1, remaining / AUTO_IN) : 1
-  const caption = subs === 'off' ? null : CAPTIONS[Math.floor(current / 9) % CAPTIONS.length]
+  const captionPool = captionLines(playing?.episode.synopsis)
+  const caption = subs === 'off' ? null : captionPool[Math.floor(current / 9) % captionPool.length]
 
   function ratioFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect()

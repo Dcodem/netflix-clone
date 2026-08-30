@@ -8,6 +8,9 @@ export type UserAccount = {
   ivaKey: string
   tmdbKey: string
   phone?: string | null
+  planId?: 'standard' | 'premium' | 'basic'
+  paymentBrand?: string | null
+  paymentLast4?: string | null
 }
 
 export type AuthStore = {

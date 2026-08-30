@@ -2587,6 +2587,12 @@ body:has(.account-page),
   font: inherit;
 }
 
+.account-inline-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
 .account-inline-actions {
   display: flex;
   align-items: center;
@@ -9054,7 +9060,7 @@ img.is-logo-pending {
 }
 
 .watch-caption.is-cc {
-  color: #ffe500;
+  color: #fff;
 }
 
 @media (max-width: 767px) {

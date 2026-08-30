@@ -14,6 +14,14 @@ const PLANS = [
 
 type PlanId = (typeof PLANS)[number]['id']
 
+function cardBrand(digits: string): string {
+  if (digits.startsWith('4')) return 'Visa'
+  if (digits.startsWith('5') || digits.startsWith('2')) return 'Mastercard'
+  if (digits.startsWith('34') || digits.startsWith('37')) return 'Amex'
+  if (digits.startsWith('6')) return 'Discover'
+  return 'Card'
+}
+
 type AccountPanel =
   | 'email'
   | 'password'
@@ -36,7 +44,12 @@ export function Account() {
   const [phoneDraft, setPhoneDraft] = useState(user?.phone ?? '')
   const [accountError, setAccountError] = useState<string | null>(null)
   const [accountBusy, setAccountBusy] = useState(false)
-  const [planId, setPlanId] = useState<PlanId>('standard')
+  const [planId, setPlanId] = useState<PlanId>(
+    user?.planId && PLANS.some((entry) => entry.id === user.planId) ? user.planId : 'standard',
+  )
+  const [cardNumber, setCardNumber] = useState('')
+  const [cardExp, setCardExp] = useState('')
+  const [cardCvc, setCardCvc] = useState('')
   const plan = PLANS.find((entry) => entry.id === planId) ?? PLANS[0]
   const nextPay = useMemo(() => {
     const date = new Date()
@@ -49,6 +62,9 @@ export function Account() {
     setEmailDraft(user?.email ?? '')
     setPasswordDraft('')
     setPhoneDraft(user?.phone ?? '')
+    setCardNumber('')
+    setCardExp('')
+    setCardCvc('')
     setPanel((current) => (current === next ? null : next))
   }
 
@@ -64,6 +80,31 @@ export function Account() {
       setPasswordDraft('')
     } catch (err) {
       setAccountError(err instanceof Error ? err.message : 'Could not save those details.')
+    } finally {
+      setAccountBusy(false)
+    }
+  }
+
+  async function savePayment(event: FormEvent) {
+    event.preventDefault()
+    setAccountError(null)
+    const digits = cardNumber.replace(/\D/g, '')
+    if (digits.length < 12 || digits.length > 19) {
+      setAccountError('Enter a valid card number.')
+      return
+    }
+    setAccountBusy(true)
+    try {
+      await updateAccount({
+        paymentBrand: cardBrand(digits),
+        paymentLast4: digits.slice(-4),
+      })
+      setCardNumber('')
+      setCardExp('')
+      setCardCvc('')
+      setPanel(null)
+    } catch (err) {
+      setAccountError(err instanceof Error ? err.message : 'Could not save that payment method.')
     } finally {
       setAccountBusy(false)
     }
@@ -191,13 +232,73 @@ export function Account() {
             </form>
           ) : null}
           <div className="account-row">
-            <span>No payment method</span>
+            <span>
+              {user?.paymentLast4 ? `${user.paymentBrand || 'Card'} •••• ${user.paymentLast4}` : 'No payment method'}
+            </span>
             <button type="button" className="account-change" onClick={() => togglePanel('payment')}>
-              Update payment method
+              {user?.paymentLast4 ? 'Update payment method' : 'Add payment method'}
             </button>
           </div>
           {panel === 'payment' ? (
-            <p className="account-inline-note">This device has no monthly bill, so there is no card on file.</p>
+            <form className="account-inline" onSubmit={(event) => void savePayment(event)}>
+              <label>
+                Card number
+                <input
+                  inputMode="numeric"
+                  autoComplete="cc-number"
+                  value={cardNumber}
+                  onChange={(event) => setCardNumber(event.target.value.replace(/[^\d ]/g, '').slice(0, 23))}
+                  placeholder="•••• •••• •••• ••••"
+                  required
+                />
+              </label>
+              <div className="account-inline-split">
+                <label>
+                  Expiration
+                  <input
+                    inputMode="numeric"
+                    autoComplete="cc-exp"
+                    value={cardExp}
+                    onChange={(event) => setCardExp(event.target.value.replace(/[^\d/]/g, '').slice(0, 5))}
+                    placeholder="MM/YY"
+                  />
+                </label>
+                <label>
+                  CVC
+                  <input
+                    inputMode="numeric"
+                    autoComplete="cc-csc"
+                    value={cardCvc}
+                    onChange={(event) => setCardCvc(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                    placeholder="CVC"
+                  />
+                </label>
+              </div>
+              <p className="account-inline-note">
+                FLIX keeps only the brand and last four digits on this device. It does not charge a card.
+              </p>
+              {accountError ? <p className="account-inline-error">{accountError}</p> : null}
+              <div className="account-inline-actions">
+                <button type="submit" className="btn btn-primary" disabled={accountBusy}>
+                  Save
+                </button>
+                {user?.paymentLast4 ? (
+                  <button
+                    type="button"
+                    className="account-change"
+                    onClick={() => {
+                      void updateAccount({ paymentBrand: null, paymentLast4: null })
+                      setPanel(null)
+                    }}
+                  >
+                    Remove
+                  </button>
+                ) : null}
+                <button type="button" className="account-change" onClick={() => setPanel(null)}>
+                  Cancel
+                </button>
+              </div>
+            </form>
           ) : null}
           <div className="account-row is-actions">
             <button type="button" className="account-change" onClick={() => togglePanel('gift')}>
@@ -230,6 +331,7 @@ export function Account() {
                   className={`account-plan-tile ${entry.id === planId ? 'is-on' : ''}`}
                   onClick={() => {
                     setPlanId(entry.id)
+                    void updateAccount({ planId: entry.id })
                     setPanel(null)
                   }}
                 >
