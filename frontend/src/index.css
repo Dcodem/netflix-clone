@@ -2718,6 +2718,42 @@ body:has(.account-page),
   border-color: #fff;
 }
 
+.account-data-usage {
+  margin: 8px 0 0;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid #ccc;
+}
+
+.account-data-usage legend {
+  padding: 0;
+  color: #141414;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.account-data-usage > p {
+  margin: 6px 0 4px;
+  color: #737373;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.account-data-usage .edit-check input {
+  border-radius: 50%;
+}
+
+.account-data-usage .edit-check input:checked::after {
+  left: 5px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  transform: none;
+}
+
 .account-inline-error {
   color: #e87c03;
 }

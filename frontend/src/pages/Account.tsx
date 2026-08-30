@@ -5,7 +5,7 @@ import { currentDeviceId, formatDeviceUsed, upsertCurrentDevice } from '../auth/
 import { AvatarArt } from '../components/AvatarArt'
 import { ChevronRightIcon } from '../components/Icons'
 import { useProfiles } from '../profiles/ProfileContext'
-import { avatarFor } from '../profiles/types'
+import { DATA_USAGE_OPTIONS, avatarFor, type DataUsage } from '../profiles/types'
 
 const PLANS = [
   { id: 'standard', name: 'Standard', quality: 'HD', devices: '2 devices at a time', price: '$15.49' },
@@ -528,6 +528,26 @@ export function Account() {
                     <small>Skip the recap and intro on TV shows.</small>
                   </span>
                 </label>
+                <fieldset className="account-data-usage">
+                  <legend>Data usage per screen</legend>
+                  <p>Auto picks quality from this connection. Playback still stays in this browser.</p>
+                  {DATA_USAGE_OPTIONS.map((entry) => (
+                    <label className="edit-check" key={entry.id}>
+                      <input
+                        type="radio"
+                        name="data-usage"
+                        checked={(activeProfile.dataUsage ?? 'auto') === entry.id}
+                        onChange={() => {
+                          void updateProfile(activeProfile.id, { dataUsage: entry.id as DataUsage })
+                        }}
+                      />
+                      <span>
+                        {entry.label}
+                        <small>{entry.detail}</small>
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
               </div>
             ) : (
               <p className="account-inline-note">Choose a profile to change autoplay next episode, previews, and skip intros.</p>

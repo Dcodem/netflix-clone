@@ -43,6 +43,15 @@ export const PROFILE_LANGUAGES = ['English', 'Español', 'Français'] as const
 export const PROFILE_MATURITY = ['All Maturity Ratings', 'Teens and below', 'Kids'] as const
 export type ProfileLanguage = (typeof PROFILE_LANGUAGES)[number]
 export type ProfileMaturity = (typeof PROFILE_MATURITY)[number]
+export const DATA_USAGE = ['auto', 'low', 'medium', 'high'] as const
+export type DataUsage = (typeof DATA_USAGE)[number]
+
+export const DATA_USAGE_OPTIONS: { id: DataUsage; label: string; detail: string }[] = [
+  { id: 'auto', label: 'Auto', detail: 'Recommended' },
+  { id: 'low', label: 'Low', detail: 'Basic' },
+  { id: 'medium', label: 'Medium', detail: 'Better' },
+  { id: 'high', label: 'High', detail: 'Best' },
+]
 
 export type Profile = {
   id: string
@@ -54,6 +63,7 @@ export type Profile = {
   autoplayNext: boolean
   autoplayPreview: boolean
   skipIntros: boolean
+  dataUsage: DataUsage
   language: ProfileLanguage
   maturity: ProfileMaturity
   gameHandle: string

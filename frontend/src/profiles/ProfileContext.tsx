@@ -8,6 +8,8 @@ import {
   PROFILE_MATURITY,
   STORAGE_KEY,
   type LikedTitle,
+  DATA_USAGE,
+  type DataUsage,
   type Profile,
   type ProfileLanguage,
   type ProfileMaturity,
@@ -35,6 +37,10 @@ function isMaturity(value: unknown): value is ProfileMaturity {
   return PROFILE_MATURITY.includes(value as ProfileMaturity)
 }
 
+function isDataUsage(value: unknown): value is DataUsage {
+  return DATA_USAGE.includes(value as DataUsage)
+}
+
 function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
   const rest = { ...raw }
   delete rest.kids
@@ -55,6 +61,7 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     autoplayNext: raw.autoplayNext !== false,
     autoplayPreview: raw.autoplayPreview !== false,
     skipIntros: Boolean(raw.skipIntros),
+    dataUsage: isDataUsage(raw.dataUsage) ? raw.dataUsage : 'auto',
     language: isLanguage(raw.language) ? raw.language : 'English',
     maturity: isMaturity(raw.maturity) ? raw.maturity : 'All Maturity Ratings',
     gameHandle: typeof raw.gameHandle === 'string' ? raw.gameHandle : '',
@@ -106,6 +113,7 @@ export type UpdateProfileOpts = {
   autoplayNext?: boolean
   autoplayPreview?: boolean
   skipIntros?: boolean
+  dataUsage?: DataUsage
   language?: ProfileLanguage
   maturity?: ProfileMaturity
   gameHandle?: string
@@ -180,6 +188,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         autoplayNext: true,
         autoplayPreview: true,
         skipIntros: false,
+        dataUsage: 'auto',
         language: 'English',
         maturity: 'All Maturity Ratings',
         gameHandle: '',
@@ -248,6 +257,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             autoplayNext: opts.autoplayNext ?? profile.autoplayNext,
             autoplayPreview: opts.autoplayPreview ?? profile.autoplayPreview,
             skipIntros: opts.skipIntros ?? profile.skipIntros,
+            dataUsage: opts.dataUsage ?? profile.dataUsage,
             language: opts.language ?? profile.language,
             maturity: opts.maturity ?? profile.maturity,
             gameHandle: opts.gameHandle !== undefined ? opts.gameHandle.trim() : profile.gameHandle,
