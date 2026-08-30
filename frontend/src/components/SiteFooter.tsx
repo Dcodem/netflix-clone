@@ -83,7 +83,8 @@ export const FOOTER_NOTES: Record<string, string> = {
   'Media Center': 'There is no press kit for this demo.',
   'Redeem Gift Cards': 'Gift cards and promo codes are not used on this device.',
   'Buy Gift Cards': 'Gift cards are not sold on this device.',
-  'Transfer Profile': 'Profile transfer isn’t available on this device. Use Manage Profiles to edit who’s watching.',
+  'Transfer Profile':
+    'Open the account menu and choose Transfer Profile to get a one-time code. Profiles stay on this device.',
 }
 
 const FOOTER_LANGS = [

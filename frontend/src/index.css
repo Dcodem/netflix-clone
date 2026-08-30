@@ -2411,6 +2411,21 @@ body:has(.account-page),
   font-weight: 700;
 }
 
+.account-plan-price {
+  margin: 0 0 4px;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.account-plan-row-price {
+  display: block;
+  margin-top: 4px;
+  color: #555;
+  font-style: normal;
+  font-size: 14px;
+}
+
 .account-plan-picker {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2440,6 +2455,12 @@ body:has(.account-page),
   font-style: normal;
   color: #555;
   font-size: 13px;
+}
+
+.account-tile-price {
+  color: #333;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .account-plan-tile small {
@@ -6426,6 +6447,66 @@ img.is-logo-pending {
 
 .cookie-prefs-card:not(:has(.cookie-prefs-head)) h2 {
   margin: 0 0 12px;
+}
+
+.transfer-card {
+  width: min(520px, 100%);
+}
+
+.transfer-code {
+  margin: 8px 0 20px !important;
+  color: #fff !important;
+  font-size: clamp(28px, 5vw, 40px) !important;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.transfer-profiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 16px;
+  padding: 8px 0 12px;
+}
+
+.transfer-profile {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.transfer-profile .avatar-dot {
+  width: 72px;
+  height: 72px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.transfer-profile:hover span:last-child,
+.transfer-profile:focus-visible span:last-child {
+  color: #b3b3b3;
+}
+
+.transfer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.transfer-note {
+  margin: 0 !important;
+  color: #808080 !important;
+  font-size: 13px !important;
 }
 
 .service-code {

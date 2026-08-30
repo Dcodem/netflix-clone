@@ -7,6 +7,7 @@ import { avatarFor } from '../profiles/types'
 import { AvatarArt } from './AvatarArt'
 import { CaretIcon, ExitIcon, HelpCircleIcon, MyNetflixIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
 import { FooterNoteDialog, FOOTER_NOTES } from './SiteFooter'
+import { TransferProfileDialog } from './TransferProfileDialog'
 
 export function AccountMenu() {
   const { user, logout } = useAuth()
@@ -128,13 +129,7 @@ export function AccountMenu() {
           onClose={() => setHelpOpen(false)}
         />
       ) : null}
-      {transferOpen ? (
-        <FooterNoteDialog
-          title="Transfer Profile"
-          body={FOOTER_NOTES['Transfer Profile']}
-          onClose={() => setTransferOpen(false)}
-        />
-      ) : null}
+      <TransferProfileDialog open={transferOpen} onClose={() => setTransferOpen(false)} />
     </div>
   )
 }

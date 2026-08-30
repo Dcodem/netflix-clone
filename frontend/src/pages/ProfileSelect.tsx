@@ -3,7 +3,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AvatarArt } from '../components/AvatarArt'
 import { CatalogImage } from '../components/CatalogImage'
 import { ChevronLeftIcon, ChevronRightIcon, CloseIcon, DoubleThumbUpIcon, LockIcon, PencilIcon, PlusIcon, ThumbDownIcon, ThumbUpIcon } from '../components/Icons'
-import { FooterNoteDialog, FOOTER_NOTES } from '../components/SiteFooter'
+import { TransferProfileDialog } from '../components/TransferProfileDialog'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { playProfileSting } from '../lib/sounds'
@@ -742,13 +742,11 @@ export function ProfileSelect() {
           ) : null}
         </>
       )}
-      {transferOpen ? (
-        <FooterNoteDialog
-          title="Transfer Profile"
-          body={FOOTER_NOTES['Transfer Profile']}
-          onClose={() => setTransferOpen(false)}
-        />
-      ) : null}
+      <TransferProfileDialog
+        open={transferOpen}
+        lockedProfile={editing}
+        onClose={() => setTransferOpen(false)}
+      />
     </main>
   )
 }

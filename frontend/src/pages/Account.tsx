@@ -7,9 +7,9 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 
 const PLANS = [
-  { id: 'standard', name: 'Standard', quality: 'HD', devices: '2 devices at a time' },
-  { id: 'premium', name: 'Premium', quality: 'UHD', devices: '4 devices at a time' },
-  { id: 'basic', name: 'Basic', quality: 'HD', devices: '1 device at a time' },
+  { id: 'standard', name: 'Standard', quality: 'HD', devices: '2 devices at a time', price: '$15.49' },
+  { id: 'premium', name: 'Premium', quality: 'UHD', devices: '4 devices at a time', price: '$24.99' },
+  { id: 'basic', name: 'Basic', quality: 'HD', devices: '1 device at a time', price: '$7.99' },
 ] as const
 
 type PlanId = (typeof PLANS)[number]['id']
@@ -124,6 +124,7 @@ export function Account() {
             <span className="account-plan-name">{plan.name}</span>
             <span className="spec-badge">{plan.quality}</span>
           </p>
+          <p className="account-plan-price">{plan.price} a month</p>
           <div className="account-next-pay">
             <span>Next payment</span>
             <strong>{nextPay}</strong>
@@ -317,6 +318,7 @@ export function Account() {
           <div className="account-row">
             <span>
               {plan.name} <span className="spec-badge">{plan.quality}</span>
+              <em className="account-plan-row-price">{plan.price} a month</em>
             </span>
             <button type="button" className="account-change" onClick={() => togglePanel('plan')}>
               Change plan
@@ -337,6 +339,7 @@ export function Account() {
                 >
                   <strong>{entry.name}</strong>
                   <span className="spec-badge">{entry.quality}</span>
+                  <span className="account-tile-price">{entry.price} a month</span>
                   <em>{entry.devices}</em>
                   {entry.id === planId ? <small>Current plan</small> : null}
                 </button>
