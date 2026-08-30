@@ -4176,9 +4176,9 @@ img.is-logo-pending {
 
 .search-recents-head .section-title {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #e5e5e5;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
 }
 
 .search-recent-list {
@@ -4203,8 +4203,8 @@ img.is-logo-pending {
   background: none;
   border: 0;
   color: #fff;
-  font-size: 14px;
-  padding: 7px 0;
+  font-size: 16px;
+  padding: 10px 0;
   text-align: left;
   cursor: pointer;
 }
@@ -5020,6 +5020,32 @@ img.is-logo-pending {
   position: relative;
 }
 
+.more-like-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  background: rgba(0, 0, 0, 0.22);
+  transition: opacity 0.16s ease;
+  pointer-events: none;
+}
+
+.more-like-card:hover .more-like-play,
+.more-like-card:focus-visible .more-like-play {
+  opacity: 1;
+}
+
+.more-like-play .icon {
+  width: 48px;
+  height: 48px;
+  padding: 12px 12px 12px 14px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
+}
+
 .more-like-add {
   position: absolute;
   top: 8px;
@@ -5093,9 +5119,9 @@ img.is-logo-pending {
 .is-top10 .row-scroller {
   gap: 4px;
   scroll-snap-type: none;
-  scroll-padding-left: max(8px, calc(var(--page-gutter) - 40px));
+  scroll-padding-left: max(36px, var(--page-gutter));
   padding-top: 36px;
-  padding-left: max(8px, calc(var(--page-gutter) - 40px));
+  padding-left: max(36px, var(--page-gutter));
 }
 
 .poster-wrap.is-ranked .poster-card {
@@ -5140,7 +5166,7 @@ img.is-logo-pending {
   box-sizing: border-box;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 5px #d0d0d0;
+  -webkit-text-stroke: 6px #8c8c8c;
   font: inherit;
   letter-spacing: inherit;
   line-height: inherit;
@@ -5148,7 +5174,7 @@ img.is-logo-pending {
 
 .rank-num.is-first {
   letter-spacing: 0;
-  margin-left: -0.12em;
+  margin-left: 0;
   margin-right: -0.1em;
   min-width: 0.58em;
   padding-left: 0.08em;
@@ -5187,9 +5213,10 @@ img.is-logo-pending {
 }
 
 .search-recommended-title {
-  margin: 4px 0 16px;
-  font-size: 20px;
+  margin: 8px 0 20px;
+  font-size: 24px;
   font-weight: 700;
+  letter-spacing: -0.02em;
   color: #fff;
 }
 

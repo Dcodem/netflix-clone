@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieListItem, ShowDetail } from '../api/types'
 import { formatRuntime, isShow } from '../lib/media'
-import { matchPercent, maturityLabel, toLiked } from '../lib/netflix'
+import { isNewEpisodes, matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
-import { CheckIcon, PlusIcon } from './Icons'
+import { CheckIcon, PlayIcon, PlusIcon } from './Icons'
 
 type LikeChip = { chip: string; synopsis: string }
 
@@ -90,6 +90,9 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
               <div className="more-like-art-wrap">
                 <div className="more-like-art">
                   <CatalogImage item={item} alt="" prefer="backdrop" />
+                  <span className="more-like-play" aria-hidden="true">
+                    <PlayIcon className="icon" />
+                  </span>
                   {info?.chip ? <span className="more-like-runtime">{info.chip}</span> : null}
                 </div>
                 <button
@@ -107,6 +110,7 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
               <div className="more-like-body">
                 <div className="more-like-meta">
                   <span className="match">{match}% Match</span>
+                  {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
                   {item.year ? <span className="more-like-year">{item.year}</span> : null}
                   <span className="maturity">{maturityLabel(item)}</span>
                   <FeatureBadges quality={item.quality} compact />
