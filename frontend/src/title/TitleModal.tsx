@@ -191,9 +191,12 @@ export function TitleModal() {
   function onSheetPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
     if (window.matchMedia('(min-width: 768px)').matches) return
     const target = event.target as HTMLElement
+    if (target.closest('button, a, input, [role="tab"]')) return
+    const modal = modalRef.current
     const fromHandle = Boolean(target.closest('.title-modal-handle'))
-    const fromHeroTop = Boolean(target.closest('.title-modal-hero')) && event.clientY < 88
-    if (!fromHandle && !fromHeroTop) return
+    const top = modal?.getBoundingClientRect().top ?? 0
+    const nearTop = event.clientY - top < 140 && (modal?.scrollTop ?? 0) < 8
+    if (!fromHandle && !nearTop) return
     dragStartY.current = event.clientY
     dragYRef.current = 0
     setDragY(0)
@@ -209,7 +212,7 @@ export function TitleModal() {
 
   function onSheetPointerUp() {
     if (dragStartY.current == null) return
-    const shouldClose = dragYRef.current > 96
+    const shouldClose = dragYRef.current > 80
     dragStartY.current = null
     dragYRef.current = 0
     if (shouldClose) {
