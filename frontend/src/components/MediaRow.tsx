@@ -78,8 +78,10 @@ export function MediaRow({
         {canExplore ? (
           <Link className="row-heading-link" to={exploreHref(title, items, seed)}>
             <h2 className="section-title">{title}</h2>
-            <span className="row-explore">Explore All</span>
-            <ChevronRightIcon className="icon row-heading-caret" />
+            <span className="row-explore">
+              Explore All
+              <ChevronRightIcon className="icon" />
+            </span>
           </Link>
         ) : (
           <h2 className="section-title">{title}</h2>

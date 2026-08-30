@@ -191,7 +191,7 @@ select,
   border: 1px solid transparent;
   padding: 0;
   box-sizing: border-box;
-  transition: width 0.25s ease, background 0.18s ease, border-color 0.18s ease;
+  transition: width 0.4s cubic-bezier(0.5, 0, 0.1, 1), background 0.18s ease, border-color 0.18s ease;
   justify-content: flex-start;
 }
 
@@ -669,42 +669,34 @@ select,
   text-decoration: none;
 }
 
-.row-heading-caret {
-  width: 16px;
-  height: 16px;
-  opacity: 0;
-  color: #54b9c5;
-  transform: translateX(-4px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  flex-shrink: 0;
-}
-
 .row-explore {
   color: #54b9c5;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   max-width: 0;
   opacity: 0;
   overflow: hidden;
-  transform: translateX(-6px);
-  transition: opacity 0.2s ease, transform 0.2s ease, max-width 0.22s ease;
+  transform: translateX(-8px);
+  transition: opacity 0.4s ease, transform 0.4s ease, max-width 0.4s ease;
   white-space: nowrap;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+  gap: 2px;
+}
+
+.row-explore .icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  vertical-align: -2px;
 }
 
 .row-heading-link:hover .row-explore,
 .row-heading-link:focus-visible .row-explore {
   opacity: 1;
   transform: none;
-  max-width: 120px;
-}
-
-.row-heading-link:hover .row-heading-caret,
-.row-heading-link:focus-visible .row-heading-caret {
-  opacity: 1;
-  transform: none;
+  max-width: 148px;
 }
 
 .row-heading-link:hover .section-title,
@@ -776,8 +768,8 @@ select,
   display: grid;
   place-items: center;
   position: absolute;
-  top: 28px;
-  bottom: 56px;
+  top: 0;
+  bottom: 6px;
   width: 5.5%;
   min-width: 60px;
   z-index: 24;
@@ -816,7 +808,7 @@ select,
 }
 
 .row-arrow:hover .icon {
-  transform: scale(1.85);
+  transform: scale(1.32);
 }
 
 .row-arrow-prev:hover {
@@ -1633,8 +1625,8 @@ select,
 
 .profiles-page h1 {
   font-family: var(--display);
-  font-size: clamp(32px, 4.15vw, 68px);
-  font-weight: 300;
+  font-size: clamp(32px, 4.15vw, 64px);
+  font-weight: 400;
   letter-spacing: -0.01em;
   margin: 0 0 clamp(48px, 6vw, 96px);
   color: #fff;
@@ -5437,16 +5429,16 @@ img.is-logo-pending {
   inset: 0;
   display: grid;
   place-items: center;
-  background: rgba(0, 0, 0, 0.42);
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .profile-pencil .icon {
-  width: 44%;
-  height: 44%;
-  max-width: 72px;
-  max-height: 72px;
-  padding: 10px;
-  border: 2.5px solid #fff;
+  width: 48%;
+  height: 48%;
+  max-width: 80px;
+  max-height: 80px;
+  padding: 12px;
+  border: 2px solid #fff;
   border-radius: 50%;
   color: #fff;
   box-sizing: border-box;
@@ -5588,15 +5580,19 @@ img.is-logo-pending {
   }
 
   .row-explore {
-    display: none;
-  }
-
-  .row-heading-link .row-heading-caret {
+    display: inline-flex;
+    max-width: none;
     opacity: 1;
     transform: none;
+    font-size: 0;
     color: #fff;
+  }
+
+  .row-explore .icon {
     width: 18px;
     height: 18px;
+    color: #fff;
+    margin: 0;
   }
 
   .login-card {
@@ -9231,14 +9227,14 @@ img.is-logo-pending {
   gap: 6px;
   flex-shrink: 0;
   margin: 0;
-  width: 84px;
+  width: 88px;
   background: none;
   color: #fff;
   border: 0;
   border-radius: 0;
   min-height: 0;
   padding: 0;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.2;
   text-align: center;
@@ -9248,8 +9244,8 @@ img.is-logo-pending {
 }
 
 .play-something-disc {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border: 1.6px solid #fff;
   border-radius: 50%;
   display: grid;
