@@ -318,12 +318,12 @@ export function WatchOverlay() {
       return
     }
     if (!bingeTitle) playIdentBump()
-    const toTitle = bingeTitle ? 0 : window.setTimeout(() => setIdentPhase('title'), 2400)
+    const toTitle = bingeTitle ? 0 : window.setTimeout(() => setIdentPhase('title'), 3200)
     const timer = window.setTimeout(() => {
       setIdentOn(false)
       setIdentPhase('off')
       showChromeRef.current()
-    }, bingeTitle ? 2200 : 5200)
+    }, bingeTitle ? 2200 : 6000)
     return () => {
       if (toTitle) window.clearTimeout(toTitle)
       window.clearTimeout(timer)
