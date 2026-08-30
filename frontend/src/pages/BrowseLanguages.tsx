@@ -13,6 +13,7 @@ import { useMediaQuery } from '../hooks/useMediaQuery'
 import {
   LANGUAGE_SORTS,
   ORIGINAL_LANGUAGES,
+  languageOptionsFor,
   originalLanguageOf,
   sortLanguageTitles,
   titlesInLanguage,
@@ -59,7 +60,6 @@ export function BrowseLanguages() {
   const [params, setParams] = useSearchParams()
   const langParam = params.get('lang')
   const picked = isLanguageCode(langParam) ? langParam : null
-  const language = picked ?? (desktop ? profileLanguageCode(activeProfile?.language) : null)
   const [sort, setSort] = useState<LanguageSort>(() => readLanguageSort(activeProfile?.id))
   const catalog = useFetch(async () => {
     const [movies, shows] = await Promise.all([
@@ -68,26 +68,32 @@ export function BrowseLanguages() {
     ])
     return uniqueById([...movies, ...shows])
   }, 'browse-languages')
+  const matureCatalog = useMemo(
+    () => filterByMaturity(catalog.data ?? [], activeProfile),
+    [catalog.data, activeProfile],
+  )
+  const offered = useMemo(() => languageOptionsFor(matureCatalog, picked), [matureCatalog, picked])
+  const language = useMemo(() => {
+    if (picked) return picked
+    if (!desktop) return null
+    const profileCode = profileLanguageCode(activeProfile?.language)
+    if (!catalog.data || offered.some((entry) => entry.code === profileCode)) return profileCode
+    return 'en'
+  }, [picked, desktop, activeProfile?.language, catalog.data, offered])
 
   const items = useMemo(() => {
     if (!language) return []
-    const pool = titlesInLanguage(filterByMaturity(catalog.data ?? [], activeProfile), language)
-    return sortLanguageTitles(pool, sort, activeProfile)
-  }, [catalog.data, language, sort, activeProfile])
+    return sortLanguageTitles(titlesInLanguage(matureCatalog, language), sort, activeProfile)
+  }, [matureCatalog, language, sort, activeProfile])
 
   const tileArt = useMemo(() => {
-    const pool = filterByMaturity(catalog.data ?? [], activeProfile)
     const art = new Map<LanguageCode, MovieListItem>()
-    for (const item of pool) {
+    for (const item of matureCatalog) {
       const code = originalLanguageOf(item)
       if (!art.has(code)) art.set(code, item)
     }
-    for (const entry of ORIGINAL_LANGUAGES) {
-      if (art.has(entry.code) || !pool.length) continue
-      art.set(entry.code, pool[entry.code.charCodeAt(0) % pool.length])
-    }
     return art
-  }, [catalog.data, activeProfile])
+  }, [matureCatalog])
 
   function pickLanguage(code: LanguageCode) {
     const next = new URLSearchParams(params)
@@ -118,7 +124,7 @@ export function BrowseLanguages() {
           <h1>Browse by Languages</h1>
         </header>
         <div className="languages-tiles" role="list">
-          {ORIGINAL_LANGUAGES.map((entry) => {
+          {offered.map((entry) => {
             const art = tileArt.get(entry.code)
             return (
               <button
@@ -148,7 +154,7 @@ export function BrowseLanguages() {
             value={language}
             searchable
             searchPlaceholder="Search languages"
-            options={ORIGINAL_LANGUAGES.map((entry) => ({ value: entry.code, label: entry.label }))}
+            options={offered.map((entry) => ({ value: entry.code, label: entry.label }))}
             onChange={(next) => pickLanguage(next as LanguageCode)}
           />
           <OutlineSelect

@@ -75,6 +75,13 @@ export function titlesInLanguage(items: MovieListItem[], code: LanguageCode): Mo
   return items.filter((item) => originalLanguageOf(item) === code)
 }
 
+/** Languages that actually have an original-language title. Extra keeps a deep-linked empty pick in the menu. */
+export function languageOptionsFor(items: MovieListItem[], extra?: LanguageCode | null) {
+  const have = new Set(items.map((item) => originalLanguageOf(item)))
+  if (extra) have.add(extra)
+  return ORIGINAL_LANGUAGES.filter((entry) => have.has(entry.code))
+}
+
 export function sortLanguageTitles(
   items: MovieListItem[],
   sort: LanguageSort,
