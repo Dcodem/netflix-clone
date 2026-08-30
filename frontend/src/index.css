@@ -11492,6 +11492,28 @@ img.is-logo-pending {
     width: 100%;
   }
 
+  .my-list-page .browse-heading {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 10px;
+    row-gap: 10px;
+  }
+
+  .my-list-page .browse-heading h1 {
+    grid-column: 1 / -1;
+    font-size: 28px;
+  }
+
+  .my-list-page .browse-heading .genre-select-wrap {
+    justify-self: start;
+  }
+
+  .my-list-page .browse-heading .outline-select {
+    margin-left: 0;
+    justify-self: end;
+  }
+
   .my-list-page .browse-heading .outline-select,
   .my-list-page .browse-heading .outline-select-btn {
     width: auto;
