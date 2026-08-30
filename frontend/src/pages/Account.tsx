@@ -5,7 +5,6 @@ import { AvatarArt } from '../components/AvatarArt'
 import { ChevronRightIcon } from '../components/Icons'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
-import { envKeys } from '../trailers/types'
 
 const PLANS = [
   { id: 'standard', name: 'Standard', quality: 'HD', devices: '2 devices at a time' },
@@ -29,12 +28,8 @@ type AccountPanel =
   | null
 
 export function Account() {
-  const { user, updateKeys, updateAccount } = useAuth()
+  const { user, updateAccount } = useAuth()
   const { profiles, activeProfile, updateProfile } = useProfiles()
-  const env = envKeys()
-  const [ivaKey, setIvaKey] = useState(user?.ivaKey ?? '')
-  const [tmdbKey, setTmdbKey] = useState(user?.tmdbKey ?? '')
-  const [saved, setSaved] = useState(false)
   const [panel, setPanel] = useState<AccountPanel>(null)
   const [emailDraft, setEmailDraft] = useState(user?.email ?? '')
   const [passwordDraft, setPasswordDraft] = useState('')
@@ -72,13 +67,6 @@ export function Account() {
     } finally {
       setAccountBusy(false)
     }
-  }
-
-  function onSave(event: FormEvent) {
-    event.preventDefault()
-    updateKeys({ ivaKey: ivaKey.trim(), tmdbKey: tmdbKey.trim() })
-    setSaved(true)
-    window.setTimeout(() => setSaved(false), 1600)
   }
 
   return (
@@ -350,43 +338,6 @@ export function Account() {
           ) : null}
         </div>
       </section>
-
-      <details className="account-extras">
-        <summary>Additional settings</summary>
-        <p className="account-hint">
-          Previews use free YouTube trailers. Optional keys only change lookup sources on this device.
-        </p>
-        <form className="account-form" onSubmit={onSave}>
-          <label>
-            TMDB key
-            <input
-              value={tmdbKey}
-              onChange={(event) => setTmdbKey(event.target.value)}
-              placeholder={env.tmdb ? 'Using VITE_TMDB_API_KEY' : 'YouTube trailer lookup'}
-              autoComplete="off"
-            />
-          </label>
-          <p className="account-hint">
-            Free keys:{' '}
-            <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noreferrer">
-              themoviedb.org
-            </a>
-            .
-          </p>
-          <label>
-            IVA / Fabric Origin key (optional)
-            <input
-              value={ivaKey}
-              onChange={(event) => setIvaKey(event.target.value)}
-              placeholder={env.iva ? 'Using VITE_IVA_API_KEY' : 'leave blank'}
-              autoComplete="off"
-            />
-          </label>
-          <button type="submit" className="btn btn-primary">
-            {saved ? 'Saved' : 'Save'}
-          </button>
-        </form>
-      </details>
     </main>
   )
 }

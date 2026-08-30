@@ -11,7 +11,6 @@ import { MyNetflix } from './pages/MyNetflix'
 import { NewsHot } from './pages/NewsHot'
 import { ProfileSelect } from './pages/ProfileSelect'
 import { Search } from './pages/Search'
-import { Taste } from './pages/Taste'
 import { TitleModalProvider, titleHref } from './title/TitleModalContext'
 import { WatchProvider } from './watch/WatchContext'
 
@@ -39,7 +38,7 @@ export default function App() {
                   <Route path="/browse/languages" element={<BrowseLanguages />} />
                   <Route path="/browse/my-netflix" element={<MyNetflix />} />
                   <Route path="/search" element={<Search />} />
-                  <Route path="/taste" element={<Taste />} />
+                  <Route path="/taste" element={<Navigate to="/browse" replace />} />
                   <Route path="/account" element={<Account />} />
                   <Route path="/movie/:id" element={<LegacyTitleRedirect />} />
                   <Route path="/show/:id" element={<LegacyTitleRedirect />} />
