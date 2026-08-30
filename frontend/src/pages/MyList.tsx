@@ -20,6 +20,32 @@ import { uniqueById } from '../lib/media'
 import { matchesGenreFilter } from '../profiles/taste'
 import { useProfiles } from '../profiles/ProfileContext'
 
+const SORT_VALUES = new Set(MY_LIST_SORTS.map((entry) => entry.value))
+
+function sortKey(profileId?: string | null) {
+  return profileId ? `flix.myListSort.${profileId}` : null
+}
+
+function readMyListSort(profileId?: string | null): MyListSort {
+  const key = sortKey(profileId)
+  if (!key) return 'suggestions'
+  try {
+    const raw = localStorage.getItem(key)
+    if (raw && SORT_VALUES.has(raw as MyListSort)) return raw as MyListSort
+  } catch {
+    /* ignore */
+  }
+  return 'suggestions'
+}
+
+function writeMyListSort(profileId: string, sort: MyListSort) {
+  try {
+    localStorage.setItem(sortKey(profileId) as string, sort)
+  } catch {
+    /* ignore */
+  }
+}
+
 export function MyList() {
   const { activeProfile } = useProfiles()
   const movies = useFetch(() => getMovies(), 'home-movies')
@@ -43,7 +69,7 @@ export function MyList() {
   const uniqueItems = useMemo(() => uniqueById(items), [items])
   const desktop = useMediaQuery('(min-width: 768px)')
   const [genre, setGenre] = useState('')
-  const [sort, setSort] = useState<MyListSort>('suggestions')
+  const [sort, setSort] = useState<MyListSort>(() => readMyListSort(activeProfile?.id))
   const [headingStuck, setHeadingStuck] = useState(false)
   const genres = useMemo(() => catalogGenres(uniqueItems), [uniqueItems])
   const visible = useMemo(() => {
@@ -51,6 +77,10 @@ export function MyList() {
     return sortMyListItems(filtered, sort, activeProfile)
   }, [uniqueItems, genre, sort, activeProfile])
   const useGenreMenu = desktop && genres.length > 1
+
+  useEffect(() => {
+    setSort(readMyListSort(activeProfile?.id))
+  }, [activeProfile?.id])
 
   useEffect(() => {
     const onScroll = () => setHeadingStuck(window.scrollY > 72)
@@ -71,7 +101,11 @@ export function MyList() {
             label="Sort"
             value={sort}
             options={MY_LIST_SORTS}
-            onChange={(next) => setSort(next as MyListSort)}
+            onChange={(next) => {
+              const value = next as MyListSort
+              setSort(value)
+              if (activeProfile?.id) writeMyListSort(activeProfile.id, value)
+            }}
           />
         ) : null}
       </div>

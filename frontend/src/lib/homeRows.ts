@@ -101,6 +101,13 @@ function rail(items: MovieListItem[], cap = RAIL): MovieListItem[] {
   return uniqueById(items).slice(0, cap)
 }
 
+function uniqueRail(items: MovieListItem[], used: Set<string>, cap = RAIL): MovieListItem[] {
+  const fresh = uniqueById(items.filter((item) => !used.has(item.id)))
+  const picked = (fresh.length >= 6 ? fresh : uniqueById(items)).slice(0, cap)
+  for (const item of picked) used.add(item.id)
+  return picked
+}
+
 function railIds(items: MovieListItem[], cap = RAIL): Set<string> {
   return new Set(rail(items, cap).map((item) => item.id))
 }
@@ -118,6 +125,10 @@ function pushRow(rows: HomeRow[], row: HomeRow) {
     items: rail(row.items, row.variant === 'continue' ? 24 : RAIL),
     loop: row.loop ?? (row.variant !== 'continue' && !row.seed && row.items.length >= 8),
   })
+}
+
+function pushRecRow(rows: HomeRow[], row: HomeRow, used: Set<string>) {
+  pushRow(rows, { ...row, items: uniqueRail(row.items, used) })
 }
 
 export function stillWatching(entry: { progress?: number; kind?: string }) {
@@ -269,13 +280,17 @@ export function buildBrowseRows(opts: {
     })
   }
 
-  pushRow(rows, {
-    id: 'only-flix',
-    title: 'Only on FLIX',
-    items: recommendRail(filter === 'movies' ? movies : filter === 'shows' ? shows : shows, profile),
-  })
-
   const newTitle = filter === 'movies' ? 'New Movies' : filter === 'shows' ? 'New TV Shows' : 'New Releases'
+  const recUsed = new Set<string>()
+  pushRecRow(
+    rows,
+    {
+      id: 'only-flix',
+      title: 'Only on FLIX',
+      items: recommendRail(filter === 'movies' ? movies : filter === 'shows' ? shows : shows, profile),
+    },
+    recUsed,
+  )
   pushRow(rows, { id: 'new', title: newTitle, items: sortByYear(pool) })
 
   pushRow(rows, {
@@ -286,14 +301,18 @@ export function buildBrowseRows(opts: {
   })
 
   for (const row of becauseYouWatchedRows(pool, becauseHistory, filter === 'home' ? 3 : 4)) {
-    pushRow(rows, {
-      id: row.id,
-      title: row.title,
-      subtitle: row.subtitle,
-      items: row.items,
-      seed: row.seed,
-      loop: false,
-    })
+    pushRecRow(
+      rows,
+      {
+        id: row.id,
+        title: row.title,
+        subtitle: row.subtitle,
+        items: row.items,
+        seed: row.seed,
+        loop: false,
+      },
+      recUsed,
+    )
   }
 
   if (filter === 'home') {
@@ -302,24 +321,32 @@ export function buildBrowseRows(opts: {
   }
 
   if (profile) {
-    pushRow(rows, {
-      id: 'picks',
-      title: `Top Picks for ${profile.name}`,
-      items: rankByTaste(pool, profile),
-    })
+    pushRecRow(
+      rows,
+      {
+        id: 'picks',
+        title: `Top Picks for ${profile.name}`,
+        items: rankByTaste(pool, profile),
+      },
+      recUsed,
+    )
   } else if (filter === 'home') {
     pushRow(rows, { id: 'movies', title: 'Movies', items: recommendRail(movies, profile) })
     pushRow(rows, { id: 'shows', title: 'TV Shows', items: recommendRail(shows, profile) })
   }
 
   for (const row of becauseYouLikedRows(pool, profile?.liked ?? [], 2)) {
-    pushRow(rows, {
-      id: row.id,
-      title: row.title,
-      items: row.items,
-      seed: row.seed,
-      loop: false,
-    })
+    pushRecRow(
+      rows,
+      {
+        id: row.id,
+        title: row.title,
+        items: row.items,
+        seed: row.seed,
+        loop: false,
+      },
+      recUsed,
+    )
   }
 
   const genreLimit = filter === 'home' ? 2 : 3
@@ -327,7 +354,7 @@ export function buildBrowseRows(opts: {
     if (opts.genre && (isRomComGenre(opts.genre) ? row.id === 'genre-romcom' : row.id === `genre-${opts.genre}`)) {
       continue
     }
-    pushRow(rows, { id: row.id, title: row.title, items: row.items })
+    pushRecRow(rows, { id: row.id, title: row.title, items: row.items }, recUsed)
   }
 
   return rows
