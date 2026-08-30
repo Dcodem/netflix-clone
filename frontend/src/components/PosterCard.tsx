@@ -77,17 +77,30 @@ export function PosterCard({
     window.clearTimeout(timer.current)
   }
 
+  function nudgeRow(card: HTMLElement) {
+    const scroller = card.closest('.row-scroller')
+    if (!(scroller instanceof HTMLElement)) return
+    const pad = 72
+    const tile = card.getBoundingClientRect()
+    const rail = scroller.getBoundingClientRect()
+    let delta = 0
+    if (tile.left < rail.left + pad) delta = tile.left - (rail.left + pad)
+    else if (tile.right > rail.right - pad) delta = tile.right - (rail.right - pad)
+    if (Math.abs(delta) > 2) scroller.scrollLeft += delta
+  }
+
   function onEnter(event: PointerEvent<HTMLDivElement>) {
     if (!hoverable || event.pointerType !== 'mouse' || rowMenu) return
     cancelClose()
     takeLock()
     setPeek(true)
     timer.current = window.setTimeout(() => {
-      const rect = rootRef.current?.getBoundingClientRect()
-      if (rect) {
-        setAnchor(rect)
-        setHover(true)
-      }
+      const card = rootRef.current
+      if (!card) return
+      nudgeRow(card)
+      const rect = card.getBoundingClientRect()
+      setAnchor(rect)
+      setHover(true)
     }, 400)
   }
 

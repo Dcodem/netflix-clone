@@ -853,6 +853,21 @@ select,
   z-index: 8;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  body.is-jaw-open .hero,
+  body.is-jaw-open .site-header,
+  body.is-jaw-open .site-footer,
+  body.is-jaw-open .mobile-dock,
+  body.is-jaw-open .media-row:not(:has(.poster-wrap.is-previewing)) {
+    filter: brightness(0.42);
+    transition: filter 0.28s ease;
+  }
+
+  body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
+    filter: none;
+  }
+}
+
 .media-row .section-title {
   margin-bottom: 6px;
   font-size: 20px;
@@ -1114,6 +1129,11 @@ select,
   .poster-wrap.is-peeking:not(.is-previewing) .poster-card {
     transform: scale(1.16);
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.58);
+  }
+
+  .poster-wrap.is-peeking:not(.is-previewing) .poster-art img,
+  .poster-wrap.is-peeking:not(.is-previewing) .poster-art .media-fallback {
+    animation: jaw-drift 14s ease-out forwards;
   }
 
   .poster-wrap.is-poster.is-peeking:not(.is-previewing) .poster-card,
@@ -8288,8 +8308,56 @@ img.is-logo-pending {
   color: #fff;
 }
 
+.watch-letterbox {
+  position: absolute;
+  inset: 0;
+  z-index: 2090;
+  pointer-events: none;
+  opacity: 0.78;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.58) 0%, transparent 20%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.66) 0%, transparent 24%);
+  transition: opacity 0.35s ease;
+}
+
+.watch-overlay.is-chrome .watch-letterbox,
+.watch-overlay.is-ident-logo .watch-letterbox,
+.watch-overlay.is-ident .watch-letterbox {
+  opacity: 0;
+}
+
+.watch-mark {
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.62);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.watch-progress:hover .watch-mark,
+.watch-progress:focus-visible .watch-mark {
+  height: 8px;
+}
+
+@media (pointer: coarse) {
+  .watch-mark {
+    height: 6px;
+  }
+
+  .watch-now-playing {
+    display: grid;
+    gap: 2px;
+    padding: 0 2px 2px;
+  }
+}
+
 .watch-now-playing {
   display: none;
+  min-width: 0;
+  pointer-events: none;
 }
 
 .watch-now-title,
@@ -8323,6 +8391,12 @@ img.is-logo-pending {
 }
 
 @media (max-width: 767px) {
+  .watch-now-playing {
+    display: grid;
+    gap: 2px;
+    padding: 0 2px 2px;
+  }
+
   .title-actions.play-labeled {
     flex-wrap: wrap;
   }

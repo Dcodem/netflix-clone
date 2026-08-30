@@ -963,6 +963,7 @@ export function WatchOverlay() {
           post({ cmd: 'volume', value: audio.muted ? 0 : audio.volume })
         }}
       />
+      <div className="watch-letterbox" aria-hidden="true" />
       {locked ? (
         <button
           type="button"
@@ -1207,11 +1208,34 @@ export function WatchOverlay() {
                 {formatClock(scrubHint.ratio * length)}
               </span>
             ) : null}
+            {isShow && length > 0 && marks.introUntil > 0 ? (
+              <span
+                className="watch-mark is-intro"
+                style={{ left: `${Math.min(100, (marks.introUntil / length) * 100)}%` }}
+                aria-hidden="true"
+              />
+            ) : null}
+            {isShow && length > 0 && marks.recapUntil > marks.recapAt ? (
+              <span
+                className="watch-mark is-recap"
+                style={{ left: `${Math.min(100, (marks.recapUntil / length) * 100)}%` }}
+                aria-hidden="true"
+              />
+            ) : null}
             <div className="watch-progress-fill" style={{ width: `${Math.round(progress * 1000) / 10}%` }}>
               <span className="watch-knob" />
             </div>
           </div>
           <span className="watch-time">{formatClock(remaining, true)}</span>
+        </div>
+        <div className="watch-now-playing">
+          <p className="watch-now-title">{session.history?.title || session.title}</p>
+          {episodeLabel ? (
+            <p className="watch-now-ep">
+              {episodeLabel}
+              {playing?.episode.title ? ` ${playing.episode.title}` : ''}
+            </p>
+          ) : null}
         </div>
         <div className="watch-controls">
           <div className="watch-controls-left">

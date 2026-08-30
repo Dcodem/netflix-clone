@@ -39,6 +39,11 @@ export function TitleHoverCard({
   const [rowMenu, setRowMenu] = useState(false)
 
   useEffect(() => {
+    document.body.classList.add('is-jaw-open')
+    return () => document.body.classList.remove('is-jaw-open')
+  }, [])
+
+  useEffect(() => {
     let cancelled = false
     const load = isShow(item) ? getShow(item.id) : getMovie(item.id)
     load

@@ -45,8 +45,13 @@ export function AccountMenu() {
                 onClick={() => {
                   setOpen(false)
                   if (profile.pinHash) {
+                    try {
+                      sessionStorage.setItem('flix.unlockProfile', profile.id)
+                    } catch {
+                      /* quota */
+                    }
                     clearActive()
-                    navigate('/')
+                    navigate('/', { state: { pinProfileId: profile.id } })
                     return
                   }
                   selectProfile(profile.id)

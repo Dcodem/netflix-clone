@@ -144,10 +144,29 @@ export function ProfileSelect() {
   }, [pinGuess, pinTarget])
 
   useEffect(() => {
-    if ((location.state as { manage?: boolean } | null)?.manage) {
+    const state = location.state as { manage?: boolean; pinProfileId?: string } | null
+    let storedId: string | null = null
+    try {
+      storedId = sessionStorage.getItem('flix.unlockProfile')
+      if (storedId) sessionStorage.removeItem('flix.unlockProfile')
+    } catch {
+      storedId = null
+    }
+    const pinProfileId = state?.pinProfileId || storedId
+    if (pinProfileId) {
+      const locked = profiles.find((profile) => profile.id === pinProfileId)
+      if (locked?.pinHash) {
+        unlocking.current = false
+        setPinTarget(locked)
+        setPinGuess('')
+        setPinError(null)
+        setManaging(false)
+      }
+    }
+    if (state?.manage || state?.pinProfileId) {
       navigate('.', { replace: true, state: {} })
     }
-  }, [location.state, navigate])
+  }, [location.state, navigate, profiles])
 
   if (!user) {
     return <Navigate to="/login" replace />
