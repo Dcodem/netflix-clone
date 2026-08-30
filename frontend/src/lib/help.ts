@@ -80,7 +80,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         id: 'autoplay',
         title: 'Autoplay, skip intros, and data usage',
-        body: 'Account Playback settings control autoplay next episode, autoplay previews, auto-skip recaps and intros, and data usage per screen. Data usage is a preference only — playback stays in this browser.',
+        body: 'Account Playback settings control autoplay next episode, autoplay previews, auto-skip recaps and intros, and data usage per screen. Data usage is a preference only — playback stays in this browser. Speed Test in the footer measures how fast this browser loads catalog data.',
       },
     ],
   },

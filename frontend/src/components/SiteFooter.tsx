@@ -79,7 +79,7 @@ export const FOOTER_NOTES: Record<string, string> = {
   Jobs: 'There are no open roles for this demo.',
   'Ways to Watch': 'Watch in this browser with Play. There is no TV app or extra device download.',
   'Contact Us': 'There is no support inbox for this demo.',
-  'Speed Test': 'Playback uses this device’s connection. There is no separate speed test.',
+  'Speed Test': 'After you sign in, Speed Test in the footer measures this browser. Playback still stays on this device.',
   'Media Center': 'There is no press kit for this demo.',
   'Redeem Gift Cards':
     'Open Account and choose Redeem gift card or promo code. Credit stays on this device and does not charge a card.',
@@ -208,6 +208,8 @@ export function SiteFooter() {
                     <Link to="/help">Help Center</Link>
                   ) : label === 'Buy Gift Cards' ? (
                     <Link to="/gift">Buy Gift Cards</Link>
+                  ) : label === 'Speed Test' ? (
+                    <Link to="/speed">Speed Test</Link>
                   ) : (
                     <button type="button" className="site-footer-link" onClick={() => setNote(label)}>
                       {label}

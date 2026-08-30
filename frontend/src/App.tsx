@@ -13,6 +13,7 @@ import { MyNetflix } from './pages/MyNetflix'
 import { NewsHot } from './pages/NewsHot'
 import { ProfileSelect } from './pages/ProfileSelect'
 import { Search } from './pages/Search'
+import { SpeedTest } from './pages/SpeedTest'
 import { TitleModalProvider, titleHref } from './title/TitleModalContext'
 import { WatchProvider } from './watch/WatchContext'
 
@@ -44,6 +45,7 @@ export default function App() {
                   <Route path="/account" element={<Account />} />
                   <Route path="/help" element={<HelpCenter />} />
                   <Route path="/gift" element={<GiftCards />} />
+                  <Route path="/speed" element={<SpeedTest />} />
                   <Route path="/movie/:id" element={<LegacyTitleRedirect />} />
                   <Route path="/show/:id" element={<LegacyTitleRedirect />} />
                 </Route>
