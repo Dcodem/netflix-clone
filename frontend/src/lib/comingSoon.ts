@@ -15,6 +15,11 @@ export function comingDate(id: string) {
   return date
 }
 
+export function comingDayKey(id: string) {
+  const date = comingDate(id)
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+}
+
 export function monthLabel(date: Date) {
   return date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
 }

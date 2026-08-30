@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getCatalogMany, getMovie, getMovies, getShow } from '../api/client'
 import type { MovieListItem } from '../api/types'
-import { BellIcon, CheckIcon, InfoIcon, PlayIcon, PlusIcon } from '../components/Icons'
+import { BellIcon, CheckIcon, InfoIcon, PlayIcon, PlusIcon, ShareIcon } from '../components/Icons'
 import { CatalogImage } from '../components/CatalogImage'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
@@ -12,7 +12,7 @@ import { notifyRemind } from '../components/RemindToast'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { Home } from './Home'
-import { comingDate, comingLine, isComingSoon, monthLabel } from '../lib/comingSoon'
+import { comingDate, comingDayKey, comingLine, isComingSoon, monthLabel } from '../lib/comingSoon'
 import { genresOf, isShow, ofKind, sortByRating, sortByYear, uniqueById } from '../lib/media'
 import { filterByMaturity, matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
@@ -40,12 +40,14 @@ function FeedCard({
   synopsis,
   mode,
   rank,
+  hideDate = false,
   onRemind,
 }: {
   item: MovieListItem
   synopsis?: string
   mode: FeedMode
   rank?: number
+  hideDate?: boolean
   onRemind?: (item: MovieListItem, onList: boolean) => void
 }) {
   const { openTitle } = useTitleModal()
@@ -59,6 +61,27 @@ function FeedCard({
   const maturity = maturityLabel(item)
   const history = activeProfile?.history.find((entry) => entry.id === item.id)
   const ranked = mode === 'ranked' && typeof rank === 'number'
+  const [shared, setShared] = useState(false)
+
+  async function shareNow() {
+    const url = `${window.location.origin}/browse?jbv=${encodeURIComponent(item.id)}`
+    playClick()
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: item.title, url })
+        return
+      }
+    } catch {
+      /* fall through */
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      setShared(true)
+      window.setTimeout(() => setShared(false), 1600)
+    } catch {
+      /* ignore */
+    }
+  }
 
   async function playNow() {
     if (playing) return
@@ -81,13 +104,16 @@ function FeedCard({
 
   return (
     <article
-      className={`news-card ${mode === 'soon' ? 'is-soon' : ''} ${ranked ? 'is-ranked' : ''} ${rank === 10 ? 'is-ten' : ''}`}
+      className={`news-card ${mode === 'soon' ? 'is-soon' : ''} ${hideDate ? 'is-same-day' : ''} ${ranked ? 'is-ranked' : ''} ${rank === 10 ? 'is-ten' : ''}`}
     >
       {date ? (
-        <div className="news-date" aria-label={date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}>
+        <div
+          className={`news-date ${hideDate ? 'is-repeat' : ''}`}
+          aria-hidden={hideDate || undefined}
+          aria-label={hideDate ? undefined : date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+        >
           <em>{monthLabel(date)}</em>
           <strong>{date.getDate()}</strong>
-          <span className="news-kind">{isShow(item) ? 'SERIES' : 'FILM'}</span>
         </div>
       ) : null}
       {ranked ? (
@@ -134,19 +160,27 @@ function FeedCard({
               </button>
             )}
             {mode === 'soon' ? (
-              <button
-                type="button"
-                className="news-icon-btn"
-                onClick={(event) => {
-                  playClick()
-                  openTitle(item, event.currentTarget)
-                }}
-              >
-                <span className="news-icon-disc">
-                  <InfoIcon className="icon" />
-                </span>
-                Info
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="news-icon-btn"
+                  onClick={(event) => {
+                    playClick()
+                    openTitle(item, event.currentTarget)
+                  }}
+                >
+                  <span className="news-icon-disc">
+                    <InfoIcon className="icon" />
+                  </span>
+                  Info
+                </button>
+                <button type="button" className={`news-icon-btn ${shared ? 'is-on' : ''}`} onClick={() => void shareNow()}>
+                  <span className="news-icon-disc">
+                    <ShareIcon className="icon" />
+                  </span>
+                  {shared ? 'Copied' : 'Share'}
+                </button>
+              </>
             ) : (
               <button
                 type="button"
@@ -379,11 +413,12 @@ function NewsHotFeed() {
       {coming.length ? (
         <section className="news-feed" ref={comingRef} aria-label="Coming Soon">
           <h2 className="news-section-title">Coming Soon</h2>
-          {coming.map((item) => (
+          {coming.map((item, index) => (
             <FeedCard
               key={item.id}
               item={item}
               mode="soon"
+              hideDate={index > 0 && comingDayKey(item.id) === comingDayKey(coming[index - 1].id)}
               synopsis={synopses[item.id]}
               onRemind={handleRemind}
             />
@@ -406,15 +441,23 @@ function NewsHotFeed() {
       {worth.length ? (
         <section className="news-feed" ref={worthRef} aria-label="Worth the Wait">
           <h2 className="news-section-title">Worth the Wait</h2>
-          {worth.map((item) => (
-            <FeedCard
-              key={item.id}
-              item={item}
-              mode={isComingSoon(item) ? 'soon' : 'watching'}
-              synopsis={synopses[item.id]}
-              onRemind={isComingSoon(item) ? handleRemind : undefined}
-            />
-          ))}
+          {worth.map((item, index) => {
+            const soon = isComingSoon(item)
+            const prev = index > 0 ? worth[index - 1] : null
+            const hideDate = Boolean(
+              soon && prev && isComingSoon(prev) && comingDayKey(item.id) === comingDayKey(prev.id),
+            )
+            return (
+              <FeedCard
+                key={item.id}
+                item={item}
+                mode={soon ? 'soon' : 'watching'}
+                hideDate={hideDate}
+                synopsis={synopses[item.id]}
+                onRemind={soon ? handleRemind : undefined}
+              />
+            )
+          })}
         </section>
       ) : null}
       {newFlix.length ? (
