@@ -1,6 +1,7 @@
 import { type FormEvent, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { commsFor } from '../auth/types'
 import { currentDeviceId, formatDeviceUsed, upsertCurrentDevice } from '../auth/device'
 import { AvatarArt } from '../components/AvatarArt'
 import { ChevronRightIcon } from '../components/Icons'
@@ -42,6 +43,7 @@ type AccountPanel =
   | 'gift'
   | 'cancel'
   | 'playback'
+  | 'comms'
   | 'devices'
   | 'signout'
   | null
@@ -488,7 +490,7 @@ export function Account() {
           </div>
           {panel === 'playback' ? (
             activeProfile ? (
-              <div className="edit-autoplay account-playback">
+              <div className="edit-autoplay account-prefs">
                 <label className="edit-check">
                   <input
                     type="checkbox"
@@ -552,6 +554,59 @@ export function Account() {
             ) : (
               <p className="account-inline-note">Choose a profile to change autoplay next episode, previews, and skip intros.</p>
             )
+          ) : null}
+          <div className="account-row">
+            <span>Communication settings</span>
+            <button type="button" className="account-change" onClick={() => togglePanel('comms')}>
+              Change
+            </button>
+          </div>
+          {panel === 'comms' ? (
+            <div className="edit-autoplay account-prefs">
+              <p className="account-prefs-lead">Email me about</p>
+              <label className="edit-check">
+                <input
+                  type="checkbox"
+                  checked={commsFor(user).offers}
+                  onChange={(event) => {
+                    void updateAccount({ comms: { offers: event.target.checked } })
+                  }}
+                />
+                <span>
+                  Special offers and promotions
+                  <small>Deals and limited-time offers for this account.</small>
+                </span>
+              </label>
+              <label className="edit-check">
+                <input
+                  type="checkbox"
+                  checked={commsFor(user).news}
+                  onChange={(event) => {
+                    void updateAccount({ comms: { news: event.target.checked } })
+                  }}
+                />
+                <span>
+                  News and announcements
+                  <small>New features and updates from FLIX.</small>
+                </span>
+              </label>
+              <label className="edit-check">
+                <input
+                  type="checkbox"
+                  checked={commsFor(user).recs}
+                  onChange={(event) => {
+                    void updateAccount({ comms: { recs: event.target.checked } })
+                  }}
+                />
+                <span>
+                  Recommendations
+                  <small>Titles we think you’ll like, based on this profile.</small>
+                </span>
+              </label>
+              <p className="account-inline-note">
+                FLIX does not send email from this device. These choices stay on this account.
+              </p>
+            </div>
           ) : null}
           <div className="account-row">
             <span>Manage devices</span>

@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { hashPassword, passwordsMatch } from './crypto'
 import { currentDeviceId, currentDeviceLabel, upsertCurrentDevice } from './device'
-import { AUTH_STORAGE_KEY, type AuthStore, type UserAccount } from './types'
+import { AUTH_STORAGE_KEY, commsFor, type AuthStore, type CommunicationPrefs, type UserAccount } from './types'
 
 function emptyStore(): AuthStore {
   return { users: [], sessionUserId: null }
@@ -40,6 +40,7 @@ type AuthContextValue = {
     planId?: UserAccount['planId']
     paymentBrand?: string | null
     paymentLast4?: string | null
+    comms?: Partial<CommunicationPrefs>
   }) => Promise<void>
   redeemGift: (code: string) => Promise<number>
   signOutDevice: (deviceId: string) => void
@@ -130,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       planId?: UserAccount['planId']
       paymentBrand?: string | null
       paymentLast4?: string | null
+      comms?: Partial<CommunicationPrefs>
     }) => {
       const current = loadStore()
       const sessionId = current.sessionUserId
@@ -160,6 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             planId: opts.planId ?? user.planId,
             paymentBrand: opts.paymentBrand !== undefined ? opts.paymentBrand : user.paymentBrand,
             paymentLast4: opts.paymentLast4 !== undefined ? opts.paymentLast4 : user.paymentLast4,
+            comms: opts.comms ? { ...commsFor(user), ...opts.comms } : user.comms,
             passwordSalt: passwordSalt ?? user.passwordSalt,
             passwordHash: passwordHash ?? user.passwordHash,
           }

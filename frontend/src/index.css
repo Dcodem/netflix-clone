@@ -2697,24 +2697,31 @@ body:has(.account-page),
   line-height: 1.4;
 }
 
-.account-playback {
+.account-prefs {
   padding: 4px 0 8px;
 }
 
-.account-playback .edit-check {
+.account-prefs-lead {
+  margin: 4px 0 2px;
+  color: #141414;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.account-prefs .edit-check {
   color: #141414;
 }
 
-.account-playback .edit-check small {
+.account-prefs .edit-check small {
   color: #737373;
 }
 
-.account-playback .edit-check input:checked {
+.account-prefs .edit-check input:checked {
   background: #141414;
   border-color: #141414;
 }
 
-.account-playback .edit-check input:checked::after {
+.account-prefs .edit-check input:checked::after {
   border-color: #fff;
 }
 

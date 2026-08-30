@@ -4,6 +4,26 @@ export type AccountDevice = {
   lastUsed: number
 }
 
+export type CommunicationPrefs = {
+  offers: boolean
+  news: boolean
+  recs: boolean
+}
+
+export const DEFAULT_COMMS: CommunicationPrefs = {
+  offers: true,
+  news: true,
+  recs: true,
+}
+
+export function commsFor(user: { comms?: Partial<CommunicationPrefs> } | null | undefined): CommunicationPrefs {
+  return {
+    offers: user?.comms?.offers !== false,
+    news: user?.comms?.news !== false,
+    recs: user?.comms?.recs !== false,
+  }
+}
+
 export type UserAccount = {
   id: string
   email: string
@@ -20,6 +40,7 @@ export type UserAccount = {
   giftBalance?: number
   giftCodes?: string[]
   devices?: AccountDevice[]
+  comms?: CommunicationPrefs
 }
 
 export type AuthStore = {
