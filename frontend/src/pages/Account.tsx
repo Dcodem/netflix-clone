@@ -1,4 +1,4 @@
-import { type FormEvent, useMemo, useState } from 'react'
+import { type FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { commsFor, extraMemberSlots, extraMembersFor, testsOn } from '../auth/types'
@@ -68,8 +68,16 @@ type AccountPanel =
   | null
 
 export function Account() {
-  const { user, updateAccount, redeemGift, addExtraMember, removeExtraMember, signOutDevice, signOutOtherDevices } =
-    useAuth()
+  const {
+    user,
+    updateAccount,
+    redeemGift,
+    addExtraMember,
+    removeExtraMember,
+    ensureReferralCode,
+    signOutDevice,
+    signOutOtherDevices,
+  } = useAuth()
   const { profiles, activeProfile, updateProfile } = useProfiles()
   const [panel, setPanel] = useState<AccountPanel>(null)
   const [emailDraft, setEmailDraft] = useState(user?.email ?? '')
@@ -89,6 +97,8 @@ export function Account() {
   const [extraEmail, setExtraEmail] = useState('')
   const [cancelReason, setCancelReason] = useState<(typeof CANCEL_REASONS)[number]['id'] | null>(null)
   const [cancelDone, setCancelDone] = useState(false)
+  const [referralCopied, setReferralCopied] = useState(false)
+  const referralCode = user?.referralCode ?? ''
   const extraMembers = extraMembersFor(user)
   const extraSlots = extraMemberSlots(planId)
   const plan = PLANS.find((entry) => entry.id === planId) ?? PLANS[0]
@@ -101,6 +111,11 @@ export function Account() {
     () => new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
     [],
   )
+
+  useEffect(() => {
+    if (!user) return
+    ensureReferralCode()
+  }, [ensureReferralCode, user])
 
   function togglePanel(next: AccountPanel) {
     setAccountError(null)
@@ -630,6 +645,37 @@ export function Account() {
               </div>
             </form>
           ) : null}
+        </div>
+      </section>
+
+      <section className="account-block">
+        <h2>Refer a Friend</h2>
+        <div className="account-block-body">
+          <p className="account-inline-note account-extra-lead">
+            Share FLIX with a friend. They can use your code on this demo. You do not earn credit.
+          </p>
+          <div className="account-row">
+            <span className="account-referral">
+              <strong className="account-referral-code">{referralCode || '••••-••••'}</strong>
+              <em>Your invite code</em>
+            </span>
+            <button
+              type="button"
+              className="account-change"
+              onClick={() => {
+                if (!referralCode) return
+                void navigator.clipboard.writeText(referralCode.replace('-', '')).then(
+                  () => setReferralCopied(true),
+                  () => setReferralCopied(false),
+                )
+              }}
+            >
+              {referralCopied ? 'Copied' : 'Copy code'}
+            </button>
+          </div>
+          <p className="account-inline-note">
+            FLIX does not email this code or apply referral credit. It stays on this account.
+          </p>
         </div>
       </section>
 

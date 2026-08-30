@@ -43,6 +43,7 @@ export type UserAccount = {
   comms?: CommunicationPrefs
   tests?: boolean
   extraMembers?: ExtraMember[]
+  referralCode?: string
 }
 
 export type ExtraMember = {
@@ -64,6 +65,18 @@ export function extraMemberSlots(planId?: UserAccount['planId'] | null) {
   if (planId === 'premium') return 2
   if (planId === 'standard') return 1
   return 0
+}
+
+const REFERRAL_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+
+export function makeReferralCode() {
+  let raw = ''
+  for (let i = 0; i < 8; i += 1) raw += REFERRAL_ALPHABET[Math.floor(Math.random() * REFERRAL_ALPHABET.length)]
+  return `${raw.slice(0, 4)}-${raw.slice(4)}`
+}
+
+export function isReferralCode(value: string | null | undefined) {
+  return Boolean(value && /^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(value))
 }
 
 export type AuthStore = {

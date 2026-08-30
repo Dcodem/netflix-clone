@@ -2777,6 +2777,24 @@ body:has(.account-page),
   margin: 8px 0 4px;
 }
 
+.account-referral {
+  display: grid;
+  gap: 2px;
+}
+
+.account-referral-code {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #141414;
+}
+
+.account-referral em {
+  font-style: normal;
+  color: #555;
+  font-size: 14px;
+}
+
 .account-devices span {
   display: grid;
   gap: 2px;

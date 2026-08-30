@@ -42,6 +42,11 @@ export const HELP_TOPICS: HelpTopic[] = [
         body: 'Premium includes two extra member spots. Standard includes one. Basic does not include extra members. On Account, Extra Members can send an invite by name and email. FLIX does not create another household or charge for extra members.',
       },
       {
+        id: 'refer-friend',
+        title: 'Refer a friend',
+        body: 'Account Refer a Friend shows a one-time invite code for this account. Copy it to share. FLIX does not email the code or apply referral credit.',
+      },
+      {
         id: 'gift-cards',
         title: 'Redeem a gift card',
         body: 'On Account, choose Redeem gift card or promo code. Credit stays on this device. Buy Gift Cards in the footer opens a shop form — FLIX does not sell or email cards from this device.',

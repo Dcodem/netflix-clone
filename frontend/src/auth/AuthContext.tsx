@@ -6,6 +6,8 @@ import {
   commsFor,
   extraMemberSlots,
   extraMembersFor,
+  isReferralCode,
+  makeReferralCode,
   type AuthStore,
   type CommunicationPrefs,
   type ExtraMember,
@@ -55,6 +57,7 @@ type AuthContextValue = {
   redeemGift: (code: string) => Promise<number>
   addExtraMember: (input: { name: string; email: string }) => Promise<ExtraMember>
   removeExtraMember: (id: string) => void
+  ensureReferralCode: () => string
   signOutDevice: (deviceId: string) => void
   signOutOtherDevices: () => void
 }
@@ -270,6 +273,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const ensureReferralCode = useCallback(() => {
+    const current = loadStore()
+    const user = current.users.find((entry) => entry.id === current.sessionUserId)
+    if (!user) return ''
+    if (isReferralCode(user.referralCode)) return user.referralCode as string
+    const next = makeReferralCode()
+    updateStore((prev) => ({
+      ...prev,
+      users: prev.users.map((entry) => {
+        if (entry.id !== prev.sessionUserId) return entry
+        if (isReferralCode(entry.referralCode)) return entry
+        return { ...entry, referralCode: next }
+      }),
+    }))
+    return next
+  }, [updateStore])
+
   const touchDevice = useCallback(() => {
     updateStore((prev) => ({
       ...prev,
@@ -331,6 +351,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       redeemGift,
       addExtraMember,
       removeExtraMember,
+      ensureReferralCode,
       signOutDevice,
       signOutOtherDevices,
     }),
@@ -344,6 +365,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       redeemGift,
       addExtraMember,
       removeExtraMember,
+      ensureReferralCode,
       signOutDevice,
       signOutOtherDevices,
     ],
