@@ -4436,6 +4436,11 @@ img.is-logo-pending {
     gap: 8px;
   }
 
+  .search-top.is-ranked li {
+    background: transparent;
+    padding-right: 0;
+  }
+
   .search-top li + li {
     border-top: 0;
   }
@@ -4474,9 +4479,10 @@ img.is-logo-pending {
   }
 
   .search-top-rank {
-    width: 32px;
-    font-size: 36px;
-    font-weight: 400;
+    width: 40px;
+    font-size: 48px;
+    font-weight: 200;
+    color: #4d4d4d;
   }
 
   .site-header.is-searching {
@@ -5768,7 +5774,7 @@ img.is-logo-pending {
 
 .site-footer {
   margin-top: auto;
-  padding: 40px var(--page-gutter) 80px;
+  padding: 70px var(--page-gutter) 80px;
   color: #808080;
 }
 
@@ -5794,8 +5800,8 @@ img.is-logo-pending {
 }
 
 .site-footer-social .icon {
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
 }
 
 .site-footer-social a:hover {
@@ -9586,15 +9592,15 @@ img.is-logo-pending {
     right: 0;
     bottom: 0;
     z-index: 60;
-    background: #141414;
-    border-top: 1px solid #222;
-    padding: 6px 8px calc(8px + var(--safe-bottom));
+    background: #121212;
+    border-top: 0;
+    padding: 8px 8px calc(10px + var(--safe-bottom));
   }
 
   .mobile-dock-link {
     display: grid;
     justify-items: center;
-    gap: 3px;
+    gap: 4px;
     color: #808080;
     text-decoration: none;
     font-size: 10px;
@@ -9603,8 +9609,8 @@ img.is-logo-pending {
   }
 
   .mobile-dock-link .icon {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
   }
 
   .mobile-dock-link.active {
