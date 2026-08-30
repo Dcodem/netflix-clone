@@ -1,7 +1,7 @@
 import { type FormEvent, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { commsFor, testsOn } from '../auth/types'
+import { commsFor, extraMemberSlots, extraMembersFor, testsOn } from '../auth/types'
 import { currentDeviceId, formatDeviceUsed, upsertCurrentDevice } from '../auth/device'
 import { AvatarArt } from '../components/AvatarArt'
 import { ChevronRightIcon } from '../components/Icons'
@@ -62,12 +62,14 @@ type AccountPanel =
   | 'privacy'
   | 'downloads'
   | 'tests'
+  | 'extra'
   | 'devices'
   | 'signout'
   | null
 
 export function Account() {
-  const { user, updateAccount, redeemGift, signOutDevice, signOutOtherDevices } = useAuth()
+  const { user, updateAccount, redeemGift, addExtraMember, removeExtraMember, signOutDevice, signOutOtherDevices } =
+    useAuth()
   const { profiles, activeProfile, updateProfile } = useProfiles()
   const [panel, setPanel] = useState<AccountPanel>(null)
   const [emailDraft, setEmailDraft] = useState(user?.email ?? '')
@@ -83,8 +85,12 @@ export function Account() {
   const [cardCvc, setCardCvc] = useState('')
   const [giftDraft, setGiftDraft] = useState('')
   const [giftApplied, setGiftApplied] = useState<number | null>(null)
+  const [extraName, setExtraName] = useState('')
+  const [extraEmail, setExtraEmail] = useState('')
   const [cancelReason, setCancelReason] = useState<(typeof CANCEL_REASONS)[number]['id'] | null>(null)
   const [cancelDone, setCancelDone] = useState(false)
+  const extraMembers = extraMembersFor(user)
+  const extraSlots = extraMemberSlots(planId)
   const plan = PLANS.find((entry) => entry.id === planId) ?? PLANS[0]
   const nextPay = useMemo(() => {
     const date = new Date()
@@ -106,6 +112,8 @@ export function Account() {
     setCardCvc('')
     setGiftDraft('')
     setGiftApplied(null)
+    setExtraName('')
+    setExtraEmail('')
     setCancelReason(null)
     setCancelDone(false)
     setPanel((current) => (current === next ? null : next))
@@ -164,6 +172,22 @@ export function Account() {
       setGiftDraft('')
     } catch (err) {
       setAccountError(err instanceof Error ? err.message : 'Could not redeem that code.')
+    } finally {
+      setAccountBusy(false)
+    }
+  }
+
+  async function saveExtra(event: FormEvent) {
+    event.preventDefault()
+    setAccountError(null)
+    setAccountBusy(true)
+    try {
+      await addExtraMember({ name: extraName, email: extraEmail })
+      setExtraName('')
+      setExtraEmail('')
+      setPanel(null)
+    } catch (err) {
+      setAccountError(err instanceof Error ? err.message : 'Could not add that extra member.')
     } finally {
       setAccountBusy(false)
     }
@@ -521,6 +545,91 @@ export function Account() {
           <div className="account-row">
             <span>HD · 5.1 · spatial audio</span>
           </div>
+        </div>
+      </section>
+
+      <section className="account-block">
+        <h2>Extra Members</h2>
+        <div className="account-block-body">
+          <p className="account-inline-note account-extra-lead">
+            Share FLIX with someone who doesn’t live with you. Extra members get their own invite on this account.
+          </p>
+          <div className="account-row">
+            <span>
+              {extraMembers.length
+                ? `${extraMembers.length} of ${extraSlots || extraMembers.length} spot${
+                    (extraSlots || extraMembers.length) === 1 ? '' : 's'
+                  } used`
+                : extraSlots
+                  ? `No extra members`
+                  : `Not included on ${plan.name}`}
+            </span>
+            <span>{extraSlots ? `${plan.name} · ${extraSlots} spot${extraSlots === 1 ? '' : 's'}` : plan.name}</span>
+          </div>
+          {extraMembers.length ? (
+            <ul className="account-devices account-extra-list">
+              {extraMembers.map((member) => (
+                <li key={member.id}>
+                  <span>
+                    <strong>{member.name}</strong>
+                    <em>{member.email}</em>
+                  </span>
+                  <button type="button" className="account-change" onClick={() => removeExtraMember(member.id)}>
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {extraSlots > 0 && extraMembers.length < extraSlots ? (
+            <div className="account-row is-actions">
+              <button type="button" className="account-change" onClick={() => togglePanel('extra')}>
+                Add extra member
+              </button>
+            </div>
+          ) : extraSlots < 1 ? (
+            <p className="account-inline-note">
+              Extra members are not included on {plan.name}. Change plan to Standard or Premium.
+            </p>
+          ) : (
+            <p className="account-inline-note">All extra member spots are used on {plan.name}.</p>
+          )}
+          {panel === 'extra' ? (
+            <form className="account-inline" onSubmit={(event) => void saveExtra(event)}>
+              <label>
+                Name
+                <input
+                  value={extraName}
+                  onChange={(event) => setExtraName(event.target.value)}
+                  autoComplete="name"
+                  maxLength={40}
+                  required
+                />
+              </label>
+              <label>
+                Email
+                <input
+                  type="email"
+                  value={extraEmail}
+                  onChange={(event) => setExtraEmail(event.target.value)}
+                  autoComplete="email"
+                  required
+                />
+              </label>
+              <p className="account-inline-note">
+                FLIX does not create another household or charge for extra members. This invite stays on this account.
+              </p>
+              {accountError && panel === 'extra' ? <p className="account-inline-error">{accountError}</p> : null}
+              <div className="account-inline-actions">
+                <button type="submit" className="btn btn-primary" disabled={accountBusy}>
+                  Send invite
+                </button>
+                <button type="button" className="account-change" onClick={() => setPanel(null)}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : null}
         </div>
       </section>
 

@@ -42,10 +42,28 @@ export type UserAccount = {
   devices?: AccountDevice[]
   comms?: CommunicationPrefs
   tests?: boolean
+  extraMembers?: ExtraMember[]
+}
+
+export type ExtraMember = {
+  id: string
+  name: string
+  email: string
+  addedAt: number
 }
 
 export function testsOn(user: { tests?: boolean } | null | undefined) {
   return user?.tests !== false
+}
+
+export function extraMembersFor(user: { extraMembers?: ExtraMember[] } | null | undefined) {
+  return user?.extraMembers ?? []
+}
+
+export function extraMemberSlots(planId?: UserAccount['planId'] | null) {
+  if (planId === 'premium') return 2
+  if (planId === 'standard') return 1
+  return 0
 }
 
 export type AuthStore = {

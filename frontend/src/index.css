@@ -2739,6 +2739,16 @@ body:has(.account-page),
   margin-top: 8px;
 }
 
+.account-extra-lead {
+  margin: 0 0 4px;
+  padding: 0;
+  border: 0;
+}
+
+.account-extra-list {
+  margin: 8px 0 4px;
+}
+
 .account-devices span {
   display: grid;
   gap: 2px;

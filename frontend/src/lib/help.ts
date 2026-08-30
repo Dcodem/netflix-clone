@@ -37,6 +37,11 @@ export const HELP_TOPICS: HelpTopic[] = [
         body: 'Open Account from the profile menu or footer to change email, password, phone, plan, and payment last four. Plan prices stay on this device. FLIX does not charge a card. Cancel Membership asks why you are leaving, then keeps FLIX available — there is no membership to end here.',
       },
       {
+        id: 'extra-members',
+        title: 'Extra members',
+        body: 'Premium includes two extra member spots. Standard includes one. Basic does not include extra members. On Account, Extra Members can send an invite by name and email. FLIX does not create another household or charge for extra members.',
+      },
+      {
         id: 'gift-cards',
         title: 'Redeem a gift card',
         body: 'On Account, choose Redeem gift card or promo code. Credit stays on this device. Gift cards are not sold here.',

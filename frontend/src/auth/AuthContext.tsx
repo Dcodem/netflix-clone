@@ -1,7 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { hashPassword, passwordsMatch } from './crypto'
 import { currentDeviceId, currentDeviceLabel, upsertCurrentDevice } from './device'
-import { AUTH_STORAGE_KEY, commsFor, type AuthStore, type CommunicationPrefs, type UserAccount } from './types'
+import {
+  AUTH_STORAGE_KEY,
+  commsFor,
+  extraMemberSlots,
+  extraMembersFor,
+  type AuthStore,
+  type CommunicationPrefs,
+  type ExtraMember,
+  type UserAccount,
+} from './types'
 
 function emptyStore(): AuthStore {
   return { users: [], sessionUserId: null }
@@ -44,6 +53,8 @@ type AuthContextValue = {
     tests?: boolean
   }) => Promise<void>
   redeemGift: (code: string) => Promise<number>
+  addExtraMember: (input: { name: string; email: string }) => Promise<ExtraMember>
+  removeExtraMember: (id: string) => void
   signOutDevice: (deviceId: string) => void
   signOutOtherDevices: () => void
 }
@@ -208,6 +219,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const addExtraMember = useCallback(
+    async ({ name, email }: { name: string; email: string }) => {
+      const trimmedName = name.trim()
+      const normalized = email.trim().toLowerCase()
+      if (!trimmedName) throw new Error('Enter a name')
+      if (trimmedName.length > 40) throw new Error('Use a shorter name')
+      if (!normalized || !normalized.includes('@')) throw new Error('Enter a valid email')
+      const current = loadStore()
+      const sessionId = current.sessionUserId
+      if (!sessionId) throw new Error('Sign in to add an extra member.')
+      const user = current.users.find((entry) => entry.id === sessionId)
+      if (!user) throw new Error('Sign in to add an extra member.')
+      if (normalized === user.email) throw new Error('Use an email that is not already on this account')
+      const members = extraMembersFor(user)
+      if (members.some((member) => member.email === normalized)) {
+        throw new Error('That extra member is already on this account')
+      }
+      const slots = extraMemberSlots(user.planId)
+      if (slots < 1) throw new Error('Extra members are not included on this plan')
+      if (members.length >= slots) throw new Error('All extra member spots are used on this plan')
+      const member: ExtraMember = {
+        id: crypto.randomUUID(),
+        name: trimmedName,
+        email: normalized,
+        addedAt: Date.now(),
+      }
+      updateStore((prev) => ({
+        ...prev,
+        users: prev.users.map((entry) => {
+          if (entry.id !== prev.sessionUserId) return entry
+          return { ...entry, extraMembers: [...extraMembersFor(entry), member] }
+        }),
+      }))
+      return member
+    },
+    [updateStore],
+  )
+
+  const removeExtraMember = useCallback(
+    (id: string) => {
+      updateStore((prev) => ({
+        ...prev,
+        users: prev.users.map((entry) => {
+          if (entry.id !== prev.sessionUserId) return entry
+          return { ...entry, extraMembers: extraMembersFor(entry).filter((member) => member.id !== id) }
+        }),
+      }))
+    },
+    [updateStore],
+  )
+
   const touchDevice = useCallback(() => {
     updateStore((prev) => ({
       ...prev,
@@ -267,10 +329,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       updateKeys,
       updateAccount,
       redeemGift,
+      addExtraMember,
+      removeExtraMember,
       signOutDevice,
       signOutOtherDevices,
     }),
-    [user, signup, login, logout, updateKeys, updateAccount, redeemGift, signOutDevice, signOutOtherDevices],
+    [
+      user,
+      signup,
+      login,
+      logout,
+      updateKeys,
+      updateAccount,
+      redeemGift,
+      addExtraMember,
+      removeExtraMember,
+      signOutDevice,
+      signOutOtherDevices,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
