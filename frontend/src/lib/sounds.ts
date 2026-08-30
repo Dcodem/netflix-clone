@@ -39,15 +39,15 @@ export function playBrowseSting() {
   }
 }
 
-/** Plays when a profile is chosen, like Netflix entering browse. */
+/** Two-beat sting when a profile is chosen — original tones, not Netflix’s ta-dum. */
 export function playProfileSting() {
   try {
     const ac = audio()
     const now = ac.currentTime
-    tone(ac, 73, now, 0.36, 0.1, 'sine')
-    tone(ac, 146, now, 0.28, 0.045, 'triangle')
-    tone(ac, 220, now + 0.2, 0.52, 0.085, 'triangle')
-    tone(ac, 330, now + 0.2, 0.44, 0.03, 'sine')
+    tone(ac, 98, now, 0.2, 0.12, 'sine')
+    tone(ac, 147, now, 0.16, 0.05, 'triangle')
+    tone(ac, 185, now + 0.18, 0.32, 0.13, 'sine')
+    tone(ac, 277, now + 0.18, 0.24, 0.04, 'triangle')
     sessionStorage.setItem(STING_KEY, '1')
   } catch {
     /* autoplay / closed context */

@@ -1312,6 +1312,12 @@ export function WatchOverlay() {
               </dd>
             </div>
             <div>
+              <dt>Back</dt>
+              <dd>
+                <kbd>Esc</kbd>
+              </dd>
+            </div>
+            <div>
               <dt>Shortcuts</dt>
               <dd>
                 <kbd>?</kbd>
