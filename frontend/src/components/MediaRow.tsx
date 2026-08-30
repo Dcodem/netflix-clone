@@ -3,39 +3,14 @@ import type { MovieListItem } from '../api/types'
 import { useFineHover } from '../hooks/useFineHover'
 import { useRowOverflow } from '../hooks/useRowOverflow'
 import { playWhoosh } from '../lib/sounds'
-import { useTitleModal } from '../title/TitleModalContext'
-import { CatalogImage } from './CatalogImage'
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons'
 import { PosterCard } from './PosterCard'
-import { TitleLogo } from './TitleLogo'
 
 function exploreHref(items: MovieListItem[], seed?: MovieListItem, exploreTo?: string) {
   if (exploreTo) return exploreTo
   if (seed?.title) return `/search?q=${encodeURIComponent(seed.title)}`
   const shows = items.filter((item) => item.kind === 'show').length
   return shows > items.length / 2 ? '/browse/shows' : '/browse/movies'
-}
-
-function SceneCard({ item }: { item: MovieListItem }) {
-  const { openTitle } = useTitleModal()
-  return (
-    <div className="poster-wrap scene-wrap">
-      <button
-        type="button"
-        className="poster-card scene-card"
-        onClick={(event) => openTitle(item, event.currentTarget)}
-        aria-label={`${item.title} scene`}
-      >
-        <div className="scene-art">
-          <CatalogImage item={item} alt="" prefer="backdrop" className="scene-img" />
-        </div>
-        <div className="scene-caption">
-          <span className="scene-kicker">You watched</span>
-          <TitleLogo item={item} className="scene-logo" titleClassName="scene-title" />
-        </div>
-      </button>
-    </div>
-  )
 }
 
 export function MediaRow({
@@ -103,7 +78,7 @@ export function MediaRow({
           </button>
         ) : null}
         <div className={`row-scroller ${looping ? 'is-looping' : ''}`} ref={ref}>
-          {seed ? <SceneCard item={seed} /> : null}
+          {seed ? <PosterCard item={seed} hoverable={hoverable} scene /> : null}
           {slides.flatMap((copy) =>
             visible.map((item, index) => (
               <PosterCard

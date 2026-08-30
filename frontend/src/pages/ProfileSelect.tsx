@@ -120,6 +120,7 @@ export function ProfileSelect() {
   const [pinShake, setPinShake] = useState(0)
   const [pickingAvatar, setPickingAvatar] = useState(false)
   const unlocking = useRef(false)
+  const picking = useRef(false)
 
   async function submitPin(guess = pinGuess) {
     if (!pinTarget || unlocking.current) return
@@ -133,6 +134,7 @@ export function ProfileSelect() {
       return
     }
     setPinTarget(null)
+    picking.current = true
     playProfileSting()
     navigate('/browse', { state: { fromProfile: true } })
   }
@@ -172,7 +174,7 @@ export function ProfileSelect() {
     return <Navigate to="/login" replace />
   }
 
-  if (activeProfile && !managing && !adding && !pinTarget && !editingId) {
+  if (activeProfile && !managing && !adding && !pinTarget && !editingId && !picking.current) {
     return <Navigate to="/browse" replace />
   }
 
@@ -208,6 +210,7 @@ export function ProfileSelect() {
       setPinError(null)
       return
     }
+    picking.current = true
     selectProfile(profile.id)
     playProfileSting()
     navigate('/browse', { state: { fromProfile: true } })

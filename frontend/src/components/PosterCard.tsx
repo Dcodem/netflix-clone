@@ -6,6 +6,7 @@ import { CatalogImage } from './CatalogImage'
 import { ContinueMenu } from './ContinueMenu'
 import { MoreVertIcon } from './Icons'
 import { TitleHoverCard } from './TitleHoverCard'
+import { TitleLogo } from './TitleLogo'
 
 type HoverLock = { dismiss: () => void }
 let activeLock: HoverLock | null = null
@@ -17,6 +18,7 @@ export function PosterCard({
   continueMode = false,
   rank,
   layout = 'landscape',
+  scene = false,
 }: {
   item: MovieListItem
   progress?: number
@@ -24,6 +26,7 @@ export function PosterCard({
   continueMode?: boolean
   rank?: number
   layout?: 'landscape' | 'poster'
+  scene?: boolean
 }) {
   const { openTitle, item: openItem } = useTitleModal()
   const { hideContinue } = useProfiles()
@@ -112,7 +115,7 @@ export function PosterCard({
 
   return (
     <div
-      className={`poster-wrap ${ranked ? 'is-ranked' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'} ${peek ? 'is-peeking' : ''} ${hover ? 'is-previewing' : ''} ${rowMenu ? 'is-row-menu' : ''}`}
+      className={`poster-wrap ${scene ? 'scene-wrap' : ''} ${ranked ? 'is-ranked' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'} ${peek ? 'is-peeking' : ''} ${hover ? 'is-previewing' : ''} ${rowMenu ? 'is-row-menu' : ''}`}
       onPointerEnter={onEnter}
       onPointerLeave={onLeave}
     >
@@ -126,17 +129,28 @@ export function PosterCard({
       ) : null}
       <button
         type="button"
-        className="poster-card"
+        className={`poster-card ${scene ? 'scene-card' : ''}`}
         ref={rootRef}
         onClick={() => {
           dropLock()
           openTitle(item, rootRef.current)
         }}
-        aria-label={item.title}
+        aria-label={scene ? `${item.title} scene` : item.title}
       >
-        <div className="poster-art">
-          <CatalogImage item={item} alt={item.title} prefer={layout === 'landscape' ? 'backdrop' : 'poster'} />
+        <div className={scene ? 'scene-art' : 'poster-art'}>
+          <CatalogImage
+            item={item}
+            alt={item.title}
+            prefer={scene || layout === 'landscape' ? 'backdrop' : 'poster'}
+            className={scene ? 'scene-img' : undefined}
+          />
         </div>
+        {scene ? (
+          <div className="scene-caption">
+            <span className="scene-kicker">You watched</span>
+            <TitleLogo item={item} className="scene-logo" titleClassName="scene-title" />
+          </div>
+        ) : null}
         {progress ? (
           <div className="progress-track">
             <div style={{ width: `${Math.round(progress * 100)}%` }} />

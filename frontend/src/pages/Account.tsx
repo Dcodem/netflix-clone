@@ -114,10 +114,18 @@ export function Account() {
     date.setDate(date.getDate() + 28)
     return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
   }, [])
-  const lastBilled = useMemo(
-    () => new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-    [],
-  )
+  const billingHistory = useMemo(() => {
+    const now = new Date()
+    return [0, 1, 2].map((offset) => {
+      const billed = new Date(now.getFullYear(), now.getMonth() - offset, Math.min(now.getDate(), 28))
+      const periodEnd = new Date(billed.getFullYear(), billed.getMonth() + 1, billed.getDate())
+      return {
+        date: billed.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        period: `${billed.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${periodEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
+        amount: plan.price,
+      }
+    })
+  }, [plan.price])
 
   useEffect(() => {
     if (!user) return
@@ -527,21 +535,26 @@ export function Account() {
           </div>
           {panel === 'billing' ? (
             <div className="account-billing">
-              <div className="account-billing-row">
-                <strong>{lastBilled}</strong>
-                <span>
-                  {plan.name} · {plan.price}
-                </span>
-                <span>
-                  {user?.paymentLast4
-                    ? `${user.paymentBrand || 'Card'} •••• ${user.paymentLast4}`
-                    : 'No payment method'}
-                </span>
+              <div className="account-billing-list">
+                {billingHistory.map((row) => (
+                  <div className="account-billing-row" key={row.date}>
+                    <strong>{row.date}</strong>
+                    <span>
+                      {plan.name} · {row.amount}
+                    </span>
+                    <span>{row.period}</span>
+                    <span>
+                      {user?.paymentLast4
+                        ? `${user.paymentBrand || 'Card'} •••• ${user.paymentLast4}`
+                        : 'No payment method'}
+                    </span>
+                  </div>
+                ))}
               </div>
               <p className="account-inline-note">
                 Next payment {nextPay}
-                {user?.giftBalance ? ` · Gift card balance ${money(user.giftBalance)}` : ''}. FLIX does not store
-                receipts or charge a card on this device.
+                {user?.giftBalance ? ` · Gift card balance ${money(user.giftBalance)}` : ''}. These rows are a
+                preview. FLIX does not store receipts or charge a card on this device.
               </p>
             </div>
           ) : null}
