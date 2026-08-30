@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useProfiles } from '../profiles/ProfileContext'
+import type { ProfileLanguage } from '../profiles/types'
 import { CaretIcon, CheckIcon, CloseIcon, FacebookIcon, GlobeIcon, InstagramIcon, TwitterIcon, YoutubeIcon } from './Icons'
 
 const COOKIE_KEY = 'flix.cookiePrefs'
@@ -84,16 +86,29 @@ export const FOOTER_NOTES: Record<string, string> = {
 }
 
 const FOOTER_LANGS = [
-  { value: 'en', label: 'English' },
-  { value: 'es', label: 'Español' },
-  { value: 'fr', label: 'Français' },
+  { value: 'en', label: 'English', profile: 'English' as ProfileLanguage },
+  { value: 'es', label: 'Español', profile: 'Español' as ProfileLanguage },
+  { value: 'fr', label: 'Français', profile: 'Français' as ProfileLanguage },
 ] as const
 
+function codeFromProfile(language?: string | null) {
+  if (language === 'Español') return 'es'
+  if (language === 'Français') return 'fr'
+  return 'en'
+}
+
 export function FooterLang({ className }: { className?: string }) {
+  const { activeProfile, updateProfile } = useProfiles()
   const [open, setOpen] = useState(false)
-  const [lang, setLang] = useState<(typeof FOOTER_LANGS)[number]['value']>('en')
+  const [lang, setLang] = useState<(typeof FOOTER_LANGS)[number]['value']>(() =>
+    codeFromProfile(activeProfile?.language),
+  )
   const rootRef = useRef<HTMLDivElement>(null)
   const selected = FOOTER_LANGS.find((entry) => entry.value === lang) ?? FOOTER_LANGS[0]
+
+  useEffect(() => {
+    setLang(codeFromProfile(activeProfile?.language))
+  }, [activeProfile?.id, activeProfile?.language])
 
   useEffect(() => {
     if (!open) return
@@ -139,6 +154,7 @@ export function FooterLang({ className }: { className?: string }) {
                 onClick={() => {
                   setLang(entry.value)
                   setOpen(false)
+                  if (activeProfile) void updateProfile(activeProfile.id, { language: entry.profile })
                 }}
               >
                 {on ? <CheckIcon className="icon" /> : <span className="footer-lang-spacer" />}
