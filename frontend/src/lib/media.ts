@@ -18,8 +18,7 @@ export function ofKind(
 }
 
 export function detailPath(item: { id: string; kind?: string }): string {
-  const id = encodeURIComponent(item.id)
-  return isShow(item) ? `/show/${id}` : `/movie/${id}`
+  return `/browse?jbv=${encodeURIComponent(item.id)}`
 }
 
 export function formatRating(rating?: number | null): string | null {

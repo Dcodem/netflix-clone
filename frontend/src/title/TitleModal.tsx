@@ -226,13 +226,11 @@ export function TitleModal() {
 
   function goSearch(query: string) {
     playClick()
-    closeTitle()
     navigate(`/search?q=${encodeURIComponent(query)}`)
   }
 
   function goGenre(genre: string) {
     playClick()
-    closeTitle()
     navigate(`/browse?genre=${encodeURIComponent(genre)}`)
   }
 

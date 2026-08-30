@@ -57,7 +57,7 @@ export function TitleActions({
   const [copied, setCopied] = useState(false)
 
   async function shareTitle() {
-    const url = `${window.location.origin}${item.href}`
+    const url = `${window.location.origin}/browse?jbv=${encodeURIComponent(item.id)}`
     playClick()
     try {
       if (navigator.share) {
