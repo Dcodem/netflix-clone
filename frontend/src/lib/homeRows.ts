@@ -337,12 +337,11 @@ export function buildBrowseRows(opts: {
     )
   }
 
-  const genreLimit = filter === 'home' ? 2 : 3
-  for (const row of tasteGenreRails(pool, profile, kind, genreLimit)) {
+  for (const row of tasteGenreRails(pool, profile, kind, 4)) {
     if (opts.genre && (isRomComGenre(opts.genre) ? row.id === 'genre-romcom' : row.id === `genre-${opts.genre}`)) {
       continue
     }
-    pushRecRow(rows, { id: row.id, title: row.title, items: row.items }, recUsed)
+    pushRow(rows, { id: row.id, title: row.title, items: row.items })
   }
 
   if (profile) {
