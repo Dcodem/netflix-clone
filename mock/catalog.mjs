@@ -492,6 +492,15 @@ function castFor(index) {
   return [0, 1, 2, 3].map((offset) => CAST[(start + offset) % CAST.length])
 }
 
+function creatorsFor(index) {
+  const start = (index + 7) % CAST.length
+  return [0, 1].map((offset) => CAST[(start + offset) % CAST.length])
+}
+
+function directorFor(index) {
+  return CAST[(index + 11) % CAST.length]
+}
+
 function hashString(value) {
   let hash = 2166136261
   for (let i = 0; i < value.length; i += 1) {
@@ -821,7 +830,9 @@ export function searchItems(q) {
     if (item.title.toLowerCase().includes(needle)) return true
     if (item.genres.some((genre) => genre.toLowerCase().includes(needle))) return true
     const index = Number(item.id.slice(0, 4))
-    return castFor(index).some((name) => name.toLowerCase().includes(needle))
+    if (castFor(index).some((name) => name.toLowerCase().includes(needle))) return true
+    if (item.kind === 'show' && creatorsFor(index).some((name) => name.toLowerCase().includes(needle))) return true
+    return item.kind === 'movie' && directorFor(index).toLowerCase().includes(needle)
   })
 }
 
@@ -849,6 +860,8 @@ export function getDetail(kind, id) {
     synopsis: synopsisFor(item),
     runtime: item.kind === 'movie' ? 96 + (index % 48) : 28 + (index % 22),
     cast: castFor(index),
+    creators: item.kind === 'show' ? creatorsFor(index) : undefined,
+    director: item.kind === 'movie' ? directorFor(index) : undefined,
     backdrop_url: item.backdrop_url || `/art/backdrop/${item.id}?v=2`,
     watch_href: `/watch/play/${item.id}`,
   }
