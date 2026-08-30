@@ -41,6 +41,7 @@ type AuthContextValue = {
     paymentBrand?: string | null
     paymentLast4?: string | null
     comms?: Partial<CommunicationPrefs>
+    tests?: boolean
   }) => Promise<void>
   redeemGift: (code: string) => Promise<number>
   signOutDevice: (deviceId: string) => void
@@ -132,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       paymentBrand?: string | null
       paymentLast4?: string | null
       comms?: Partial<CommunicationPrefs>
+      tests?: boolean
     }) => {
       const current = loadStore()
       const sessionId = current.sessionUserId
@@ -163,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             paymentBrand: opts.paymentBrand !== undefined ? opts.paymentBrand : user.paymentBrand,
             paymentLast4: opts.paymentLast4 !== undefined ? opts.paymentLast4 : user.paymentLast4,
             comms: opts.comms ? { ...commsFor(user), ...opts.comms } : user.comms,
+            tests: opts.tests !== undefined ? opts.tests : user.tests,
             passwordSalt: passwordSalt ?? user.passwordSalt,
             passwordHash: passwordHash ?? user.passwordHash,
           }

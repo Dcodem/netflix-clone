@@ -1,7 +1,7 @@
 import { type FormEvent, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { commsFor } from '../auth/types'
+import { commsFor, testsOn } from '../auth/types'
 import { currentDeviceId, formatDeviceUsed, upsertCurrentDevice } from '../auth/device'
 import { AvatarArt } from '../components/AvatarArt'
 import { ChevronRightIcon } from '../components/Icons'
@@ -61,6 +61,7 @@ type AccountPanel =
   | 'comms'
   | 'privacy'
   | 'downloads'
+  | 'tests'
   | 'devices'
   | 'signout'
   | null
@@ -772,6 +773,32 @@ export function Account() {
             ) : (
               <p className="account-inline-note">Choose a profile to change download settings.</p>
             )
+          ) : null}
+          <div className="account-row">
+            <span>Test participation</span>
+            <button type="button" className="account-change" onClick={() => togglePanel('tests')}>
+              Change
+            </button>
+          </div>
+          {panel === 'tests' ? (
+            <div className="edit-autoplay account-prefs">
+              <label className="edit-check">
+                <input
+                  type="checkbox"
+                  checked={testsOn(user)}
+                  onChange={(event) => {
+                    void updateAccount({ tests: event.target.checked })
+                  }}
+                />
+                <span>
+                  Get early access to new features
+                  <small>Help improve FLIX by joining product tests on this device.</small>
+                </span>
+              </label>
+              <p className="account-inline-note">
+                FLIX does not run remote experiments. This choice stays on this account.
+              </p>
+            </div>
           ) : null}
           <div className="account-row">
             <span>Manage devices</span>

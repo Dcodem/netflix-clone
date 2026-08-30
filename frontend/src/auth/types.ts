@@ -41,6 +41,11 @@ export type UserAccount = {
   giftCodes?: string[]
   devices?: AccountDevice[]
   comms?: CommunicationPrefs
+  tests?: boolean
+}
+
+export function testsOn(user: { tests?: boolean } | null | undefined) {
+  return user?.tests !== false
 }
 
 export type AuthStore = {
