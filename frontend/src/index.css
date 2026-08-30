@@ -8602,10 +8602,6 @@ img.is-logo-pending {
 }
 
 @media (max-width: 767px) {
-  .watch-title-stack {
-    display: none;
-  }
-
   .watch-now-playing {
     display: grid;
     gap: 2px;
@@ -9075,6 +9071,12 @@ img.is-logo-pending {
   gap: 2px;
   min-width: 0;
   flex: 1;
+}
+
+@media (max-width: 767px) {
+  .watch-title-stack {
+    display: none;
+  }
 }
 
 .watch-title {
