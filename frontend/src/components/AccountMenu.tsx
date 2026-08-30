@@ -6,7 +6,6 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { AvatarArt } from './AvatarArt'
 import { CaretIcon, ExitIcon, HelpCircleIcon, MyNetflixIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
-import { FooterNoteDialog, FOOTER_NOTES } from './SiteFooter'
 import { TransferProfileDialog } from './TransferProfileDialog'
 
 export function AccountMenu() {
@@ -14,7 +13,6 @@ export function AccountMenu() {
   const { profiles, activeProfile, clearActive, selectProfile } = useProfiles()
   const navigate = useNavigate()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
-  const [helpOpen, setHelpOpen] = useState(false)
   const [transferOpen, setTransferOpen] = useState(false)
 
   if (!user || !activeProfile) return null
@@ -99,16 +97,10 @@ export function AccountMenu() {
             <PersonIcon className="icon" />
             Account
           </Link>
-          <button
-            type="button"
-            onClick={() => {
-              setOpen(false)
-              setHelpOpen(true)
-            }}
-          >
+          <Link to="/help" onClick={() => setOpen(false)}>
             <HelpCircleIcon className="icon" />
             Help Center
-          </button>
+          </Link>
           <div className="account-dropdown-rule" />
           <button
             type="button"
@@ -121,13 +113,6 @@ export function AccountMenu() {
             Sign out of Flix
           </button>
         </div>
-      ) : null}
-      {helpOpen ? (
-        <FooterNoteDialog
-          title="Help Center"
-          body={FOOTER_NOTES['Help Center']}
-          onClose={() => setHelpOpen(false)}
-        />
       ) : null}
       <TransferProfileDialog open={transferOpen} onClose={() => setTransferOpen(false)} />
     </div>

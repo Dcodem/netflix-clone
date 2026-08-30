@@ -2340,6 +2340,131 @@ body:has(.account-page),
   color: #333;
 }
 
+.help-lead {
+  margin: -8px 0 18px;
+  max-width: 640px;
+  color: #737373;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.help-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 640px;
+  margin: 0 0 28px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #b3b3b3;
+  border-radius: 2px;
+  color: #333;
+}
+
+.help-search .icon {
+  width: 20px;
+  height: 20px;
+  color: #737373;
+  flex-shrink: 0;
+}
+
+.help-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: #333;
+  font: inherit;
+  font-size: 16px;
+  outline: none;
+}
+
+.help-topic {
+  margin: 0 0 22px;
+  max-width: 720px;
+}
+
+.help-topic h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #e50914;
+}
+
+.help-articles {
+  border-top: 1px solid #ccc;
+}
+
+.help-article {
+  border-bottom: 1px solid #ccc;
+}
+
+.help-article-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 0;
+  background: none;
+  border: 0;
+  color: #333;
+  font: inherit;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.help-article-toggle::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  margin-left: 12px;
+  border-right: 2px solid #808080;
+  border-bottom: 2px solid #808080;
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.help-article.is-open .help-article-toggle::after {
+  transform: rotate(-135deg);
+}
+
+.help-article-toggle:hover,
+.help-article-toggle:focus-visible {
+  text-decoration: underline;
+}
+
+.help-article-body {
+  margin: 0 0 16px;
+  color: #555;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.help-empty,
+.help-foot {
+  max-width: 640px;
+  color: #737373;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.help-foot {
+  margin: 28px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid #ccc;
+}
+
+.help-foot a {
+  color: #0071eb;
+}
+
+.help-foot a:hover,
+.help-foot a:focus-visible {
+  text-decoration: underline;
+}
+
 .account-membership {
   padding: 0 0 28px;
   border-bottom: 1px solid #ccc;
