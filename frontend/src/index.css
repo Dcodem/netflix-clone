@@ -11466,6 +11466,11 @@ img.is-logo-pending {
   .my-list-page .browse-heading .outline-select-btn {
     width: auto;
   }
+
+  .my-list-page .browse-heading .genre-select {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
 }
 
 

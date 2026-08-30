@@ -46,6 +46,31 @@ function writeMyListSort(profileId: string, sort: MyListSort) {
   }
 }
 
+function genreKey(profileId?: string | null) {
+  return profileId ? `flix.myListGenre.${profileId}` : null
+}
+
+function readMyListGenre(profileId?: string | null) {
+  const key = genreKey(profileId)
+  if (!key) return ''
+  try {
+    return localStorage.getItem(key) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+function writeMyListGenre(profileId: string, genre: string) {
+  try {
+    const key = genreKey(profileId)
+    if (!key) return
+    if (genre) localStorage.setItem(key, genre)
+    else localStorage.removeItem(key)
+  } catch {
+    /* ignore */
+  }
+}
+
 export function MyList() {
   const { activeProfile } = useProfiles()
   const movies = useFetch(() => getMovies(), 'home-movies')
@@ -68,7 +93,7 @@ export function MyList() {
   )
   const uniqueItems = useMemo(() => uniqueById(items), [items])
   const desktop = useMediaQuery('(min-width: 768px)')
-  const [genre, setGenre] = useState('')
+  const [genre, setGenre] = useState(() => readMyListGenre(activeProfile?.id))
   const [sort, setSort] = useState<MyListSort>(() => readMyListSort(activeProfile?.id))
   const [headingStuck, setHeadingStuck] = useState(false)
   const genres = useMemo(() => catalogGenres(uniqueItems), [uniqueItems])
@@ -76,11 +101,14 @@ export function MyList() {
     const filtered = genre ? uniqueItems.filter((item) => matchesGenreFilter(item, genre)) : uniqueItems
     return sortMyListItems(filtered, sort, activeProfile)
   }, [uniqueItems, genre, sort, activeProfile])
-  const useGenreMenu = desktop && genres.length > 1
+  const useGenreMenu = genres.length > 1
+  const genreKeyJoin = genres.join('|')
 
   useEffect(() => {
     setSort(readMyListSort(activeProfile?.id))
-  }, [activeProfile?.id])
+    const stored = readMyListGenre(activeProfile?.id)
+    if (!stored || !genreKeyJoin || genreKeyJoin.split('|').includes(stored)) setGenre(stored)
+  }, [activeProfile?.id, genreKeyJoin])
 
   useEffect(() => {
     const onScroll = () => setHeadingStuck(window.scrollY > 72)
@@ -94,7 +122,15 @@ export function MyList() {
       <div className={`browse-heading ${headingStuck ? 'is-stuck' : ''}`}>
         <h1>My List</h1>
         {useGenreMenu ? (
-          <GenreSelect value={genre} genres={genres} onChange={setGenre} useMenu />
+          <GenreSelect
+            value={genre}
+            genres={genres}
+            onChange={(next) => {
+              setGenre(next)
+              if (activeProfile?.id) writeMyListGenre(activeProfile.id, next)
+            }}
+            useMenu
+          />
         ) : null}
         {uniqueItems.length ? (
           <OutlineSelect

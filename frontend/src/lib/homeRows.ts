@@ -128,6 +128,7 @@ function pushRecRow(rows: HomeRow[], row: HomeRow, used: Set<string>) {
   const items = uniqueRail(row.items, used)
   if (!items.length) return
   if (!row.seed && items.length < 6) return
+  for (const item of items) used.add(item.id)
   pushRow(rows, { ...row, items })
 }
 
