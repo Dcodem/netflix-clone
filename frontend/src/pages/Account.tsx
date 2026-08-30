@@ -72,11 +72,18 @@ export function Account() {
 
       <section className="account-membership">
         <div className="account-membership-card">
+          <p className="account-brand" aria-hidden="true">
+            FLIX
+          </p>
           <p className="account-email">{user?.email}</p>
           <p className="account-plan">
             <span className="account-plan-name">Standard</span>
             <span className="spec-badge">HD</span>
           </p>
+          <div className="account-next-pay">
+            <span>Next payment</span>
+            <strong>None</strong>
+          </div>
           <p className="account-hint">Membership on this device. There is no monthly bill.</p>
           <button type="button" className="account-cancel" onClick={() => togglePanel('cancel')}>
             Cancel Membership

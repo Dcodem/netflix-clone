@@ -2245,6 +2245,7 @@ body:has(.account-page),
 }
 
 .account-membership-card {
+  position: relative;
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -2252,12 +2253,47 @@ body:has(.account-page),
   max-width: 420px;
 }
 
+.account-brand {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  margin: 0;
+  color: #e50914;
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.07em;
+  line-height: 1;
+}
+
 .account-membership-card .account-email {
   margin: 0 0 10px;
+  padding-right: 64px;
+  color: #555;
 }
 
 .account-membership-card .account-plan {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0 0 8px;
+}
+
+.account-next-pay {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 14px 0 10px;
+  padding-top: 12px;
+  border-top: 1px solid #e6e6e6;
+  color: #555;
+  font-size: 15px;
+}
+
+.account-next-pay strong {
+  font-weight: 700;
+  color: #333;
 }
 
 .account-membership-card .account-hint {
@@ -3192,6 +3228,25 @@ body:has(.account-page),
   border: 0;
   z-index: 0;
   pointer-events: none;
+  transform: scale(1.04);
+  transform-origin: center 42%;
+  animation: jaw-drift 14s ease-out forwards;
+}
+
+.jawbone-art.is-playing > img,
+.jawbone-art.is-playing > .media-fallback {
+  animation: none;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+@keyframes jaw-drift {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1.18);
+  }
 }
 
 .jawbone-trailer {
@@ -6503,7 +6558,7 @@ img.is-logo-pending {
   margin: 8px 0 0;
   padding: 18px 0 4px;
   border-top: 1px solid #4d4d4d;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
 }
 
@@ -8652,12 +8707,17 @@ img.is-logo-pending {
 }
 
 .watch-panel.watch-audio {
-  width: min(640px, calc(100% - 48px));
+  left: auto;
+  right: 40px;
+  top: auto;
+  bottom: 124px;
+  width: min(640px, calc(100% - 80px));
   padding: 28px 32px 24px;
   border: 0;
   border-radius: 4px;
   background: rgba(20, 20, 20, 0.96);
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  animation: ep-sheet-in 0.2s ease;
 }
 
 .watch-panel.watch-audio > div:nth-child(2) {
@@ -8674,10 +8734,10 @@ img.is-logo-pending {
 }
 
 .watch-audio h2 {
-  margin: 0 0 10px;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0;
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   text-transform: none;
   color: #808080;
 }
