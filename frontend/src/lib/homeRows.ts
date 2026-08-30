@@ -102,9 +102,7 @@ function rail(items: MovieListItem[], cap = RAIL): MovieListItem[] {
 }
 
 function uniqueRail(items: MovieListItem[], used: Set<string>, cap = RAIL): MovieListItem[] {
-  const picked = uniqueById(items.filter((item) => !used.has(item.id))).slice(0, cap)
-  for (const item of picked) used.add(item.id)
-  return picked
+  return uniqueById(items.filter((item) => !used.has(item.id))).slice(0, cap)
 }
 
 function railIds(items: MovieListItem[], cap = RAIL): Set<string> {
@@ -127,7 +125,10 @@ function pushRow(rows: HomeRow[], row: HomeRow) {
 }
 
 function pushRecRow(rows: HomeRow[], row: HomeRow, used: Set<string>) {
-  pushRow(rows, { ...row, items: uniqueRail(row.items, used) })
+  const items = uniqueRail(row.items, used)
+  if (!items.length) return
+  if (!row.seed && items.length < 6) return
+  pushRow(rows, { ...row, items })
 }
 
 export function stillWatching(entry: { progress?: number; kind?: string }) {
@@ -320,21 +321,6 @@ export function buildBrowseRows(opts: {
     pushRow(rows, { id: 'new-shows', title: 'New TV Shows', items: sortByYear(shows) })
   }
 
-  if (profile) {
-    pushRecRow(
-      rows,
-      {
-        id: 'picks',
-        title: `Top Picks for ${profile.name}`,
-        items: rankByTaste(pool, profile),
-      },
-      recUsed,
-    )
-  } else if (filter === 'home') {
-    pushRow(rows, { id: 'movies', title: 'Movies', items: recommendRail(movies, profile) })
-    pushRow(rows, { id: 'shows', title: 'TV Shows', items: recommendRail(shows, profile) })
-  }
-
   for (const row of becauseYouLikedRows(pool, profile?.liked ?? [], 2)) {
     if (row.seed) recUsed.add(row.seed.id)
     pushRecRow(
@@ -356,6 +342,17 @@ export function buildBrowseRows(opts: {
       continue
     }
     pushRecRow(rows, { id: row.id, title: row.title, items: row.items }, recUsed)
+  }
+
+  if (profile) {
+    pushRow(rows, {
+      id: 'picks',
+      title: `Top Picks for ${profile.name}`,
+      items: rankByTaste(pool, profile),
+    })
+  } else if (filter === 'home') {
+    pushRow(rows, { id: 'movies', title: 'Movies', items: recommendRail(movies, profile) })
+    pushRow(rows, { id: 'shows', title: 'TV Shows', items: recommendRail(shows, profile) })
   }
 
   return rows
