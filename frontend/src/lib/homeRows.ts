@@ -121,16 +121,20 @@ export function buildBrowseRows(opts: {
   if (filter === 'popular') {
     const year = new Date().getFullYear()
     const soon = pool.filter((item) => (item.year ?? 0) >= year)
-    const watching = sortByRating(pool.filter((item) => (item.year ?? 0) < year))
+    const available = pool.filter((item) => (item.year ?? 0) < year)
+    const watching = sortByRating(available)
     const comingIds = new Set(soon.slice(0, 8).map((item) => item.id))
+    const watchingIds = new Set(watching.slice(0, 12).map((item) => item.id))
+    const leftoverSoon = soon.filter((item) => !comingIds.has(item.id))
+    const worthFill = sortByRating(available.filter((item) => !watchingIds.has(item.id)))
     pushRow(rows, { id: 'coming', title: 'Coming Soon', items: soon })
     pushRow(rows, { id: 'watching', title: 'Everyone’s Watching', items: watching })
     pushRow(rows, {
       id: 'worth',
       title: 'Worth the Wait',
-      items: sortByRating(pool.filter((item) => !comingIds.has(item.id))),
+      items: uniqueById([...leftoverSoon, ...worthFill]),
     })
-    pushRow(rows, { id: 'new-flix', title: 'New on FLIX', items: sortByYear(pool) })
+    pushRow(rows, { id: 'new-flix', title: 'New on FLIX', items: sortByYear(available) })
     const topTv = sortByRating(shows).slice(0, 10)
     if (topTv.length >= 4) {
       pushRow(rows, {
