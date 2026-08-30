@@ -171,15 +171,10 @@ export function genreRailTitle(genre: string, kind: 'all' | 'movies' | 'shows' =
 }
 
 export function romComItems(items: MovieListItem[]): MovieListItem[] {
-  const both = items.filter((item) => {
-    const genres = new Set(genresOf(item))
-    return genres.has('Romance') && genres.has('Comedy')
-  })
-  if (both.length >= 6) return both.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
   return items
     .filter((item) => {
       const genres = new Set(genresOf(item))
-      return genres.has('Romance') || genres.has('Comedy')
+      return genres.has('Romance') && genres.has('Comedy')
     })
     .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
 }

@@ -704,6 +704,13 @@ const REAL_MOVIES = [
   namedItem('movie', 50, "The End of Oak Street", 2026, 6.4, ["Sci-Fi","Mystery","Thriller"], "https://image.tmdb.org/t/p/w500/fYXqpgPmHMphSF2W30GbTeJVIa5.jpg", "https://image.tmdb.org/t/p/w1280/b9q9VmbXDvJmTziRqkwdEmFdwhr.jpg"),
   namedItem('movie', 51, "Shape of My Heart", 2024, 6.2, ["Romance"], "https://image.tmdb.org/t/p/w500/3r0O6BW9USoZ9mteCVyNKMQriRL.jpg", "https://image.tmdb.org/t/p/w1280/yjK3ardrgdS8suZG8KMU82Q7U38.jpg"),
   namedItem('movie', 52, "Scary Movie", 2026, 6.4, ["Comedy"], "https://image.tmdb.org/t/p/w500/znHT8peERZRWG1ME3r0Db0EV8k8.jpg", "https://image.tmdb.org/t/p/w1280/xWBiXclrRmTggQHMRsIn84YHavs.jpg"),
+  namedItem('movie', 53, "Crazy Rich Asians", 2018, 7.0, ["Romance", "Comedy"]),
+  namedItem('movie', 54, "To All the Boys I've Loved Before", 2018, 7.2, ["Romance", "Comedy"]),
+  namedItem('movie', 55, "Anyone But You", 2023, 6.3, ["Romance", "Comedy"]),
+  namedItem('movie', 56, "The Proposal", 2009, 6.7, ["Romance", "Comedy"]),
+  namedItem('movie', 57, "Pretty Woman", 1990, 7.1, ["Romance", "Comedy"]),
+  namedItem('movie', 58, "Notting Hill", 1999, 7.2, ["Romance", "Comedy"]),
+  namedItem('movie', 59, "10 Things I Hate About You", 1999, 7.3, ["Romance", "Comedy"]),
 ]
 
 const REAL_SHOWS = [
@@ -743,6 +750,8 @@ const REAL_SHOWS = [
   namedItem('show', 34, "NCIS", 2003, 7.6, ["Crime","Drama","Action"], "https://image.tmdb.org/t/p/w500/mBcu8d6x6zB1el3MPNl7cZQEQ31.jpg", "https://image.tmdb.org/t/p/w1280/nn3SuLTO4hum8yAxaY4ql8h6kRk.jpg"),
   namedItem('show', 35, "Supernatural", 2005, 8.3, ["Drama","Mystery","Sci-Fi"], "https://image.tmdb.org/t/p/w500/8iixmfGx5EIFPdpNvB2JvI3VIqX.jpg", "https://image.tmdb.org/t/p/w1280/ro0tlgnsco4SwbdAgmscLkSlMSL.jpg"),
   namedItem('show', 36, "Criminal Minds", 2005, 8.3, ["Crime","Drama","Mystery"], "https://image.tmdb.org/t/p/w500/hWSb4UnIjlTvnvrP98NbFSO60HA.jpg", "https://image.tmdb.org/t/p/w1280/tUtXfyVy54BY7eJnRtI8Xnmr1ZL.jpg"),
+  namedItem('show', 37, "Emily in Paris", 2020, 6.9, ["Romance", "Comedy", "Drama"]),
+  namedItem('show', 38, "Never Have I Ever", 2020, 7.8, ["Romance", "Comedy", "Drama"]),
 ]
 
 const MOVIES = [...REAL_MOVIES]
