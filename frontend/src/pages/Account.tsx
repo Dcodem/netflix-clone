@@ -289,9 +289,9 @@ export function Account() {
       </section>
 
       <details className="account-extras">
-        <summary>Playback extras</summary>
+        <summary>Additional settings</summary>
         <p className="account-hint">
-          Previews default to free TMDB YouTube trailers. Extra keys are optional.
+          Previews use free YouTube trailers. Optional keys only change lookup sources on this device.
         </p>
         <form className="account-form" onSubmit={onSave}>
           <label>

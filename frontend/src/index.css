@@ -2571,12 +2571,14 @@ body:has(.account-page),
   max-width: 720px;
   margin: 8px 0 40px;
   color: #737373;
+  border-top: 1px solid #e5e5e5;
 }
 
 .account-extras summary {
   cursor: pointer;
-  font-size: 15px;
-  padding: 12px 0;
+  font-size: 18px;
+  font-weight: 400;
+  padding: 18px 0;
   list-style: none;
   display: flex;
   align-items: center;
@@ -3989,12 +3991,12 @@ img.is-logo-pending {
 }
 
 .title-modal-cast {
-  color: var(--muted);
+  color: #fff;
   font-size: 14px;
+  line-height: 1.45;
 }
 
-.title-modal-cast .title-kicker,
-.title-modal-cast span {
+.title-modal-cast .title-kicker {
   color: #777;
 }
 
@@ -4394,7 +4396,7 @@ img.is-logo-pending {
   }
 
   .browse-page:not(.has-browse-heading) .maturity-flag {
-    display: none;
+    display: inline-flex;
   }
 
   .browse-page:not(.has-browse-heading) .hero-actions {
@@ -4945,8 +4947,25 @@ img.is-logo-pending {
 }
 
 @media (max-width: 767px) {
+  .title-modal-syn {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-top: 12px;
+  }
+
   .title-modal-split-side {
-    display: none;
+    display: grid;
+    gap: 6px;
+    margin: 12px 0 2px;
+  }
+
+  .title-modal-split-side .title-modal-cast {
+    font-size: 13px;
+    color: #d2d2d2;
   }
 }
 
@@ -10077,6 +10096,14 @@ img.is-logo-pending {
   scroll-margin-top: calc(var(--header-offset) + 56px);
 }
 
+.news-section-title {
+  margin: 4px 0 18px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
 .news-card {
   display: grid;
   gap: 12px;
@@ -10091,13 +10118,19 @@ img.is-logo-pending {
   margin-bottom: 44px;
 }
 
-.news-card.is-ranked {
-  grid-template-columns: 64px 1fr;
+.news-card.is-ranked,
+.news-card.is-ranked.is-ten {
+  grid-template-columns: 1fr;
   align-items: start;
 }
 
-.news-card.is-ranked.is-ten {
-  grid-template-columns: 72px 1fr;
+.news-ranked-media {
+  position: relative;
+  padding-left: 34px;
+}
+
+.news-card.is-ten .news-ranked-media {
+  padding-left: 50px;
 }
 
 .news-date,
@@ -10163,6 +10196,20 @@ img.is-logo-pending {
   user-select: none;
 }
 
+.news-ranked-media .news-rank {
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  z-index: 1;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+  justify-items: start;
+  font-size: 96px;
+  line-height: 0.68;
+  letter-spacing: -0.12em;
+}
+
 .news-rank::before {
   content: attr(data-rank);
   position: absolute;
@@ -10181,6 +10228,11 @@ img.is-logo-pending {
 .news-card.is-ten .news-rank {
   font-size: 56px;
   letter-spacing: -0.12em;
+}
+
+.news-card.is-ten .news-ranked-media .news-rank {
+  font-size: 72px;
+  letter-spacing: -0.14em;
 }
 
 .news-genres {
@@ -10388,16 +10440,18 @@ img.is-logo-pending {
   overflow: hidden;
 }
 
-.news-card.is-soon .news-date,
-.news-card.is-ranked .news-rank {
+.news-card.is-soon .news-date {
   grid-row: 1 / span 2;
 }
 
 .news-card.is-soon .news-card-art,
-.news-card.is-soon .news-card-body,
-.news-card.is-ranked .news-card-art,
-.news-card.is-ranked .news-card-body {
+.news-card.is-soon .news-card-body {
   grid-column: 2;
+}
+
+.news-card.is-ranked .news-ranked-media,
+.news-card.is-ranked .news-card-body {
+  grid-column: 1;
 }
 
 .news-actions {
@@ -10425,28 +10479,33 @@ img.is-logo-pending {
     gap: 20px;
   }
 
-  .news-card.is-soon,
-  .news-card.is-ranked {
+  .news-card.is-soon {
     grid-template-columns: 72px 1.3fr 1fr;
   }
 
+  .news-card.is-ranked,
   .news-card.is-ranked.is-ten {
-    grid-template-columns: 84px 1.3fr 1fr;
+    grid-template-columns: 1.15fr 1fr;
   }
 
-  .news-card.is-soon .news-date,
-  .news-card.is-ranked .news-rank {
+  .news-card.is-soon .news-date {
     grid-row: auto;
   }
 
-  .news-card.is-soon .news-card-art,
-  .news-card.is-ranked .news-card-art {
+  .news-card.is-soon .news-card-art {
     grid-column: 2;
   }
 
-  .news-card.is-soon .news-card-body,
-  .news-card.is-ranked .news-card-body {
+  .news-card.is-soon .news-card-body {
     grid-column: 3;
+  }
+
+  .news-card.is-ranked .news-ranked-media {
+    grid-column: 1;
+  }
+
+  .news-card.is-ranked .news-card-body {
+    grid-column: 2;
   }
 }
 

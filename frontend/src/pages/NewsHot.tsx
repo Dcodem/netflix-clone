@@ -65,14 +65,12 @@ function comingLine(date: Date) {
 
 function FeedCard({
   item,
-  kicker,
   synopsis,
   mode,
   rank,
   onRemind,
 }: {
   item: MovieListItem
-  kicker?: string
   synopsis?: string
   mode: FeedMode
   rank?: number
@@ -121,17 +119,22 @@ function FeedCard({
         </div>
       ) : null}
       {ranked ? (
-        <div className="news-rank" data-rank={rank} aria-hidden="true">
-          {rank}
+        <div className="news-ranked-media">
+          <div className="news-rank" data-rank={rank} aria-hidden="true">
+            {rank}
+          </div>
+          <button type="button" className="news-card-art" onClick={() => openTitle(item)} aria-label={item.title}>
+            <CatalogImage item={item} alt="" prefer="backdrop" />
+          </button>
         </div>
-      ) : null}
-      <button type="button" className="news-card-art" onClick={() => openTitle(item)} aria-label={item.title}>
-        <CatalogImage item={item} alt="" prefer="backdrop" />
-      </button>
+      ) : (
+        <button type="button" className="news-card-art" onClick={() => openTitle(item)} aria-label={item.title}>
+          <CatalogImage item={item} alt="" prefer="backdrop" />
+        </button>
+      )}
       <div className="news-card-body">
         <div className="news-title-row">
           <div className="news-title-copy">
-            {mode === 'watching' && kicker ? <p className="news-kicker">{kicker}</p> : null}
             <TitleLogo item={item} className="news-title-logo" titleClassName="news-title-text" />
           </div>
           <div className="news-icon-actions">
@@ -403,13 +406,12 @@ function NewsHotFeed() {
       ) : null}
       {watching.length ? (
         <section className="news-feed" ref={watchingRef} aria-label="Everyone’s Watching">
-          <h2 className="visually-hidden">Everyone’s Watching</h2>
+          <h2 className="news-section-title">Everyone’s Watching</h2>
           {watching.map((item) => (
             <FeedCard
               key={item.id}
               item={item}
               mode="watching"
-              kicker="Everyone’s Watching"
               synopsis={synopses[item.id]}
             />
           ))}
@@ -417,7 +419,7 @@ function NewsHotFeed() {
       ) : null}
       {topTv.length ? (
         <section className="news-feed" ref={topTvRef} aria-label="Top 10 TV Shows">
-          <h2 className="visually-hidden">Top 10 TV Shows</h2>
+          <h2 className="news-section-title">Top 10 TV Shows</h2>
           {topTv.map((item, index) => (
             <FeedCard key={item.id} item={item} mode="ranked" rank={index + 1} synopsis={synopses[item.id]} />
           ))}
@@ -425,7 +427,7 @@ function NewsHotFeed() {
       ) : null}
       {topMovies.length ? (
         <section className="news-feed" ref={topMoviesRef} aria-label="Top 10 Movies">
-          <h2 className="visually-hidden">Top 10 Movies</h2>
+          <h2 className="news-section-title">Top 10 Movies</h2>
           {topMovies.map((item, index) => (
             <FeedCard key={item.id} item={item} mode="ranked" rank={index + 1} synopsis={synopses[item.id]} />
           ))}
