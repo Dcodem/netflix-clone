@@ -150,7 +150,7 @@ export function TitleModal() {
   const continueMode = Boolean(last && stillWatching(last))
   const soon = isComingSoon(item)
   const coming = comingLineFor(item)
-  const activeTab = tab ?? (isShow(item) ? 'episodes' : 'more')
+  const activeTab = tab ?? (isShow(item) && !soon ? 'episodes' : 'more')
 
   function selectTab(next: 'episodes' | 'more' | 'trailers') {
     setTab(next)
@@ -161,7 +161,7 @@ export function TitleModal() {
   }
 
   function playEpisode(episode: Episode, season: Season) {
-    if (!detail) return
+    if (!detail || soon) return
     playClick()
     const watch = watchForEpisode(last, season.season_number, episode)
     closeTitle()
@@ -401,7 +401,7 @@ export function TitleModal() {
 
           <div className="title-tabs-row">
             <nav className="title-tabs" aria-label="Title sections">
-              {isShow(item) ? (
+              {isShow(item) && !soon ? (
                 <>
                   <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => selectTab('episodes')}>
                     Episodes
@@ -424,12 +424,12 @@ export function TitleModal() {
                 </>
               )}
             </nav>
-            {isShow(item) && activeTab === 'episodes' ? (
+            {isShow(item) && !soon && activeTab === 'episodes' ? (
               <SeasonPicker seasons={seasons} history={last} value={seasonNumber} onChange={setSeasonNumber} />
             ) : null}
           </div>
 
-          {isShow(item) && activeTab === 'episodes' ? (
+          {isShow(item) && !soon && activeTab === 'episodes' ? (
             <div className="title-section">
               <EpisodeList
                 seasons={seasons}
