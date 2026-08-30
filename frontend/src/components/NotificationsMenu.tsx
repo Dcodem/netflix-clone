@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { useHoverMenu } from '../hooks/useHoverMenu'
-import { catalogNotices, filterByMaturity } from '../lib/netflix'
+import { catalogNotices, filterByMaturity, noticeGroup } from '../lib/netflix'
 import { noticeKey, withNotifySeen, writeNotifySeen } from '../lib/notifySeen'
 import { uniqueById } from '../lib/media'
 import { useFetch } from '../hooks/useFetch'
@@ -36,6 +36,17 @@ export function NotificationsMenu() {
     [rawNotices, activeProfile?.id, seenTick],
   )
   const unread = notices.some((notice) => notice.unread)
+  const groups = useMemo(() => {
+    const buckets: Record<'Today' | 'Yesterday' | 'Earlier', typeof notices> = {
+      Today: [],
+      Yesterday: [],
+      Earlier: [],
+    }
+    for (const notice of notices) buckets[noticeGroup(notice.stamp)].push(notice)
+    return (['Today', 'Yesterday', 'Earlier'] as const)
+      .filter((label) => buckets[label].length)
+      .map((label) => ({ label, items: buckets[label] }))
+  }, [notices])
 
   useEffect(() => {
     if (open) {
@@ -66,27 +77,31 @@ export function NotificationsMenu() {
         {unread ? <span className="notify-dot" aria-hidden="true" /> : null}
       </button>
       {open ? (
-        <div className="notify-dropdown" role="menu">
-          <p className="notify-head">Notifications</p>
-          {notices.length ? (
+        <div className="notify-dropdown" role="menu" aria-label="Notifications">
+          {groups.length ? (
             <div className="notify-list">
-              {notices.map(({ item, kicker, stamp, unread: isUnread }) => (
-                <button
-                  type="button"
-                  key={item.id}
-                  className={`notify-row ${isUnread ? 'is-unread' : ''}`}
-                  onClick={(event) => {
-                    setOpen(false)
-                    openTitle(item, event.currentTarget)
-                  }}
-                >
-                  <CatalogImage item={item} prefer="backdrop" alt="" />
-                  <span>
-                    <strong>{kicker}</strong>
-                    <em>{item.title}</em>
-                    <small>{stamp}</small>
-                  </span>
-                </button>
+              {groups.map((group) => (
+                <section className="notify-group" key={group.label}>
+                  <h3>{group.label}</h3>
+                  {group.items.map(({ item, kicker, stamp, unread: isUnread }) => (
+                    <button
+                      type="button"
+                      key={`${kicker}-${item.id}`}
+                      className={`notify-row ${isUnread ? 'is-unread' : ''}`}
+                      onClick={(event) => {
+                        setOpen(false)
+                        openTitle(item, event.currentTarget)
+                      }}
+                    >
+                      <CatalogImage item={item} prefer="backdrop" alt="" />
+                      <span>
+                        <strong>{kicker}</strong>
+                        <em>{item.title}</em>
+                        <small>{stamp}</small>
+                      </span>
+                    </button>
+                  ))}
+                </section>
               ))}
             </div>
           ) : (

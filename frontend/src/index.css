@@ -8346,13 +8346,7 @@ img.is-logo-pending {
 }
 
 .notify-head {
-  margin: 0;
-  padding: 14px 20px 12px !important;
-  border-bottom: 1px solid #333;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  text-align: left !important;
+  display: none;
 }
 
 .notify-foot {
@@ -8372,7 +8366,12 @@ img.is-logo-pending {
 }
 
 .notify-group h3 {
-  display: none;
+  margin: 0;
+  padding: 12px 20px 4px;
+  color: #808080;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .notify-row {
@@ -10077,6 +10076,12 @@ img.is-logo-pending {
   min-width: 0;
 }
 
+.next-ep-show {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
 .next-ep-copy em {
   font-style: normal;
   font-weight: 700;
@@ -11183,6 +11188,7 @@ img.is-logo-pending {
 }
 
 .notify-card {
+  position: relative;
   flex: 0 0 200px;
   display: flex;
   flex-direction: column;
@@ -11194,6 +11200,18 @@ img.is-logo-pending {
   color: #fff;
   text-align: left;
   cursor: pointer;
+}
+
+.notify-card.is-unread::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 4px;
+  height: 96px;
+  border-radius: 0 2px 2px 0;
+  background: #e50914;
+  z-index: 1;
 }
 
 .notify-card img,

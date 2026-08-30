@@ -100,7 +100,7 @@ export function Search() {
   if (!enabled) {
     return (
       <main className="page page-pad search-page">
-        {recentBlock}
+        {phone ? recentBlock : null}
         {popularItems.length ? (
           <>
             <h2 className="section-title search-recommended-title">
