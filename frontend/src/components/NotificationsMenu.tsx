@@ -75,9 +75,9 @@ export function NotificationsMenu() {
                   type="button"
                   key={item.id}
                   className={`notify-row ${isUnread ? 'is-unread' : ''}`}
-                  onClick={() => {
+                  onClick={(event) => {
                     setOpen(false)
-                    openTitle(item)
+                    openTitle(item, event.currentTarget)
                   }}
                 >
                   <CatalogImage item={item} prefer="backdrop" alt="" />

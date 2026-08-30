@@ -297,7 +297,7 @@ export function TitleActions({
         </button>
       ) : null}
       {!sheet && showMore ? (
-        <button type="button" className="circle-btn circle-more" onClick={() => openTitle(item)} aria-label="More info">
+        <button type="button" className="circle-btn circle-more" onClick={(event) => openTitle(item, event.currentTarget)} aria-label="More info">
           <CaretIcon className="icon" />
         </button>
       ) : null}

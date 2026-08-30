@@ -437,6 +437,7 @@ select,
 }
 
 .cast-sheet-more {
+  display: inline-block;
   margin: 16px 0 0;
   padding: 0;
   background: none;
@@ -448,6 +449,85 @@ select,
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
+}
+
+.cast-device-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.cast-device {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: #181818;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cast-device.is-on {
+  border-color: #fff;
+}
+
+.cast-device strong,
+.cast-device em {
+  display: block;
+  font-style: normal;
+}
+
+.cast-device em {
+  margin-top: 2px;
+  color: #b3b3b3;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cast-pair-form,
+.tv-pair-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  max-width: 420px;
+}
+
+.cast-pair-form label,
+.tv-pair-label {
+  display: grid;
+  gap: 6px;
+  color: #b3b3b3;
+  font-size: 13px;
+}
+
+.cast-pair-form input,
+.tv-pair-form input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #808080;
+  border-radius: 2px;
+  background: #333;
+  color: #fff;
+  font: inherit;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.site-info-logo {
+  display: inline-block;
+  margin-bottom: 18px;
+}
+
+.site-info-page .help-topic .help-article-body {
+  color: #555;
 }
 
 .search-wrap input {
@@ -4239,7 +4319,8 @@ body:has(.account-page),
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(2px);
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -4277,6 +4358,22 @@ body:has(.account-page),
   transform-origin: 50% 8%;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 36px 80px rgba(0, 0, 0, 0.78);
   animation: modal-in 0.42s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.title-modal.is-from-tile {
+  transform-origin: var(--modal-ox, 50%) var(--modal-oy, 8%);
+  animation: modal-from-tile 0.42s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+@keyframes modal-from-tile {
+  from {
+    transform: scale(var(--modal-from, 0.42));
+    opacity: 0.55;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 @keyframes modal-in {

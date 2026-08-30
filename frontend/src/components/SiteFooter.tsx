@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { SITE_INFO_HREFS } from '../lib/siteInfo'
 import { useProfiles } from '../profiles/ProfileContext'
 import type { ProfileLanguage } from '../profiles/types'
 import { CaretIcon, CheckIcon, CloseIcon, FacebookIcon, GlobeIcon, InstagramIcon, TwitterIcon, YoutubeIcon } from './Icons'
@@ -215,6 +216,10 @@ export function SiteFooter() {
                     <Link to="/speed">Speed Test</Link>
                   ) : label === 'Ways to Watch' ? (
                     <Link to="/ways">Ways to Watch</Link>
+                  ) : label === 'Redeem Gift Cards' ? (
+                    <Link to="/account">Redeem Gift Cards</Link>
+                  ) : SITE_INFO_HREFS[label] ? (
+                    <Link to={SITE_INFO_HREFS[label]}>{label}</Link>
                   ) : (
                     <button type="button" className="site-footer-link" onClick={() => setNote(label)}>
                       {label}

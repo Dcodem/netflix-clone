@@ -134,7 +134,7 @@ export function MyNetflix() {
                 type="button"
                 key={item.id}
                 className={`notify-card ${unread ? 'is-unread' : ''}`}
-                onClick={() => openTitle(item)}
+                onClick={(event) => openTitle(item, event.currentTarget)}
               >
                 <CatalogImage item={item} prefer="backdrop" alt="" />
                 <span>
@@ -156,7 +156,7 @@ export function MyNetflix() {
           <ul className="download-list">
             {downloadItems.map((item) => (
               <li key={item.id}>
-                <button type="button" className="download-row" onClick={() => openTitle(item)}>
+                <button type="button" className="download-row" onClick={(event) => openTitle(item, event.currentTarget)}>
                   <span className="download-still">
                     <CatalogImage item={item} prefer="backdrop" alt="" />
                   </span>

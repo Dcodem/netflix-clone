@@ -3,10 +3,22 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { getMovie, getShow } from '../api/client'
 import type { MovieListItem } from '../api/types'
 
+export type TitleOrigin = { left: number; top: number; width: number; height: number }
+
 type TitleModalContextValue = {
   item: MovieListItem | null
-  openTitle: (item: MovieListItem) => void
+  origin: TitleOrigin | null
+  openTitle: (item: MovieListItem, origin?: TitleOrigin | DOMRect | HTMLElement | null) => void
   closeTitle: () => void
+}
+
+export function titleOriginFrom(input?: TitleOrigin | DOMRect | HTMLElement | null): TitleOrigin | null {
+  if (!input) return null
+  if (input instanceof HTMLElement) {
+    const rect = input.getBoundingClientRect()
+    return { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
+  }
+  return { left: input.left, top: input.top, width: input.width, height: input.height }
 }
 
 const TitleModalContext = createContext<TitleModalContextValue | null>(null)
@@ -24,6 +36,7 @@ export function titleHref(id: string, extra: URLSearchParams | string = '') {
 
 export function TitleModalProvider({ children }: { children: ReactNode }) {
   const [item, setItem] = useState<MovieListItem | null>(null)
+  const [origin, setOrigin] = useState<TitleOrigin | null>(null)
   const location = useLocation()
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -33,8 +46,9 @@ export function TitleModalProvider({ children }: { children: ReactNode }) {
   itemRef.current = item
 
   const openTitle = useCallback(
-    (next: MovieListItem) => {
+    (next: MovieListItem, nextOrigin?: TitleOrigin | DOMRect | HTMLElement | null) => {
       cacheRef.current.set(next.id, next)
+      setOrigin(titleOriginFrom(nextOrigin))
       const nextParams = new URLSearchParams(location.search)
       if (nextParams.get('jbv') === next.id) {
         setItem(next)
@@ -49,6 +63,7 @@ export function TitleModalProvider({ children }: { children: ReactNode }) {
 
   const closeTitle = useCallback(() => {
     const nextParams = new URLSearchParams(location.search)
+    setOrigin(null)
     if (!nextParams.get('jbv')) {
       setItem(null)
       return
@@ -62,6 +77,7 @@ export function TitleModalProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!jbv) {
       if (itemRef.current) setItem(null)
+      setOrigin(null)
       return
     }
     if (itemRef.current?.id === jbv) return
@@ -81,7 +97,10 @@ export function TitleModalProvider({ children }: { children: ReactNode }) {
     }
   }, [jbv])
 
-  const value = useMemo(() => ({ item, openTitle, closeTitle }), [item, openTitle, closeTitle])
+  const value = useMemo(
+    () => ({ item, origin, openTitle, closeTitle }),
+    [item, origin, openTitle, closeTitle],
+  )
   return <TitleModalContext.Provider value={value}>{children}</TitleModalContext.Provider>
 }
 

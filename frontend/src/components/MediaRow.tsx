@@ -23,7 +23,7 @@ function SceneCard({ item }: { item: MovieListItem }) {
       <button
         type="button"
         className="poster-card scene-card"
-        onClick={() => openTitle(item)}
+        onClick={(event) => openTitle(item, event.currentTarget)}
         aria-label={`${item.title} scene`}
       >
         <div className="scene-art">

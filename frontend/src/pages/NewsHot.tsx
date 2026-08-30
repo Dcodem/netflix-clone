@@ -95,12 +95,12 @@ function FeedCard({
           <div className="news-rank" data-rank={rank} aria-hidden="true">
             {rank}
           </div>
-          <button type="button" className="news-card-art" onClick={() => openTitle(item)} aria-label={item.title}>
+          <button type="button" className="news-card-art" onClick={(event) => openTitle(item, event.currentTarget)} aria-label={item.title}>
             <CatalogImage item={item} alt="" prefer="backdrop" />
           </button>
         </div>
       ) : (
-        <button type="button" className="news-card-art" onClick={() => openTitle(item)} aria-label={item.title}>
+        <button type="button" className="news-card-art" onClick={(event) => openTitle(item, event.currentTarget)} aria-label={item.title}>
           <CatalogImage item={item} alt="" prefer="backdrop" />
         </button>
       )}
@@ -137,9 +137,9 @@ function FeedCard({
               <button
                 type="button"
                 className="news-icon-btn"
-                onClick={() => {
+                onClick={(event) => {
                   playClick()
-                  openTitle(item)
+                  openTitle(item, event.currentTarget)
                 }}
               >
                 <span className="news-icon-disc">
