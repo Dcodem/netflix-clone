@@ -527,15 +527,16 @@ select,
 }
 
 .hero.is-cinematic .hero-img {
-  animation: hero-drift 16s ease-out forwards;
+  animation: hero-drift 18s ease-in-out forwards;
+  will-change: transform;
 }
 
 @keyframes hero-drift {
   from {
-    transform: scale(1.04);
+    transform: scale(1.06) translate3d(0, 0, 0);
   }
   to {
-    transform: scale(1.16);
+    transform: scale(1.2) translate3d(-3.2%, -1.8%, 0);
   }
 }
 
@@ -3538,10 +3539,10 @@ body:has(.account-page),
 
 @keyframes jaw-drift {
   from {
-    transform: scale(1.04);
+    transform: scale(1.05) translate3d(0, 0, 0);
   }
   to {
-    transform: scale(1.18);
+    transform: scale(1.18) translate3d(2.4%, -1.5%, 0);
   }
 }
 
@@ -3918,7 +3919,8 @@ body:has(.account-page),
 .title-modal-hero.is-cinematic > img,
 .title-modal-hero.is-cinematic > .media-fallback {
   transform-origin: center 42%;
-  animation: hero-drift 16s ease-out forwards;
+  animation: hero-drift 18s ease-in-out forwards;
+  will-change: transform;
 }
 
 .title-modal-hero::after {
