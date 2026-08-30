@@ -17,6 +17,7 @@ import { watchForEpisode } from '../lib/episodeProgress'
 import { comingLineFor, isComingSoon } from '../lib/comingSoon'
 import { stillWatching } from '../lib/homeRows'
 import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
+import { audioTracksFor, subtitleTracksFor } from '../lib/languages'
 import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes, filterByMaturity } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -554,6 +555,12 @@ export function TitleModal() {
                 <GenreDots genres={moods} className="title-moods" onSelect={goSearch} />
               </div>
             ) : null}
+            <p>
+              <span className="title-kicker">Audio:</span> {audioTracksFor(item).join(', ')}
+            </p>
+            <p>
+              <span className="title-kicker">Subtitles:</span> {subtitleTracksFor(item).join(', ')}
+            </p>
             <div className="title-about-maturity">
               <span className="title-kicker">Maturity rating:</span>
               <p>

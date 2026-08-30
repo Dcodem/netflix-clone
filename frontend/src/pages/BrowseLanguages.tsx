@@ -82,6 +82,10 @@ export function BrowseLanguages() {
       const code = originalLanguageOf(item)
       if (!art.has(code)) art.set(code, item)
     }
+    for (const entry of ORIGINAL_LANGUAGES) {
+      if (art.has(entry.code) || !pool.length) continue
+      art.set(entry.code, pool[entry.code.charCodeAt(0) % pool.length])
+    }
     return art
   }, [catalog.data, activeProfile])
 
