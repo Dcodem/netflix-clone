@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AvatarArt } from '../components/AvatarArt'
-import { ChevronLeftIcon, ChevronRightIcon, LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
+import { CatalogImage } from '../components/CatalogImage'
+import { ChevronLeftIcon, ChevronRightIcon, CloseIcon, LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
 import { FooterNoteDialog, FOOTER_NOTES } from '../components/SiteFooter'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { playProfileSting } from '../lib/sounds'
+import { activityStamp } from '../lib/netflix'
 import {
   PROFILE_AVATARS,
   PROFILE_LANGUAGES,
@@ -88,6 +90,7 @@ export function ProfileSelect() {
     updateProfile,
     deleteProfile,
     unlockProfile,
+    removeHistory,
     activeProfile,
   } = useProfiles()
   const navigate = useNavigate()
@@ -495,9 +498,40 @@ export function ProfileSelect() {
               {editPanel === 'activity' ? (
                 <div className="edit-row-panel edit-activity-panel">
                   {editing.history.length ? (
-                    editing.history.slice(0, 8).map((entry) => (
-                      <p key={`${entry.id}-${entry.watchedAt}`}>{entry.title}</p>
-                    ))
+                    editing.history.map((entry) => {
+                      const episode =
+                        entry.kind === 'show' && entry.seasonNumber && entry.episodeNumber
+                          ? `S${entry.seasonNumber}:E${entry.episodeNumber}`
+                          : null
+                      return (
+                        <div className="activity-row" key={`${entry.id}-${entry.watchedAt}`}>
+                          <CatalogImage
+                            item={{
+                              title: entry.title,
+                              kind: entry.kind,
+                              poster_url: entry.poster_url,
+                            }}
+                            prefer="backdrop"
+                            alt=""
+                          />
+                          <span className="activity-copy">
+                            <strong>{entry.title}</strong>
+                            <em>
+                              {episode ? `${episode} · ` : ''}
+                              {activityStamp(entry.watchedAt)}
+                            </em>
+                          </span>
+                          <button
+                            type="button"
+                            className="activity-remove"
+                            aria-label={`Remove ${entry.title}`}
+                            onClick={() => removeHistory(editing.id, entry.id)}
+                          >
+                            <CloseIcon className="icon" />
+                          </button>
+                        </div>
+                      )
+                    })
                   ) : (
                     <p>No titles watched on this profile yet.</p>
                   )}

@@ -1,4 +1,5 @@
 import type { MovieListItem } from '../api/types'
+import { comingLineFor, isComingSoon } from './comingSoon'
 import { genresOf, isShow } from './media'
 import { genreWeights } from '../profiles/taste'
 import type { Profile, ProfileLanguage, ProfileMaturity } from '../profiles/types'
@@ -115,33 +116,76 @@ export function noticeStamp(id: string): string {
   return labels[moodSeed(id) % labels.length]
 }
 
+export function activityStamp(watchedAt: number) {
+  const watched = new Date(watchedAt)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const day = new Date(watched)
+  day.setHours(0, 0, 0, 0)
+  const days = Math.round((today.getTime() - day.getTime()) / 86400000)
+  if (days <= 0) return 'Today'
+  if (days === 1) return 'Yesterday'
+  return watched.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+}
+
+export type CatalogNotice = {
+  item: MovieListItem
+  kicker: string
+  stamp: string
+  unread?: boolean
+}
+
 /** Bell + My Netflix cards — Netflix never uses Continue Watching as a notification. */
-export function catalogNotices(catalog: MovieListItem[], limit = 8) {
-  const year = new Date().getFullYear()
-  const newEps: MovieListItem[] = []
-  const added: MovieListItem[] = []
-  const now: MovieListItem[] = []
+export function catalogNotices(
+  catalog: MovieListItem[],
+  profile: Profile | null = null,
+  limit = 8,
+): CatalogNotice[] {
+  const out: CatalogNotice[] = []
   const seen = new Set<string>()
+  const byId = new Map(catalog.map((item) => [item.id, item]))
+
+  for (const liked of profile?.myList ?? []) {
+    const item = byId.get(liked.id)
+    if (!item || !isComingSoon(item) || seen.has(item.id)) continue
+    seen.add(item.id)
+    out.push({
+      item,
+      kicker: 'Remind Me',
+      stamp: comingLineFor(item) ?? 'Just now',
+      unread: true,
+    })
+    if (out.length >= limit) return out
+  }
+
+  const newEps: MovieListItem[] = []
+  const soon: MovieListItem[] = []
+  const now: MovieListItem[] = []
   for (const item of catalog) {
     if (seen.has(item.id)) continue
     seen.add(item.id)
-    if (isShow(item) && isNewEpisodes(item.id, item.kind)) newEps.push(item)
-    else if ((item.year ?? 0) >= year) added.push(item)
+    if (isComingSoon(item)) soon.push(item)
+    else if (isShow(item) && isNewEpisodes(item.id, item.kind)) newEps.push(item)
     else now.push(item)
   }
-  const out: Array<{ item: MovieListItem; kicker: string; stamp: string }> = []
+
   let n = 0
-  let a = 0
+  let s = 0
   let r = 0
-  while (out.length < limit && (n < newEps.length || a < added.length || r < now.length)) {
+  while (out.length < limit && (n < newEps.length || s < soon.length || r < now.length)) {
     if (n < newEps.length) {
       const item = newEps[n++]
-      out.push({ item, kicker: 'New Episodes', stamp: noticeStamp(item.id) })
+      out.push({ item, kicker: 'New Episodes', stamp: noticeStamp(item.id), unread: true })
     }
     if (out.length >= limit) break
-    if (a < added.length) {
-      const item = added[a++]
-      out.push({ item, kicker: 'Recently Added', stamp: noticeStamp(item.id) })
+    if (s < soon.length) {
+      const item = soon[s++]
+      out.push({
+        item,
+        kicker: 'Coming Soon',
+        stamp: comingLineFor(item) ?? noticeStamp(item.id),
+        unread: true,
+      })
     }
     if (out.length >= limit) break
     if (r < now.length) {

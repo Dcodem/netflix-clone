@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getMovie, getMovies, getShow } from '../api/client'
+import { getCatalogMany, getMovie, getMovies, getShow } from '../api/client'
+import type { MovieListItem } from '../api/types'
 import { AvatarArt } from '../components/AvatarArt'
 import { CatalogImage } from '../components/CatalogImage'
 import { EmptyState } from '../components/EmptyState'
@@ -29,7 +30,14 @@ export function MyNetflix() {
   const desktop = useMediaQuery('(min-width: 768px)')
   const navigate = useNavigate()
   const movies = useFetch(() => getMovies(), 'home-movies')
-  const catalog = filterByMaturity(movies.data ?? [], activeProfile)
+  const extras = useFetch(async () => {
+    const [catalogMovies, catalogShows] = await Promise.all([
+      getCatalogMany('movies').catch(() => [] as MovieListItem[]),
+      getCatalogMany('shows').catch(() => [] as MovieListItem[]),
+    ])
+    return uniqueById([...catalogMovies, ...catalogShows])
+  }, 'mynetflix-catalog')
+  const catalog = filterByMaturity(uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]), activeProfile)
   const continueItems = historyToListItems(
     (activeProfile?.history ?? []).filter(
       (item) => stillWatching(item) && !activeProfile?.hiddenContinueIds.includes(item.id),
@@ -42,7 +50,7 @@ export function MyNetflix() {
   )
   const listItems = likedToItems(activeProfile?.myList ?? [])
   const downloadItems = likedToItems(activeProfile?.downloads ?? [])
-  const notices = catalogNotices(catalog, 8)
+  const notices = catalogNotices(catalog, activeProfile, 8)
   const because = useMemo(
     () => (activeProfile ? becauseYouWatchedRows(catalog, activeProfile.history, 1) : []),
     [catalog, activeProfile],
@@ -114,8 +122,13 @@ export function MyNetflix() {
         <h2 className="section-title">Notifications</h2>
         {notices.length ? (
           <div className="notify-rail">
-            {notices.map(({ item, kicker, stamp }) => (
-              <button type="button" key={item.id} className="notify-card" onClick={() => openTitle(item)}>
+            {notices.map(({ item, kicker, stamp, unread }) => (
+              <button
+                type="button"
+                key={item.id}
+                className={`notify-card ${unread ? 'is-unread' : ''}`}
+                onClick={() => openTitle(item)}
+              >
                 <CatalogImage item={item} prefer="backdrop" alt="" />
                 <span>
                   <strong>{kicker}</strong>

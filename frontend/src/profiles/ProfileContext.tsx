@@ -118,6 +118,7 @@ type ProfileContextValue = {
   deleteProfile: (id: string) => void
   recordWatch: (item: Omit<WatchHistoryItem, 'watchedAt'>) => void
   hideContinue: (id: string) => void
+  removeHistory: (profileId: string, titleId: string) => void
   setFavoriteGenres: (genres: string[]) => void
   rateTitle: (item: LikedTitle, direction: 'up' | 'love' | 'down' | null) => void
   toggleMyList: (item: LikedTitle) => void
@@ -337,6 +338,24 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const removeHistory = useCallback(
+    (profileId: string, titleId: string) => {
+      updateStore((prev) => ({
+        ...prev,
+        profiles: prev.profiles.map((profile) =>
+          profile.id === profileId
+            ? {
+                ...profile,
+                history: profile.history.filter((entry) => entry.id !== titleId),
+                hiddenContinueIds: profile.hiddenContinueIds.filter((id) => id !== titleId),
+              }
+            : profile,
+        ),
+      }))
+    },
+    [updateStore],
+  )
+
   const setFavoriteGenres = useCallback(
     (genres: string[]) => {
       updateStore((prev) => ({
@@ -435,6 +454,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       deleteProfile,
       recordWatch,
       hideContinue,
+      removeHistory,
       setFavoriteGenres,
       rateTitle,
       toggleMyList,
@@ -452,6 +472,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       deleteProfile,
       recordWatch,
       hideContinue,
+      removeHistory,
       setFavoriteGenres,
       rateTitle,
       toggleMyList,

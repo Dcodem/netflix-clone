@@ -7068,22 +7068,81 @@ img.is-logo-pending {
 }
 
 .edit-lock-panel p,
-.edit-activity-panel p {
+.edit-activity-panel > p {
   margin: 0 0 10px;
   color: #808080;
   font-size: 14px;
   line-height: 1.4;
 }
 
-.edit-activity-panel p {
-  margin: 0;
-  padding: 8px 0;
-  border-bottom: 1px solid #333;
-  color: #e5e5e5;
+.edit-activity-panel {
+  max-height: min(52vh, 420px);
+  overflow-y: auto;
 }
 
-.edit-activity-panel p:last-child {
+.activity-row {
+  display: grid;
+  grid-template-columns: 96px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #333;
+}
+
+.activity-row:last-child {
   border-bottom: 0;
+}
+
+.activity-row img,
+.activity-row .media-fallback {
+  width: 96px;
+  height: 54px;
+  object-fit: cover;
+  background: #222;
+  display: block;
+  border-radius: 2px;
+}
+
+.activity-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.activity-copy strong {
+  color: #e5e5e5;
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-copy em {
+  color: #808080;
+  font-size: 13px;
+  font-style: normal;
+}
+
+.activity-remove {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: none;
+  color: #808080;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.activity-remove:hover {
+  color: #fff;
+}
+
+.activity-remove .icon {
+  width: 16px;
+  height: 16px;
 }
 
 .edit-autoplay {
