@@ -429,7 +429,11 @@ export function WatchOverlay() {
           setEpisodesOpen(false)
           setAudioOpen(false)
           setSpeedOpen(false)
+          return
         }
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        closeWatch()
         return
       }
       if (event.key === '?' || (event.shiftKey && event.key === '/')) {
@@ -550,7 +554,7 @@ export function WatchOverlay() {
       window.removeEventListener('message', onMessage)
       document.removeEventListener('fullscreenchange', onFs)
     }
-  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped, helpOpen, locked])
+  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped, helpOpen, locked, closeWatch])
 
   useEffect(() => {
     const length = duration || runtimeSec

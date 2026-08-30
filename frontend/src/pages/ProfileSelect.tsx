@@ -80,7 +80,7 @@ function PinBoxes({
 }
 
 export function ProfileSelect() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const {
     profiles,
     selectProfile,
@@ -619,6 +619,18 @@ export function ProfileSelect() {
               onClick={() => setManaging((value) => !value)}
             >
               {managing ? 'Done' : 'Manage Profiles'}
+            </button>
+          ) : null}
+          {!managing ? (
+            <button
+              type="button"
+              className="profiles-signout"
+              onClick={() => {
+                logout()
+                navigate('/login')
+              }}
+            >
+              Sign out
             </button>
           ) : null}
         </>

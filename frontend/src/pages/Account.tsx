@@ -30,7 +30,7 @@ type AccountPanel =
 
 export function Account() {
   const { user, updateKeys, updateAccount } = useAuth()
-  const { profiles } = useProfiles()
+  const { profiles, activeProfile, updateProfile } = useProfiles()
   const env = envKeys()
   const [ivaKey, setIvaKey] = useState(user?.ivaKey ?? '')
   const [tmdbKey, setTmdbKey] = useState(user?.tmdbKey ?? '')
@@ -296,7 +296,38 @@ export function Account() {
             </button>
           </div>
           {panel === 'playback' ? (
-            <p className="account-inline-note">Autoplay next episode and previews follow this profile’s playback extras.</p>
+            activeProfile ? (
+              <div className="edit-autoplay account-playback">
+                <label className="edit-check">
+                  <input
+                    type="checkbox"
+                    checked={activeProfile.autoplayNext !== false}
+                    onChange={(event) => {
+                      void updateProfile(activeProfile.id, { autoplayNext: event.target.checked })
+                    }}
+                  />
+                  <span>
+                    Autoplay next episode
+                    <small>Play the next episode automatically on all devices.</small>
+                  </span>
+                </label>
+                <label className="edit-check">
+                  <input
+                    type="checkbox"
+                    checked={activeProfile.autoplayPreview !== false}
+                    onChange={(event) => {
+                      void updateProfile(activeProfile.id, { autoplayPreview: event.target.checked })
+                    }}
+                  />
+                  <span>
+                    Autoplay previews
+                    <small>Play previews while browsing on all devices.</small>
+                  </span>
+                </label>
+              </div>
+            ) : (
+              <p className="account-inline-note">Choose a profile to change autoplay next episode and previews.</p>
+            )
           ) : null}
           <div className="account-row">
             <span>Manage devices</span>

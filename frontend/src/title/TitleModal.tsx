@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { getCatalogMany, getMovie, getShow, proxyImageUrl } from '../api/client'
 import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '../api/types'
 import { CatalogImage } from '../components/CatalogImage'
@@ -38,6 +38,9 @@ export function TitleModal() {
   const trailerRef = useRef<TrailerHandle>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
+  const dragStartY = useRef<number | null>(null)
+  const dragYRef = useRef(0)
+  const [dragY, setDragY] = useState(0)
   const stills = useTmdbGallery(item)
   const clips = useTmdbVideos(item)
   const [muted, setMuted] = useState(true)
@@ -58,6 +61,9 @@ export function TitleModal() {
     setSettled(false)
     setTab(null)
     setSeasonNumber(last?.seasonNumber ?? 1)
+    setDragY(0)
+    dragYRef.current = 0
+    dragStartY.current = null
   }, [item?.id, last?.seasonNumber])
 
   useEffect(() => {
@@ -182,6 +188,37 @@ export function TitleModal() {
     trailerRef.current?.replay()
   }
 
+  function onSheetPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (window.matchMedia('(min-width: 768px)').matches) return
+    const target = event.target as HTMLElement
+    const fromHandle = Boolean(target.closest('.title-modal-handle'))
+    const fromHeroTop = Boolean(target.closest('.title-modal-hero')) && event.clientY < 88
+    if (!fromHandle && !fromHeroTop) return
+    dragStartY.current = event.clientY
+    dragYRef.current = 0
+    setDragY(0)
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  function onSheetPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    if (dragStartY.current == null) return
+    const next = Math.max(0, event.clientY - dragStartY.current)
+    dragYRef.current = next
+    setDragY(next)
+  }
+
+  function onSheetPointerUp() {
+    if (dragStartY.current == null) return
+    const shouldClose = dragYRef.current > 96
+    dragStartY.current = null
+    dragYRef.current = 0
+    if (shouldClose) {
+      closeTitle()
+      return
+    }
+    setDragY(0)
+  }
+
   function playTrailerClip(index: number) {
     playClick()
     const clip = clips[index]
@@ -200,12 +237,17 @@ export function TitleModal() {
   return (
     <div className="title-modal-backdrop" onClick={closeTitle} role="presentation" ref={backdropRef}>
       <div
-        className="title-modal"
+        className={`title-modal ${dragY ? 'is-dragging' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-label={item.title}
         ref={modalRef}
+        style={dragY ? { transform: `translateY(${dragY}px)` } : undefined}
         onClick={(event) => event.stopPropagation()}
+        onPointerDown={onSheetPointerDown}
+        onPointerMove={onSheetPointerMove}
+        onPointerUp={onSheetPointerUp}
+        onPointerCancel={onSheetPointerUp}
       >
         <span className="title-modal-handle" aria-hidden="true" />
         <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
