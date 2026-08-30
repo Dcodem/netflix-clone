@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { getCatalogMany, getMovie, getShow, proxyImageUrl } from '../api/client'
 import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '../api/types'
 import { CatalogImage } from '../components/CatalogImage'
@@ -13,6 +14,8 @@ import { FeatureBadges } from '../components/FeatureBadges'
 import { GenreDots } from '../components/GenreDots'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
+import { comingLineFor, isComingSoon } from '../lib/comingSoon'
+import { stillWatching } from '../lib/homeRows'
 import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
 import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes, filterByMaturity } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
@@ -20,6 +23,8 @@ import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTmdbGallery } from '../trailers/useTmdbGallery'
+import { useTmdbVideos } from '../trailers/useTmdbVideos'
+import type { TrailerHit } from '../trailers/types'
 import { useTitleModal } from './TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 
@@ -30,13 +35,20 @@ function isShowDetail(detail: MovieDetail): detail is ShowDetail {
 export function TitleModal() {
   const { item, closeTitle } = useTitleModal()
   const { openWatch } = useWatch()
+  const navigate = useNavigate()
   const { activeProfile } = useProfiles()
   const last = activeProfile?.history.find((entry) => entry.id === item?.id)
   const trailerRef = useRef<TrailerHandle>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
+  const dragStartY = useRef<number | null>(null)
+  const dragYRef = useRef(0)
+  const [dragY, setDragY] = useState(0)
   const stills = useTmdbGallery(item)
+  const clips = useTmdbVideos(item)
   const [muted, setMuted] = useState(true)
+  const [clipHit, setClipHit] = useState<TrailerHit | null>(null)
+  const [heroStill, setHeroStill] = useState<string | null>(null)
   const [trailerReady, setTrailerReady] = useState(false)
   const [trailerEnded, setTrailerEnded] = useState(false)
   const [settled, setSettled] = useState(false)
@@ -47,9 +59,14 @@ export function TitleModal() {
     setMuted(true)
     setTrailerReady(false)
     setTrailerEnded(false)
+    setClipHit(null)
+    setHeroStill(null)
     setSettled(false)
     setTab(null)
     setSeasonNumber(last?.seasonNumber ?? 1)
+    setDragY(0)
+    dragYRef.current = 0
+    dragStartY.current = null
   }, [item?.id, last?.seasonNumber])
 
   useEffect(() => {
@@ -102,6 +119,15 @@ export function TitleModal() {
     return uniqueById([...byGenre, ...rest]).slice(0, 12)
   }, [item, catalog.data, activeProfile])
   const similarSafe = useMemo(() => filterByMaturity(similar, activeProfile), [similar, activeProfile])
+  const trailerCards = useMemo(() => {
+    const labels = ['Trailer', 'Teaser', 'Clip', 'Recap', 'Featurette', 'Behind the Scenes', 'Clip 2', 'Bonus']
+    const count = Math.max(clips.length, Math.min(8, stills.length))
+    return Array.from({ length: count }, (_, index) => ({
+      label: clips[index]?.label ?? labels[index] ?? `Clip ${index + 1}`,
+      key: clips[index]?.key,
+      still: stills[index] ?? stills[0],
+    }))
+  }, [clips, stills])
 
   if (!item) return null
 
@@ -121,8 +147,10 @@ export function TitleModal() {
   const watchHref = isShow(item)
     ? last?.watch_href || resumeEpisode?.watch_href || detail?.watch_href
     : detail?.watch_href
-  const continueMode = Boolean(last?.progress && last.progress > 0.05)
-  const activeTab = tab ?? (isShow(item) ? 'episodes' : 'more')
+  const continueMode = Boolean(last && stillWatching(last))
+  const soon = isComingSoon(item)
+  const coming = comingLineFor(item)
+  const activeTab = tab ?? (isShow(item) && !soon ? 'episodes' : 'more')
 
   function selectTab(next: 'episodes' | 'more' | 'trailers') {
     setTab(next)
@@ -133,7 +161,7 @@ export function TitleModal() {
   }
 
   function playEpisode(episode: Episode, season: Season) {
-    if (!detail) return
+    if (!detail || soon) return
     playClick()
     const watch = watchForEpisode(last, season.season_number, episode)
     closeTitle()
@@ -165,25 +193,79 @@ export function TitleModal() {
     trailerRef.current?.replay()
   }
 
-  function playTrailerClip() {
+  function onSheetPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (window.matchMedia('(min-width: 768px)').matches) return
+    const target = event.target as HTMLElement
+    if (target.closest('button, a, input, [role="tab"]')) return
+    const modal = modalRef.current
+    const fromHandle = Boolean(target.closest('.title-modal-handle'))
+    const top = modal?.getBoundingClientRect().top ?? 0
+    const nearTop = event.clientY - top < 140 && (modal?.scrollTop ?? 0) < 8
+    if (!fromHandle && !nearTop) return
+    dragStartY.current = event.clientY
+    dragYRef.current = 0
+    setDragY(0)
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  function onSheetPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    if (dragStartY.current == null) return
+    const next = Math.max(0, event.clientY - dragStartY.current)
+    dragYRef.current = next
+    setDragY(next)
+  }
+
+  function onSheetPointerUp() {
+    if (dragStartY.current == null) return
+    const shouldClose = dragYRef.current > 80
+    dragStartY.current = null
+    dragYRef.current = 0
+    if (shouldClose) {
+      closeTitle()
+      return
+    }
+    setDragY(0)
+  }
+
+  function goSearch(query: string) {
     playClick()
+    navigate(`/search?q=${encodeURIComponent(query)}`)
+  }
+
+  function goGenre(genre: string) {
+    playClick()
+    navigate(`/browse?genre=${encodeURIComponent(genre)}`)
+  }
+
+  function playTrailerClip(index: number) {
+    playClick()
+    const clip = clips[index]
+    if (clip) {
+      setClipHit({ source: 'tmdb', kind: 'youtube', src: clip.key, label: clip.label })
+    }
+    if (stills[index]) setHeroStill(stills[index])
     setMuted(false)
     setTrailerEnded(false)
-    setTrailerReady(true)
+    setTrailerReady(Boolean(clip) || trailerReady)
     trailerRef.current?.setMuted(false)
-    trailerRef.current?.replay()
+    if (!clip) trailerRef.current?.replay()
     modalRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
     <div className="title-modal-backdrop" onClick={closeTitle} role="presentation" ref={backdropRef}>
       <div
-        className="title-modal"
+        className={`title-modal ${dragY ? 'is-dragging' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-label={item.title}
         ref={modalRef}
+        style={dragY ? { transform: `translateY(${dragY}px)` } : undefined}
         onClick={(event) => event.stopPropagation()}
+        onPointerDown={onSheetPointerDown}
+        onPointerMove={onSheetPointerMove}
+        onPointerUp={onSheetPointerUp}
+        onPointerCancel={onSheetPointerUp}
       >
         <span className="title-modal-handle" aria-hidden="true" />
         <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
@@ -193,7 +275,11 @@ export function TitleModal() {
           key={item.id}
           className={`title-modal-hero ${trailerPlaying ? 'is-playing' : 'is-cinematic'} ${settled ? 'is-settled' : ''}`}
         >
-          <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
+          <CatalogImage
+            item={{ ...item, backdrop_url: heroStill || detail?.backdrop_url }}
+            alt=""
+            prefer="backdrop"
+          />
           <TrailerPreview
             ref={trailerRef}
             title={item.title}
@@ -201,6 +287,7 @@ export function TitleModal() {
             kind={item.kind}
             className="title-modal-trailer"
             muted={muted}
+            overrideHit={clipHit}
             onReady={() => {
               setTrailerEnded(false)
               setTrailerReady(true)
@@ -261,35 +348,52 @@ export function TitleModal() {
           <div className="title-modal-split">
             <div className="title-modal-split-main">
               <div className="jawbone-meta">
-                <span className="match">{match}% Match</span>
-                {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
+                {soon && coming ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}
+                {soon ? null : isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
                 {item.year ? <span>{item.year}</span> : null}
                 <span className="maturity">{maturity}</span>
-                {runtime ? <span>{runtime}</span> : null}
-                {isShow(item) && seasons.length ? (
+                {soon ? null : isShow(item) && seasons.length ? (
                   <span>
                     {seasons.length} {seasons.length === 1 ? 'Season' : 'Seasons'}
                   </span>
+                ) : runtime ? (
+                  <span>{runtime}</span>
                 ) : null}
-                <FeatureBadges quality={item.quality || detail?.quality} />
+                {soon ? null : <FeatureBadges quality={item.quality || detail?.quality} />}
               </div>
               {detail?.synopsis ? <p className="title-modal-syn">{detail.synopsis}</p> : null}
             </div>
             <div className="title-modal-split-side">
               {detail?.cast?.length ? (
                 <p className="title-modal-cast">
-                  <span className="title-kicker">Cast:</span> {detail.cast.join(', ')}
+                  <span className="title-kicker">Cast:</span>{' '}
+                  {detail.cast.map((name, index) => (
+                    <span key={name}>
+                      {index ? ', ' : null}
+                      <button type="button" className="title-link" onClick={() => goSearch(name)}>
+                        {name}
+                      </button>
+                    </span>
+                  ))}
                 </p>
               ) : null}
               {genres.length ? (
                 <p className="title-modal-cast">
-                  <span className="title-kicker">Genres:</span> {genres.join(', ')}
+                  <span className="title-kicker">Genres:</span>{' '}
+                  {genres.map((genre, index) => (
+                    <span key={genre}>
+                      {index ? ', ' : null}
+                      <button type="button" className="title-link" onClick={() => goGenre(genre)}>
+                        {genre}
+                      </button>
+                    </span>
+                  ))}
                 </p>
               ) : null}
               {moods.length ? (
                 <div className="title-modal-cast">
                   <span className="title-kicker">This {isShow(item) ? 'show' : 'movie'} is:</span>
-                  <GenreDots genres={moods} className="title-moods" />
+                  <GenreDots genres={moods} className="title-moods" onSelect={goSearch} />
                 </div>
               ) : null}
             </div>
@@ -297,16 +401,16 @@ export function TitleModal() {
 
           <div className="title-tabs-row">
             <nav className="title-tabs" aria-label="Title sections">
-              {isShow(item) ? (
+              {isShow(item) && !soon ? (
                 <>
                   <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => selectTab('episodes')}>
                     Episodes
                   </button>
-                  <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
-                    Trailers & More
-                  </button>
                   <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
                     More Like This
+                  </button>
+                  <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
+                    Trailers & More
                   </button>
                 </>
               ) : (
@@ -320,12 +424,12 @@ export function TitleModal() {
                 </>
               )}
             </nav>
-            {isShow(item) && activeTab === 'episodes' ? (
+            {isShow(item) && !soon && activeTab === 'episodes' ? (
               <SeasonPicker seasons={seasons} history={last} value={seasonNumber} onChange={setSeasonNumber} />
             ) : null}
           </div>
 
-          {isShow(item) && activeTab === 'episodes' ? (
+          {isShow(item) && !soon && activeTab === 'episodes' ? (
             <div className="title-section">
               <EpisodeList
                 seasons={seasons}
@@ -347,29 +451,18 @@ export function TitleModal() {
 
           {activeTab === 'trailers' ? (
             <section className="title-trailers title-section">
-              {stills.length ? (
+              {trailerCards.length ? (
                 <div className="trailer-card-grid">
-                  {stills.slice(0, 8).map((file, index) => {
-                    const src = stillUrl(file)
+                  {trailerCards.map((card, index) => {
+                    const src = card.still ? stillUrl(card.still) : null
                     if (!src) return null
-                    const captions = [
-                      `Trailer: ${item.title}`,
-                      `Teaser: ${item.title}`,
-                      'Clip 1',
-                      'Recap',
-                      'Featurette',
-                      'Clip 2',
-                      'Clip 3',
-                      'Bonus clip',
-                    ]
-                    const caption = captions[index] ?? `Clip ${index}`
                     return (
                       <button
                         type="button"
-                        className="trailer-card"
-                        key={file}
-                        onClick={playTrailerClip}
-                        aria-label={caption}
+                        className={`trailer-card ${clipHit?.src === card.key ? 'is-on' : ''}`}
+                        key={`${card.label}-${card.still}`}
+                        onClick={() => playTrailerClip(index)}
+                        aria-label={card.label}
                       >
                         <span className="trailer-card-art">
                           <img src={proxyImageUrl(src)} alt="" />
@@ -377,7 +470,7 @@ export function TitleModal() {
                             <PlayIcon className="icon" />
                           </span>
                         </span>
-                        <span className="trailer-card-caption">{caption}</span>
+                        <span className="trailer-card-caption">{card.label}</span>
                       </button>
                     )
                   })}
@@ -390,20 +483,75 @@ export function TitleModal() {
 
           <section className="title-about title-section">
             <h2>About {item.title}</h2>
+            {item.year ? (
+              <p>
+                <span className="title-kicker">Release year:</span> {item.year}
+              </p>
+            ) : null}
+            {detail?.creators?.length ? (
+              <p>
+                <span className="title-kicker">Creators:</span>{' '}
+                {detail.creators.map((name, index) => (
+                  <span key={name}>
+                    {index ? ', ' : null}
+                    <button type="button" className="title-link" onClick={() => goSearch(name)}>
+                      {name}
+                    </button>
+                  </span>
+                ))}
+              </p>
+            ) : null}
+            {detail?.director ? (
+              <p>
+                <span className="title-kicker">Director:</span>{' '}
+                <button type="button" className="title-link" onClick={() => goSearch(detail.director!)}>
+                  {detail.director}
+                </button>
+              </p>
+            ) : null}
+            {detail?.writers?.length ? (
+              <p>
+                <span className="title-kicker">Writers:</span>{' '}
+                {detail.writers.map((name, index) => (
+                  <span key={name}>
+                    {index ? ', ' : null}
+                    <button type="button" className="title-link" onClick={() => goSearch(name)}>
+                      {name}
+                    </button>
+                  </span>
+                ))}
+              </p>
+            ) : null}
             {detail?.cast?.length ? (
               <p>
-                <span className="title-kicker">Cast:</span> {detail.cast.join(', ')}
+                <span className="title-kicker">Cast:</span>{' '}
+                {detail.cast.map((name, index) => (
+                  <span key={name}>
+                    {index ? ', ' : null}
+                    <button type="button" className="title-link" onClick={() => goSearch(name)}>
+                      {name}
+                    </button>
+                  </span>
+                ))}
               </p>
             ) : null}
             {genres.length ? (
               <p>
-                <span className="title-kicker">Genres:</span> {genres.join(', ')}
+                <span className="title-kicker">Genres:</span>{' '}
+                {genres.map((genre, index) => (
+                  <span key={genre}>
+                    {index ? ', ' : null}
+                    <button type="button" className="title-link" onClick={() => goGenre(genre)}>
+                      {genre}
+                    </button>
+                  </span>
+                ))}
               </p>
             ) : null}
             {moods.length ? (
               <div className="title-about-row">
                 <span className="title-kicker">This {isShow(item) ? 'show' : 'movie'} is:</span>
-                <GenreDots genres={moods} className="title-moods" />
+                <GenreDots genres={moods} className="title-moods" onSelect={goSearch} />
               </div>
             ) : null}
             <div className="title-about-maturity">

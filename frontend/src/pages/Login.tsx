@@ -133,6 +133,7 @@ export function Login() {
   const [password, setPassword] = useState('')
   const [codeSent, setCodeSent] = useState(false)
   const [codeGuess, setCodeGuess] = useState('')
+  const [codeResent, setCodeResent] = useState(false)
   const [remember, setRemember] = useState(() => localStorage.getItem(REMEMBER_KEY) !== '0')
   const [help, setHelp] = useState(false)
   const [legalOpen, setLegalOpen] = useState(false)
@@ -212,7 +213,6 @@ export function Login() {
                   onChange={(next) => {
                     setError(null)
                     setCodeGuess(next)
-                    if (next.length === 4) setError("That code didn't work. Try again.")
                   }}
                 />
               </>
@@ -231,11 +231,45 @@ export function Login() {
               </>
             )}
             {error ? <p className="login-error">{error}</p> : null}
-            {codeSent ? null : (
+            {codeSent && codeResent && !error ? (
+              <p className="login-code-copy">We emailed you another code.</p>
+            ) : null}
+            {codeSent ? (
+              <button type="submit" className="btn btn-primary login-submit">
+                Sign In
+              </button>
+            ) : (
               <button type="submit" className="btn btn-primary login-submit">
                 Email Me a Sign-In Code
               </button>
             )}
+            {codeSent ? (
+              <button
+                type="button"
+                className="login-help"
+                onClick={() => {
+                  setCodeGuess('')
+                  setError(null)
+                  setCodeResent(true)
+                }}
+              >
+                Resend code
+              </button>
+            ) : null}
+            {codeSent ? (
+              <button
+                type="button"
+                className="login-help"
+                onClick={() => {
+                setCodeSent(false)
+                setCodeGuess('')
+                setCodeResent(false)
+                setError(null)
+              }}
+            >
+              Use a different email
+              </button>
+            ) : null}
             <button
               type="button"
               className="login-help"
@@ -243,6 +277,7 @@ export function Login() {
                 setMode('login')
                 setCodeSent(false)
                 setCodeGuess('')
+                setCodeResent(false)
                 setError(null)
               }}
             >

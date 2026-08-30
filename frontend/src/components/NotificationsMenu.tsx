@@ -1,6 +1,8 @@
-import { getMovies } from '../api/client'
+import { getCatalogMany, getMovies } from '../api/client'
+import type { MovieListItem } from '../api/types'
 import { useHoverMenu } from '../hooks/useHoverMenu'
 import { catalogNotices, filterByMaturity } from '../lib/netflix'
+import { uniqueById } from '../lib/media'
 import { useFetch } from '../hooks/useFetch'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -12,7 +14,16 @@ export function NotificationsMenu() {
   const { activeProfile } = useProfiles()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
   const movies = useFetch(() => getMovies(), 'home-movies')
-  const notices = catalogNotices(filterByMaturity(movies.data ?? [], activeProfile), 8)
+  const extras = useFetch(async () => {
+    const [catalogMovies, catalogShows] = await Promise.all([
+      getCatalogMany('movies').catch(() => [] as MovieListItem[]),
+      getCatalogMany('shows').catch(() => [] as MovieListItem[]),
+    ])
+    return uniqueById([...catalogMovies, ...catalogShows])
+  }, 'notify-catalog')
+  const catalog = uniqueById([...(movies.data ?? []), ...(extras.data ?? [])])
+  const notices = catalogNotices(filterByMaturity(catalog, activeProfile), activeProfile, 8)
+  const unread = notices.some((notice) => notice.unread)
 
   return (
     <div
@@ -29,17 +40,17 @@ export function NotificationsMenu() {
         onClick={toggle}
       >
         <BellIcon className="icon" />
-        {notices.length ? <span className="notify-dot" aria-hidden="true" /> : null}
+        {unread ? <span className="notify-dot" aria-hidden="true" /> : null}
       </button>
       {open ? (
         <div className="notify-dropdown" role="menu">
           {notices.length ? (
             <div className="notify-list">
-              {notices.map(({ item, kicker, stamp }) => (
+              {notices.map(({ item, kicker, stamp, unread: isUnread }) => (
                 <button
                   type="button"
                   key={item.id}
-                  className="notify-row"
+                  className={`notify-row ${isUnread ? 'is-unread' : ''}`}
                   onClick={() => {
                     setOpen(false)
                     openTitle(item)

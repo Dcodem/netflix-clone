@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getMovie, getMovies, getShow } from '../api/client'
+import { getCatalogMany, getMovie, getMovies, getShow } from '../api/client'
+import type { MovieListItem } from '../api/types'
 import { AvatarArt } from '../components/AvatarArt'
 import { CatalogImage } from '../components/CatalogImage'
 import { EmptyState } from '../components/EmptyState'
@@ -9,7 +10,8 @@ import { MediaRow } from '../components/MediaRow'
 import { useAuth } from '../auth/AuthContext'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
-import { historyToListItems, likedToItems } from '../lib/homeRows'
+import { isComingSoon } from '../lib/comingSoon'
+import { historyToListItems, likedToItems, stillWatching } from '../lib/homeRows'
 import { isShow, uniqueById } from '../lib/media'
 import { catalogNotices, filterByMaturity } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
@@ -28,10 +30,17 @@ export function MyNetflix() {
   const desktop = useMediaQuery('(min-width: 768px)')
   const navigate = useNavigate()
   const movies = useFetch(() => getMovies(), 'home-movies')
-  const catalog = filterByMaturity(movies.data ?? [], activeProfile)
+  const extras = useFetch(async () => {
+    const [catalogMovies, catalogShows] = await Promise.all([
+      getCatalogMany('movies').catch(() => [] as MovieListItem[]),
+      getCatalogMany('shows').catch(() => [] as MovieListItem[]),
+    ])
+    return uniqueById([...catalogMovies, ...catalogShows])
+  }, 'mynetflix-catalog')
+  const catalog = filterByMaturity(uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]), activeProfile)
   const continueItems = historyToListItems(
     (activeProfile?.history ?? []).filter(
-      (item) => item.progress && item.progress > 0.05 && !activeProfile?.hiddenContinueIds.includes(item.id),
+      (item) => stillWatching(item) && !activeProfile?.hiddenContinueIds.includes(item.id),
     ),
   )
   const progressById = Object.fromEntries(
@@ -40,7 +49,8 @@ export function MyNetflix() {
       .map((item) => [item.id, item.progress as number]),
   )
   const listItems = likedToItems(activeProfile?.myList ?? [])
-  const notices = catalogNotices(catalog, 8)
+  const downloadItems = likedToItems(activeProfile?.downloads ?? [])
+  const notices = catalogNotices(catalog, activeProfile, 8)
   const because = useMemo(
     () => (activeProfile ? becauseYouWatchedRows(catalog, activeProfile.history, 1) : []),
     [catalog, activeProfile],
@@ -61,7 +71,7 @@ export function MyNetflix() {
   }
 
   async function playSomething() {
-    const pool = catalog
+    const pool = catalog.filter((item) => !isComingSoon(item))
     if (!pool.length) return
     const item = pool[Math.floor(Math.random() * pool.length)]
     playClick()
@@ -81,6 +91,7 @@ export function MyNetflix() {
 
   return (
     <main className="page page-pad my-netflix-page">
+      <h1 className="my-netflix-title">My Netflix</h1>
       <header className="my-netflix-head">
         <button
           type="button"
@@ -111,8 +122,13 @@ export function MyNetflix() {
         <h2 className="section-title">Notifications</h2>
         {notices.length ? (
           <div className="notify-rail">
-            {notices.map(({ item, kicker, stamp }) => (
-              <button type="button" key={item.id} className="notify-card" onClick={() => openTitle(item)}>
+            {notices.map(({ item, kicker, stamp, unread }) => (
+              <button
+                type="button"
+                key={item.id}
+                className={`notify-card ${unread ? 'is-unread' : ''}`}
+                onClick={() => openTitle(item)}
+              >
                 <CatalogImage item={item} prefer="backdrop" alt="" />
                 <span>
                   <strong>{kicker}</strong>
@@ -129,16 +145,34 @@ export function MyNetflix() {
 
       <section className="my-netflix-downloads">
         <h2 className="section-title">Downloads</h2>
-        <div className="downloads-empty">
-          <span className="downloads-empty-icon">
-            <DownloadIcon className="icon" />
-          </span>
-          <strong>Downloads for You</strong>
-          <p>Movies and TV shows you download appear here.</p>
-          <Link to="/browse" className="downloads-find">
-            Find Something to Download
-          </Link>
-        </div>
+        {downloadItems.length ? (
+          <ul className="download-list">
+            {downloadItems.map((item) => (
+              <li key={item.id}>
+                <button type="button" className="download-row" onClick={() => openTitle(item)}>
+                  <span className="download-still">
+                    <CatalogImage item={item} prefer="backdrop" alt="" />
+                  </span>
+                  <span className="download-copy">
+                    <strong>{item.title}</strong>
+                    <em>Download complete</em>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="downloads-empty">
+            <span className="downloads-empty-icon">
+              <DownloadIcon className="icon" />
+            </span>
+            <strong>Downloads for You</strong>
+            <p>Movies and TV shows you download appear here.</p>
+            <Link to="/browse" className="downloads-find">
+              Find Something to Download
+            </Link>
+          </div>
+        )}
       </section>
 
       {continueItems.length ? (

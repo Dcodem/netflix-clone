@@ -1,18 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { CategoriesSheet } from '../components/CategoriesSheet'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
+import { GenreSelect } from '../components/GenreSelect'
 import { Hero } from '../components/Hero'
-import { CaretIcon } from '../components/Icons'
 import { MediaRow } from '../components/MediaRow'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
-import { buildBrowseRows, catalogGenres, type BrowseFilter } from '../lib/homeRows'
+import { isComingSoon } from '../lib/comingSoon'
+import { buildBrowseRows, catalogGenres, exploreHrefForRow, type BrowseFilter } from '../lib/homeRows'
+import { matchesGenreFilter } from '../profiles/taste'
 import { isShow, ofKind, pickHero, sortByRating, uniqueById } from '../lib/media'
 import { filterByMaturity } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -28,13 +29,10 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   const { activeProfile } = useProfiles()
   const [params, setParams] = useSearchParams()
   const [categoriesOpen, setCategoriesOpen] = useState(false)
-  const [genreMenuOpen, setGenreMenuOpen] = useState(false)
-  const genreBtnRef = useRef<HTMLButtonElement>(null)
-  const [genreBox, setGenreBox] = useState<DOMRect | null>(null)
   const [headingStuck, setHeadingStuck] = useState(false)
   const desktop = useMediaQuery('(min-width: 768px)')
   const genre = params.get('genre') ?? ''
-  const heading = HEADINGS[filter]
+  const heading = filter === 'home' && genre ? genre : HEADINGS[filter]
   const movies = useFetch(() => getMovies(), 'home-movies')
   const extras = useFetch(async () => {
     const [catalogMovies, catalogShows] = await Promise.all([
@@ -49,10 +47,9 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     if (next) nextParams.set('genre', next)
     else nextParams.delete('genre')
     setParams(nextParams, { replace: true })
-    setGenreMenuOpen(false)
   }
 
-  const useGenreMenu = desktop && (filter === 'movies' || filter === 'shows')
+  const useGenreMenu = desktop && (filter === 'movies' || filter === 'shows' || Boolean(heading && genre && filter === 'home'))
 
   useEffect(() => {
     if (!heading) {
@@ -64,10 +61,6 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [heading])
-
-  useEffect(() => {
-    setGenreMenuOpen(false)
-  }, [filter, genre])
 
   const catalog = useMemo(() => {
     const homeItems = movies.data ?? []
@@ -83,11 +76,15 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   )
   const genres = useMemo(() => catalogGenres(kindPool), [kindPool])
   const pool = useMemo(
-    () => (genre ? kindPool.filter((item) => (item.genres ?? []).includes(genre)) : kindPool),
+    () => (genre ? kindPool.filter((item) => matchesGenreFilter(item, genre)) : kindPool),
     [kindPool, genre],
   )
   const top10 = useMemo(() => sortByRating(pool).slice(0, 10), [pool])
-  const hero = useMemo(() => pickHero(top10.length ? top10 : pool), [top10, pool])
+  const hero = useMemo(() => {
+    const source = top10.length ? top10 : pool
+    const playable = source.filter((item) => !isComingSoon(item))
+    return pickHero(playable.length ? playable : source)
+  }, [top10, pool])
   const heroRank = useMemo(() => {
     if (!hero) return 0
     const index = top10.findIndex((item) => item.id === hero.id)
@@ -146,9 +143,19 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
         {heading ? (
           <div className={`browse-heading ${headingStuck ? 'is-stuck' : ''}`}>
             <h1>{heading}</h1>
+            {filter === 'movies' || filter === 'shows' || (filter === 'home' && genre) ? (
+              <GenreSelect
+                value={genre}
+                genres={genres}
+                onChange={setGenre}
+                useMenu={useGenreMenu}
+                onFallback={() => setCategoriesOpen(true)}
+                buttonLabel={filter === 'home' && genre ? 'Genres' : undefined}
+              />
+            ) : null}
           </div>
         ) : null}
-        <EmptyState title="No titles in this genre" detail="Pick another genre from the menu." />
+        <EmptyState title="No titles in this genre." />
         <CategoriesSheet
           open={categoriesOpen}
           onClose={() => setCategoriesOpen(false)}
@@ -166,71 +173,20 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
       {heading ? (
         <div className={`browse-heading ${headingStuck ? 'is-stuck' : ''}`}>
           <h1>{heading}</h1>
-          {filter === 'movies' || filter === 'shows' ? (
-            <div className="genre-select-wrap">
-              <button
-                type="button"
-                ref={genreBtnRef}
-                className={`genre-select ${genre ? 'is-on' : ''} ${genreMenuOpen ? 'is-open' : ''}`}
-                onClick={() => {
-                  if (useGenreMenu) {
-                    setGenreBox(genreBtnRef.current?.getBoundingClientRect() ?? null)
-                    setGenreMenuOpen((value) => !value)
-                    return
-                  }
-                  setCategoriesOpen(true)
-                }}
-                aria-haspopup={useGenreMenu ? 'listbox' : 'dialog'}
-                aria-expanded={useGenreMenu ? genreMenuOpen : categoriesOpen}
-              >
-                {genre || 'Genres'}
-                <CaretIcon className="icon" />
-              </button>
-              {useGenreMenu && genreMenuOpen && genreBox
-                ? createPortal(
-                    <>
-                      <button
-                        type="button"
-                        className="genre-menu-scrim"
-                        aria-label="Close genres"
-                        onClick={() => setGenreMenuOpen(false)}
-                      />
-                      <div
-                        className="genre-menu is-portal"
-                        role="listbox"
-                        aria-label="Genres"
-                        style={{ top: genreBox.bottom + 8, left: Math.max(16, genreBox.left) }}
-                      >
-                        <button type="button" className={!genre ? 'is-on' : ''} onClick={() => setGenre('')}>
-                          All Genres
-                        </button>
-                        {genres.map((entry) => (
-                          <button
-                            type="button"
-                            key={entry}
-                            className={genre === entry ? 'is-on' : ''}
-                            onClick={() => setGenre(entry)}
-                          >
-                            {entry}
-                          </button>
-                        ))}
-                      </div>
-                    </>,
-                    document.body,
-                  )
-                : null}
-            </div>
+          {filter === 'movies' || filter === 'shows' || (filter === 'home' && genre) ? (
+            <GenreSelect
+              value={genre}
+              genres={genres}
+              onChange={setGenre}
+              useMenu={useGenreMenu}
+              onFallback={() => setCategoriesOpen(true)}
+              buttonLabel={filter === 'home' && genre ? 'Genres' : undefined}
+            />
           ) : null}
         </div>
       ) : null}
-      {filter === 'home' ? (
+      {filter === 'home' && !genre ? (
         <div className="home-pills" aria-label="Categories">
-          {genre ? (
-            <button type="button" className="is-on" onClick={() => setCategoriesOpen(true)}>
-              {genre}
-              <CaretIcon className="icon" />
-            </button>
-          ) : null}
           <Link to="/browse/shows">TV Shows</Link>
           <Link to="/browse/movies">Movies</Link>
           <button type="button" onClick={() => setCategoriesOpen(true)}>
@@ -252,6 +208,8 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           continueMode={row.variant === 'continue'}
           variant={row.variant}
           loop={row.loop}
+          hoverable={desktop}
+          exploreTo={exploreHrefForRow(row)}
         />
       ))}
       <CategoriesSheet

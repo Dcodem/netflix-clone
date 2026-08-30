@@ -5,7 +5,7 @@ import { useHoverMenu } from '../hooks/useHoverMenu'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { AvatarArt } from './AvatarArt'
-import { CaretIcon, ExitIcon, HelpCircleIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
+import { CaretIcon, ExitIcon, HelpCircleIcon, MyNetflixIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
 import { FooterNoteDialog, FOOTER_NOTES } from './SiteFooter'
 
 export function AccountMenu() {
@@ -68,6 +68,10 @@ export function AccountMenu() {
           >
             <PencilIcon className="icon" />
             Manage Profiles
+          </Link>
+          <Link to="/browse/my-netflix" onClick={() => setOpen(false)}>
+            <MyNetflixIcon className="icon" />
+            My Netflix
           </Link>
           <div className="account-dropdown-rule" />
           <Link

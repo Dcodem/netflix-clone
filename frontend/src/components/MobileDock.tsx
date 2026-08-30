@@ -12,8 +12,12 @@ export function MobileDock() {
     <nav className="mobile-dock" aria-label="Mobile">
       {TABS.map((tab) => (
         <NavLink key={tab.to} to={tab.to} end={tab.end} className="mobile-dock-link">
-          <tab.icon className="icon" />
-          {tab.label}
+          {({ isActive }) => (
+            <>
+              <tab.icon className="icon" filled={isActive} />
+              {tab.label}
+            </>
+          )}
         </NavLink>
       ))}
     </nav>

@@ -1,16 +1,20 @@
 import { useState } from 'react'
 import type { MovieDetail, MovieListItem } from '../api/types'
 import { useFineHover } from '../hooks/useFineHover'
+import { isComingSoon } from '../lib/comingSoon'
 import { toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
+import { notifyRemind } from './RemindToast'
 import {
+  BellIcon,
   CaretIcon,
   CheckIcon,
   DoubleThumbUpIcon,
+  DownloadIcon,
   PlayIcon,
   PlusIcon,
   RestartIcon,
@@ -40,11 +44,12 @@ export function TitleActions({
 }) {
   const { openWatch } = useWatch()
   const { openTitle, closeTitle } = useTitleModal()
-  const { activeProfile, toggleMyList, rateTitle } = useProfiles()
+  const { activeProfile, toggleMyList, toggleDownload, rateTitle } = useProfiles()
   const fineHover = useFineHover()
   const [rateOpen, setRateOpen] = useState(false)
   const likedItem = toLiked(item)
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
+  const downloaded = activeProfile?.downloads?.some((entry) => entry.id === item.id) ?? false
   const loved = activeProfile?.lovedIds?.includes(item.id) ?? false
   const liked = (activeProfile?.liked.some((entry) => entry.id === item.id) ?? false) && !loved
   const disliked = activeProfile?.dislikedIds.includes(item.id) ?? false
@@ -52,10 +57,17 @@ export function TitleActions({
   const session = buildWatchSession(item, detail, history, false, watchHref)
   const href = session?.href
   const sheet = layout === 'sheet'
+  const soon = isComingSoon(item)
   const [copied, setCopied] = useState(false)
 
+  function remind() {
+    playClick()
+    toggleMyList(likedItem)
+    notifyRemind(item.title, !onList)
+  }
+
   async function shareTitle() {
-    const url = `${window.location.origin}${item.href}`
+    const url = `${window.location.origin}/browse?jbv=${encodeURIComponent(item.id)}`
     playClick()
     try {
       if (navigator.share) {
@@ -149,7 +161,29 @@ export function TitleActions({
 
   return (
     <div className={`title-actions size-${size} play-${playStyle} ${sheet ? 'is-sheet' : ''}`}>
-      {playStyle === 'labeled' ? (
+      {soon ? (
+        playStyle === 'labeled' ? (
+          <button
+            type="button"
+            className={`btn ${onList ? 'btn-reminded' : 'btn-play'}`}
+            onClick={remind}
+            aria-pressed={onList}
+          >
+            {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
+            {onList ? 'Reminded' : 'Remind Me'}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className={`circle-btn ${onList ? 'is-on' : ''}`}
+            onClick={remind}
+            aria-label={onList ? 'Reminded' : 'Remind Me'}
+            aria-pressed={onList}
+          >
+            {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
+          </button>
+        )
+      ) : playStyle === 'labeled' ? (
         <button type="button" className="btn btn-play" onClick={() => play(false)} disabled={!href}>
           <PlayIcon className="icon" />
           {continueMode ? 'Resume' : 'Play'}
@@ -165,13 +199,38 @@ export function TitleActions({
           <PlayIcon className="icon" />
         </button>
       )}
-      {continueMode && playStyle === 'labeled' && !sheet ? (
+      {sheet && !soon ? (
+        <button
+          type="button"
+          className={`btn btn-download ${downloaded ? 'is-on' : ''}`}
+          onClick={() => {
+            playClick()
+            toggleDownload(likedItem)
+          }}
+        >
+          {downloaded ? <CheckIcon className="icon" /> : <DownloadIcon className="icon" />}
+          {downloaded ? 'Downloaded' : 'Download'}
+        </button>
+      ) : null}
+      {continueMode && playStyle === 'labeled' && !sheet && !soon ? (
         <button type="button" className="circle-btn" onClick={() => play(true)} disabled={!href} aria-label="Play from beginning">
           <RestartIcon className="icon" />
         </button>
       ) : null}
       {sheet ? (
-        <div className="title-sheet-tools">
+        <div className={`title-sheet-tools ${continueMode ? 'is-continue' : ''}`}>
+          {continueMode && !soon ? (
+            <button
+              type="button"
+              className="title-sheet-btn"
+              onClick={() => play(true)}
+              disabled={!href}
+            >
+              <RestartIcon className="icon" />
+              <span>Restart</span>
+            </button>
+          ) : null}
+          {soon ? null : (
           <button
             type="button"
             className={`title-sheet-btn ${onList ? 'is-on' : ''}`}
@@ -180,13 +239,14 @@ export function TitleActions({
             {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
             <span>My List</span>
           </button>
+          )}
           {rateControl}
           <button type="button" className={`title-sheet-btn ${copied ? 'is-on' : ''}`} onClick={() => void shareTitle()}>
             <ShareIcon className="icon" />
             <span>{copied ? 'Copied' : 'Share'}</span>
           </button>
         </div>
-      ) : (
+      ) : soon ? null : (
         <button
           type="button"
           className={`circle-btn ${onList ? 'is-on' : ''}`}
@@ -226,6 +286,16 @@ export function TitleActions({
           </button>
         </>
       )}
+      {!sheet && playStyle === 'labeled' ? (
+        <button
+          type="button"
+          className={`circle-btn ${copied ? 'is-on' : ''}`}
+          onClick={() => void shareTitle()}
+          aria-label={copied ? 'Copied' : 'Share'}
+        >
+          <ShareIcon className="icon" />
+        </button>
+      ) : null}
       {!sheet && showMore ? (
         <button type="button" className="circle-btn circle-more" onClick={() => openTitle(item)} aria-label="More info">
           <CaretIcon className="icon" />

@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from './auth/AuthContext'
 import { Header } from './components/Header'
 import { MobileDock } from './components/MobileDock'
+import { RemindToast } from './components/RemindToast'
 import { SiteFooter } from './components/SiteFooter'
 import { playBrowseSting } from './lib/sounds'
 import { useProfiles } from './profiles/ProfileContext'
@@ -30,6 +31,7 @@ export function AppLayout() {
       <MobileDock />
       <TitleModal />
       <WatchOverlay />
+      <RemindToast />
     </div>
   )
 }

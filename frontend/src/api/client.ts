@@ -13,9 +13,15 @@ export class ApiError extends Error {
 }
 
 async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`)
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: { Accept: 'application/json' },
+  })
   if (!response.ok) {
     throw new ApiError(`Request failed (${response.status})`, response.status)
+  }
+  const contentType = response.headers.get('content-type') ?? ''
+  if (!contentType.includes('application/json')) {
+    throw new ApiError('Request failed (unexpected response)', response.status)
   }
   return (await response.json()) as T
 }

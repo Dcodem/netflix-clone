@@ -46,6 +46,7 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     lovedIds: Array.isArray(raw.lovedIds) ? raw.lovedIds : [],
     dislikedIds: Array.isArray(raw.dislikedIds) ? raw.dislikedIds : [],
     myList: Array.isArray(raw.myList) ? raw.myList : [],
+    downloads: Array.isArray(raw.downloads) ? raw.downloads : [],
     hiddenContinueIds: Array.isArray(raw.hiddenContinueIds) ? raw.hiddenContinueIds : [],
     avatarId: raw.avatarId || 'red',
     pinSalt: raw.pinSalt ?? null,
@@ -54,6 +55,7 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     autoplayPreview: raw.autoplayPreview !== false,
     language: isLanguage(raw.language) ? raw.language : 'English',
     maturity: isMaturity(raw.maturity) ? raw.maturity : 'All Maturity Ratings',
+    gameHandle: typeof raw.gameHandle === 'string' ? raw.gameHandle : '',
     color: raw.color || PROFILE_AVATARS[0].color,
   }
 }
@@ -103,6 +105,7 @@ export type UpdateProfileOpts = {
   autoplayPreview?: boolean
   language?: ProfileLanguage
   maturity?: ProfileMaturity
+  gameHandle?: string
 }
 
 type ProfileContextValue = {
@@ -115,9 +118,11 @@ type ProfileContextValue = {
   deleteProfile: (id: string) => void
   recordWatch: (item: Omit<WatchHistoryItem, 'watchedAt'>) => void
   hideContinue: (id: string) => void
+  removeHistory: (profileId: string, titleId: string) => void
   setFavoriteGenres: (genres: string[]) => void
   rateTitle: (item: LikedTitle, direction: 'up' | 'love' | 'down' | null) => void
   toggleMyList: (item: LikedTitle) => void
+  toggleDownload: (item: LikedTitle) => void
   unlockProfile: (id: string, pin: string) => Promise<boolean>
   clearActive: () => void
 }
@@ -173,6 +178,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         autoplayPreview: true,
         language: 'English',
         maturity: 'All Maturity Ratings',
+        gameHandle: '',
         createdAt: Date.now(),
         history: [],
         favoriteGenres: [],
@@ -180,6 +186,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         lovedIds: [],
         dislikedIds: [],
         myList: [],
+        downloads: [],
         hiddenContinueIds: [],
       }
       updateStore((prev) => {
@@ -237,6 +244,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             autoplayPreview: opts.autoplayPreview ?? profile.autoplayPreview,
             language: opts.language ?? profile.language,
             maturity: opts.maturity ?? profile.maturity,
+            gameHandle: opts.gameHandle !== undefined ? opts.gameHandle.trim() : profile.gameHandle,
             pinSalt: pinSalt !== undefined ? pinSalt : profile.pinSalt,
             pinHash: pinHash !== undefined ? pinHash : profile.pinHash,
           }
@@ -330,6 +338,24 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const removeHistory = useCallback(
+    (profileId: string, titleId: string) => {
+      updateStore((prev) => ({
+        ...prev,
+        profiles: prev.profiles.map((profile) =>
+          profile.id === profileId
+            ? {
+                ...profile,
+                history: profile.history.filter((entry) => entry.id !== titleId),
+                hiddenContinueIds: profile.hiddenContinueIds.filter((id) => id !== titleId),
+              }
+            : profile,
+        ),
+      }))
+    },
+    [updateStore],
+  )
+
   const setFavoriteGenres = useCallback(
     (genres: string[]) => {
       updateStore((prev) => ({
@@ -383,6 +409,26 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const toggleDownload = useCallback(
+    (item: LikedTitle) => {
+      updateStore((prev) => ({
+        ...prev,
+        profiles: prev.profiles.map((profile) => {
+          if (profile.id !== prev.activeProfileId) return profile
+          const downloads = profile.downloads ?? []
+          const exists = downloads.some((entry) => entry.id === item.id)
+          return {
+            ...profile,
+            downloads: exists
+              ? downloads.filter((entry) => entry.id !== item.id)
+              : [item, ...downloads].slice(0, HISTORY_LIMIT),
+          }
+        }),
+      }))
+    },
+    [updateStore],
+  )
+
   const unlockProfile = useCallback(async (id: string, pin: string) => {
     const profile = store.profiles.find((entry) => entry.id === id)
     if (!profile?.pinHash || !profile.pinSalt) return false
@@ -408,9 +454,11 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       deleteProfile,
       recordWatch,
       hideContinue,
+      removeHistory,
       setFavoriteGenres,
       rateTitle,
       toggleMyList,
+      toggleDownload,
       unlockProfile,
       clearActive,
     }),
@@ -424,9 +472,11 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       deleteProfile,
       recordWatch,
       hideContinue,
+      removeHistory,
       setFavoriteGenres,
       rateTitle,
       toggleMyList,
+      toggleDownload,
       unlockProfile,
       clearActive,
     ],

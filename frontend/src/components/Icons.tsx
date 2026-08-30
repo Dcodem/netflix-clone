@@ -84,15 +84,25 @@ export function SearchIcon({ className }: { className?: string }) {
   )
 }
 
-export function SpeakerIcon({ muted, className }: { muted?: boolean; className?: string }) {
+export function SpeakerIcon({
+  muted,
+  level,
+  className,
+}: {
+  muted?: boolean
+  level?: number
+  className?: string
+}) {
+  const silent = muted || (level != null && level <= 0.01)
+  const waves = silent ? 0 : level == null ? 2 : level < 0.34 ? 1 : 2
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
       <path fill="currentColor" d="M4 9.5v5h3.2L12 18.8V5.2L7.2 9.5H4z" />
-      {muted ? (
+      {silent ? (
         <path d="M16 9l5 6m0-6l-5 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       ) : (
         <path
-          d="M15.2 8.8a4.2 4.2 0 010 6.4M17.4 6.6a7.2 7.2 0 010 10.8"
+          d={waves === 1 ? 'M15.2 8.8a4.2 4.2 0 010 6.4' : 'M15.2 8.8a4.2 4.2 0 010 6.4M17.4 6.6a7.2 7.2 0 010 10.8'}
           fill="none"
           stroke="currentColor"
           strokeWidth="1.8"
@@ -179,12 +189,12 @@ export function ClockIcon({ className }: { className?: string }) {
   )
 }
 
-export function HomeIcon({ className }: { className?: string }) {
+export function HomeIcon({ className, filled }: { className?: string; filled?: boolean }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
       <path
         d="M4.5 11.2L12 4.6l7.5 6.6V20a.8.8 0 01-.8.8h-4.4v-5.2h-4.6V20.8H5.3A.8.8 0 014.5 20v-8.8z"
-        fill="none"
+        fill={filled ? 'currentColor' : 'none'}
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinejoin="round"
@@ -193,7 +203,7 @@ export function HomeIcon({ className }: { className?: string }) {
   )
 }
 
-export function NewsIcon({ className }: { className?: string }) {
+export function NewsIcon({ className, filled: _filled }: { className?: string; filled?: boolean }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
       <path
@@ -204,12 +214,27 @@ export function NewsIcon({ className }: { className?: string }) {
   )
 }
 
-export function MyNetflixIcon({ className }: { className?: string }) {
+export function MyNetflixIcon({ className, filled }: { className?: string; filled?: boolean }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="5" y="4.5" width="14" height="15" rx="2.4" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="12" cy="10" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M8.2 16.4c.8-1.4 2.1-2.1 3.8-2.1s3 .7 3.8 2.1" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <rect
+        x="5"
+        y="4.5"
+        width="14"
+        height="15"
+        rx="2.4"
+        fill={filled ? 'currentColor' : 'none'}
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <circle cx="12" cy="10" r="2.2" fill={filled ? '#141414' : 'none'} stroke={filled ? '#141414' : 'currentColor'} strokeWidth="1.8" />
+      <path
+        d="M8.2 16.4c.8-1.4 2.1-2.1 3.8-2.1s3 .7 3.8 2.1"
+        fill="none"
+        stroke={filled ? '#141414' : 'currentColor'}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   )
 }
@@ -343,6 +368,38 @@ export function BellIcon({ className }: { className?: string }) {
         strokeLinejoin="round"
       />
       <path d="M9.2 18.6a2.8 2.8 0 005.6 0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function PipIcon({ className, exit }: { className?: string; exit?: boolean }) {
+  if (exit) {
+    return (
+      <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M4.5 6.5h15v11h-15z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
+        <path d="M11.2 11.2h6.6v5.2h-6.6z" fill="currentColor" />
+      </svg>
+    )
+  }
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4.5 6.5h15v11h-15z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M12.2 12.2h6.2v4.6h-6.2z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
     </svg>
   )
 }

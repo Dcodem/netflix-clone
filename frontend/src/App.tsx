@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom'
 import { AppLayout } from './AppLayout'
 import { AuthProvider } from './auth/AuthContext'
 import { ProfileProvider } from './profiles/ProfileContext'
@@ -6,24 +6,26 @@ import { Account } from './pages/Account'
 import { BrowseLanguages } from './pages/BrowseLanguages'
 import { Home } from './pages/Home'
 import { Login } from './pages/Login'
-import { MovieDetail } from './pages/MovieDetail'
 import { MyList } from './pages/MyList'
 import { MyNetflix } from './pages/MyNetflix'
 import { NewsHot } from './pages/NewsHot'
 import { ProfileSelect } from './pages/ProfileSelect'
 import { Search } from './pages/Search'
-import { ShowDetail } from './pages/ShowDetail'
-import { Taste } from './pages/Taste'
-import { TitleModalProvider } from './title/TitleModalContext'
+import { TitleModalProvider, titleHref } from './title/TitleModalContext'
 import { WatchProvider } from './watch/WatchContext'
+
+function LegacyTitleRedirect() {
+  const { id = '' } = useParams()
+  return <Navigate to={id ? titleHref(id) : '/browse'} replace />
+}
 
 export default function App() {
   return (
     <AuthProvider>
       <ProfileProvider>
         <WatchProvider>
-          <TitleModalProvider>
-            <BrowserRouter>
+          <BrowserRouter>
+            <TitleModalProvider>
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<ProfileSelect />} />
@@ -36,14 +38,14 @@ export default function App() {
                   <Route path="/browse/languages" element={<BrowseLanguages />} />
                   <Route path="/browse/my-netflix" element={<MyNetflix />} />
                   <Route path="/search" element={<Search />} />
-                  <Route path="/taste" element={<Taste />} />
+                  <Route path="/taste" element={<Navigate to="/browse" replace />} />
                   <Route path="/account" element={<Account />} />
-                  <Route path="/movie/:id" element={<MovieDetail />} />
-                  <Route path="/show/:id" element={<ShowDetail />} />
+                  <Route path="/movie/:id" element={<LegacyTitleRedirect />} />
+                  <Route path="/show/:id" element={<LegacyTitleRedirect />} />
                 </Route>
               </Routes>
-            </BrowserRouter>
-          </TitleModalProvider>
+            </TitleModalProvider>
+          </BrowserRouter>
         </WatchProvider>
       </ProfileProvider>
     </AuthProvider>

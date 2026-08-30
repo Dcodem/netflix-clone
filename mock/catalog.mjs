@@ -172,6 +172,16 @@ const EPISODE_BEATS_BY_GENRE = {
     'The new kid in class has a secret that does not fit in a backpack.',
     'A race to the festival starts with the wrong shoes and the right friends.',
     'Home is one street over, and somehow still a whole world away.',
+    'A cardboard fort is declared a sovereign nation before lunch.',
+    'The last biscuit starts a negotiation that lasts all afternoon.',
+    'A backyard game needs a referee. The dog volunteers.',
+    'Someone draws a map of the house and forgets the most important room.',
+    'A rainy-day plan escapes the living room and takes the street with it.',
+    'The fancy outfit survives everything except the puddle by the gate.',
+    'A bedtime story gets rewritten by the people who are supposed to be asleep.',
+    'The keep-away game works until the keep-away object has opinions.',
+    'A borrowed cape turns a regular walk into a parade of two.',
+    'The treasure was under the couch the whole time. Getting it out is the plot.',
   ],
   Comedy: [
     'A well-meant plan collapses in front of the one person who cannot laugh yet.',
@@ -202,6 +212,14 @@ const EPISODE_BEATS_BY_GENRE = {
     'The school play needs a lead. The understudy has other plans.',
     'A promise made at breakfast has to survive the long way home.',
     'Everyone wants to be the hero. The dog already is.',
+    'The science fair volcano was supposed to be a model. It is not.',
+    'A sleepover rulebook is written, signed, and immediately ignored.',
+    'The long way home includes a detour that nobody will admit to planning.',
+    'Someone has to return the library book. The book has other ideas.',
+    'A family photo needs everyone looking at the same camera at the same time.',
+    'The leftover cake is missing. The investigation is not subtle.',
+    'A weekend chore chart becomes a heist movie with snacks.',
+    'The guest room is ready. The guest is a raccoon with confidence.',
   ],
   Fantasy: [
     'A door that was painted shut opens for the one person who was told not to knock.',
@@ -474,6 +492,20 @@ function castFor(index) {
   return [0, 1, 2, 3].map((offset) => CAST[(start + offset) % CAST.length])
 }
 
+function creatorsFor(index) {
+  const start = (index + 7) % CAST.length
+  return [0, 1].map((offset) => CAST[(start + offset) % CAST.length])
+}
+
+function directorFor(index) {
+  return CAST[(index + 11) % CAST.length]
+}
+
+function writersFor(index) {
+  const start = (index + 3) % CAST.length
+  return [0, 1].map((offset) => CAST[(start + offset) % CAST.length])
+}
+
 function hashString(value) {
   let hash = 2166136261
   for (let i = 0; i < value.length; i += 1) {
@@ -581,9 +613,12 @@ function episodeTitleFor(item, seasonNumber, number) {
 
 function episodeSynopsisFor(item, seasonNumber, number) {
   const genre = item.genres[0] ?? 'Drama'
-  const pool = EPISODE_BEATS_BY_GENRE[genre] ?? EPISODE_BEATS
-  const n = hashString(`${item.id}:s${seasonNumber}e${number}`)
-  return pool[n % pool.length]
+  const genrePool = EPISODE_BEATS_BY_GENRE[genre] ?? []
+  const kid = genre === 'Animation' || genre === 'Family'
+  const extra = kid ? [] : EPISODE_BEATS
+  const pool = [...genrePool, ...extra]
+  const start = hashString(`${item.id}:s${seasonNumber}`) % pool.length
+  return pool[(start + number - 1) % pool.length]
 }
 
 function makeItem(index, kind) {
@@ -674,6 +709,13 @@ const REAL_MOVIES = [
   namedItem('movie', 50, "The End of Oak Street", 2026, 6.4, ["Sci-Fi","Mystery","Thriller"], "https://image.tmdb.org/t/p/w500/fYXqpgPmHMphSF2W30GbTeJVIa5.jpg", "https://image.tmdb.org/t/p/w1280/b9q9VmbXDvJmTziRqkwdEmFdwhr.jpg"),
   namedItem('movie', 51, "Shape of My Heart", 2024, 6.2, ["Romance"], "https://image.tmdb.org/t/p/w500/3r0O6BW9USoZ9mteCVyNKMQriRL.jpg", "https://image.tmdb.org/t/p/w1280/yjK3ardrgdS8suZG8KMU82Q7U38.jpg"),
   namedItem('movie', 52, "Scary Movie", 2026, 6.4, ["Comedy"], "https://image.tmdb.org/t/p/w500/znHT8peERZRWG1ME3r0Db0EV8k8.jpg", "https://image.tmdb.org/t/p/w1280/xWBiXclrRmTggQHMRsIn84YHavs.jpg"),
+  namedItem('movie', 53, "Crazy Rich Asians", 2018, 7.0, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/1XxL4LJ5WHdrcYcihEZUCgNCpAW.jpg", "https://image.tmdb.org/t/p/w1280/zeHB7aP46Xs3u4aFLuAq2GFeUGb.jpg"),
+  namedItem('movie', 54, "To All the Boys I've Loved Before", 2018, 7.2, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/hKHZhUbIyUAjcSrqJThFGYIR6kI.jpg", "https://image.tmdb.org/t/p/w1280/xXhta1NIKn09IXy0mfp68cabdWS.jpg"),
+  namedItem('movie', 55, "Anyone But You", 2023, 6.3, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/5qHoazZiaLe7oFBok7XlUhg96f2.jpg", "https://image.tmdb.org/t/p/w1280/j9eOeLlTGoHoM8BNUJVNyWmIvCi.jpg"),
+  namedItem('movie', 56, "The Proposal", 2009, 6.7, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/6stnAm1wSek8ZrislwK4xGTyCnt.jpg", "https://image.tmdb.org/t/p/w1280/ojgXOhVi9Yk8irDpRfDkIzdD1LK.jpg"),
+  namedItem('movie', 57, "Pretty Woman", 1990, 7.1, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/hVHUfT801LQATGd26VPzhorIYza.jpg", "https://image.tmdb.org/t/p/w1280/sGEqHTylawwS6hwKultk1mKUjdB.jpg"),
+  namedItem('movie', 58, "Notting Hill", 1999, 7.2, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/hHRIf2XHeQMbyRb3HUx19SF5Ujw.jpg", "https://image.tmdb.org/t/p/w1280/enTZhfxAdgOCdFdbj52MR3F10yC.jpg"),
+  namedItem('movie', 59, "10 Things I Hate About You", 1999, 7.3, ["Romance", "Comedy"], "https://image.tmdb.org/t/p/w500/ujERk3aKABXU3NDXOAxEQYTHe9A.jpg", "https://image.tmdb.org/t/p/w1280/yvPbncYhMu9FfTjDhq0N5lgnVkO.jpg"),
 ]
 
 const REAL_SHOWS = [
@@ -713,10 +755,25 @@ const REAL_SHOWS = [
   namedItem('show', 34, "NCIS", 2003, 7.6, ["Crime","Drama","Action"], "https://image.tmdb.org/t/p/w500/mBcu8d6x6zB1el3MPNl7cZQEQ31.jpg", "https://image.tmdb.org/t/p/w1280/nn3SuLTO4hum8yAxaY4ql8h6kRk.jpg"),
   namedItem('show', 35, "Supernatural", 2005, 8.3, ["Drama","Mystery","Sci-Fi"], "https://image.tmdb.org/t/p/w500/8iixmfGx5EIFPdpNvB2JvI3VIqX.jpg", "https://image.tmdb.org/t/p/w1280/ro0tlgnsco4SwbdAgmscLkSlMSL.jpg"),
   namedItem('show', 36, "Criminal Minds", 2005, 8.3, ["Crime","Drama","Mystery"], "https://image.tmdb.org/t/p/w500/hWSb4UnIjlTvnvrP98NbFSO60HA.jpg", "https://image.tmdb.org/t/p/w1280/tUtXfyVy54BY7eJnRtI8Xnmr1ZL.jpg"),
+  namedItem('show', 37, "Emily in Paris", 2020, 6.9, ["Romance", "Comedy", "Drama"], "https://image.tmdb.org/t/p/w500/c0bkO416OU7YGdOFktk45H8REgL.jpg", "https://image.tmdb.org/t/p/w1280/jXTZaHarR9TZiMoQwiQWsGYXqnS.jpg"),
+  namedItem('show', 38, "Never Have I Ever", 2020, 7.8, ["Romance", "Comedy", "Drama"], "https://image.tmdb.org/t/p/w500/hd5fnBixab6IzfUwjC5wfdbX3eM.jpg", "https://image.tmdb.org/t/p/w1280/umVYLVZ7T85TkIHudxK799lPnLQ.jpg"),
 ]
 
 const MOVIES = [...REAL_MOVIES]
 const SHOWS = [...REAL_SHOWS]
+
+function episodeDurationFor(item, index, number) {
+  const genres = new Set((item.genres ?? []).map((genre) => String(genre).toLowerCase()))
+  const kidsShort =
+    genres.has('family') && genres.has('comedy') && !genres.has('adventure') && !genres.has('action')
+  if (kidsShort) return 7
+  if (genres.has('animation') && (genres.has('comedy') || genres.has('family'))) return 22
+  if (genres.has('comedy') && !genres.has('crime') && !genres.has('drama') && !genres.has('sci-fi') && !genres.has('action')) {
+    return 22
+  }
+  if (genres.has('comedy') && genres.has('drama') && !genres.has('crime')) return 30
+  return 42 + ((index + number) % 10)
+}
 
 function seasonsFor(item, index) {
   const known = {
@@ -745,7 +802,7 @@ function seasonsFor(item, index) {
         id: `${item.id}-s${seasonNumber}e${number}`,
         number,
         title: episodeTitleFor(item, seasonNumber, number),
-        duration: 24 + ((index + number) % 22),
+        duration: episodeDurationFor(item, index, number),
         synopsis: episodeSynopsisFor(item, seasonNumber, number),
         thumb_url: item.backdrop_url || `/art/thumb/${item.id}?s=${seasonNumber}&e=${number}`,
         watch_href: `/watch/play/${item.id}?s=${seasonNumber}&e=${number}`,
@@ -783,11 +840,15 @@ export function homepageRows() {
 export function searchItems(q) {
   const needle = q.trim().toLowerCase()
   if (needle.length < 2) return []
-  return ALL.filter(
-    (item) =>
-      item.title.toLowerCase().includes(needle) ||
-      item.genres.some((genre) => genre.toLowerCase().includes(needle)),
-  )
+  return ALL.filter((item) => {
+    if (item.title.toLowerCase().includes(needle)) return true
+    if (item.genres.some((genre) => genre.toLowerCase().includes(needle))) return true
+    const index = Number(item.id.slice(0, 4))
+    if (castFor(index).some((name) => name.toLowerCase().includes(needle))) return true
+    if (item.kind === 'show' && creatorsFor(index).some((name) => name.toLowerCase().includes(needle))) return true
+    if (item.kind === 'movie' && directorFor(index).toLowerCase().includes(needle)) return true
+    return item.kind === 'movie' && writersFor(index).some((name) => name.toLowerCase().includes(needle))
+  })
 }
 
 export function catalogPage(kind, opts = {}) {
@@ -814,6 +875,9 @@ export function getDetail(kind, id) {
     synopsis: synopsisFor(item),
     runtime: item.kind === 'movie' ? 96 + (index % 48) : 28 + (index % 22),
     cast: castFor(index),
+    creators: item.kind === 'show' ? creatorsFor(index) : undefined,
+    director: item.kind === 'movie' ? directorFor(index) : undefined,
+    writers: item.kind === 'movie' ? writersFor(index) : undefined,
     backdrop_url: item.backdrop_url || `/art/backdrop/${item.id}?v=2`,
     watch_href: `/watch/play/${item.id}`,
   }

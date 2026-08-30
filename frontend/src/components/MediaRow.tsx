@@ -7,12 +7,11 @@ import { useTitleModal } from '../title/TitleModalContext'
 import { CatalogImage } from './CatalogImage'
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons'
 import { PosterCard } from './PosterCard'
+import { TitleLogo } from './TitleLogo'
 
-function exploreHref(title: string, items: MovieListItem[], seed?: MovieListItem) {
+function exploreHref(items: MovieListItem[], seed?: MovieListItem, exploreTo?: string) {
+  if (exploreTo) return exploreTo
   if (seed?.title) return `/search?q=${encodeURIComponent(seed.title)}`
-  if (title.length <= 18 && !/for |because|watch|pick|trend|list/i.test(title)) {
-    return `/search?q=${encodeURIComponent(title)}`
-  }
   const shows = items.filter((item) => item.kind === 'show').length
   return shows > items.length / 2 ? '/browse/shows' : '/browse/movies'
 }
@@ -32,7 +31,7 @@ function SceneCard({ item }: { item: MovieListItem }) {
         </div>
         <div className="scene-caption">
           <span className="scene-kicker">You watched</span>
-          <span className="scene-title">{item.title}</span>
+          <TitleLogo item={item} className="scene-logo" titleClassName="scene-title" />
         </div>
       </button>
     </div>
@@ -49,6 +48,7 @@ export function MediaRow({
   loop = false,
   hoverable = true,
   variant = 'default',
+  exploreTo,
 }: {
   title: string
   subtitle?: string
@@ -59,11 +59,12 @@ export function MediaRow({
   loop?: boolean
   hoverable?: boolean
   variant?: 'default' | 'continue' | 'top10'
+  exploreTo?: string
 }) {
   const fineHover = useFineHover()
   const ranked = variant === 'top10'
   const looping = loop && !seed && !ranked && items.length >= 8 && fineHover
-  const { ref, canPrev, canNext, copies, scrollByPage, pageIndex, pageCount } = useRowOverflow(looping, items.length)
+  const { ref, canPrev, canNext, copies, scrollByPage } = useRowOverflow(looping, items.length)
 
   if (!items.length) return null
 
@@ -75,21 +76,16 @@ export function MediaRow({
     <section className={`media-row ${seed ? 'has-scene' : ''} ${ranked ? 'is-top10' : ''}`}>
       <div className="row-heading">
         {canExplore ? (
-          <Link className="row-heading-link" to={exploreHref(title, items, seed)}>
+          <Link className="row-heading-link" to={exploreHref(items, seed, exploreTo)}>
             <h2 className="section-title">{title}</h2>
-            <span className="row-explore">Explore All</span>
-            <ChevronRightIcon className="icon row-heading-caret" />
+            <span className="row-explore">
+              Explore All
+              <ChevronRightIcon className="icon" />
+            </span>
           </Link>
         ) : (
           <h2 className="section-title">{title}</h2>
         )}
-        {pageCount > 1 && !ranked ? (
-          <div className="row-pages" aria-hidden="true">
-            {Array.from({ length: pageCount }, (_, index) => (
-              <span key={index} className={index === pageIndex ? 'is-on' : ''} />
-            ))}
-          </div>
-        ) : null}
       </div>
       {subtitle ? <p className="section-sub row-sub">{subtitle}</p> : null}
       <div className="row-wrap">

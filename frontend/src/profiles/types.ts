@@ -26,6 +26,7 @@ export type LikedTitle = {
   id: string
   kind: string
   title: string
+  year?: number | null
   poster_url: string | null
   genres: string[]
 }
@@ -54,6 +55,7 @@ export type Profile = {
   autoplayPreview: boolean
   language: ProfileLanguage
   maturity: ProfileMaturity
+  gameHandle: string
   createdAt: number
   history: WatchHistoryItem[]
   favoriteGenres: string[]
@@ -61,6 +63,7 @@ export type Profile = {
   lovedIds: string[]
   dislikedIds: string[]
   myList: LikedTitle[]
+  downloads: LikedTitle[]
   hiddenContinueIds: string[]
 }
 

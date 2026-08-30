@@ -11,19 +11,10 @@ import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { sortByRating, uniqueById } from '../lib/media'
 import { filterByMaturity } from '../lib/netflix'
+import { catalogHits, rankSearchHits } from '../lib/searchHits'
 import { clearRecentSearches, listRecentSearches, removeRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { relatedSearchResults } from '../profiles/taste'
-
-function catalogHits(query: string, catalog: MovieListItem[]): MovieListItem[] {
-  const needle = query.trim().toLowerCase()
-  if (needle.length < 2) return []
-  return catalog.filter(
-    (item) =>
-      item.title.toLowerCase().includes(needle) ||
-      (item.genres ?? []).some((genre) => genre.toLowerCase().includes(needle)),
-  )
-}
 
 export function Search() {
   const { activeProfile } = useProfiles()
@@ -33,8 +24,8 @@ export function Search() {
   const { data, error, loading, retry } = useFetch(() => searchTitles(q), q, { enabled })
   const catalog = useFetch(async () => {
     const [movies, shows] = await Promise.all([
-      getCatalogMany('movies', 5).catch(() => [] as MovieListItem[]),
-      getCatalogMany('shows', 5).catch(() => [] as MovieListItem[]),
+      getCatalogMany('movies', 8).catch(() => [] as MovieListItem[]),
+      getCatalogMany('shows', 8).catch(() => [] as MovieListItem[]),
     ])
     return uniqueById([...movies, ...shows])
   }, 'search-catalog')
@@ -46,7 +37,7 @@ export function Search() {
   )
   const hits = useMemo(() => {
     const fromApi = filterByMaturity(data ?? [], activeProfile)
-    return uniqueById([...fromApi, ...catalogHits(q, pool)])
+    return rankSearchHits(q, uniqueById([...fromApi, ...catalogHits(q, pool)]))
   }, [data, q, pool, activeProfile])
   const related = useMemo(() => {
     const hitIds = new Set(hits.map((item) => item.id))
@@ -118,7 +109,7 @@ export function Search() {
             {phone ? (
               <SearchHitsList items={popularItems.slice(0, 10)} ranked />
             ) : (
-              <MediaGrid items={popularItems} layout="poster" />
+              <MediaGrid items={popularItems} layout="landscape" />
             )}
           </>
         ) : null}
@@ -134,7 +125,7 @@ export function Search() {
     )
   }
 
-  if (error) {
+  if (error && !hits.length && !related.length) {
     return (
       <main className="page page-pad search-page">
         <ErrorState message={error} onRetry={retry} />
@@ -180,7 +171,7 @@ export function Search() {
               Explore titles related to: <span>{q}</span>
             </h1>
           ) : null}
-          <MediaGrid items={desktopItems} layout="poster" />
+          <MediaGrid items={desktopItems} layout="landscape" />
         </>
       )}
     </main>

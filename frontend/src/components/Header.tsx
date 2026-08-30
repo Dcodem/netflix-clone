@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import { isLiveSearchInput, pushRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
@@ -25,11 +26,13 @@ export function Header() {
   const urlQuery = location.pathname === '/search' ? (searchParams.get('q') ?? '') : ''
   const [query, setQuery] = useState(urlQuery)
   const [syncedQuery, setSyncedQuery] = useState(urlQuery)
-  if (urlQuery !== syncedQuery) {
+  useEffect(() => {
+    if (urlQuery === syncedQuery) return
     setSyncedQuery(urlQuery)
     setQuery(urlQuery)
-  }
+  }, [urlQuery, syncedQuery])
   const [scrolled, setScrolled] = useState(false)
+  const phone = useMediaQuery('(max-width: 767px)')
   const [searchOpen, setSearchOpen] = useState(Boolean(urlQuery) || location.pathname === '/search')
   const inputRef = useRef<HTMLInputElement>(null)
   const searchRef = useRef<HTMLDivElement>(null)
@@ -51,7 +54,11 @@ export function Header() {
 
   useEffect(() => {
     const live = query.trim()
+    // Title-modal / recents set `?q=` while this input is still empty. Do not
+    // strip the URL on that first tick — only after the field has synced.
+    const pendingUrlSync = Boolean(urlQuery.trim()) && query !== urlQuery && syncedQuery !== urlQuery
     if (live.length < 2) {
+      if (pendingUrlSync) return
       if (location.pathname === '/search' && searchParams.get('q')) {
         navigate('/search')
       }
@@ -63,7 +70,7 @@ export function Header() {
     if (location.pathname !== '/search' || searchParams.get('q') !== debounced) {
       navigate(`/search?q=${encodeURIComponent(debounced)}`, { replace: location.pathname === '/search' })
     }
-  }, [debounced, query, location.pathname, navigate, searchParams])
+  }, [debounced, query, urlQuery, syncedQuery, location.pathname, navigate, searchParams])
 
   useEffect(() => {
     if (!open) return
@@ -176,7 +183,7 @@ export function Header() {
                   type="text"
                   inputMode="search"
                   autoComplete="off"
-                  placeholder="Titles, people, genres"
+                  placeholder={phone ? 'Search' : 'Titles, people, genres'}
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   aria-label="Search"

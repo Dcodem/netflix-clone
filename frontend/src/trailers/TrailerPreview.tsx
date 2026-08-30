@@ -45,11 +45,12 @@ export const TrailerPreview = forwardRef<
     className?: string
     mode?: 'hero' | 'mini'
     muted?: boolean
+    overrideHit?: TrailerHit | null
     onReady?: () => void
     onEnded?: () => void
   }
 >(function TrailerPreview(
-  { title, year, kind, className, mode = 'hero', muted = true, onReady, onEnded },
+  { title, year, kind, className, mode = 'hero', muted = true, overrideHit, onReady, onEnded },
   ref,
 ) {
   const { user } = useAuth()
@@ -73,7 +74,7 @@ export const TrailerPreview = forwardRef<
       return
     }
     setArmed(false)
-    const timer = window.setTimeout(() => setArmed(true), 420)
+    const timer = window.setTimeout(() => setArmed(true), 160)
     return () => window.clearTimeout(timer)
   }, [mode, title])
 
@@ -82,6 +83,10 @@ export const TrailerPreview = forwardRef<
     setHit(null)
     setLive(false)
     readyRef.current = false
+    if (overrideHit) {
+      setHit(overrideHit)
+      return
+    }
     if (!keys.iva && !keys.tmdb) return
     const timer = window.setTimeout(() => {
       resolveTrailer({ title, year, kind }, keys, { seconds: mode === 'mini' ? 12 : 30 })
@@ -96,7 +101,7 @@ export const TrailerPreview = forwardRef<
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [title, year, kind, keys.iva, keys.tmdb, mode])
+  }, [title, year, kind, keys.iva, keys.tmdb, mode, overrideHit])
 
   const onReadyRef = useRef(onReady)
   const onEndedRef = useRef(onEnded)
@@ -202,6 +207,7 @@ export const TrailerPreview = forwardRef<
       <iframe
         ref={iframeRef}
         className={`${className ?? ''} trailer-frame ${live ? 'is-live' : 'is-pending'}`}
+        key={hit.src}
         src={`https://www.youtube-nocookie.com/embed/${hit.src}?${params.toString()}`}
         title={`${title} trailer`}
         allow="autoplay; encrypted-media"

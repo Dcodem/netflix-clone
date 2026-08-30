@@ -1,15 +1,18 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem } from '../api/types'
+import { comingLineFor, isComingSoon } from '../lib/comingSoon'
+import { stillWatching } from '../lib/homeRows'
 import { genresOf, isShow } from '../lib/media'
 import { buildWatchSession } from '../lib/watchSession'
 import { maturityLabel, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
+import { notifyRemind } from './RemindToast'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
-import { CheckIcon, InfoIcon, PlayIcon, PlusIcon, RestartIcon, SpeakerIcon } from './Icons'
+import { BellIcon, CheckIcon, InfoIcon, PlayIcon, PlusIcon, RestartIcon, SpeakerIcon } from './Icons'
 import { CatalogImage } from './CatalogImage'
 import { GenreDots } from './GenreDots'
 import { TitleLogo } from './TitleLogo'
@@ -38,7 +41,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
   const [scale, setScale] = useState(1.45)
   const previewActive = !openItem && !session && activeProfile?.autoplayPreview !== false
   const playing = trailerReady && previewActive && !trailerEnded
-  const cinematic = previewActive && !trailerEnded
+  const cinematic = previewActive && !playing
 
   useEffect(() => {
     let cancelled = false
@@ -90,12 +93,20 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
   const synopsis = detail?.synopsis
   const genres = genresOf(detail ?? item).slice(0, 3)
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
+  const soon = isComingSoon(item)
+  const coming = comingLineFor(item)
 
   function onWatch() {
     const next = buildWatchSession(item, detail, last)
     if (!next) return
     playClick()
     openWatch(next.href, item.title, next.payload)
+  }
+
+  function onRemind() {
+    playClick()
+    toggleMyList(toLiked(item))
+    notifyRemind(item.title, !onList)
   }
 
   function toggleMute() {
@@ -169,25 +180,40 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
           </p>
         ) : null}
         {genres.length ? <GenreDots genres={genres} className="hero-genre-dots" /> : null}
+        {coming ? <p className="hero-coming">{coming}</p> : null}
         {synopsis ? <p className="hero-syn">{synopsis}</p> : null}
         <div className="hero-actions">
-          <button type="button" className="btn btn-play" onClick={onWatch} disabled={!sessionReady}>
-            <PlayIcon className="icon" />
-            {last?.progress && last.progress > 0.05 ? 'Resume' : 'Play'}
-          </button>
+          {soon ? (
+            <button
+              type="button"
+              className={`btn ${onList ? 'btn-reminded' : 'btn-play'}`}
+              onClick={onRemind}
+              aria-pressed={onList}
+            >
+              {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
+              {onList ? 'Reminded' : 'Remind Me'}
+            </button>
+          ) : (
+            <button type="button" className="btn btn-play" onClick={onWatch} disabled={!sessionReady}>
+              <PlayIcon className="icon" />
+              {last && stillWatching(last) ? 'Resume' : 'Play'}
+            </button>
+          )}
           <button type="button" className="btn btn-info hero-more" onClick={() => openTitle(item)}>
             <InfoIcon className="icon" />
             <span className="hero-more-wide">More Info</span>
             <span className="hero-more-short">Info</span>
           </button>
-          <button
-            type="button"
-            className="btn btn-info hero-list"
-            onClick={() => toggleMyList(toLiked(item))}
-          >
-            {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
-            My List
-          </button>
+          {soon ? null : (
+            <button
+              type="button"
+              className="btn btn-info hero-list"
+              onClick={() => toggleMyList(toLiked(item))}
+            >
+              {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
+              My List
+            </button>
+          )}
         </div>
       </div>
       <div className="hero-controls-right">

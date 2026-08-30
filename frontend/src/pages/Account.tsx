@@ -1,11 +1,26 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { AvatarArt } from '../components/AvatarArt'
 import { ChevronRightIcon } from '../components/Icons'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
-import { envKeys } from '../trailers/types'
+
+const PLANS = [
+  { id: 'standard', name: 'Standard', quality: 'HD', devices: '2 devices at a time' },
+  { id: 'premium', name: 'Premium', quality: 'UHD', devices: '4 devices at a time' },
+  { id: 'basic', name: 'Basic', quality: 'HD', devices: '1 device at a time' },
+] as const
+
+type PlanId = (typeof PLANS)[number]['id']
+
+function cardBrand(digits: string): string {
+  if (digits.startsWith('4')) return 'Visa'
+  if (digits.startsWith('5') || digits.startsWith('2')) return 'Mastercard'
+  if (digits.startsWith('34') || digits.startsWith('37')) return 'Amex'
+  if (digits.startsWith('6')) return 'Discover'
+  return 'Card'
+}
 
 type AccountPanel =
   | 'email'
@@ -21,24 +36,35 @@ type AccountPanel =
   | null
 
 export function Account() {
-  const { user, updateKeys, updateAccount } = useAuth()
-  const { profiles } = useProfiles()
-  const env = envKeys()
-  const [ivaKey, setIvaKey] = useState(user?.ivaKey ?? '')
-  const [tmdbKey, setTmdbKey] = useState(user?.tmdbKey ?? '')
-  const [saved, setSaved] = useState(false)
+  const { user, updateAccount } = useAuth()
+  const { profiles, activeProfile, updateProfile } = useProfiles()
   const [panel, setPanel] = useState<AccountPanel>(null)
   const [emailDraft, setEmailDraft] = useState(user?.email ?? '')
   const [passwordDraft, setPasswordDraft] = useState('')
   const [phoneDraft, setPhoneDraft] = useState(user?.phone ?? '')
   const [accountError, setAccountError] = useState<string | null>(null)
   const [accountBusy, setAccountBusy] = useState(false)
+  const [planId, setPlanId] = useState<PlanId>(
+    user?.planId && PLANS.some((entry) => entry.id === user.planId) ? user.planId : 'standard',
+  )
+  const [cardNumber, setCardNumber] = useState('')
+  const [cardExp, setCardExp] = useState('')
+  const [cardCvc, setCardCvc] = useState('')
+  const plan = PLANS.find((entry) => entry.id === planId) ?? PLANS[0]
+  const nextPay = useMemo(() => {
+    const date = new Date()
+    date.setDate(date.getDate() + 28)
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  }, [])
 
   function togglePanel(next: AccountPanel) {
     setAccountError(null)
     setEmailDraft(user?.email ?? '')
     setPasswordDraft('')
     setPhoneDraft(user?.phone ?? '')
+    setCardNumber('')
+    setCardExp('')
+    setCardCvc('')
     setPanel((current) => (current === next ? null : next))
   }
 
@@ -59,11 +85,29 @@ export function Account() {
     }
   }
 
-  function onSave(event: FormEvent) {
+  async function savePayment(event: FormEvent) {
     event.preventDefault()
-    updateKeys({ ivaKey: ivaKey.trim(), tmdbKey: tmdbKey.trim() })
-    setSaved(true)
-    window.setTimeout(() => setSaved(false), 1600)
+    setAccountError(null)
+    const digits = cardNumber.replace(/\D/g, '')
+    if (digits.length < 12 || digits.length > 19) {
+      setAccountError('Enter a valid card number.')
+      return
+    }
+    setAccountBusy(true)
+    try {
+      await updateAccount({
+        paymentBrand: cardBrand(digits),
+        paymentLast4: digits.slice(-4),
+      })
+      setCardNumber('')
+      setCardExp('')
+      setCardCvc('')
+      setPanel(null)
+    } catch (err) {
+      setAccountError(err instanceof Error ? err.message : 'Could not save that payment method.')
+    } finally {
+      setAccountBusy(false)
+    }
   }
 
   return (
@@ -71,15 +115,24 @@ export function Account() {
       <h1>Account</h1>
 
       <section className="account-membership">
-        <p className="account-email">{user?.email}</p>
-        <p className="account-plan">
-          <span className="account-plan-name">Standard</span>
-          <span className="spec-badge">HD</span>
-        </p>
-        <p className="account-hint">Membership on this device. There is no monthly bill.</p>
-        <button type="button" className="account-cancel" onClick={() => togglePanel('cancel')}>
-          Cancel Membership
-        </button>
+        <div className="account-membership-card">
+          <p className="account-brand" aria-hidden="true">
+            FLIX
+          </p>
+          <p className="account-email">{user?.email}</p>
+          <p className="account-plan">
+            <span className="account-plan-name">{plan.name}</span>
+            <span className="spec-badge">{plan.quality}</span>
+          </p>
+          <div className="account-next-pay">
+            <span>Next payment</span>
+            <strong>{nextPay}</strong>
+          </div>
+          <p className="account-hint">Billed monthly on this device.</p>
+          <button type="button" className="account-cancel" onClick={() => togglePanel('cancel')}>
+            Cancel Membership
+          </button>
+        </div>
         {panel === 'cancel' ? (
           <p className="account-inline-note">
             There is no membership to cancel on this device. FLIX stays available in this browser.
@@ -179,13 +232,73 @@ export function Account() {
             </form>
           ) : null}
           <div className="account-row">
-            <span>No payment method</span>
+            <span>
+              {user?.paymentLast4 ? `${user.paymentBrand || 'Card'} •••• ${user.paymentLast4}` : 'No payment method'}
+            </span>
             <button type="button" className="account-change" onClick={() => togglePanel('payment')}>
-              Update payment method
+              {user?.paymentLast4 ? 'Update payment method' : 'Add payment method'}
             </button>
           </div>
           {panel === 'payment' ? (
-            <p className="account-inline-note">This device has no monthly bill, so there is no card on file.</p>
+            <form className="account-inline" onSubmit={(event) => void savePayment(event)}>
+              <label>
+                Card number
+                <input
+                  inputMode="numeric"
+                  autoComplete="cc-number"
+                  value={cardNumber}
+                  onChange={(event) => setCardNumber(event.target.value.replace(/[^\d ]/g, '').slice(0, 23))}
+                  placeholder="•••• •••• •••• ••••"
+                  required
+                />
+              </label>
+              <div className="account-inline-split">
+                <label>
+                  Expiration
+                  <input
+                    inputMode="numeric"
+                    autoComplete="cc-exp"
+                    value={cardExp}
+                    onChange={(event) => setCardExp(event.target.value.replace(/[^\d/]/g, '').slice(0, 5))}
+                    placeholder="MM/YY"
+                  />
+                </label>
+                <label>
+                  CVC
+                  <input
+                    inputMode="numeric"
+                    autoComplete="cc-csc"
+                    value={cardCvc}
+                    onChange={(event) => setCardCvc(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                    placeholder="CVC"
+                  />
+                </label>
+              </div>
+              <p className="account-inline-note">
+                FLIX keeps only the brand and last four digits on this device. It does not charge a card.
+              </p>
+              {accountError ? <p className="account-inline-error">{accountError}</p> : null}
+              <div className="account-inline-actions">
+                <button type="submit" className="btn btn-primary" disabled={accountBusy}>
+                  Save
+                </button>
+                {user?.paymentLast4 ? (
+                  <button
+                    type="button"
+                    className="account-change"
+                    onClick={() => {
+                      void updateAccount({ paymentBrand: null, paymentLast4: null })
+                      setPanel(null)
+                    }}
+                  >
+                    Remove
+                  </button>
+                ) : null}
+                <button type="button" className="account-change" onClick={() => setPanel(null)}>
+                  Cancel
+                </button>
+              </div>
+            </form>
           ) : null}
           <div className="account-row is-actions">
             <button type="button" className="account-change" onClick={() => togglePanel('gift')}>
@@ -203,14 +316,32 @@ export function Account() {
         <div className="account-block-body">
           <div className="account-row">
             <span>
-              Standard <span className="spec-badge">HD</span>
+              {plan.name} <span className="spec-badge">{plan.quality}</span>
             </span>
             <button type="button" className="account-change" onClick={() => togglePanel('plan')}>
               Change plan
             </button>
           </div>
           {panel === 'plan' ? (
-            <p className="account-inline-note">Standard is the plan on this device. There is no monthly bill to change.</p>
+            <div className="account-plan-picker">
+              {PLANS.map((entry) => (
+                <button
+                  type="button"
+                  key={entry.id}
+                  className={`account-plan-tile ${entry.id === planId ? 'is-on' : ''}`}
+                  onClick={() => {
+                    setPlanId(entry.id)
+                    void updateAccount({ planId: entry.id })
+                    setPanel(null)
+                  }}
+                >
+                  <strong>{entry.name}</strong>
+                  <span className="spec-badge">{entry.quality}</span>
+                  <em>{entry.devices}</em>
+                  {entry.id === planId ? <small>Current plan</small> : null}
+                </button>
+              ))}
+            </div>
           ) : null}
           <div className="account-row">
             <span>HD · 5.1 · spatial audio</span>
@@ -255,7 +386,38 @@ export function Account() {
             </button>
           </div>
           {panel === 'playback' ? (
-            <p className="account-inline-note">Autoplay next episode and previews follow this profile’s playback extras.</p>
+            activeProfile ? (
+              <div className="edit-autoplay account-playback">
+                <label className="edit-check">
+                  <input
+                    type="checkbox"
+                    checked={activeProfile.autoplayNext !== false}
+                    onChange={(event) => {
+                      void updateProfile(activeProfile.id, { autoplayNext: event.target.checked })
+                    }}
+                  />
+                  <span>
+                    Autoplay next episode
+                    <small>Play the next episode automatically on all devices.</small>
+                  </span>
+                </label>
+                <label className="edit-check">
+                  <input
+                    type="checkbox"
+                    checked={activeProfile.autoplayPreview !== false}
+                    onChange={(event) => {
+                      void updateProfile(activeProfile.id, { autoplayPreview: event.target.checked })
+                    }}
+                  />
+                  <span>
+                    Autoplay previews
+                    <small>Play previews while browsing on all devices.</small>
+                  </span>
+                </label>
+              </div>
+            ) : (
+              <p className="account-inline-note">Choose a profile to change autoplay next episode and previews.</p>
+            )
           ) : null}
           <div className="account-row">
             <span>Manage devices</span>
@@ -278,43 +440,6 @@ export function Account() {
           ) : null}
         </div>
       </section>
-
-      <details className="account-extras">
-        <summary>Playback extras</summary>
-        <p className="account-hint">
-          Previews default to free TMDB YouTube trailers. Extra keys are optional.
-        </p>
-        <form className="account-form" onSubmit={onSave}>
-          <label>
-            TMDB key
-            <input
-              value={tmdbKey}
-              onChange={(event) => setTmdbKey(event.target.value)}
-              placeholder={env.tmdb ? 'Using VITE_TMDB_API_KEY' : 'YouTube trailer lookup'}
-              autoComplete="off"
-            />
-          </label>
-          <p className="account-hint">
-            Free keys:{' '}
-            <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noreferrer">
-              themoviedb.org
-            </a>
-            .
-          </p>
-          <label>
-            IVA / Fabric Origin key (optional)
-            <input
-              value={ivaKey}
-              onChange={(event) => setIvaKey(event.target.value)}
-              placeholder={env.iva ? 'Using VITE_IVA_API_KEY' : 'leave blank'}
-              autoComplete="off"
-            />
-          </label>
-          <button type="submit" className="btn btn-primary">
-            {saved ? 'Saved' : 'Save'}
-          </button>
-        </form>
-      </details>
     </main>
   )
 }

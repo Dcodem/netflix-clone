@@ -17,6 +17,9 @@ export type MovieDetail = MovieListItem & {
   synopsis?: string
   runtime?: number | null
   cast?: string[]
+  creators?: string[]
+  director?: string
+  writers?: string[]
   backdrop_url?: string | null
   watch_href?: string | null
 }

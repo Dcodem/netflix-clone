@@ -8,10 +8,12 @@ import { ErrorState } from '../components/ErrorState'
 import { GenreDots } from '../components/GenreDots'
 import { Spinner } from '../components/Spinner'
 import { TitleLogo } from '../components/TitleLogo'
+import { notifyRemind } from '../components/RemindToast'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { Home } from './Home'
-import { genresOf, isShow, ofKind, sortByRating, uniqueById } from '../lib/media'
+import { comingDate, comingLine, isComingSoon, monthLabel } from '../lib/comingSoon'
+import { genresOf, isShow, ofKind, sortByRating, sortByYear, uniqueById } from '../lib/media'
 import { filterByMaturity, matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
@@ -20,9 +22,8 @@ import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 
 const synCache = new Map<string, string>()
-const THIS_YEAR = new Date().getFullYear()
 
-type NewsChip = 'coming' | 'watching' | 'top-tv' | 'top-movies'
+type NewsChip = 'coming' | 'watching' | 'worth' | 'new' | 'top-tv' | 'top-movies'
 type FeedMode = 'soon' | 'watching' | 'ranked'
 
 async function synopsisForItem(item: MovieListItem): Promise<string> {
@@ -34,35 +35,18 @@ async function synopsisForItem(item: MovieListItem): Promise<string> {
   return synopsis
 }
 
-function comingSoon(item: MovieListItem) {
-  return (item.year ?? 0) >= THIS_YEAR
-}
-
-function comingDate(id: string) {
-  let hash = 0
-  for (let i = 0; i < id.length; i += 1) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
-  const date = new Date()
-  date.setHours(12, 0, 0, 0)
-  date.setDate(date.getDate() + 4 + (hash % 42))
-  return date
-}
-
-function monthLabel(date: Date) {
-  return date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
-}
-
 function FeedCard({
   item,
-  kicker,
   synopsis,
   mode,
   rank,
+  onRemind,
 }: {
   item: MovieListItem
-  kicker?: string
   synopsis?: string
   mode: FeedMode
   rank?: number
+  onRemind?: (item: MovieListItem, onList: boolean) => void
 }) {
   const { openTitle } = useTitleModal()
   const { openWatch } = useWatch()
@@ -103,20 +87,26 @@ function FeedCard({
         <div className="news-date" aria-label={date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}>
           <em>{monthLabel(date)}</em>
           <strong>{date.getDate()}</strong>
+          <span className="news-kind">{isShow(item) ? 'SERIES' : 'FILM'}</span>
         </div>
       ) : null}
       {ranked ? (
-        <div className="news-rank" data-rank={rank} aria-hidden="true">
-          {rank}
+        <div className="news-ranked-media">
+          <div className="news-rank" data-rank={rank} aria-hidden="true">
+            {rank}
+          </div>
+          <button type="button" className="news-card-art" onClick={() => openTitle(item)} aria-label={item.title}>
+            <CatalogImage item={item} alt="" prefer="backdrop" />
+          </button>
         </div>
-      ) : null}
-      <button type="button" className="news-card-art" onClick={() => openTitle(item)} aria-label={item.title}>
-        <CatalogImage item={item} alt="" prefer="backdrop" />
-      </button>
+      ) : (
+        <button type="button" className="news-card-art" onClick={() => openTitle(item)} aria-label={item.title}>
+          <CatalogImage item={item} alt="" prefer="backdrop" />
+        </button>
+      )}
       <div className="news-card-body">
         <div className="news-title-row">
           <div className="news-title-copy">
-            {mode === 'watching' && kicker ? <p className="news-kicker">{kicker}</p> : null}
             <TitleLogo item={item} className="news-title-logo" titleClassName="news-title-text" />
           </div>
           <div className="news-icon-actions">
@@ -124,12 +114,16 @@ function FeedCard({
               <button
                 type="button"
                 className={`news-icon-btn ${onList ? 'is-on' : ''}`}
-                onClick={() => toggleMyList(toLiked(item))}
+                aria-pressed={onList}
+                onClick={() => {
+                  if (onRemind) onRemind(item, onList)
+                  else toggleMyList(toLiked(item))
+                }}
               >
                 <span className="news-icon-disc">
                   {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
                 </span>
-                Remind Me
+                {onList ? 'Reminded' : 'Remind Me'}
               </button>
             ) : (
               <button type="button" className="news-icon-btn is-play" onClick={() => void playNow()} disabled={playing}>
@@ -168,9 +162,7 @@ function FeedCard({
           </div>
         </div>
         {date ? (
-          <p className="news-coming">
-            Coming {date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
-          </p>
+          <p className="news-coming">{comingLine(date)}</p>
         ) : null}
         <p className="news-meta">
           {mode !== 'soon' ? <span className="match">{match}% Match</span> : null}
@@ -200,47 +192,69 @@ function NewsHotFeed() {
     return uniqueById([...catalogMovies, ...catalogShows])
   }, 'news-catalog')
 
-  const { activeProfile } = useProfiles()
+  const { activeProfile, toggleMyList } = useProfiles()
+
+  function handleRemind(item: MovieListItem, onList: boolean) {
+    playClick()
+    toggleMyList(toLiked(item))
+    notifyRemind(item.title, !onList)
+  }
   const catalog = useMemo(
     () => filterByMaturity(uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]), activeProfile),
     [movies.data, extras.data, activeProfile],
   )
   const comingRef = useRef<HTMLElement>(null)
   const watchingRef = useRef<HTMLElement>(null)
+  const worthRef = useRef<HTMLElement>(null)
+  const newRef = useRef<HTMLElement>(null)
   const topTvRef = useRef<HTMLElement>(null)
   const topMoviesRef = useRef<HTMLElement>(null)
   const chipBtnRefs = useRef<Partial<Record<NewsChip, HTMLButtonElement | null>>>({})
   const jumpingRef = useRef(false)
   const [chip, setChip] = useState<NewsChip | null>(null)
-  const coming = useMemo(
-    () =>
-      catalog
-        .filter(comingSoon)
-        .slice()
-        .sort((a, b) => comingDate(a.id).getTime() - comingDate(b.id).getTime())
-        .slice(0, 12),
-    [catalog],
-  )
+  const coming = useMemo(() => {
+    const soon = catalog.filter(isComingSoon)
+    const series = soon.filter(isShow)
+    const films = soon.filter((item) => !isShow(item))
+    return uniqueById([...series.slice(0, 4), ...films.slice(0, 10)]).sort(
+      (a, b) => comingDate(a.id).getTime() - comingDate(b.id).getTime(),
+    )
+  }, [catalog])
   const watching = useMemo(() => {
     const seen = new Set(coming.map((item) => item.id))
-    return sortByRating(catalog.filter((item) => !seen.has(item.id))).slice(0, 12)
+    return sortByRating(catalog.filter((item) => !seen.has(item.id) && !isComingSoon(item))).slice(0, 12)
   }, [catalog, coming])
+  const worth = useMemo(() => {
+    const comingIds = new Set(coming.map((item) => item.id))
+    const watchingIds = new Set(watching.map((item) => item.id))
+    const leftoverSoon = catalog.filter((item) => isComingSoon(item) && !comingIds.has(item.id))
+    const fill = sortByRating(
+      catalog.filter((item) => !comingIds.has(item.id) && !watchingIds.has(item.id)),
+    )
+    return uniqueById([...leftoverSoon, ...fill]).slice(0, 10)
+  }, [catalog, coming, watching])
+  const newFlix = useMemo(() => {
+    const taken = new Set([...coming, ...watching, ...worth].map((item) => item.id))
+    return sortByYear(catalog.filter((item) => !isComingSoon(item) && !taken.has(item.id))).slice(0, 10)
+  }, [catalog, coming, watching, worth])
   const topTv = useMemo(() => sortByRating(ofKind(catalog, 'shows')).slice(0, 10), [catalog])
   const topMovies = useMemo(() => sortByRating(ofKind(catalog, 'movies')).slice(0, 10), [catalog])
   const chips = useMemo(() => {
     const next: Array<{ id: NewsChip; label: string; show: boolean }> = [
       { id: 'coming', label: 'Coming Soon', show: coming.length > 0 },
       { id: 'watching', label: 'Everyone’s Watching', show: watching.length > 0 },
+      { id: 'worth', label: 'Worth the Wait', show: worth.length > 0 },
+      { id: 'new', label: 'New on FLIX', show: newFlix.length > 0 },
       { id: 'top-tv', label: 'Top 10 TV Shows', show: topTv.length > 0 },
       { id: 'top-movies', label: 'Top 10 Movies', show: topMovies.length > 0 },
     ]
     return next.filter((entry) => entry.show)
-  }, [coming.length, watching.length, topTv.length, topMovies.length])
+  }, [coming.length, watching.length, worth.length, newFlix.length, topTv.length, topMovies.length])
   const activeChip = chip && chips.some((entry) => entry.id === chip) ? chip : (chips[0]?.id ?? 'coming')
   const [synopses, setSynopses] = useState<Record<string, string>>({})
   const feed = useMemo(
-    () => uniqueById([...coming, ...watching, ...topTv, ...topMovies]),
-    [coming, watching, topTv, topMovies],
+    () => uniqueById([...coming, ...watching, ...worth, ...newFlix, ...topTv, ...topMovies]),
+    [coming, watching, worth, newFlix, topTv, topMovies],
   )
   const feedIds = useMemo(() => feed.map((item) => item.id).join(','), [feed])
 
@@ -278,6 +292,8 @@ function NewsHotFeed() {
     const nodes: Array<[NewsChip, HTMLElement | null]> = [
       ['coming', comingRef.current],
       ['watching', watchingRef.current],
+      ['worth', worthRef.current],
+      ['new', newRef.current],
       ['top-tv', topTvRef.current],
       ['top-movies', topMoviesRef.current],
     ]
@@ -297,7 +313,7 @@ function NewsHotFeed() {
     )
     targets.forEach(([, node]) => observer.observe(node))
     return () => observer.disconnect()
-  }, [coming.length, watching.length, topTv.length, topMovies.length])
+  }, [coming.length, watching.length, worth.length, newFlix.length, topTv.length, topMovies.length])
 
   useEffect(() => {
     const btn = chipBtnRefs.current[activeChip]
@@ -315,9 +331,13 @@ function NewsHotFeed() {
         ? comingRef.current
         : next === 'watching'
           ? watchingRef.current
-          : next === 'top-tv'
-            ? topTvRef.current
-            : topMoviesRef.current
+          : next === 'worth'
+            ? worthRef.current
+            : next === 'new'
+              ? newRef.current
+              : next === 'top-tv'
+                ? topTvRef.current
+                : topMoviesRef.current
     node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     window.setTimeout(() => {
       jumpingRef.current = false
@@ -340,6 +360,7 @@ function NewsHotFeed() {
 
   return (
     <main className="page page-pad news-hot-page">
+      <h1 className="news-page-title">New &amp; Hot</h1>
       <nav className="news-chips" aria-label="New & Hot">
         {chips.map((entry) => (
           <button
@@ -357,29 +378,56 @@ function NewsHotFeed() {
       </nav>
       {coming.length ? (
         <section className="news-feed" ref={comingRef} aria-label="Coming Soon">
-          <h1 className="visually-hidden">Coming Soon</h1>
+          <h2 className="news-section-title">Coming Soon</h2>
           {coming.map((item) => (
-            <FeedCard key={item.id} item={item} mode="soon" synopsis={synopses[item.id]} />
+            <FeedCard
+              key={item.id}
+              item={item}
+              mode="soon"
+              synopsis={synopses[item.id]}
+              onRemind={handleRemind}
+            />
           ))}
         </section>
       ) : null}
       {watching.length ? (
         <section className="news-feed" ref={watchingRef} aria-label="Everyone’s Watching">
-          <h2 className="visually-hidden">Everyone’s Watching</h2>
+          <h2 className="news-section-title">Everyone’s Watching</h2>
           {watching.map((item) => (
             <FeedCard
               key={item.id}
               item={item}
               mode="watching"
-              kicker="Everyone’s Watching"
               synopsis={synopses[item.id]}
             />
           ))}
         </section>
       ) : null}
+      {worth.length ? (
+        <section className="news-feed" ref={worthRef} aria-label="Worth the Wait">
+          <h2 className="news-section-title">Worth the Wait</h2>
+          {worth.map((item) => (
+            <FeedCard
+              key={item.id}
+              item={item}
+              mode={isComingSoon(item) ? 'soon' : 'watching'}
+              synopsis={synopses[item.id]}
+              onRemind={isComingSoon(item) ? handleRemind : undefined}
+            />
+          ))}
+        </section>
+      ) : null}
+      {newFlix.length ? (
+        <section className="news-feed" ref={newRef} aria-label="New on FLIX">
+          <h2 className="news-section-title">New on FLIX</h2>
+          {newFlix.map((item) => (
+            <FeedCard key={item.id} item={item} mode="watching" synopsis={synopses[item.id]} />
+          ))}
+        </section>
+      ) : null}
       {topTv.length ? (
         <section className="news-feed" ref={topTvRef} aria-label="Top 10 TV Shows">
-          <h2 className="visually-hidden">Top 10 TV Shows</h2>
+          <h2 className="news-section-title">Top 10 TV Shows</h2>
           {topTv.map((item, index) => (
             <FeedCard key={item.id} item={item} mode="ranked" rank={index + 1} synopsis={synopses[item.id]} />
           ))}
@@ -387,7 +435,7 @@ function NewsHotFeed() {
       ) : null}
       {topMovies.length ? (
         <section className="news-feed" ref={topMoviesRef} aria-label="Top 10 Movies">
-          <h2 className="visually-hidden">Top 10 Movies</h2>
+          <h2 className="news-section-title">Top 10 Movies</h2>
           {topMovies.map((item, index) => (
             <FeedCard key={item.id} item={item} mode="ranked" rank={index + 1} synopsis={synopses[item.id]} />
           ))}
