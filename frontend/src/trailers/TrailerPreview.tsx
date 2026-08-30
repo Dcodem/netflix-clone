@@ -74,7 +74,7 @@ export const TrailerPreview = forwardRef<
       return
     }
     setArmed(false)
-    const timer = window.setTimeout(() => setArmed(true), 420)
+    const timer = window.setTimeout(() => setArmed(true), 160)
     return () => window.clearTimeout(timer)
   }, [mode, title])
 

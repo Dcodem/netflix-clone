@@ -592,6 +592,12 @@ select,
   transform: scale(0.52);
 }
 
+.hero.is-playing .hero-title,
+.hero.is-playing .hero-logo {
+  opacity: 0;
+  transition: opacity 0.55s ease, transform 0.9s cubic-bezier(0.5, 0, 0.1, 1);
+}
+
 .hero-syn,
 .hero-meta {
   max-height: 7.2em;
@@ -9208,6 +9214,21 @@ img.is-logo-pending {
 }
 
 .watch-audio-head {
+  display: block;
+  grid-column: 1 / -1;
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #333;
+}
+
+.watch-audio-head p {
+  margin: 0;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.watch-audio-label {
   display: none;
 }
 
@@ -9305,6 +9326,14 @@ img.is-logo-pending {
     color: #fff;
     font-size: 18px;
     font-weight: 700;
+  }
+
+  .watch-audio-title {
+    display: none;
+  }
+
+  .watch-audio-label {
+    display: block;
   }
 
   .watch-sheet-handle {
@@ -9487,7 +9516,6 @@ img.is-logo-pending {
 
 .next-ep-card,
 .watch-credits {
-  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
   transition: bottom 0.28s ease, opacity 0.2s ease;
 }
 
@@ -9642,6 +9670,10 @@ img.is-logo-pending {
 }
 
 .mobile-dock {
+  display: none;
+}
+
+.my-netflix-title {
   display: none;
 }
 
@@ -9959,8 +9991,16 @@ img.is-logo-pending {
 
 @media (min-width: 768px) {
   .my-netflix-downloads,
-  .my-netflix-links {
+  .my-netflix-links,
+  .my-netflix-notes {
     display: none;
+  }
+
+  .my-netflix-title {
+    display: block;
+    margin: 0 0 18px;
+    font-size: 32px;
+    font-weight: 700;
   }
 }
 

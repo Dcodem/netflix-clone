@@ -82,6 +82,7 @@ export function MyNetflix() {
 
   return (
     <main className="page page-pad my-netflix-page">
+      <h1 className="my-netflix-title">My Netflix</h1>
       <header className="my-netflix-head">
         <button
           type="button"

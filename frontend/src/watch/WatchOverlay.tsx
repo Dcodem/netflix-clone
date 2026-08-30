@@ -1427,7 +1427,8 @@ export function WatchOverlay() {
         >
           <div className="watch-audio-head">
             <span className="watch-sheet-handle" aria-hidden="true" />
-            <p>Audio & Subtitles</p>
+            <p className="watch-audio-title">{session.history?.title || session.title}</p>
+            <p className="watch-audio-label">Audio & Subtitles</p>
           </div>
           <div>
             <h2>Audio</h2>
