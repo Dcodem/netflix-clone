@@ -7158,6 +7158,17 @@ img.is-logo-pending {
   font-style: normal;
 }
 
+.activity-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.activity-rating .icon {
+  width: 14px;
+  height: 14px;
+}
+
 .activity-remove {
   width: 32px;
   height: 32px;

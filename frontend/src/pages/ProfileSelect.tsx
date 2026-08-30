@@ -2,12 +2,12 @@ import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type 
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AvatarArt } from '../components/AvatarArt'
 import { CatalogImage } from '../components/CatalogImage'
-import { ChevronLeftIcon, ChevronRightIcon, CloseIcon, LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
+import { ChevronLeftIcon, ChevronRightIcon, CloseIcon, DoubleThumbUpIcon, LockIcon, PencilIcon, PlusIcon, ThumbDownIcon, ThumbUpIcon } from '../components/Icons'
 import { FooterNoteDialog, FOOTER_NOTES } from '../components/SiteFooter'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { playProfileSting } from '../lib/sounds'
-import { activityStamp } from '../lib/netflix'
+import { activityStamp, profileRatingRows } from '../lib/netflix'
 import {
   PROFILE_AVATARS,
   PROFILE_LANGUAGES,
@@ -16,7 +16,7 @@ import {
   type Profile,
 } from '../profiles/types'
 
-type EditPanel = 'language' | 'maturity' | 'lock' | 'handle' | 'activity' | null
+type EditPanel = 'language' | 'maturity' | 'lock' | 'handle' | 'activity' | 'ratings' | null
 
 function PinBoxes({
   value,
@@ -91,6 +91,7 @@ export function ProfileSelect() {
     deleteProfile,
     unlockProfile,
     removeHistory,
+    rateTitle,
     activeProfile,
   } = useProfiles()
   const navigate = useNavigate()
@@ -208,6 +209,7 @@ export function ProfileSelect() {
   }
 
   const editing = profiles.find((profile) => profile.id === editingId) ?? null
+  const ratingRows = editing ? profileRatingRows(editing) : []
   const picked = PROFILE_AVATARS.find((avatar) => avatar.id === avatarId) ?? PROFILE_AVATARS[0]
   const editPicked = PROFILE_AVATARS.find((avatar) => avatar.id === editAvatarId) ?? PROFILE_AVATARS[0]
 
@@ -537,6 +539,63 @@ export function ProfileSelect() {
                     })
                   ) : (
                     <p>No titles watched on this profile yet.</p>
+                  )}
+                </div>
+              ) : null}
+              <button
+                type="button"
+                className={`edit-row ${editPanel === 'ratings' ? 'is-open' : ''}`}
+                onClick={() => toggleEditPanel('ratings')}
+              >
+                <span className="edit-row-copy">
+                  <strong>Ratings</strong>
+                  <em>
+                    {ratingRows.length
+                      ? `${ratingRows.length} title${ratingRows.length === 1 ? '' : 's'}`
+                      : 'None'}
+                  </em>
+                </span>
+                <ChevronRightIcon className="icon" />
+              </button>
+              {editPanel === 'ratings' ? (
+                <div className="edit-row-panel edit-activity-panel">
+                  {ratingRows.length ? (
+                    ratingRows.map(({ item, rating }) => (
+                      <div className="activity-row" key={`${item.id}-${rating}`}>
+                        <CatalogImage
+                          item={{
+                            title: item.title,
+                            kind: item.kind,
+                            poster_url: item.poster_url,
+                          }}
+                          prefer="backdrop"
+                          alt=""
+                        />
+                        <span className="activity-copy">
+                          <strong>{item.title}</strong>
+                          <em className="activity-rating">
+                            {rating === 'love' ? (
+                              <DoubleThumbUpIcon className="icon" />
+                            ) : rating === 'down' ? (
+                              <ThumbDownIcon className="icon" />
+                            ) : (
+                              <ThumbUpIcon className="icon" />
+                            )}
+                            {rating === 'love' ? 'Loved' : rating === 'down' ? 'Not for me' : 'Liked'}
+                          </em>
+                        </span>
+                        <button
+                          type="button"
+                          className="activity-remove"
+                          aria-label={`Remove rating for ${item.title}`}
+                          onClick={() => rateTitle(item, null, editing.id)}
+                        >
+                          <CloseIcon className="icon" />
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No titles rated on this profile yet.</p>
                   )}
                 </div>
               ) : null}

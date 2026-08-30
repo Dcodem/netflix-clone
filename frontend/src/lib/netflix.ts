@@ -2,7 +2,7 @@ import type { MovieListItem } from '../api/types'
 import { comingLineFor, isComingSoon } from './comingSoon'
 import { genresOf, isShow } from './media'
 import { genreWeights } from '../profiles/taste'
-import type { Profile, ProfileLanguage, ProfileMaturity } from '../profiles/types'
+import type { LikedTitle, Profile, ProfileLanguage, ProfileMaturity } from '../profiles/types'
 
 export function maturityLabel(item: { kind?: string; genres?: string[] }): string {
   const genres = genresOf(item)
@@ -249,4 +249,31 @@ export function toLiked(item: {
     poster_url: item.poster_url ?? null,
     genres: item.genres ?? [],
   }
+}
+
+export type TitleRating = 'up' | 'love' | 'down'
+
+export function profileRatingRows(profile: Profile): { item: LikedTitle; rating: TitleRating }[] {
+  const loved = new Set(profile.lovedIds ?? [])
+  const seen = new Set<string>()
+  const rows: { item: LikedTitle; rating: TitleRating }[] = []
+  for (const item of profile.liked ?? []) {
+    if (seen.has(item.id)) continue
+    seen.add(item.id)
+    rows.push({ item, rating: loved.has(item.id) ? 'love' : 'up' })
+  }
+  for (const item of profile.disliked ?? []) {
+    if (seen.has(item.id)) continue
+    seen.add(item.id)
+    rows.push({ item, rating: 'down' })
+  }
+  const fallback = [...(profile.history ?? []), ...(profile.myList ?? [])]
+  for (const id of profile.dislikedIds ?? []) {
+    if (seen.has(id)) continue
+    const hit = fallback.find((entry) => entry.id === id)
+    if (!hit) continue
+    seen.add(id)
+    rows.push({ item: toLiked(hit), rating: 'down' })
+  }
+  return rows
 }

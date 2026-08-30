@@ -45,6 +45,7 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     liked: Array.isArray(raw.liked) ? raw.liked : [],
     lovedIds: Array.isArray(raw.lovedIds) ? raw.lovedIds : [],
     dislikedIds: Array.isArray(raw.dislikedIds) ? raw.dislikedIds : [],
+    disliked: Array.isArray(raw.disliked) ? raw.disliked : [],
     myList: Array.isArray(raw.myList) ? raw.myList : [],
     downloads: Array.isArray(raw.downloads) ? raw.downloads : [],
     hiddenContinueIds: Array.isArray(raw.hiddenContinueIds) ? raw.hiddenContinueIds : [],
@@ -122,7 +123,7 @@ type ProfileContextValue = {
   hideContinue: (id: string) => void
   removeHistory: (profileId: string, titleId: string) => void
   setFavoriteGenres: (genres: string[]) => void
-  rateTitle: (item: LikedTitle, direction: 'up' | 'love' | 'down' | null) => void
+  rateTitle: (item: LikedTitle, direction: 'up' | 'love' | 'down' | null, profileId?: string) => void
   toggleMyList: (item: LikedTitle) => void
   toggleDownload: (item: LikedTitle) => void
   unlockProfile: (id: string, pin: string) => Promise<boolean>
@@ -188,6 +189,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         liked: [],
         lovedIds: [],
         dislikedIds: [],
+        disliked: [],
         myList: [],
         downloads: [],
         hiddenContinueIds: [],
@@ -373,22 +375,27 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   )
 
   const rateTitle = useCallback(
-    (item: LikedTitle, direction: 'up' | 'love' | 'down' | null) => {
+    (item: LikedTitle, direction: 'up' | 'love' | 'down' | null, profileId?: string) => {
       updateStore((prev) => ({
         ...prev,
         profiles: prev.profiles.map((profile) => {
-          if (profile.id !== prev.activeProfileId) return profile
+          if (profile.id !== (profileId ?? prev.activeProfileId)) return profile
           const liked = profile.liked.filter((entry) => entry.id !== item.id)
           const lovedIds = (profile.lovedIds ?? []).filter((entryId) => entryId !== item.id)
           const dislikedIds = profile.dislikedIds.filter((entryId) => entryId !== item.id)
+          const disliked = (profile.disliked ?? []).filter((entry) => entry.id !== item.id)
           if (direction === 'up' || direction === 'love') liked.unshift(item)
           if (direction === 'love') lovedIds.unshift(item.id)
-          if (direction === 'down') dislikedIds.unshift(item.id)
+          if (direction === 'down') {
+            dislikedIds.unshift(item.id)
+            disliked.unshift(item)
+          }
           return {
             ...profile,
             liked: liked.slice(0, HISTORY_LIMIT),
             lovedIds: lovedIds.slice(0, HISTORY_LIMIT),
             dislikedIds: dislikedIds.slice(0, HISTORY_LIMIT),
+            disliked: disliked.slice(0, HISTORY_LIMIT),
           }
         }),
       }))
