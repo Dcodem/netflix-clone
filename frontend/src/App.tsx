@@ -14,6 +14,7 @@ import { NewsHot } from './pages/NewsHot'
 import { ProfileSelect } from './pages/ProfileSelect'
 import { Search } from './pages/Search'
 import { SpeedTest } from './pages/SpeedTest'
+import { WaysToWatch } from './pages/WaysToWatch'
 import { TitleModalProvider, titleHref } from './title/TitleModalContext'
 import { WatchProvider } from './watch/WatchContext'
 
@@ -46,6 +47,7 @@ export default function App() {
                   <Route path="/help" element={<HelpCenter />} />
                   <Route path="/gift" element={<GiftCards />} />
                   <Route path="/speed" element={<SpeedTest />} />
+                  <Route path="/ways" element={<WaysToWatch />} />
                   <Route path="/movie/:id" element={<LegacyTitleRedirect />} />
                   <Route path="/show/:id" element={<LegacyTitleRedirect />} />
                 </Route>

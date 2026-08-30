@@ -18,7 +18,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         id: 'what-is-flix',
         title: 'What is FLIX?',
-        body: 'FLIX is a browser-only demo. Titles play in this window with overlay chrome. There is no TV app, and FLIX is not affiliated with Netflix.',
+        body: 'FLIX is a browser-only demo. Titles play in this window with overlay chrome. There is no TV app, and FLIX is not affiliated with Netflix. Ways to Watch in the footer lists this browser and phone.',
       },
       {
         id: 'whos-watching',

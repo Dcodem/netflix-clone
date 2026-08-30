@@ -77,7 +77,8 @@ export const FOOTER_NOTES: Record<string, string> = {
   'Corporate Information': 'There is no FLIX corporation. This app runs in your browser.',
   'Investor Relations': 'FLIX is not a public company and has no investor site.',
   Jobs: 'There are no open roles for this demo.',
-  'Ways to Watch': 'Watch in this browser with Play. There is no TV app or extra device download.',
+  'Ways to Watch':
+    'After you sign in, Ways to Watch lists this browser and phone. There is no TV app or console build.',
   'Contact Us': 'There is no support inbox for this demo.',
   'Speed Test': 'After you sign in, Speed Test in the footer measures this browser. Playback still stays on this device.',
   'Media Center': 'There is no press kit for this demo.',
@@ -210,6 +211,8 @@ export function SiteFooter() {
                     <Link to="/gift">Buy Gift Cards</Link>
                   ) : label === 'Speed Test' ? (
                     <Link to="/speed">Speed Test</Link>
+                  ) : label === 'Ways to Watch' ? (
+                    <Link to="/ways">Ways to Watch</Link>
                   ) : (
                     <button type="button" className="site-footer-link" onClick={() => setNote(label)}>
                       {label}
