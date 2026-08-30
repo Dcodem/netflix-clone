@@ -372,6 +372,38 @@ export function BellIcon({ className }: { className?: string }) {
   )
 }
 
+export function PipIcon({ className, exit }: { className?: string; exit?: boolean }) {
+  if (exit) {
+    return (
+      <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M4.5 6.5h15v11h-15z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
+        <path d="M11.2 11.2h6.6v5.2h-6.6z" fill="currentColor" />
+      </svg>
+    )
+  }
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4.5 6.5h15v11h-15z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M12.2 12.2h6.2v4.6h-6.2z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+    </svg>
+  )
+}
+
 export function FullscreenIcon({ className, exit }: { className?: string; exit?: boolean }) {
   if (exit) {
     return (

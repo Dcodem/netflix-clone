@@ -8,6 +8,7 @@ import {
   CloseIcon,
   EpisodesIcon,
   FullscreenIcon,
+  PipIcon,
   NextEpisodeIcon,
   PauseIcon,
   PlayIcon,
@@ -154,6 +155,7 @@ export function WatchOverlay() {
   const [identPhase, setIdentPhase] = useState<'logo' | 'title' | 'off'>('logo')
   const [helpOpen, setHelpOpen] = useState(false)
   const [locked, setLocked] = useState(false)
+  const [pip, setPip] = useState(false)
   const [clockKey, setClockKey] = useState('')
   const flashTimer = useRef(0)
   const tapRef = useRef({ at: 0, x: 0, play: 0 })
@@ -184,11 +186,12 @@ export function WatchOverlay() {
     setRecapSkipped(false)
     setHelpOpen(false)
     setLocked(false)
+    setPip(false)
   }
   const keepChrome =
     !stillWatching &&
     !locked &&
-    (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover || helpOpen)
+    (paused || episodesOpen || audioOpen || speedOpen || volOpen || barHover || helpOpen || pip)
   const continueWatchingRef = useRef<() => void>(() => {})
   const playNextRef = useRef<() => void>(() => {})
 
@@ -203,11 +206,32 @@ export function WatchOverlay() {
   }, [])
 
   const toggleFullscreen = useCallback(() => {
+    if (pip) {
+      setPip(false)
+      return
+    }
     const el = overlayRef.current
     if (!el) return
     if (document.fullscreenElement) void document.exitFullscreen()
     else void el.requestFullscreen()
-  }, [])
+  }, [pip])
+
+  const togglePip = useCallback(() => {
+    if (stillWatching || identOn) return
+    if (window.matchMedia('(max-width: 767px)').matches) return
+    setPip((on) => {
+      const next = !on
+      if (next) {
+        if (document.fullscreenElement) void document.exitFullscreen()
+        setEpisodesOpen(false)
+        setAudioOpen(false)
+        setSpeedOpen(false)
+        setHelpOpen(false)
+        setChrome(true)
+      }
+      return next
+    })
+  }, [stillWatching, identOn])
 
   const togglePlay = useCallback(() => {
     playClick()
@@ -285,6 +309,7 @@ export function WatchOverlay() {
     setIntroSkipped(false)
     setRecapSkipped(false)
     setLocked(false)
+    setPip(false)
     setSeasonNumber(session.history?.seasonNumber ?? null)
     setFlash(null)
     const hasVideo = Boolean(youtubeIdFromHit(peekTrailer(trailerSearch(session))))
@@ -431,6 +456,12 @@ export function WatchOverlay() {
           setSpeedOpen(false)
           return
         }
+        if (pip) {
+          event.preventDefault()
+          event.stopImmediatePropagation()
+          setPip(false)
+          return
+        }
         event.preventDefault()
         event.stopImmediatePropagation()
         closeWatch()
@@ -501,6 +532,10 @@ export function WatchOverlay() {
       } else if (event.key.toLowerCase() === 'f') {
         event.preventDefault()
         toggleFullscreen()
+      } else if (event.key.toLowerCase() === 'p') {
+        event.preventDefault()
+        togglePip()
+        show()
       } else if (event.key.toLowerCase() === 'n' && isShow) {
         event.preventDefault()
         playNextRef.current()
@@ -554,7 +589,11 @@ export function WatchOverlay() {
       window.removeEventListener('message', onMessage)
       document.removeEventListener('fullscreenchange', onFs)
     }
-  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped, helpOpen, locked, closeWatch])
+  }, [session, togglePlay, skip, toggleMute, toggleFullscreen, togglePip, keepChrome, setVolumeLevel, muted, volume, duration, runtimeSec, post, episodesOpen, audioOpen, speedOpen, stillWatching, isShow, introSkipped, helpOpen, locked, closeWatch, pip])
+
+  useEffect(() => {
+    if (stillWatching || identOn) setPip(false)
+  }, [stillWatching, identOn])
 
   useEffect(() => {
     const length = duration || runtimeSec
@@ -752,7 +791,7 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identPhase === 'logo' && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''} ${locked ? 'is-locked' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identPhase === 'logo' && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''} ${locked ? 'is-locked' : ''} ${pip ? 'is-pip' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
@@ -1205,6 +1244,16 @@ export function WatchOverlay() {
             />
             <button
               type="button"
+              className={`watch-ctrl watch-pip ${pip ? 'is-on' : ''}`}
+              onClick={() => {
+                togglePip()
+              }}
+              aria-label={pip ? 'Exit Miniplayer' : 'Miniplayer'}
+            >
+              <PipIcon exit={pip} className="icon" />
+            </button>
+            <button
+              type="button"
               className="watch-ctrl"
               onClick={toggleFullscreen}
               aria-label={fullscreen ? 'Exit Full Screen' : 'Full Screen'}
@@ -1285,6 +1334,12 @@ export function WatchOverlay() {
               <dt>Full Screen</dt>
               <dd>
                 <kbd>F</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>Miniplayer</dt>
+              <dd>
+                <kbd>P</kbd>
               </dd>
             </div>
             {isShow ? (

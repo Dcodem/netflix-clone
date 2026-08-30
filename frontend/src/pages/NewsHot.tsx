@@ -271,10 +271,10 @@ function NewsHotFeed() {
     )
     return uniqueById([...leftoverSoon, ...fill]).slice(0, 10)
   }, [catalog, coming, watching])
-  const newFlix = useMemo(
-    () => sortByYear(catalog.filter((item) => !comingSoon(item))).slice(0, 10),
-    [catalog],
-  )
+  const newFlix = useMemo(() => {
+    const taken = new Set([...coming, ...watching, ...worth].map((item) => item.id))
+    return sortByYear(catalog.filter((item) => !comingSoon(item) && !taken.has(item.id))).slice(0, 10)
+  }, [catalog, coming, watching, worth])
   const topTv = useMemo(() => sortByRating(ofKind(catalog, 'shows')).slice(0, 10), [catalog])
   const topMovies = useMemo(() => sortByRating(ofKind(catalog, 'movies')).slice(0, 10), [catalog])
   const chips = useMemo(() => {

@@ -1578,6 +1578,57 @@ select,
   background: #000;
 }
 
+.watch-overlay.is-pip {
+  inset: auto;
+  right: 20px;
+  bottom: 20px;
+  width: min(426px, 44vw);
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.72);
+}
+
+.watch-overlay.is-pip .watch-center,
+.watch-overlay.is-pip .watch-ident,
+.watch-overlay.is-pip .watch-ident-bump,
+.watch-overlay.is-pip .skip-intro,
+.watch-overlay.is-pip .next-ep-card,
+.watch-overlay.is-pip .watch-credits,
+.watch-overlay.is-pip .watch-caption,
+.watch-overlay.is-pip .watch-title-stack,
+.watch-overlay.is-pip .watch-lock,
+.watch-overlay.is-pip .watch-panel,
+.watch-overlay.is-pip .watch-scrim,
+.watch-overlay.is-pip .watch-help,
+.watch-overlay.is-pip .watch-speed,
+.watch-overlay.is-pip .cast-menu,
+.watch-overlay.is-pip .watch-ctrl[aria-label='Next Episode'],
+.watch-overlay.is-pip .watch-ctrl[aria-label='Episodes'],
+.watch-overlay.is-pip .watch-ctrl[aria-label='Audio & Subtitles'] {
+  display: none !important;
+}
+
+.watch-overlay.is-pip .watch-topbar,
+.watch-overlay.is-pip .watch-bottombar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.watch-overlay.is-pip .watch-back {
+  opacity: 1;
+}
+
+.watch-overlay.is-pip .watch-time {
+  font-size: 13px;
+  min-width: 2.8em;
+}
+
+.watch-pip {
+  display: grid;
+}
+
 .watch-overlay.is-panel::after {
   content: none;
 }
@@ -9508,6 +9559,10 @@ img.is-logo-pending {
 
   .watch-lock {
     display: grid;
+  }
+
+  .watch-pip {
+    display: none;
   }
 
   .watch-caption {
