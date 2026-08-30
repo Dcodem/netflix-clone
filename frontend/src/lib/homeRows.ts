@@ -107,8 +107,15 @@ export function buildBrowseRows(opts: {
     const year = new Date().getFullYear()
     const soon = pool.filter((item) => (item.year ?? 0) >= year)
     const watching = sortByRating(pool.filter((item) => (item.year ?? 0) < year))
+    const comingIds = new Set(soon.slice(0, 8).map((item) => item.id))
     pushRow(rows, { id: 'coming', title: 'Coming Soon', items: soon })
     pushRow(rows, { id: 'watching', title: 'Everyone’s Watching', items: watching })
+    pushRow(rows, {
+      id: 'worth',
+      title: 'Worth the Wait',
+      items: sortByRating(pool.filter((item) => !comingIds.has(item.id))),
+    })
+    pushRow(rows, { id: 'new-flix', title: 'New on FLIX', items: sortByYear(pool) })
     const topTv = sortByRating(shows).slice(0, 10)
     if (topTv.length >= 4) {
       pushRow(rows, {

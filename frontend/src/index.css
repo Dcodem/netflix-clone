@@ -8104,7 +8104,25 @@ img.is-logo-pending {
 
 .watch-still-actions .btn-ghost {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 0;
+  color: #fff;
+  min-width: auto;
+  font-size: 16px;
+  font-weight: 500;
+  min-height: 40px;
+  padding: 8px 16px;
+}
+
+.watch-still-actions .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.watch-still-kicker {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: clamp(18px, 2.6vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .watch-still h2 {
@@ -8713,14 +8731,22 @@ img.is-logo-pending {
   z-index: 2140;
   transform: translateX(-50%);
   margin: 0;
-  max-width: min(720px, calc(100% - 48px));
-  padding: 4px 10px;
-  background: rgba(0, 0, 0, 0.62);
+  max-width: min(760px, calc(100% - 48px));
+  padding: 0;
+  background: none;
   color: #fff;
-  font-size: clamp(16px, 2.2vw, 22px);
-  font-weight: 600;
+  font-size: clamp(18px, 2.4vw, 26px);
+  font-weight: 700;
+  letter-spacing: 0.01em;
   text-align: center;
   pointer-events: none;
+  text-shadow:
+    0 0 4px #000,
+    0 1px 2px #000,
+    1px 1px 0 #000,
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000;
 }
 
 .watch-caption.is-raised {
@@ -8728,12 +8754,7 @@ img.is-logo-pending {
 }
 
 .watch-caption.is-cc {
-  background: none;
-  padding: 0;
-  text-shadow:
-    0 0 4px #000,
-    0 1px 2px #000,
-    1px 1px 0 #000;
+  color: #ffe500;
 }
 
 @media (max-width: 767px) {
@@ -9255,8 +9276,9 @@ img.is-logo-pending {
   }
 
   .watch-still {
-    padding: 20px 20px calc(10vh + env(safe-area-inset-bottom, 0px));
-    align-items: end;
+    padding: 24px 20px calc(8vh + env(safe-area-inset-bottom, 0px));
+    place-items: center;
+    align-items: center;
   }
 
   .watch-still .btn-play,
@@ -10639,9 +10661,9 @@ img.is-logo-pending {
 
 .languages-head h1 {
   margin: 0;
-  font-size: clamp(26px, 3.6vw, 36px);
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 .languages-filters {
@@ -10660,10 +10682,11 @@ img.is-logo-pending {
   display: grid;
   gap: 2px;
   width: 100%;
-  min-width: 210px;
-  padding: 8px 12px 8px 14px;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  min-width: 228px;
+  min-height: 52px;
+  padding: 8px 14px 8px 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   color: #fff;
   text-align: left;
   cursor: pointer;
@@ -10702,17 +10725,17 @@ img.is-logo-pending {
 
 .outline-select-menu {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 4px);
   left: 0;
   z-index: 8;
   min-width: 100%;
-  width: max(100%, 260px);
-  max-height: min(70vh, 420px);
+  width: max(100%, 280px);
+  max-height: min(70vh, 440px);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  background: #141414;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  background: #181818;
+  border: 1px solid #333;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
 }
 
 .outline-select-menu.is-portal {

@@ -1322,6 +1322,7 @@ export function WatchOverlay() {
                 <span>{activeProfile.name}</span>
               </div>
             ) : null}
+            {session.history?.title ? <p className="watch-still-kicker">{session.history.title}</p> : null}
             <h2>Are you still watching?</h2>
             <div className="watch-still-actions">
               <button type="button" className="btn btn-play" onClick={continueWatching}>
