@@ -7585,7 +7585,7 @@ img.is-logo-pending {
   color: var(--accent);
   text-transform: uppercase;
   filter: drop-shadow(0 0 28px rgba(229, 9, 20, 0.45));
-  animation: flix-ident-bump 2.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: flix-ident-bump 2.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes flix-ident-bump {
@@ -7594,19 +7594,24 @@ img.is-logo-pending {
     transform: scale(0.72);
     letter-spacing: 0.12em;
   }
-  22% {
+  16% {
     opacity: 1;
     transform: scale(1.08);
     letter-spacing: -0.08em;
   }
-  68% {
+  22% {
+    opacity: 1;
+    transform: scale(1);
+    letter-spacing: -0.08em;
+  }
+  82% {
     opacity: 1;
     transform: scale(1);
     letter-spacing: -0.08em;
   }
   100% {
     opacity: 0;
-    transform: scale(1.06);
+    transform: scale(1.04);
     letter-spacing: -0.06em;
   }
 }
@@ -8634,7 +8639,7 @@ img.is-logo-pending {
   .watch-credits {
     left: 16px;
     right: auto;
-    bottom: calc(148px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(168px + env(safe-area-inset-bottom, 0px));
     padding: 8px 12px;
     font-size: 14px;
     z-index: 2300;
@@ -8642,9 +8647,15 @@ img.is-logo-pending {
   }
 
   .next-ep-card {
-    left: 12px;
-    right: 12px;
-    width: auto;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    border-radius: 12px 12px 0 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
     z-index: 2300;
   }
 
@@ -8862,15 +8873,17 @@ img.is-logo-pending {
 
 @media (max-width: 767px) {
   .next-ep-card {
-    left: 12px;
-    right: 12px;
-    width: auto;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    bottom: 0;
   }
 
   .watch-credits {
     left: 16px;
     right: auto;
-    bottom: calc(148px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(168px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -8908,13 +8921,17 @@ img.is-logo-pending {
 }
 
 @media (max-width: 767px) {
-  .watch-overlay.is-chrome:not(.is-ident) .skip-intro,
-  .watch-overlay.is-chrome .next-ep-card {
+  .watch-overlay.is-chrome:not(.is-ident) .skip-intro {
     bottom: 108px;
   }
 
+  .watch-overlay.is-chrome .next-ep-card {
+    bottom: 0;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+
   .watch-overlay.is-chrome .watch-credits {
-    bottom: 248px;
+    bottom: calc(220px + env(safe-area-inset-bottom, 0px));
   }
 }
 
