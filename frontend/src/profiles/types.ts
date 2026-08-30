@@ -64,6 +64,8 @@ export type Profile = {
   autoplayPreview: boolean
   skipIntros: boolean
   dataUsage: DataUsage
+  personalizedRecs: boolean
+  shareActivity: boolean
   language: ProfileLanguage
   maturity: ProfileMaturity
   gameHandle: string
@@ -116,6 +118,12 @@ export const TASTE_GENRES = [
   'Sci-Fi',
   'Thriller',
 ] as const
+
+export function usesPersonalizedRecs<T extends Pick<Profile, 'personalizedRecs'>>(
+  profile?: T | null,
+): profile is T {
+  return profile != null && profile.personalizedRecs !== false
+}
 
 export function avatarFor(profile: Pick<Profile, 'avatarId' | 'color'>): ProfileAvatar {
   return (

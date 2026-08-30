@@ -44,6 +44,7 @@ type AccountPanel =
   | 'cancel'
   | 'playback'
   | 'comms'
+  | 'privacy'
   | 'devices'
   | 'signout'
   | null
@@ -607,6 +608,50 @@ export function Account() {
                 FLIX does not send email from this device. These choices stay on this account.
               </p>
             </div>
+          ) : null}
+          <div className="account-row">
+            <span>Privacy</span>
+            <button type="button" className="account-change" onClick={() => togglePanel('privacy')}>
+              Change
+            </button>
+          </div>
+          {panel === 'privacy' ? (
+            activeProfile ? (
+              <div className="edit-autoplay account-prefs">
+                <label className="edit-check">
+                  <input
+                    type="checkbox"
+                    checked={activeProfile.personalizedRecs !== false}
+                    onChange={(event) => {
+                      void updateProfile(activeProfile.id, { personalizedRecs: event.target.checked })
+                    }}
+                  />
+                  <span>
+                    Personalized recommendations
+                    <small>Use titles you’ve watched and rated to choose rows on Home, My Netflix, and My List.</small>
+                  </span>
+                </label>
+                <label className="edit-check">
+                  <input
+                    type="checkbox"
+                    checked={activeProfile.shareActivity !== false}
+                    onChange={(event) => {
+                      void updateProfile(activeProfile.id, { shareActivity: event.target.checked })
+                    }}
+                  />
+                  <span>
+                    Share viewing activity
+                    <small>Other profiles on this account can use what you watch for suggestions.</small>
+                  </span>
+                </label>
+                <p className="account-inline-note">
+                  These choices stay on this profile. Turning recommendations off uses popular titles instead of your
+                  taste.
+                </p>
+              </div>
+            ) : (
+              <p className="account-inline-note">Choose a profile to change privacy settings.</p>
+            )
           ) : null}
           <div className="account-row">
             <span>Manage devices</span>

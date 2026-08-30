@@ -62,6 +62,8 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     autoplayPreview: raw.autoplayPreview !== false,
     skipIntros: Boolean(raw.skipIntros),
     dataUsage: isDataUsage(raw.dataUsage) ? raw.dataUsage : 'auto',
+    personalizedRecs: raw.personalizedRecs !== false,
+    shareActivity: raw.shareActivity !== false,
     language: isLanguage(raw.language) ? raw.language : 'English',
     maturity: isMaturity(raw.maturity) ? raw.maturity : 'All Maturity Ratings',
     gameHandle: typeof raw.gameHandle === 'string' ? raw.gameHandle : '',
@@ -114,6 +116,8 @@ export type UpdateProfileOpts = {
   autoplayPreview?: boolean
   skipIntros?: boolean
   dataUsage?: DataUsage
+  personalizedRecs?: boolean
+  shareActivity?: boolean
   language?: ProfileLanguage
   maturity?: ProfileMaturity
   gameHandle?: string
@@ -189,6 +193,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         autoplayPreview: true,
         skipIntros: false,
         dataUsage: 'auto',
+        personalizedRecs: true,
+        shareActivity: true,
         language: 'English',
         maturity: 'All Maturity Ratings',
         gameHandle: '',
@@ -258,6 +264,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             autoplayPreview: opts.autoplayPreview ?? profile.autoplayPreview,
             skipIntros: opts.skipIntros ?? profile.skipIntros,
             dataUsage: opts.dataUsage ?? profile.dataUsage,
+            personalizedRecs: opts.personalizedRecs ?? profile.personalizedRecs,
+            shareActivity: opts.shareActivity ?? profile.shareActivity,
             language: opts.language ?? profile.language,
             maturity: opts.maturity ?? profile.maturity,
             gameHandle: opts.gameHandle !== undefined ? opts.gameHandle.trim() : profile.gameHandle,

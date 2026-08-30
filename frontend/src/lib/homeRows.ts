@@ -9,7 +9,7 @@ import {
   isRomComGenre,
   tasteGenreRails,
 } from '../profiles/taste'
-import type { LikedTitle, Profile, WatchHistoryItem } from '../profiles/types'
+import { usesPersonalizedRecs, type LikedTitle, type Profile, type WatchHistoryItem } from '../profiles/types'
 import { isComingSoon, sortByComingDate } from './comingSoon'
 import { genresOf, ofKind, remainingLabel, sortByRating, sortByYear, uniqueById } from './media'
 
@@ -91,7 +91,7 @@ export function sortMyListItems(
   }
   if (sort === 'year') return sortByYear(items)
   if (sort === 'added') return items
-  if (!profile) return sortByRating(items)
+  if (!usesPersonalizedRecs(profile)) return sortByRating(items)
   const ranked = rankByTaste(items, profile, { excludeSeen: false })
   const seen = new Set(ranked.map((item) => item.id))
   return [...ranked, ...items.filter((item) => !seen.has(item.id))]
@@ -110,7 +110,7 @@ function railIds(items: MovieListItem[], cap = RAIL): Set<string> {
 }
 
 function recommendRail(items: MovieListItem[], profile: Profile | null): MovieListItem[] {
-  if (!profile) return sortByRating(items)
+  if (!usesPersonalizedRecs(profile)) return sortByRating(items)
   const ranked = rankByTaste(items, profile, { excludeSeen: false })
   return ranked.length ? ranked : sortByRating(items)
 }
@@ -226,7 +226,7 @@ export function buildBrowseRows(opts: {
         loop: false,
       })
     }
-    if (profile) {
+    if (usesPersonalizedRecs(profile)) {
       pushRow(rows, {
         id: 'next-watch',
         title: 'Your Next Watch',
@@ -235,8 +235,10 @@ export function buildBrowseRows(opts: {
     }
     pushRow(rows, { id: 'new-movies', title: 'New Movies', items: sortByYear(movies) })
     pushRow(rows, { id: 'new-shows', title: 'New TV Shows', items: sortByYear(shows) })
-    for (const row of tasteGenreRails(pool, profile, kind, 2)) {
-      pushRow(rows, { id: row.id, title: row.title, items: row.items })
+    if (usesPersonalizedRecs(profile)) {
+      for (const row of tasteGenreRails(pool, profile, kind, 2)) {
+        pushRow(rows, { id: row.id, title: row.title, items: row.items })
+      }
     }
     return rows
   }
@@ -301,20 +303,22 @@ export function buildBrowseRows(opts: {
     loop: false,
   })
 
-  for (const row of becauseYouWatchedRows(pool, becauseHistory, filter === 'home' ? 3 : 4)) {
-    if (row.seed) recUsed.add(row.seed.id)
-    pushRecRow(
-      rows,
-      {
-        id: row.id,
-        title: row.title,
-        subtitle: row.subtitle,
-        items: row.items.filter((item) => item.id !== row.seed?.id),
-        seed: row.seed,
-        loop: false,
-      },
-      recUsed,
-    )
+  if (usesPersonalizedRecs(profile)) {
+    for (const row of becauseYouWatchedRows(pool, becauseHistory, filter === 'home' ? 3 : 4)) {
+      if (row.seed) recUsed.add(row.seed.id)
+      pushRecRow(
+        rows,
+        {
+          id: row.id,
+          title: row.title,
+          subtitle: row.subtitle,
+          items: row.items.filter((item) => item.id !== row.seed?.id),
+          seed: row.seed,
+          loop: false,
+        },
+        recUsed,
+      )
+    }
   }
 
   if (filter === 'home') {
@@ -322,29 +326,31 @@ export function buildBrowseRows(opts: {
     pushRow(rows, { id: 'new-shows', title: 'New TV Shows', items: sortByYear(shows) })
   }
 
-  for (const row of becauseYouLikedRows(pool, profile?.liked ?? [], 2)) {
-    if (row.seed) recUsed.add(row.seed.id)
-    pushRecRow(
-      rows,
-      {
-        id: row.id,
-        title: row.title,
-        items: row.items.filter((item) => item.id !== row.seed?.id),
-        seed: row.seed,
-        loop: false,
-      },
-      recUsed,
-    )
-  }
-
-  for (const row of tasteGenreRails(pool, profile, kind, 4)) {
-    if (opts.genre && (isRomComGenre(opts.genre) ? row.id === 'genre-romcom' : row.id === `genre-${opts.genre}`)) {
-      continue
+  if (usesPersonalizedRecs(profile)) {
+    for (const row of becauseYouLikedRows(pool, profile?.liked ?? [], 2)) {
+      if (row.seed) recUsed.add(row.seed.id)
+      pushRecRow(
+        rows,
+        {
+          id: row.id,
+          title: row.title,
+          items: row.items.filter((item) => item.id !== row.seed?.id),
+          seed: row.seed,
+          loop: false,
+        },
+        recUsed,
+      )
     }
-    pushRow(rows, { id: row.id, title: row.title, items: row.items })
+
+    for (const row of tasteGenreRails(pool, profile, kind, 4)) {
+      if (opts.genre && (isRomComGenre(opts.genre) ? row.id === 'genre-romcom' : row.id === `genre-${opts.genre}`)) {
+        continue
+      }
+      pushRow(rows, { id: row.id, title: row.title, items: row.items })
+    }
   }
 
-  if (profile) {
+  if (usesPersonalizedRecs(profile) && profile) {
     pushRow(rows, {
       id: 'picks',
       title: `Top Picks for ${profile.name}`,

@@ -22,6 +22,7 @@ import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes, fi
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { rankByTaste, similarByGenres } from '../profiles/taste'
+import { usesPersonalizedRecs } from '../profiles/types'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTmdbGallery } from '../trailers/useTmdbGallery'
 import { useTmdbVideos } from '../trailers/useTmdbVideos'
@@ -111,7 +112,7 @@ export function TitleModal() {
     const byGenre = similarByGenres(item, pool, 12)
     if (byGenre.length >= 12) return byGenre
     const seen = new Set([item.id, ...byGenre.map((entry) => entry.id)])
-    const rest = activeProfile
+    const rest = usesPersonalizedRecs(activeProfile)
       ? rankByTaste(
           pool.filter((entry) => !seen.has(entry.id)),
           activeProfile,

@@ -1,6 +1,6 @@
 import type { MovieListItem } from '../api/types'
 import { rankByTaste } from '../profiles/taste'
-import type { Profile } from '../profiles/types'
+import { usesPersonalizedRecs, type Profile } from '../profiles/types'
 
 export const ORIGINAL_LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -90,7 +90,7 @@ export function sortLanguageTitles(
   if (sort === 'year') return [...items].sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || a.title.localeCompare(b.title))
   if (sort === 'az') return [...items].sort((a, b) => a.title.localeCompare(b.title))
   if (sort === 'za') return [...items].sort((a, b) => b.title.localeCompare(a.title))
-  if (profile) {
+  if (usesPersonalizedRecs(profile)) {
     const ranked = rankByTaste(items, profile, { excludeSeen: false })
     return ranked.length ? ranked : items
   }
