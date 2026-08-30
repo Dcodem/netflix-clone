@@ -2466,6 +2466,34 @@ body:has(.account-page),
   text-decoration: underline;
 }
 
+.gift-form,
+.gift-done {
+  max-width: 640px;
+}
+
+.gift-amounts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 4px 0 12px;
+}
+
+.gift-done .btn-primary,
+.gift-form .btn-primary {
+  text-decoration: none;
+}
+
+.account-inline-actions a.account-change {
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 767px) {
+  .gift-amounts {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .account-membership {
   padding: 0 0 28px;
   border-bottom: 1px solid #ccc;

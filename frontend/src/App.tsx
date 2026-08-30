@@ -3,6 +3,7 @@ import { AppLayout } from './AppLayout'
 import { AuthProvider } from './auth/AuthContext'
 import { ProfileProvider } from './profiles/ProfileContext'
 import { Account } from './pages/Account'
+import { GiftCards } from './pages/GiftCards'
 import { HelpCenter } from './pages/HelpCenter'
 import { BrowseLanguages } from './pages/BrowseLanguages'
 import { Home } from './pages/Home'
@@ -42,6 +43,7 @@ export default function App() {
                   <Route path="/taste" element={<Navigate to="/browse" replace />} />
                   <Route path="/account" element={<Account />} />
                   <Route path="/help" element={<HelpCenter />} />
+                  <Route path="/gift" element={<GiftCards />} />
                   <Route path="/movie/:id" element={<LegacyTitleRedirect />} />
                   <Route path="/show/:id" element={<LegacyTitleRedirect />} />
                 </Route>

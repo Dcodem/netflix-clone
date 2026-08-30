@@ -44,7 +44,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         id: 'gift-cards',
         title: 'Redeem a gift card',
-        body: 'On Account, choose Redeem gift card or promo code. Credit stays on this device. Gift cards are not sold here.',
+        body: 'On Account, choose Redeem gift card or promo code. Credit stays on this device. Buy Gift Cards in the footer opens a shop form — FLIX does not sell or email cards from this device.',
       },
       {
         id: 'comms-privacy',

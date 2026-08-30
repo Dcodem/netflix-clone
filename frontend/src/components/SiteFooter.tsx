@@ -206,6 +206,8 @@ export function SiteFooter() {
                     <Link to="/account">Account</Link>
                   ) : label === 'Help Center' ? (
                     <Link to="/help">Help Center</Link>
+                  ) : label === 'Buy Gift Cards' ? (
+                    <Link to="/gift">Buy Gift Cards</Link>
                   ) : (
                     <button type="button" className="site-footer-link" onClick={() => setNote(label)}>
                       {label}
