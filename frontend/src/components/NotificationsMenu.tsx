@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { useHoverMenu } from '../hooks/useHoverMenu'
@@ -44,6 +45,7 @@ export function NotificationsMenu() {
       </button>
       {open ? (
         <div className="notify-dropdown" role="menu">
+          <p className="notify-head">Notifications</p>
           {notices.length ? (
             <div className="notify-list">
               {notices.map(({ item, kicker, stamp, unread: isUnread }) => (
@@ -68,6 +70,9 @@ export function NotificationsMenu() {
           ) : (
             <p>No recent notifications.</p>
           )}
+          <Link className="notify-foot" to="/browse/my-netflix" onClick={() => setOpen(false)}>
+            Go to My Netflix
+          </Link>
         </div>
       ) : null}
     </div>

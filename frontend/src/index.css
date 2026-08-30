@@ -7659,6 +7659,32 @@ img.is-logo-pending {
   padding: 28px 20px;
 }
 
+.notify-head {
+  margin: 0;
+  padding: 14px 20px 12px !important;
+  border-bottom: 1px solid #333;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left !important;
+}
+
+.notify-foot {
+  display: block;
+  padding: 14px 20px;
+  border-top: 1px solid #333;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+}
+
+.notify-foot:hover,
+.notify-foot:focus-visible {
+  background: #333;
+}
+
 .notify-group h3 {
   display: none;
 }
