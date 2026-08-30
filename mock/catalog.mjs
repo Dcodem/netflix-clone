@@ -501,6 +501,11 @@ function directorFor(index) {
   return CAST[(index + 11) % CAST.length]
 }
 
+function writersFor(index) {
+  const start = (index + 3) % CAST.length
+  return [0, 1].map((offset) => CAST[(start + offset) % CAST.length])
+}
+
 function hashString(value) {
   let hash = 2166136261
   for (let i = 0; i < value.length; i += 1) {
@@ -841,7 +846,8 @@ export function searchItems(q) {
     const index = Number(item.id.slice(0, 4))
     if (castFor(index).some((name) => name.toLowerCase().includes(needle))) return true
     if (item.kind === 'show' && creatorsFor(index).some((name) => name.toLowerCase().includes(needle))) return true
-    return item.kind === 'movie' && directorFor(index).toLowerCase().includes(needle)
+    if (item.kind === 'movie' && directorFor(index).toLowerCase().includes(needle)) return true
+    return item.kind === 'movie' && writersFor(index).some((name) => name.toLowerCase().includes(needle))
   })
 }
 
@@ -871,6 +877,7 @@ export function getDetail(kind, id) {
     cast: castFor(index),
     creators: item.kind === 'show' ? creatorsFor(index) : undefined,
     director: item.kind === 'movie' ? directorFor(index) : undefined,
+    writers: item.kind === 'movie' ? writersFor(index) : undefined,
     backdrop_url: item.backdrop_url || `/art/backdrop/${item.id}?v=2`,
     watch_href: `/watch/play/${item.id}`,
   }

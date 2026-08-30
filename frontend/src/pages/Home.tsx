@@ -12,6 +12,7 @@ import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { buildBrowseRows, catalogGenres, exploreHrefForRow, type BrowseFilter } from '../lib/homeRows'
+import { matchesGenreFilter } from '../profiles/taste'
 import { isShow, ofKind, pickHero, sortByRating, uniqueById } from '../lib/media'
 import { filterByMaturity } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -74,7 +75,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   )
   const genres = useMemo(() => catalogGenres(kindPool), [kindPool])
   const pool = useMemo(
-    () => (genre ? kindPool.filter((item) => (item.genres ?? []).includes(genre)) : kindPool),
+    () => (genre ? kindPool.filter((item) => matchesGenreFilter(item, genre)) : kindPool),
     [kindPool, genre],
   )
   const top10 = useMemo(() => sortByRating(pool).slice(0, 10), [pool])

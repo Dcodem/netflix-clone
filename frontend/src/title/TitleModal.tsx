@@ -506,6 +506,19 @@ export function TitleModal() {
                 </button>
               </p>
             ) : null}
+            {detail?.writers?.length ? (
+              <p>
+                <span className="title-kicker">Writers:</span>{' '}
+                {detail.writers.map((name, index) => (
+                  <span key={name}>
+                    {index ? ', ' : null}
+                    <button type="button" className="title-link" onClick={() => goSearch(name)}>
+                      {name}
+                    </button>
+                  </span>
+                ))}
+              </p>
+            ) : null}
             {detail?.cast?.length ? (
               <p>
                 <span className="title-kicker">Cast:</span>{' '}

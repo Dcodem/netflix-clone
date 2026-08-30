@@ -4,8 +4,8 @@ import { GenreSelect } from '../components/GenreSelect'
 import { MediaGrid } from '../components/MediaGrid'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { catalogGenres, likedToItems } from '../lib/homeRows'
-import { genresOf } from '../lib/media'
 import { filterByMaturity } from '../lib/netflix'
+import { matchesGenreFilter } from '../profiles/taste'
 import { useProfiles } from '../profiles/ProfileContext'
 
 export function MyList() {
@@ -16,7 +16,7 @@ export function MyList() {
   const [headingStuck, setHeadingStuck] = useState(false)
   const genres = useMemo(() => catalogGenres(items), [items])
   const visible = useMemo(
-    () => (genre ? items.filter((item) => genresOf(item).includes(genre)) : items),
+    () => (genre ? items.filter((item) => matchesGenreFilter(item, genre)) : items),
     [items, genre],
   )
   const useGenreMenu = desktop && genres.length > 1

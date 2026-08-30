@@ -2,7 +2,10 @@ import type { MovieListItem } from '../api/types'
 import {
   becauseYouLikedRows,
   becauseYouWatchedRows,
+  matchesGenreFilter,
   rankByTaste,
+  ROM_COM_GENRE,
+  romComItems,
   tasteGenreRails,
 } from '../profiles/taste'
 import type { LikedTitle, Profile, WatchHistoryItem } from '../profiles/types'
@@ -79,7 +82,9 @@ function finishedMovie(entry: WatchHistoryItem) {
 }
 
 export function catalogGenres(items: MovieListItem[]): string[] {
-  return [...new Set(items.flatMap((item) => genresOf(item)))].sort()
+  const genres = [...new Set(items.flatMap((item) => genresOf(item)))].sort()
+  if (romComItems(items).length >= 6) return [ROM_COM_GENRE, ...genres]
+  return genres
 }
 
 export function exploreHrefForRow(row: Pick<HomeRow, 'id' | 'title'>): string | undefined {
@@ -90,6 +95,7 @@ export function exploreHrefForRow(row: Pick<HomeRow, 'id' | 'title'>): string | 
   }
   if (row.id === 'new-movies' || row.id === 'top10-movies') return '/browse/movies'
   if (row.id === 'new-shows' || row.id === 'top10-tv') return '/browse/shows'
+  if (row.id === 'genre-romcom') return `/browse?genre=${encodeURIComponent(ROM_COM_GENRE)}`
   if (row.id.startsWith('genre-')) {
     const genre = row.id.slice('genre-'.length)
     return `/browse?genre=${encodeURIComponent(genre)}`
@@ -108,7 +114,7 @@ export function buildBrowseRows(opts: {
   const kind: 'all' | 'movies' | 'shows' =
     filter === 'movies' ? 'movies' : filter === 'shows' ? 'shows' : 'all'
   let pool = ofKind(catalog, kind)
-  const matchesGenre = (item: MovieListItem) => !opts.genre || genresOf(item).includes(opts.genre)
+  const matchesGenre = (item: MovieListItem) => matchesGenreFilter(item, opts.genre)
   if (opts.genre) {
     pool = pool.filter(matchesGenre)
   }

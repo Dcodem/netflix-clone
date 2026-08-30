@@ -170,6 +170,14 @@ export function genreRailTitle(genre: string, kind: 'all' | 'movies' | 'shows' =
   return label
 }
 
+export const ROM_COM_GENRE = 'Rom-Coms'
+
+export function isRomComGenre(genre?: string | null): boolean {
+  if (!genre) return false
+  const value = genre.trim().toLowerCase()
+  return value === 'rom-coms' || value === 'romcom' || value === 'romantic comedies' || value === 'romantic tv shows'
+}
+
 export function romComItems(items: MovieListItem[]): MovieListItem[] {
   return items
     .filter((item) => {
@@ -177,6 +185,15 @@ export function romComItems(items: MovieListItem[]): MovieListItem[] {
       return genres.has('Romance') && genres.has('Comedy')
     })
     .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+}
+
+export function matchesGenreFilter(item: MovieListItem, genre?: string | null): boolean {
+  if (!genre) return true
+  if (isRomComGenre(genre)) {
+    const genres = new Set(genresOf(item))
+    return genres.has('Romance') && genres.has('Comedy')
+  }
+  return genresOf(item).includes(genre)
 }
 
 export function tasteGenreRails(

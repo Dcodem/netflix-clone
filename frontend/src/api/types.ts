@@ -19,6 +19,7 @@ export type MovieDetail = MovieListItem & {
   cast?: string[]
   creators?: string[]
   director?: string
+  writers?: string[]
   backdrop_url?: string | null
   watch_href?: string | null
 }
