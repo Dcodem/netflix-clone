@@ -68,7 +68,7 @@ const COLUMNS = [
 ] as const
 
 export const FOOTER_NOTES: Record<string, string> = {
-  FAQ: 'FLIX is a browser-only demo. There is no live FAQ beyond Account and what’s on this device.',
+  FAQ: 'After you sign in, FAQ in the footer covers watching, Account, gift cards, and profiles.',
   'Help Center':
     'After you sign in, Help Center covers watching shortcuts, Account, captions, privacy, and My List. While watching, press ? for the player shortcut list. FLIX is a browser-only demo.',
   'Terms of Use': 'This clone is for demonstration. It is not affiliated with Netflix.',
@@ -205,6 +205,8 @@ export function SiteFooter() {
                     </button>
                   ) : label === 'Account' ? (
                     <Link to="/account">Account</Link>
+                  ) : label === 'FAQ' ? (
+                    <Link to="/faq">FAQ</Link>
                   ) : label === 'Help Center' ? (
                     <Link to="/help">Help Center</Link>
                   ) : label === 'Buy Gift Cards' ? (

@@ -3,6 +3,7 @@ import { AppLayout } from './AppLayout'
 import { AuthProvider } from './auth/AuthContext'
 import { ProfileProvider } from './profiles/ProfileContext'
 import { Account } from './pages/Account'
+import { Faq } from './pages/Faq'
 import { GiftCards } from './pages/GiftCards'
 import { HelpCenter } from './pages/HelpCenter'
 import { BrowseLanguages } from './pages/BrowseLanguages'
@@ -45,6 +46,7 @@ export default function App() {
                   <Route path="/taste" element={<Navigate to="/browse" replace />} />
                   <Route path="/account" element={<Account />} />
                   <Route path="/help" element={<HelpCenter />} />
+                  <Route path="/faq" element={<Faq />} />
                   <Route path="/gift" element={<GiftCards />} />
                   <Route path="/speed" element={<SpeedTest />} />
                   <Route path="/ways" element={<WaysToWatch />} />

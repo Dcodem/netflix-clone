@@ -38,6 +38,7 @@
     { "source": "/taste", "destination": "/index.html" },
     { "source": "/account", "destination": "/index.html" },
     { "source": "/help", "destination": "/index.html" },
+    { "source": "/faq", "destination": "/index.html" },
     { "source": "/gift", "destination": "/index.html" },
     { "source": "/speed", "destination": "/index.html" },
     { "source": "/ways", "destination": "/index.html" },

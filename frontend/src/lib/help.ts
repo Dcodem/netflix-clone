@@ -123,6 +123,47 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
 ]
 
+export const FAQ_ITEMS: HelpArticle[] = [
+  {
+    id: 'what',
+    title: 'What is FLIX?',
+    body: 'FLIX is a browser-only demo. Titles play in this window with overlay chrome. It is not affiliated with Netflix, and there is no TV app.',
+  },
+  {
+    id: 'watch',
+    title: 'How do I watch?',
+    body: 'Open a title and choose Play or Resume. Ways to Watch lists this browser and phone. Smart TVs and consoles are not on this demo.',
+  },
+  {
+    id: 'account',
+    title: 'How do I change my plan or payment?',
+    body: 'Open Account from the profile menu or footer. Plan prices and the card last four stay on this device. FLIX does not charge a card.',
+  },
+  {
+    id: 'cancel',
+    title: 'How do I cancel?',
+    body: 'Account Cancel Membership asks why you are leaving, then keeps FLIX available. There is no membership to end on this device.',
+  },
+  {
+    id: 'gift',
+    title: 'Can I buy or redeem a gift card?',
+    body: 'Redeem a code on Account. Buy Gift Cards in the footer opens a shop form — cards are not sold or emailed from this device.',
+  },
+  {
+    id: 'profiles',
+    title: 'How do profiles work?',
+    body: 'Pick a profile on Who’s Watching. Exit Profile or Switch Profiles changes who’s watching without signing out. A profile can be locked with a PIN.',
+  },
+]
+
+export function filterFaq(query: string): HelpArticle[] {
+  const needle = query.trim().toLowerCase()
+  if (!needle) return FAQ_ITEMS
+  return FAQ_ITEMS.filter(
+    (item) => item.title.toLowerCase().includes(needle) || item.body.toLowerCase().includes(needle),
+  )
+}
+
 export function filterHelpTopics(query: string): HelpTopic[] {
   const needle = query.trim().toLowerCase()
   if (!needle) return HELP_TOPICS
