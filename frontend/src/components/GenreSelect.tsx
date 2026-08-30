@@ -8,12 +8,15 @@ export function GenreSelect({
   onChange,
   useMenu,
   onFallback,
+  buttonLabel,
 }: {
   value: string
   genres: string[]
   onChange: (next: string) => void
   useMenu: boolean
   onFallback?: () => void
+  /** Keep the trigger as “Genres” on a genre-titled page (Netflix genre gallery). */
+  buttonLabel?: string
 }) {
   const btnRef = useRef<HTMLButtonElement>(null)
   const [open, setOpen] = useState(false)
@@ -42,7 +45,7 @@ export function GenreSelect({
       <button
         type="button"
         ref={btnRef}
-        className={`genre-select ${value ? 'is-on' : ''} ${open ? 'is-open' : ''}`}
+        className={`genre-select ${value && !buttonLabel ? 'is-on' : ''} ${open ? 'is-open' : ''}`}
         onClick={() => {
           if (useMenu) {
             setBox(btnRef.current?.getBoundingClientRect() ?? null)
@@ -54,7 +57,7 @@ export function GenreSelect({
         aria-haspopup={useMenu ? 'listbox' : 'dialog'}
         aria-expanded={useMenu ? open : undefined}
       >
-        {value || 'Genres'}
+        {buttonLabel || value || 'Genres'}
         <CaretIcon className="icon" />
       </button>
       {useMenu && open && box

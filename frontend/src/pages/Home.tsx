@@ -7,7 +7,6 @@ import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { GenreSelect } from '../components/GenreSelect'
 import { Hero } from '../components/Hero'
-import { CaretIcon } from '../components/Icons'
 import { MediaRow } from '../components/MediaRow'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
@@ -31,7 +30,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   const [headingStuck, setHeadingStuck] = useState(false)
   const desktop = useMediaQuery('(min-width: 768px)')
   const genre = params.get('genre') ?? ''
-  const heading = HEADINGS[filter]
+  const heading = filter === 'home' && genre ? genre : HEADINGS[filter]
   const movies = useFetch(() => getMovies(), 'home-movies')
   const extras = useFetch(async () => {
     const [catalogMovies, catalogShows] = await Promise.all([
@@ -48,7 +47,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     setParams(nextParams, { replace: true })
   }
 
-  const useGenreMenu = desktop && (filter === 'movies' || filter === 'shows')
+  const useGenreMenu = desktop && (filter === 'movies' || filter === 'shows' || Boolean(heading && genre && filter === 'home'))
 
   useEffect(() => {
     if (!heading) {
@@ -138,13 +137,14 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
         {heading ? (
           <div className={`browse-heading ${headingStuck ? 'is-stuck' : ''}`}>
             <h1>{heading}</h1>
-            {filter === 'movies' || filter === 'shows' ? (
+            {filter === 'movies' || filter === 'shows' || (filter === 'home' && genre) ? (
               <GenreSelect
                 value={genre}
                 genres={genres}
                 onChange={setGenre}
                 useMenu={useGenreMenu}
                 onFallback={() => setCategoriesOpen(true)}
+                buttonLabel={filter === 'home' && genre ? 'Genres' : undefined}
               />
             ) : null}
           </div>
@@ -167,25 +167,20 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
       {heading ? (
         <div className={`browse-heading ${headingStuck ? 'is-stuck' : ''}`}>
           <h1>{heading}</h1>
-          {filter === 'movies' || filter === 'shows' ? (
+          {filter === 'movies' || filter === 'shows' || (filter === 'home' && genre) ? (
             <GenreSelect
               value={genre}
               genres={genres}
               onChange={setGenre}
               useMenu={useGenreMenu}
               onFallback={() => setCategoriesOpen(true)}
+              buttonLabel={filter === 'home' && genre ? 'Genres' : undefined}
             />
           ) : null}
         </div>
       ) : null}
-      {filter === 'home' ? (
+      {filter === 'home' && !genre ? (
         <div className="home-pills" aria-label="Categories">
-          {genre ? (
-            <button type="button" className="is-on" onClick={() => setCategoriesOpen(true)}>
-              {genre}
-              <CaretIcon className="icon" />
-            </button>
-          ) : null}
           <Link to="/browse/shows">TV Shows</Link>
           <Link to="/browse/movies">Movies</Link>
           <button type="button" onClick={() => setCategoriesOpen(true)}>
