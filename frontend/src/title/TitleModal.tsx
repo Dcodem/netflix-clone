@@ -304,11 +304,11 @@ export function TitleModal() {
                   <button type="button" className={activeTab === 'episodes' ? 'is-on' : ''} onClick={() => selectTab('episodes')}>
                     Episodes
                   </button>
-                  <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
-                    Trailers & More
-                  </button>
                   <button type="button" className={activeTab === 'more' ? 'is-on' : ''} onClick={() => selectTab('more')}>
                     More Like This
+                  </button>
+                  <button type="button" className={activeTab === 'trailers' ? 'is-on' : ''} onClick={() => selectTab('trailers')}>
+                    Trailers & More
                   </button>
                 </>
               ) : (

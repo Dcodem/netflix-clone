@@ -1362,9 +1362,9 @@ export function WatchOverlay() {
                   <span className="watch-ep-copy">
                     <em>
                       {episode.title}
-                      {episode.duration ? <small>{episode.duration}m</small> : null}
                       {active ? <small className="watch-ep-playing">Playing</small> : null}
                     </em>
+                    {episode.duration ? <small className="watch-ep-dur">{episode.duration}m</small> : null}
                     {episode.synopsis ? <span>{episode.synopsis}</span> : null}
                   </span>
                 </button>
