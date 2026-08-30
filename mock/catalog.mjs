@@ -817,11 +817,12 @@ export function homepageRows() {
 export function searchItems(q) {
   const needle = q.trim().toLowerCase()
   if (needle.length < 2) return []
-  return ALL.filter(
-    (item) =>
-      item.title.toLowerCase().includes(needle) ||
-      item.genres.some((genre) => genre.toLowerCase().includes(needle)),
-  )
+  return ALL.filter((item) => {
+    if (item.title.toLowerCase().includes(needle)) return true
+    if (item.genres.some((genre) => genre.toLowerCase().includes(needle))) return true
+    const index = Number(item.id.slice(0, 4))
+    return castFor(index).some((name) => name.toLowerCase().includes(needle))
+  })
 }
 
 export function catalogPage(kind, opts = {}) {
