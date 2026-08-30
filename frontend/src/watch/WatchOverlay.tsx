@@ -24,7 +24,7 @@ import { CastMenu } from '../components/CastMenu'
 import { MediaImage } from '../components/MediaImage'
 import { SeasonMenu } from '../components/SeasonMenu'
 import { TitleLogo } from '../components/TitleLogo'
-import { createWatchAmbience, playClick, playWhoosh } from '../lib/sounds'
+import { createWatchAmbience, playClick, playIdentBump, playWhoosh } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { watchForEpisode } from '../lib/episodeProgress'
@@ -179,7 +179,7 @@ export function WatchOverlay() {
     setNextDismissed(false)
     setStillWatching(false)
     setIdentOn(startProgress < 0.02)
-    setIdentPhase(startProgress < 0.02 ? 'logo' : 'off')
+    setIdentPhase(startProgress < 0.02 ? (streakRef.current > 0 ? 'title' : 'logo') : 'off')
     setIntroSkipped(false)
     setRecapSkipped(false)
     setHelpOpen(false)
@@ -310,20 +310,22 @@ export function WatchOverlay() {
   useEffect(() => {
     if (!sessionKey) return
     const fromStart = startProgress < 0.02
+    const bingeTitle = fromStart && streakRef.current > 0
     setIdentOn(fromStart)
-    setIdentPhase(fromStart ? 'logo' : 'off')
+    setIdentPhase(fromStart ? (bingeTitle ? 'title' : 'logo') : 'off')
     if (!fromStart) {
       showChromeRef.current()
       return
     }
-    const toTitle = window.setTimeout(() => setIdentPhase('title'), 2400)
+    if (!bingeTitle) playIdentBump()
+    const toTitle = bingeTitle ? 0 : window.setTimeout(() => setIdentPhase('title'), 2400)
     const timer = window.setTimeout(() => {
       setIdentOn(false)
       setIdentPhase('off')
       showChromeRef.current()
-    }, 5200)
+    }, bingeTitle ? 2200 : 5200)
     return () => {
-      window.clearTimeout(toTitle)
+      if (toTitle) window.clearTimeout(toTitle)
       window.clearTimeout(timer)
     }
   }, [sessionKey, startProgress])

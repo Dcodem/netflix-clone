@@ -85,6 +85,20 @@ export function playClick() {
   }
 }
 
+/** Original ident sting when playback starts from the top — not Netflix's ta-dum. */
+export function playIdentBump() {
+  try {
+    const ac = audio()
+    const now = ac.currentTime
+    tone(ac, 82, now, 0.42, 0.12, 'sine')
+    tone(ac, 123, now, 0.28, 0.05, 'triangle')
+    tone(ac, 196, now + 0.18, 0.55, 0.11, 'triangle')
+    tone(ac, 294, now + 0.18, 0.4, 0.035, 'sine')
+  } catch {
+    /* autoplay / closed context */
+  }
+}
+
 export type WatchAmbience = {
   setMuted: (muted: boolean) => void
   setPlaying: (playing: boolean) => void
