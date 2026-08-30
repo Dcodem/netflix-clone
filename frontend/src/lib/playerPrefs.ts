@@ -1,9 +1,12 @@
 const KEY = 'flix.playerPrefs'
 
+export type CaptionSize = 's' | 'm' | 'l'
+
 export type PlayerPrefs = {
   volume: number
   muted: boolean
   subs: 'off' | 'en' | 'cc'
+  captionSize: CaptionSize
   audioTrack: 'en' | 'ad'
   speed: number
 }
@@ -12,6 +15,7 @@ const DEFAULTS: PlayerPrefs = {
   volume: 1,
   muted: false,
   subs: 'off',
+  captionSize: 'm',
   audioTrack: 'en',
   speed: 1,
 }
@@ -27,6 +31,7 @@ export function readPlayerPrefs(): PlayerPrefs {
       volume,
       muted: Boolean(raw.muted) || volume <= 0.01,
       subs: raw.subs === 'en' || raw.subs === 'cc' ? raw.subs : 'off',
+      captionSize: raw.captionSize === 's' || raw.captionSize === 'l' ? raw.captionSize : 'm',
       audioTrack: raw.audioTrack === 'ad' ? 'ad' : 'en',
       speed,
     }

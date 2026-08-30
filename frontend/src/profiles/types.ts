@@ -26,6 +26,7 @@ export type LikedTitle = {
   id: string
   kind: string
   title: string
+  year?: number | null
   poster_url: string | null
   genres: string[]
 }

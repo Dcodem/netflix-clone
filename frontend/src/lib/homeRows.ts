@@ -48,10 +48,52 @@ export function likedToItems(items: LikedTitle[]): MovieListItem[] {
     id: item.id,
     title: item.title,
     kind: item.kind,
+    year: item.year,
     poster_url: item.poster_url,
     genres: item.genres,
     href: `/${item.kind === 'show' ? 'shows' : 'movies'}/view/${item.id}`,
   }))
+}
+
+export type MyListSort = 'suggestions' | 'added' | 'az' | 'year'
+
+export const MY_LIST_SORTS: { value: MyListSort; label: string }[] = [
+  { value: 'suggestions', label: 'Suggestions For You' },
+  { value: 'added', label: 'Date Added' },
+  { value: 'az', label: 'A-Z' },
+  { value: 'year', label: 'Year Released' },
+]
+
+export function enrichListItems(list: MovieListItem[], catalog: MovieListItem[]): MovieListItem[] {
+  if (!catalog.length) return list
+  const byId = new Map(catalog.map((item) => [item.id, item]))
+  return list.map((item) => {
+    const hit = byId.get(item.id)
+    if (!hit) return item
+    return {
+      ...item,
+      year: item.year ?? hit.year,
+      rating: item.rating ?? hit.rating,
+      genres: item.genres?.length ? item.genres : hit.genres,
+      poster_url: item.poster_url ?? hit.poster_url,
+    }
+  })
+}
+
+export function sortMyListItems(
+  items: MovieListItem[],
+  sort: MyListSort,
+  profile: Profile | null,
+): MovieListItem[] {
+  if (sort === 'az') {
+    return [...items].sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }))
+  }
+  if (sort === 'year') return sortByYear(items)
+  if (sort === 'added') return items
+  if (!profile) return sortByRating(items)
+  const ranked = rankByTaste(items, profile, { excludeSeen: false })
+  const seen = new Set(ranked.map((item) => item.id))
+  return [...ranked, ...items.filter((item) => !seen.has(item.id))]
 }
 
 function rail(items: MovieListItem[], cap = RAIL): MovieListItem[] {

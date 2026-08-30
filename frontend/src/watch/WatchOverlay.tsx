@@ -31,7 +31,7 @@ import { avatarFor } from '../profiles/types'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { stillFocus, episodeStill } from '../lib/media'
 import { skipMarks } from '../lib/skipMarks'
-import { readPlayerPrefs, writePlayerPrefs } from '../lib/playerPrefs'
+import { readPlayerPrefs, writePlayerPrefs, type CaptionSize } from '../lib/playerPrefs'
 import { peekTrailer, resolveTrailer, youtubeIdFromHit } from '../trailers/resolve'
 import { findTmdbGallery, tmdbFileName } from '../trailers/tmdb'
 import { envKeys } from '../trailers/types'
@@ -152,6 +152,7 @@ export function WatchOverlay() {
   const [speedOpen, setSpeedOpen] = useState(false)
   const [speed, setSpeed] = useState(initialPrefs.speed)
   const [subs, setSubs] = useState(initialPrefs.subs)
+  const [captionSize, setCaptionSize] = useState<CaptionSize>(initialPrefs.captionSize)
   const [audioTrack, setAudioTrack] = useState(initialPrefs.audioTrack)
   const [introSkipped, setIntroSkipped] = useState(false)
   const [recapSkipped, setRecapSkipped] = useState(false)
@@ -301,8 +302,8 @@ export function WatchOverlay() {
   }, [muted, volume])
 
   useEffect(() => {
-    writePlayerPrefs({ muted, volume, speed, subs, audioTrack })
-  }, [muted, volume, speed, subs, audioTrack])
+    writePlayerPrefs({ muted, volume, speed, subs, captionSize, audioTrack })
+  }, [muted, volume, speed, subs, captionSize, audioTrack])
 
   useEffect(() => {
     currentRef.current = current
@@ -1028,7 +1029,9 @@ export function WatchOverlay() {
         </div>
       ) : null}
       {caption ? (
-        <p className={`watch-caption ${chrome ? 'is-raised' : ''} ${subs === 'cc' ? 'is-cc' : ''}`}>{caption}</p>
+        <p className={`watch-caption is-${captionSize} ${chrome ? 'is-raised' : ''} ${subs === 'cc' ? 'is-cc' : ''}`}>
+          {caption}
+        </p>
       ) : null}
       <div className="watch-center">
         <button
@@ -1544,6 +1547,24 @@ export function WatchOverlay() {
               {subs === 'cc' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English [CC]
             </button>
+            <h2 className="watch-caption-size-label">Size</h2>
+            {(
+              [
+                ['s', 'Small'],
+                ['m', 'Medium'],
+                ['l', 'Large'],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                className={captionSize === value ? 'is-on' : ''}
+                onClick={() => setCaptionSize(value)}
+              >
+                {captionSize === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+                {label}
+              </button>
+            ))}
           </div>
         </div>
       ) : null}

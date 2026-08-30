@@ -237,6 +237,7 @@ export function toLiked(item: {
   id: string
   kind?: string
   title: string
+  year?: number | null
   poster_url?: string | null
   genres?: string[]
 }) {
@@ -244,6 +245,7 @@ export function toLiked(item: {
     id: item.id,
     kind: item.kind ?? 'movie',
     title: item.title,
+    year: item.year ?? null,
     poster_url: item.poster_url ?? null,
     genres: item.genres ?? [],
   }

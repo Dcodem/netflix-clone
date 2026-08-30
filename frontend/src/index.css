@@ -3291,6 +3291,40 @@ body:has(.account-page),
   font-size: 13px;
 }
 
+.browse-heading .outline-select {
+  pointer-events: auto;
+  margin-left: auto;
+  min-width: 0;
+}
+
+.my-list-page .browse-heading {
+  flex-wrap: wrap;
+}
+
+.my-list-page .browse-heading .outline-select-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.my-list-page .browse-heading .outline-select-kicker {
+  display: none;
+}
+
+.my-list-page .browse-heading .outline-select-value {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.browse-heading.is-stuck .outline-select-btn {
+  padding: 4px 10px;
+}
+
 .genre-select-wrap {
   position: relative;
   pointer-events: auto;
@@ -9162,6 +9196,22 @@ img.is-logo-pending {
   color: #fff;
 }
 
+.watch-caption.is-s {
+  font-size: clamp(14px, 1.8vw, 18px);
+}
+
+.watch-caption.is-m {
+  font-size: clamp(18px, 2.4vw, 26px);
+}
+
+.watch-caption.is-l {
+  font-size: clamp(26px, 3.4vw, 40px);
+}
+
+.watch-caption-size-label {
+  margin-top: 18px;
+}
+
 @media (max-width: 767px) {
   .watch-vol-rail {
     width: 36px;
@@ -9672,6 +9722,18 @@ img.is-logo-pending {
 
   .watch-caption {
     font-size: 15px;
+  }
+
+  .watch-caption.is-s {
+    font-size: 13px;
+  }
+
+  .watch-caption.is-m {
+    font-size: 15px;
+  }
+
+  .watch-caption.is-l {
+    font-size: 22px;
   }
 
   .skip-intro {
@@ -11374,6 +11436,11 @@ img.is-logo-pending {
 
   .outline-select-menu {
     width: 100%;
+  }
+
+  .my-list-page .browse-heading .outline-select,
+  .my-list-page .browse-heading .outline-select-btn {
+    width: auto;
   }
 }
 
