@@ -22,6 +22,15 @@ const PLANS = [
 
 type PlanId = (typeof PLANS)[number]['id']
 
+const CANCEL_REASONS = [
+  { id: 'price', label: 'Too expensive' },
+  { id: 'use', label: 'I don’t use FLIX enough' },
+  { id: 'other-service', label: 'I have another streaming service' },
+  { id: 'content', label: 'I don’t find the titles interesting' },
+  { id: 'tech', label: 'Technical problems' },
+  { id: 'other', label: 'Something else' },
+] as const
+
 function money(value: number) {
   return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
 }
@@ -73,6 +82,8 @@ export function Account() {
   const [cardCvc, setCardCvc] = useState('')
   const [giftDraft, setGiftDraft] = useState('')
   const [giftApplied, setGiftApplied] = useState<number | null>(null)
+  const [cancelReason, setCancelReason] = useState<(typeof CANCEL_REASONS)[number]['id'] | null>(null)
+  const [cancelDone, setCancelDone] = useState(false)
   const plan = PLANS.find((entry) => entry.id === planId) ?? PLANS[0]
   const nextPay = useMemo(() => {
     const date = new Date()
@@ -94,6 +105,8 @@ export function Account() {
     setCardCvc('')
     setGiftDraft('')
     setGiftApplied(null)
+    setCancelReason(null)
+    setCancelDone(false)
     setPanel((current) => (current === next ? null : next))
   }
 
@@ -186,9 +199,59 @@ export function Account() {
           </button>
         </div>
         {panel === 'cancel' ? (
-          <p className="account-inline-note">
-            There is no membership to cancel on this device. FLIX stays available in this browser.
-          </p>
+          <div className="account-prefs account-cancel-panel">
+            {cancelDone ? (
+              <>
+                <p className="account-prefs-lead">Membership stays on</p>
+                <p className="account-inline-note">
+                  There is no membership to cancel on this device. {plan.name} stays available in this browser. FLIX does
+                  not charge a card.
+                </p>
+                <button type="button" className="account-change" onClick={() => setPanel(null)}>
+                  Back to Account
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="account-prefs-lead">Why are you leaving FLIX?</p>
+                <p className="account-inline-note">Tell us what’s going on. This does not end access on this device.</p>
+                {CANCEL_REASONS.map((reason) => (
+                  <label className="edit-check" key={reason.id}>
+                    <input
+                      type="radio"
+                      name="cancel-reason"
+                      checked={cancelReason === reason.id}
+                      onChange={() => {
+                        setAccountError(null)
+                        setCancelReason(reason.id)
+                      }}
+                    />
+                    <span>{reason.label}</span>
+                  </label>
+                ))}
+                {accountError && panel === 'cancel' ? <p className="account-inline-error">{accountError}</p> : null}
+                <div className="account-inline-actions">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => {
+                      if (!cancelReason) {
+                        setAccountError('Choose a reason to continue.')
+                        return
+                      }
+                      setAccountError(null)
+                      setCancelDone(true)
+                    }}
+                  >
+                    Finish cancellation
+                  </button>
+                  <button type="button" className="account-change" onClick={() => setPanel(null)}>
+                    Keep Membership
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         ) : null}
       </section>
 

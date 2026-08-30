@@ -34,7 +34,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         id: 'manage-account',
         title: 'Manage your account',
-        body: 'Open Account from the profile menu or footer to change email, password, phone, plan, and payment last four. Plan prices stay on this device. FLIX does not charge a card.',
+        body: 'Open Account from the profile menu or footer to change email, password, phone, plan, and payment last four. Plan prices stay on this device. FLIX does not charge a card. Cancel Membership asks why you are leaving, then keeps FLIX available — there is no membership to end here.',
       },
       {
         id: 'gift-cards',

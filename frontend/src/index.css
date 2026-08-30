@@ -2781,6 +2781,35 @@ body:has(.account-page),
   margin-top: 12px;
 }
 
+.account-cancel-panel {
+  max-width: 520px;
+  margin-top: 16px;
+}
+
+.account-cancel-panel .edit-check {
+  color: #141414;
+}
+
+.account-cancel-panel .edit-check input {
+  border-radius: 50%;
+}
+
+.account-cancel-panel .edit-check input:checked {
+  background: #141414;
+  border-color: #141414;
+}
+
+.account-cancel-panel .edit-check input:checked::after {
+  left: 5px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  transform: none;
+}
+
 .account-inline {
   display: grid;
   gap: 10px;
