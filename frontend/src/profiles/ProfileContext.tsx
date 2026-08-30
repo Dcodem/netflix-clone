@@ -55,6 +55,7 @@ function hydrateProfile(raw: Profile & { kids?: boolean }): Profile {
     autoplayPreview: raw.autoplayPreview !== false,
     language: isLanguage(raw.language) ? raw.language : 'English',
     maturity: isMaturity(raw.maturity) ? raw.maturity : 'All Maturity Ratings',
+    gameHandle: typeof raw.gameHandle === 'string' ? raw.gameHandle : '',
     color: raw.color || PROFILE_AVATARS[0].color,
   }
 }
@@ -104,6 +105,7 @@ export type UpdateProfileOpts = {
   autoplayPreview?: boolean
   language?: ProfileLanguage
   maturity?: ProfileMaturity
+  gameHandle?: string
 }
 
 type ProfileContextValue = {
@@ -175,6 +177,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         autoplayPreview: true,
         language: 'English',
         maturity: 'All Maturity Ratings',
+        gameHandle: '',
         createdAt: Date.now(),
         history: [],
         favoriteGenres: [],
@@ -240,6 +243,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             autoplayPreview: opts.autoplayPreview ?? profile.autoplayPreview,
             language: opts.language ?? profile.language,
             maturity: opts.maturity ?? profile.maturity,
+            gameHandle: opts.gameHandle !== undefined ? opts.gameHandle.trim() : profile.gameHandle,
             pinSalt: pinSalt !== undefined ? pinSalt : profile.pinSalt,
             pinHash: pinHash !== undefined ? pinHash : profile.pinHash,
           }

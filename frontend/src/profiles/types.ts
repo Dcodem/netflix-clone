@@ -54,6 +54,7 @@ export type Profile = {
   autoplayPreview: boolean
   language: ProfileLanguage
   maturity: ProfileMaturity
+  gameHandle: string
   createdAt: number
   history: WatchHistoryItem[]
   favoriteGenres: string[]

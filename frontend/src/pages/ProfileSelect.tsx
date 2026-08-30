@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type 
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AvatarArt } from '../components/AvatarArt'
 import { ChevronLeftIcon, ChevronRightIcon, LockIcon, PencilIcon, PlusIcon } from '../components/Icons'
+import { FooterNoteDialog, FOOTER_NOTES } from '../components/SiteFooter'
 import { useAuth } from '../auth/AuthContext'
 import { useProfiles } from '../profiles/ProfileContext'
 import { playProfileSting } from '../lib/sounds'
@@ -13,7 +14,7 @@ import {
   type Profile,
 } from '../profiles/types'
 
-type EditPanel = 'language' | 'maturity' | 'lock' | null
+type EditPanel = 'language' | 'maturity' | 'lock' | 'handle' | 'activity' | null
 
 function PinBoxes({
   value,
@@ -105,7 +106,9 @@ export function ProfileSelect() {
   const [editAutoplayPreview, setEditAutoplayPreview] = useState(true)
   const [editLang, setEditLang] = useState<(typeof PROFILE_LANGUAGES)[number]>('English')
   const [editMaturity, setEditMaturity] = useState<(typeof PROFILE_MATURITY)[number]>('All Maturity Ratings')
+  const [editHandle, setEditHandle] = useState('')
   const [editPanel, setEditPanel] = useState<EditPanel>(null)
+  const [transferOpen, setTransferOpen] = useState(false)
   const [pinTarget, setPinTarget] = useState<Profile | null>(null)
   const [pinGuess, setPinGuess] = useState('')
   const [pinError, setPinError] = useState<string | null>(null)
@@ -159,6 +162,7 @@ export function ProfileSelect() {
     setEditAutoplayPreview(profile.autoplayPreview !== false)
     setEditLang(profile.language || 'English')
     setEditMaturity(profile.maturity || 'All Maturity Ratings')
+    setEditHandle(profile.gameHandle || '')
     setEditPanel(null)
     setPickingAvatar(false)
   }
@@ -213,6 +217,7 @@ export function ProfileSelect() {
       autoplayPreview: editAutoplayPreview,
       language: editLang,
       maturity: editMaturity,
+      gameHandle: editHandle,
     })
     setEditingId(null)
     setPickingAvatar(false)
@@ -440,6 +445,69 @@ export function ProfileSelect() {
                   ) : null}
                 </div>
               ) : null}
+              <button
+                type="button"
+                className={`edit-row ${editPanel === 'handle' ? 'is-open' : ''}`}
+                onClick={() => toggleEditPanel('handle')}
+              >
+                <span className="edit-row-copy">
+                  <strong>Game Handle</strong>
+                  <em>{editHandle || 'Create a Game Handle'}</em>
+                </span>
+                <ChevronRightIcon className="icon" />
+              </button>
+              {editPanel === 'handle' ? (
+                <div className="edit-row-panel edit-lock-panel">
+                  <p>Play and connect with friends across games on FLIX.</p>
+                  <input
+                    className="edit-pin-field"
+                    value={editHandle}
+                    maxLength={16}
+                    onChange={(event) =>
+                      setEditHandle(event.target.value.replace(/[^\w-]/g, '').slice(0, 16))
+                    }
+                    placeholder="Set a handle"
+                    aria-label="Game handle"
+                  />
+                </div>
+              ) : null}
+              <button
+                type="button"
+                className={`edit-row ${editPanel === 'activity' ? 'is-open' : ''}`}
+                onClick={() => toggleEditPanel('activity')}
+              >
+                <span className="edit-row-copy">
+                  <strong>Viewing activity</strong>
+                  <em>
+                    {editing.history.length
+                      ? `${editing.history.length} title${editing.history.length === 1 ? '' : 's'}`
+                      : 'None'}
+                  </em>
+                </span>
+                <ChevronRightIcon className="icon" />
+              </button>
+              {editPanel === 'activity' ? (
+                <div className="edit-row-panel edit-activity-panel">
+                  {editing.history.length ? (
+                    editing.history.slice(0, 8).map((entry) => (
+                      <p key={`${entry.id}-${entry.watchedAt}`}>{entry.title}</p>
+                    ))
+                  ) : (
+                    <p>No titles watched on this profile yet.</p>
+                  )}
+                </div>
+              ) : null}
+              <button
+                type="button"
+                className="edit-row"
+                onClick={() => setTransferOpen(true)}
+              >
+                <span className="edit-row-copy">
+                  <strong>Transfer this profile</strong>
+                  <em>Copy this profile to another account</em>
+                </span>
+                <ChevronRightIcon className="icon" />
+              </button>
             </div>
           </div>
           <div className="edit-autoplay">
@@ -478,6 +546,7 @@ export function ProfileSelect() {
                 setEditingId(null)
                 setPickingAvatar(false)
                 setEditPanel(null)
+                setTransferOpen(false)
               }}
             >
               Cancel
@@ -548,6 +617,13 @@ export function ProfileSelect() {
           ) : null}
         </>
       )}
+      {transferOpen ? (
+        <FooterNoteDialog
+          title="Transfer Profile"
+          body={FOOTER_NOTES['Transfer Profile']}
+          onClose={() => setTransferOpen(false)}
+        />
+      ) : null}
     </main>
   )
 }

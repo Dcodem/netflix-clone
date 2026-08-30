@@ -3095,14 +3095,16 @@ body:has(.account-page),
 
 .browse-heading h1 {
   margin: 0;
-  font-size: clamp(28px, 4.2vw, 44px);
+  font-size: clamp(28px, 4.2vw, 38px);
   font-weight: 700;
   pointer-events: auto;
-  transition: font-size 0.18s ease;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+  transition: font-size 0.18s ease, text-shadow 0.18s ease;
 }
 
 .browse-heading.is-stuck h1 {
-  font-size: 20px;
+  font-size: 22px;
+  text-shadow: none;
 }
 
 .browse-heading.is-stuck .genre-select {
@@ -3125,6 +3127,7 @@ body:has(.account-page),
   padding: 6px 12px;
   font-size: 14px;
   font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
   pointer-events: auto;
 }
@@ -3149,7 +3152,7 @@ body:has(.account-page),
   inset: 0;
   z-index: 4190;
   border: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: transparent;
   cursor: default;
 }
 
@@ -3187,14 +3190,18 @@ body:has(.account-page),
   font-family: inherit;
 }
 
-.genre-menu button:hover,
+.genre-menu button:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
 .genre-menu button.is-on {
   color: #fff;
   font-weight: 600;
 }
 
 .has-browse-heading .hero {
-  padding-top: 56px;
+  padding-top: 0;
 }
 
 .progress-track {
@@ -4338,8 +4345,17 @@ img.is-logo-pending {
 }
 
 @media (max-width: 767px) {
+  .browse-heading {
+    top: calc(var(--header-offset) + 6px);
+    gap: 10px;
+  }
+
+  .browse-heading h1 {
+    font-size: 24px;
+  }
+
   .has-browse-heading .hero {
-    padding-top: 72px;
+    padding-top: 0;
   }
 
   .hero {
@@ -5026,14 +5042,26 @@ img.is-logo-pending {
   display: grid;
   place-items: center;
   opacity: 0;
-  background: rgba(0, 0, 0, 0.22);
+  background: rgba(0, 0, 0, 0.28);
+  border: 0;
+  color: #fff;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
   transition: opacity 0.16s ease;
-  pointer-events: none;
 }
 
 .more-like-card:hover .more-like-play,
-.more-like-card:focus-visible .more-like-play {
+.more-like-card:focus-visible .more-like-play,
+.more-like-play:focus-visible {
   opacity: 1;
+}
+
+@media (hover: none) {
+  .more-like-play {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.12);
+  }
 }
 
 .more-like-play .icon {
@@ -6798,11 +6826,23 @@ img.is-logo-pending {
   background: #4d4d4d;
 }
 
-.edit-lock-panel p {
+.edit-lock-panel p,
+.edit-activity-panel p {
   margin: 0 0 10px;
   color: #808080;
   font-size: 14px;
   line-height: 1.4;
+}
+
+.edit-activity-panel p {
+  margin: 0;
+  padding: 8px 0;
+  border-bottom: 1px solid #333;
+  color: #e5e5e5;
+}
+
+.edit-activity-panel p:last-child {
+  border-bottom: 0;
 }
 
 .edit-autoplay {
@@ -7184,16 +7224,31 @@ img.is-logo-pending {
 
 .notify-row {
   display: grid;
-  grid-template-columns: 128px 1fr;
+  grid-template-columns: 146px 1fr;
   gap: 16px;
   width: 100%;
-  padding: 16px 20px;
+  padding: 16px 20px 16px 22px;
   background: none;
   border: 0;
   border-bottom: 1px solid #222;
   color: #fff;
   text-align: left;
   cursor: pointer;
+  position: relative;
+}
+
+.notify-row.is-unread {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.notify-row.is-unread::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  background: #e50914;
 }
 
 .notify-row:hover {
@@ -7203,8 +7258,8 @@ img.is-logo-pending {
 .notify-row img,
 .notify-row .media-fallback,
 .notify-art-fallback {
-  width: 128px;
-  height: 72px;
+  width: 146px;
+  height: 82px;
   object-fit: cover;
   background: #222;
   display: block;
@@ -7404,6 +7459,13 @@ img.is-logo-pending {
 
 .my-list-page.browse-page:not(:has(.hero)) {
   padding-top: calc(var(--header-offset) + 92px);
+}
+
+.my-list-page .state {
+  min-height: calc(100svh - var(--header-offset) - 180px);
+  color: #808080;
+  font-size: 18px;
+  font-weight: 400;
 }
 
 .service-code:hover {

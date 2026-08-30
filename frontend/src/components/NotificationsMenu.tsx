@@ -35,11 +35,11 @@ export function NotificationsMenu() {
         <div className="notify-dropdown" role="menu">
           {notices.length ? (
             <div className="notify-list">
-              {notices.map(({ item, kicker, stamp }) => (
+              {notices.map(({ item, kicker, stamp }, index) => (
                 <button
                   type="button"
                   key={item.id}
-                  className="notify-row"
+                  className={`notify-row ${index < 3 ? 'is-unread' : ''}`}
                   onClick={() => {
                     setOpen(false)
                     openTitle(item)

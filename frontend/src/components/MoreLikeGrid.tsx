@@ -3,8 +3,11 @@ import { getMovie, getShow } from '../api/client'
 import type { MovieListItem, ShowDetail } from '../api/types'
 import { formatRuntime, isShow } from '../lib/media'
 import { isNewEpisodes, matchPercent, maturityLabel, toLiked } from '../lib/netflix'
+import { playClick } from '../lib/sounds'
+import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
+import { useWatch } from '../watch/WatchContext'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
 import { CheckIcon, PlayIcon, PlusIcon } from './Icons'
@@ -27,7 +30,8 @@ async function chipFor(item: MovieListItem): Promise<LikeChip> {
 }
 
 export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
-  const { openTitle } = useTitleModal()
+  const { openTitle, closeTitle } = useTitleModal()
+  const { openWatch } = useWatch()
   const { activeProfile, toggleMyList } = useProfiles()
   const slice = items.slice(0, 12)
   const ids = slice.map((item) => item.id).join(',')
@@ -90,9 +94,24 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
               <div className="more-like-art-wrap">
                 <div className="more-like-art">
                   <CatalogImage item={item} alt="" prefer="backdrop" />
-                  <span className="more-like-play" aria-hidden="true">
+                  <button
+                    type="button"
+                    className="more-like-play"
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      playClick()
+                      const session = buildWatchSession(item)
+                      if (!session) {
+                        openTitle(item)
+                        return
+                      }
+                      closeTitle()
+                      openWatch(session.href, item.title, session.payload)
+                    }}
+                    aria-label={`Play ${item.title}`}
+                  >
                     <PlayIcon className="icon" />
-                  </span>
+                  </button>
                   {info?.chip ? <span className="more-like-runtime">{info.chip}</span> : null}
                 </div>
                 <button
