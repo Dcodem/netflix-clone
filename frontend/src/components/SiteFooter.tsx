@@ -70,7 +70,7 @@ const COLUMNS = [
 export const FOOTER_NOTES: Record<string, string> = {
   FAQ: 'FLIX is a browser-only demo. There is no live FAQ beyond Account and what’s on this device.',
   'Help Center':
-    'While watching, press ? for shortcuts: Space or K play/pause, F full screen, P miniplayer, C captions, M mute, N next episode, S skip intro, Esc back. Remind Me saves unreleased titles to My List and Notifications. Manage profiles, PIN, maturity, autoplay, and auto-skip intros from Account or Manage Profiles.',
+    'While watching, press ? for shortcuts: Space or K play/pause, F full screen, P miniplayer, C captions, M mute, N next episode, S skip intro, Esc back. Caption size, background, font, and color live in Audio & Subtitles. Remind Me saves unreleased titles to My List and Notifications. Manage profiles, PIN, maturity, autoplay, and auto-skip intros from Account or Manage Profiles.',
   'Terms of Use': 'This clone is for demonstration. It is not affiliated with Netflix.',
   Privacy: 'Profile picks and watch history stay in this browser. Catalog artwork may load from TMDB.',
   'Legal Notices': 'FLIX is an independent demo. Title names and artwork come from the catalog and TMDB.',

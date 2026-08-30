@@ -31,7 +31,14 @@ import { avatarFor } from '../profiles/types'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { stillFocus, episodeStill } from '../lib/media'
 import { skipMarks } from '../lib/skipMarks'
-import { readPlayerPrefs, writePlayerPrefs, type CaptionBg, type CaptionSize } from '../lib/playerPrefs'
+import {
+  readPlayerPrefs,
+  writePlayerPrefs,
+  type CaptionBg,
+  type CaptionColor,
+  type CaptionFont,
+  type CaptionSize,
+} from '../lib/playerPrefs'
 import { peekTrailer, resolveTrailer, youtubeIdFromHit } from '../trailers/resolve'
 import { findTmdbGallery, tmdbFileName } from '../trailers/tmdb'
 import { envKeys } from '../trailers/types'
@@ -154,6 +161,8 @@ export function WatchOverlay() {
   const [subs, setSubs] = useState(initialPrefs.subs)
   const [captionSize, setCaptionSize] = useState<CaptionSize>(initialPrefs.captionSize)
   const [captionBg, setCaptionBg] = useState<CaptionBg>(initialPrefs.captionBg)
+  const [captionFont, setCaptionFont] = useState<CaptionFont>(initialPrefs.captionFont)
+  const [captionColor, setCaptionColor] = useState<CaptionColor>(initialPrefs.captionColor)
   const [audioTrack, setAudioTrack] = useState(initialPrefs.audioTrack)
   const [introSkipped, setIntroSkipped] = useState(false)
   const [recapSkipped, setRecapSkipped] = useState(false)
@@ -303,8 +312,8 @@ export function WatchOverlay() {
   }, [muted, volume])
 
   useEffect(() => {
-    writePlayerPrefs({ muted, volume, speed, subs, captionSize, captionBg, audioTrack })
-  }, [muted, volume, speed, subs, captionSize, captionBg, audioTrack])
+    writePlayerPrefs({ muted, volume, speed, subs, captionSize, captionBg, captionFont, captionColor, audioTrack })
+  }, [muted, volume, speed, subs, captionSize, captionBg, captionFont, captionColor, audioTrack])
 
   useEffect(() => {
     currentRef.current = current
@@ -1068,7 +1077,7 @@ export function WatchOverlay() {
       ) : null}
       {caption ? (
         <p
-          className={`watch-caption is-${captionSize} is-bg-${captionBg} ${chrome ? 'is-raised' : ''} ${subs === 'cc' ? 'is-cc' : ''}`}
+          className={`watch-caption is-${captionSize} is-bg-${captionBg} is-font-${captionFont} is-color-${captionColor} ${chrome ? 'is-raised' : ''} ${subs === 'cc' ? 'is-cc' : ''}`}
         >
           {caption}
         </p>
@@ -1620,6 +1629,44 @@ export function WatchOverlay() {
                 onClick={() => setCaptionBg(value)}
               >
                 {captionBg === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+                {label}
+              </button>
+            ))}
+            <h2 className="watch-caption-size-label">Font</h2>
+            {(
+              [
+                ['default', 'Default'],
+                ['casual', 'Casual'],
+                ['cursive', 'Cursive'],
+                ['smallcaps', 'Small Caps'],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                className={captionFont === value ? 'is-on' : ''}
+                onClick={() => setCaptionFont(value)}
+              >
+                {captionFont === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+                {label}
+              </button>
+            ))}
+            <h2 className="watch-caption-size-label">Font color</h2>
+            {(
+              [
+                ['white', 'White'],
+                ['yellow', 'Yellow'],
+                ['cyan', 'Cyan'],
+                ['green', 'Green'],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                className={captionColor === value ? 'is-on' : ''}
+                onClick={() => setCaptionColor(value)}
+              >
+                {captionColor === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
                 {label}
               </button>
             ))}

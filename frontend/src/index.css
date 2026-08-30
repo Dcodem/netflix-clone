@@ -9234,6 +9234,36 @@ img.is-logo-pending {
   text-shadow: none;
 }
 
+.watch-caption.is-font-casual {
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+}
+
+.watch-caption.is-font-cursive {
+  font-family: 'Segoe Script', 'Apple Chancery', 'Snell Roundhand', 'Brush Script MT', cursive;
+  font-weight: 600;
+}
+
+.watch-caption.is-font-smallcaps {
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+}
+
+.watch-caption.is-color-white {
+  color: #fff;
+}
+
+.watch-caption.is-color-yellow {
+  color: #ffe600;
+}
+
+.watch-caption.is-color-cyan {
+  color: #2ad2ff;
+}
+
+.watch-caption.is-color-green {
+  color: #3ddc84;
+}
+
 @media (max-width: 767px) {
   .watch-vol-rail {
     width: 36px;
