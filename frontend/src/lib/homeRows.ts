@@ -102,8 +102,7 @@ function rail(items: MovieListItem[], cap = RAIL): MovieListItem[] {
 }
 
 function uniqueRail(items: MovieListItem[], used: Set<string>, cap = RAIL): MovieListItem[] {
-  const fresh = uniqueById(items.filter((item) => !used.has(item.id)))
-  const picked = (fresh.length ? fresh : uniqueById(items)).slice(0, cap)
+  const picked = uniqueById(items.filter((item) => !used.has(item.id))).slice(0, cap)
   for (const item of picked) used.add(item.id)
   return picked
 }
