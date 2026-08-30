@@ -40,6 +40,7 @@ type AuthContextValue = {
     paymentBrand?: string | null
     paymentLast4?: string | null
   }) => Promise<void>
+  redeemGift: (code: string) => Promise<number>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -165,11 +166,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const redeemGift = useCallback(
+    async (raw: string) => {
+      const code = raw.replace(/[^A-Za-z0-9]/g, '').toUpperCase()
+      if (code.length < 8 || code.length > 16) throw new Error('Enter a valid gift or promo code')
+      const current = loadStore()
+      const sessionId = current.sessionUserId
+      if (!sessionId) throw new Error('Sign in to redeem a gift card.')
+      const user = current.users.find((entry) => entry.id === sessionId)
+      if (!user) throw new Error('Sign in to redeem a gift card.')
+      if ((user.giftCodes ?? []).includes(code)) throw new Error('This code has already been redeemed')
+      let hash = 2166136261
+      for (let i = 0; i < code.length; i += 1) {
+        hash ^= code.charCodeAt(i)
+        hash = Math.imul(hash, 16777619)
+      }
+      const amount = [15, 25, 30, 50][(hash >>> 0) % 4]
+      updateStore((prev) => ({
+        ...prev,
+        users: prev.users.map((entry) => {
+          if (entry.id !== prev.sessionUserId) return entry
+          const used = entry.giftCodes ?? []
+          return {
+            ...entry,
+            giftBalance: (entry.giftBalance ?? 0) + amount,
+            giftCodes: [...used, code].slice(-20),
+          }
+        }),
+      }))
+      return amount
+    },
+    [updateStore],
+  )
+
   const user = store.users.find((entry) => entry.id === store.sessionUserId) ?? null
 
   const value = useMemo(
-    () => ({ user: user ? publicUser(user) : null, signup, login, logout, updateKeys, updateAccount }),
-    [user, signup, login, logout, updateKeys, updateAccount],
+    () => ({ user: user ? publicUser(user) : null, signup, login, logout, updateKeys, updateAccount, redeemGift }),
+    [user, signup, login, logout, updateKeys, updateAccount, redeemGift],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

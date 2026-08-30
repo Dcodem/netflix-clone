@@ -14,6 +14,15 @@ const PLANS = [
 
 type PlanId = (typeof PLANS)[number]['id']
 
+function money(value: number) {
+  return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+}
+
+function formatGiftCode(raw: string) {
+  const compact = raw.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 16)
+  return compact.replace(/(.{4})(?=.)/g, '$1-')
+}
+
 function cardBrand(digits: string): string {
   if (digits.startsWith('4')) return 'Visa'
   if (digits.startsWith('5') || digits.startsWith('2')) return 'Mastercard'
@@ -37,7 +46,7 @@ type AccountPanel =
   | null
 
 export function Account() {
-  const { user, updateAccount } = useAuth()
+  const { user, updateAccount, redeemGift } = useAuth()
   const { profiles, activeProfile, updateProfile } = useProfiles()
   const [panel, setPanel] = useState<AccountPanel>(null)
   const [emailDraft, setEmailDraft] = useState(user?.email ?? '')
@@ -51,6 +60,8 @@ export function Account() {
   const [cardNumber, setCardNumber] = useState('')
   const [cardExp, setCardExp] = useState('')
   const [cardCvc, setCardCvc] = useState('')
+  const [giftDraft, setGiftDraft] = useState('')
+  const [giftApplied, setGiftApplied] = useState<number | null>(null)
   const plan = PLANS.find((entry) => entry.id === planId) ?? PLANS[0]
   const nextPay = useMemo(() => {
     const date = new Date()
@@ -70,6 +81,8 @@ export function Account() {
     setCardNumber('')
     setCardExp('')
     setCardCvc('')
+    setGiftDraft('')
+    setGiftApplied(null)
     setPanel((current) => (current === next ? null : next))
   }
 
@@ -115,6 +128,22 @@ export function Account() {
     }
   }
 
+  async function saveGift(event: FormEvent) {
+    event.preventDefault()
+    setAccountError(null)
+    setGiftApplied(null)
+    setAccountBusy(true)
+    try {
+      const amount = await redeemGift(giftDraft)
+      setGiftApplied(amount)
+      setGiftDraft('')
+    } catch (err) {
+      setAccountError(err instanceof Error ? err.message : 'Could not redeem that code.')
+    } finally {
+      setAccountBusy(false)
+    }
+  }
+
   return (
     <main className="page-pad account-page">
       <h1>Account</h1>
@@ -134,6 +163,12 @@ export function Account() {
             <span>Next payment</span>
             <strong>{nextPay}</strong>
           </div>
+          {user?.giftBalance ? (
+            <div className="account-next-pay account-gift-balance">
+              <span>Gift card balance</span>
+              <strong>{money(user.giftBalance)}</strong>
+            </div>
+          ) : null}
           <p className="account-hint">Billed monthly on this device.</p>
           <button type="button" className="account-cancel" onClick={() => togglePanel('cancel')}>
             Cancel Membership
@@ -326,7 +361,9 @@ export function Account() {
                 </span>
               </div>
               <p className="account-inline-note">
-                Next payment {nextPay}. FLIX does not store receipts or charge a card on this device.
+                Next payment {nextPay}
+                {user?.giftBalance ? ` · Gift card balance ${money(user.giftBalance)}` : ''}. FLIX does not store
+                receipts or charge a card on this device.
               </p>
             </div>
           ) : null}
@@ -336,7 +373,38 @@ export function Account() {
             </button>
           </div>
           {panel === 'gift' ? (
-            <p className="account-inline-note">Gift cards and promo codes are not used on this device.</p>
+            <form className="account-inline" onSubmit={(event) => void saveGift(event)}>
+              <label>
+                Gift card or promo code
+                <input
+                  value={giftDraft}
+                  onChange={(event) => setGiftDraft(formatGiftCode(event.target.value))}
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="XXXX-XXXX-XXXX"
+                  required
+                />
+              </label>
+              {giftApplied ? (
+                <p className="account-inline-note">
+                  {money(giftApplied)} applied. Gift card balance {money(user?.giftBalance ?? 0)}. FLIX still does not
+                  charge a card.
+                </p>
+              ) : (
+                <p className="account-inline-note">
+                  Credit stays on this device and applies to the next payment shown here. FLIX does not charge a card.
+                </p>
+              )}
+              {accountError ? <p className="account-inline-error">{accountError}</p> : null}
+              <div className="account-inline-actions">
+                <button type="submit" className="btn btn-primary" disabled={accountBusy}>
+                  Redeem
+                </button>
+                <button type="button" className="account-change" onClick={() => setPanel(null)}>
+                  Cancel
+                </button>
+              </div>
+            </form>
           ) : null}
         </div>
       </section>

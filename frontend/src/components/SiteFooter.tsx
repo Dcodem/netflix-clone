@@ -81,7 +81,8 @@ export const FOOTER_NOTES: Record<string, string> = {
   'Contact Us': 'There is no support inbox for this demo.',
   'Speed Test': 'Playback uses this device’s connection. There is no separate speed test.',
   'Media Center': 'There is no press kit for this demo.',
-  'Redeem Gift Cards': 'Gift cards and promo codes are not used on this device.',
+  'Redeem Gift Cards':
+    'Open Account and choose Redeem gift card or promo code. Credit stays on this device and does not charge a card.',
   'Buy Gift Cards': 'Gift cards are not sold on this device.',
   'Transfer Profile':
     'Open the account menu and choose Transfer Profile to get a one-time code. Profiles stay on this device.',

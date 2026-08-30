@@ -11,6 +11,8 @@ export type UserAccount = {
   planId?: 'standard' | 'premium' | 'basic'
   paymentBrand?: string | null
   paymentLast4?: string | null
+  giftBalance?: number
+  giftCodes?: string[]
 }
 
 export type AuthStore = {

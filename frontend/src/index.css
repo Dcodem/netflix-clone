@@ -2399,6 +2399,12 @@ body:has(.account-page),
   color: #333;
 }
 
+.account-gift-balance {
+  margin-top: 0;
+  padding-top: 8px;
+  border-top: 0;
+}
+
 .account-membership-card .account-hint {
   margin: 0 0 16px;
 }
