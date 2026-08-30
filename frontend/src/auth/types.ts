@@ -1,3 +1,9 @@
+export type AccountDevice = {
+  id: string
+  label: string
+  lastUsed: number
+}
+
 export type UserAccount = {
   id: string
   email: string
@@ -13,6 +19,7 @@ export type UserAccount = {
   paymentLast4?: string | null
   giftBalance?: number
   giftCodes?: string[]
+  devices?: AccountDevice[]
 }
 
 export type AuthStore = {

@@ -1,6 +1,7 @@
 import { type FormEvent, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { currentDeviceId, formatDeviceUsed, upsertCurrentDevice } from '../auth/device'
 import { AvatarArt } from '../components/AvatarArt'
 import { ChevronRightIcon } from '../components/Icons'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -46,7 +47,7 @@ type AccountPanel =
   | null
 
 export function Account() {
-  const { user, updateAccount, redeemGift } = useAuth()
+  const { user, updateAccount, redeemGift, signOutDevice, signOutOtherDevices } = useAuth()
   const { profiles, activeProfile, updateProfile } = useProfiles()
   const [panel, setPanel] = useState<AccountPanel>(null)
   const [emailDraft, setEmailDraft] = useState(user?.email ?? '')
@@ -539,16 +540,40 @@ export function Account() {
             </button>
           </div>
           {panel === 'devices' ? (
-            <p className="account-inline-note">You’re watching on this browser. There are no other streaming devices to manage.</p>
+            <ul className="account-devices">
+              {(user?.devices?.length ? user.devices : upsertCurrentDevice([])).map((device) => {
+                const here = device.id === currentDeviceId()
+                return (
+                  <li key={device.id} className={here ? 'is-here' : ''}>
+                    <span>
+                      <strong>{device.label}</strong>
+                      <em>{here ? 'This device · Active now' : `Last used ${formatDeviceUsed(device.lastUsed)}`}</em>
+                    </span>
+                    {here ? null : (
+                      <button type="button" className="account-change" onClick={() => signOutDevice(device.id)}>
+                        Sign out
+                      </button>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
           ) : null}
           <div className="account-row is-actions">
-            <button type="button" className="account-change" onClick={() => togglePanel('signout')}>
+            <button
+              type="button"
+              className="account-change"
+              onClick={() => {
+                signOutOtherDevices()
+                togglePanel('signout')
+              }}
+            >
               Sign out of all devices
             </button>
           </div>
           {panel === 'signout' ? (
             <p className="account-inline-note">
-              You’re signed in on this device only. Use Switch Profiles to change who’s watching.
+              Other devices were signed out. You’re still signed in here. Use Switch Profiles to change who’s watching.
             </p>
           ) : null}
         </div>

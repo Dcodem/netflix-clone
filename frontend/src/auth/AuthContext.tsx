@@ -1,5 +1,6 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { hashPassword, passwordsMatch } from './crypto'
+import { currentDeviceId, currentDeviceLabel, upsertCurrentDevice } from './device'
 import { AUTH_STORAGE_KEY, type AuthStore, type UserAccount } from './types'
 
 function emptyStore(): AuthStore {
@@ -41,6 +42,8 @@ type AuthContextValue = {
     paymentLast4?: string | null
   }) => Promise<void>
   redeemGift: (code: string) => Promise<number>
+  signOutDevice: (deviceId: string) => void
+  signOutOtherDevices: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -199,11 +202,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [updateStore],
   )
 
+  const touchDevice = useCallback(() => {
+    updateStore((prev) => ({
+      ...prev,
+      users: prev.users.map((entry) => {
+        if (entry.id !== prev.sessionUserId) return entry
+        return { ...entry, devices: upsertCurrentDevice(entry.devices) }
+      }),
+    }))
+  }, [updateStore])
+
+  const signOutDevice = useCallback(
+    (deviceId: string) => {
+      const currentId = currentDeviceId()
+      if (deviceId === currentId) return
+      updateStore((prev) => ({
+        ...prev,
+        users: prev.users.map((entry) => {
+          if (entry.id !== prev.sessionUserId) return entry
+          return { ...entry, devices: (entry.devices ?? []).filter((device) => device.id !== deviceId) }
+        }),
+      }))
+    },
+    [updateStore],
+  )
+
+  const signOutOtherDevices = useCallback(() => {
+    const currentId = currentDeviceId()
+    updateStore((prev) => ({
+      ...prev,
+      users: prev.users.map((entry) => {
+        if (entry.id !== prev.sessionUserId) return entry
+        return {
+          ...entry,
+          devices: upsertCurrentDevice((entry.devices ?? []).filter((device) => device.id === currentId)),
+        }
+      }),
+    }))
+  }, [updateStore])
+
   const user = store.users.find((entry) => entry.id === store.sessionUserId) ?? null
 
+  useEffect(() => {
+    if (!user) return
+    const id = currentDeviceId()
+    const label = currentDeviceLabel()
+    const existing = user.devices?.find((device) => device.id === id)
+    if (existing && existing.label === label && Date.now() - existing.lastUsed < 60_000) return
+    touchDevice()
+  }, [user, touchDevice])
+
   const value = useMemo(
-    () => ({ user: user ? publicUser(user) : null, signup, login, logout, updateKeys, updateAccount, redeemGift }),
-    [user, signup, login, logout, updateKeys, updateAccount, redeemGift],
+    () => ({
+      user: user ? publicUser(user) : null,
+      signup,
+      login,
+      logout,
+      updateKeys,
+      updateAccount,
+      redeemGift,
+      signOutDevice,
+      signOutOtherDevices,
+    }),
+    [user, signup, login, logout, updateKeys, updateAccount, redeemGift, signOutDevice, signOutOtherDevices],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
