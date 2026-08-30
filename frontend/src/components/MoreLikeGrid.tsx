@@ -99,14 +99,22 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
                     className="more-like-play"
                     onClick={(event) => {
                       event.stopPropagation()
+                      event.preventDefault()
                       playClick()
-                      const session = buildWatchSession(item)
-                      if (!session) {
-                        openTitle(item)
-                        return
-                      }
-                      closeTitle()
-                      openWatch(session.href, item.title, session.payload)
+                      void (async () => {
+                        try {
+                          const detail = isShow(item) ? await getShow(item.id) : await getMovie(item.id)
+                          const session = buildWatchSession(item, detail)
+                          if (!session) {
+                            openTitle(item)
+                            return
+                          }
+                          closeTitle()
+                          openWatch(session.href, item.title, session.payload)
+                        } catch {
+                          openTitle(item)
+                        }
+                      })()
                     }}
                     aria-label={`Play ${item.title}`}
                   >
