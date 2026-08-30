@@ -9223,6 +9223,17 @@ img.is-logo-pending {
   margin-top: 18px;
 }
 
+.watch-caption.is-bg-none {
+  text-shadow: none;
+}
+
+.watch-caption.is-bg-box {
+  padding: 6px 16px;
+  background: rgba(0, 0, 0, 0.78);
+  border-radius: 2px;
+  text-shadow: none;
+}
+
 @media (max-width: 767px) {
   .watch-vol-rail {
     width: 36px;
