@@ -8,9 +8,11 @@ import { ErrorState } from '../components/ErrorState'
 import { GenreDots } from '../components/GenreDots'
 import { Spinner } from '../components/Spinner'
 import { TitleLogo } from '../components/TitleLogo'
+import { notifyRemind } from '../components/RemindToast'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { Home } from './Home'
+import { comingDate, comingLine, isComingSoon, monthLabel } from '../lib/comingSoon'
 import { genresOf, isShow, ofKind, sortByRating, sortByYear, uniqueById } from '../lib/media'
 import { filterByMaturity, matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
@@ -20,7 +22,6 @@ import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 
 const synCache = new Map<string, string>()
-const THIS_YEAR = new Date().getFullYear()
 
 type NewsChip = 'coming' | 'watching' | 'worth' | 'new' | 'top-tv' | 'top-movies'
 type FeedMode = 'soon' | 'watching' | 'ranked'
@@ -32,35 +33,6 @@ async function synopsisForItem(item: MovieListItem): Promise<string> {
   const synopsis = detail.synopsis?.trim() ?? ''
   if (synopsis) synCache.set(item.id, synopsis)
   return synopsis
-}
-
-function comingSoon(item: MovieListItem) {
-  return (item.year ?? 0) >= THIS_YEAR
-}
-
-function comingDate(id: string) {
-  let hash = 0
-  for (let i = 0; i < id.length; i += 1) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
-  const date = new Date()
-  date.setHours(12, 0, 0, 0)
-  date.setDate(date.getDate() + 4 + (hash % 42))
-  return date
-}
-
-function monthLabel(date: Date) {
-  return date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
-}
-
-function comingLine(date: Date) {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const target = new Date(date)
-  target.setHours(0, 0, 0, 0)
-  const days = Math.round((target.getTime() - today.getTime()) / 86400000)
-  if (days >= 0 && days <= 6) {
-    return `Coming ${date.toLocaleDateString('en-US', { weekday: 'long' })}`
-  }
-  return `Coming ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
 }
 
 function FeedCard({
@@ -221,22 +193,12 @@ function NewsHotFeed() {
   }, 'news-catalog')
 
   const { activeProfile, toggleMyList } = useProfiles()
-  const [remindNote, setRemindNote] = useState<string | null>(null)
-  const remindTimer = useRef(0)
 
   function handleRemind(item: MovieListItem, onList: boolean) {
     playClick()
     toggleMyList(toLiked(item))
-    window.clearTimeout(remindTimer.current)
-    if (!onList) {
-      setRemindNote(`We’ll remind you when ${item.title} is ready to watch.`)
-      remindTimer.current = window.setTimeout(() => setRemindNote(null), 4200)
-    } else {
-      setRemindNote(null)
-    }
+    notifyRemind(item.title, !onList)
   }
-
-  useEffect(() => () => window.clearTimeout(remindTimer.current), [])
   const catalog = useMemo(
     () => filterByMaturity(uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]), activeProfile),
     [movies.data, extras.data, activeProfile],
@@ -251,7 +213,7 @@ function NewsHotFeed() {
   const jumpingRef = useRef(false)
   const [chip, setChip] = useState<NewsChip | null>(null)
   const coming = useMemo(() => {
-    const soon = catalog.filter(comingSoon)
+    const soon = catalog.filter(isComingSoon)
     const series = soon.filter(isShow)
     const films = soon.filter((item) => !isShow(item))
     return uniqueById([...series.slice(0, 4), ...films.slice(0, 10)]).sort(
@@ -260,12 +222,12 @@ function NewsHotFeed() {
   }, [catalog])
   const watching = useMemo(() => {
     const seen = new Set(coming.map((item) => item.id))
-    return sortByRating(catalog.filter((item) => !seen.has(item.id) && !comingSoon(item))).slice(0, 12)
+    return sortByRating(catalog.filter((item) => !seen.has(item.id) && !isComingSoon(item))).slice(0, 12)
   }, [catalog, coming])
   const worth = useMemo(() => {
     const comingIds = new Set(coming.map((item) => item.id))
     const watchingIds = new Set(watching.map((item) => item.id))
-    const leftoverSoon = catalog.filter((item) => comingSoon(item) && !comingIds.has(item.id))
+    const leftoverSoon = catalog.filter((item) => isComingSoon(item) && !comingIds.has(item.id))
     const fill = sortByRating(
       catalog.filter((item) => !comingIds.has(item.id) && !watchingIds.has(item.id)),
     )
@@ -273,7 +235,7 @@ function NewsHotFeed() {
   }, [catalog, coming, watching])
   const newFlix = useMemo(() => {
     const taken = new Set([...coming, ...watching, ...worth].map((item) => item.id))
-    return sortByYear(catalog.filter((item) => !comingSoon(item) && !taken.has(item.id))).slice(0, 10)
+    return sortByYear(catalog.filter((item) => !isComingSoon(item) && !taken.has(item.id))).slice(0, 10)
   }, [catalog, coming, watching, worth])
   const topTv = useMemo(() => sortByRating(ofKind(catalog, 'shows')).slice(0, 10), [catalog])
   const topMovies = useMemo(() => sortByRating(ofKind(catalog, 'movies')).slice(0, 10), [catalog])
@@ -448,9 +410,9 @@ function NewsHotFeed() {
             <FeedCard
               key={item.id}
               item={item}
-              mode={comingSoon(item) ? 'soon' : 'watching'}
+              mode={isComingSoon(item) ? 'soon' : 'watching'}
               synopsis={synopses[item.id]}
-              onRemind={comingSoon(item) ? handleRemind : undefined}
+              onRemind={isComingSoon(item) ? handleRemind : undefined}
             />
           ))}
         </section>
@@ -478,11 +440,6 @@ function NewsHotFeed() {
             <FeedCard key={item.id} item={item} mode="ranked" rank={index + 1} synopsis={synopses[item.id]} />
           ))}
         </section>
-      ) : null}
-      {remindNote ? (
-        <p className="news-remind-toast" role="alert">
-          {remindNote}
-        </p>
       ) : null}
     </main>
   )

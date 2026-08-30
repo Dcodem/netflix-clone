@@ -10,6 +10,7 @@ import {
   tasteGenreRails,
 } from '../profiles/taste'
 import type { LikedTitle, Profile, WatchHistoryItem } from '../profiles/types'
+import { isComingSoon, sortByComingDate } from './comingSoon'
 import { genresOf, ofKind, remainingLabel, sortByRating, sortByYear, uniqueById } from './media'
 
 export type BrowseFilter = 'home' | 'movies' | 'shows' | 'popular'
@@ -25,6 +26,7 @@ export type HomeRow = {
 }
 
 const RAIL = 36
+const POPULAR_RAIL = 12
 
 export function historyToListItems(history: WatchHistoryItem[]): MovieListItem[] {
   return history.map((item) => ({
@@ -131,20 +133,21 @@ export function buildBrowseRows(opts: {
   const rows: HomeRow[] = []
 
   if (filter === 'popular') {
-    const year = new Date().getFullYear()
-    const soon = pool.filter((item) => (item.year ?? 0) >= year)
-    const available = pool.filter((item) => (item.year ?? 0) < year)
-    const watching = sortByRating(available)
-    const comingIds = railIds(soon)
-    const watchingIds = railIds(watching)
+    const soon = sortByComingDate(pool.filter(isComingSoon))
+    const available = pool.filter((item) => !isComingSoon(item))
+    const coming = rail(soon, POPULAR_RAIL)
+    const comingIds = railIds(coming, POPULAR_RAIL)
+    const watching = rail(sortByRating(available), POPULAR_RAIL)
+    const watchingIds = railIds(watching, POPULAR_RAIL)
     const leftoverSoon = soon.filter((item) => !comingIds.has(item.id))
     const worthFill = sortByRating(available.filter((item) => !watchingIds.has(item.id)))
-    const worth = uniqueById([...leftoverSoon, ...worthFill])
-    const worthIds = railIds(worth)
-    const newFlix = sortByYear(
-      available.filter((item) => !watchingIds.has(item.id) && !worthIds.has(item.id)),
+    const worth = rail(uniqueById([...leftoverSoon, ...worthFill]), POPULAR_RAIL)
+    const worthIds = railIds(worth, POPULAR_RAIL)
+    const newFlix = rail(
+      sortByYear(available.filter((item) => !watchingIds.has(item.id) && !worthIds.has(item.id))),
+      POPULAR_RAIL,
     )
-    pushRow(rows, { id: 'coming', title: 'Coming Soon', items: soon })
+    pushRow(rows, { id: 'coming', title: 'Coming Soon', items: coming })
     pushRow(rows, { id: 'watching', title: 'Everyone’s Watching', items: watching })
     pushRow(rows, { id: 'worth', title: 'Worth the Wait', items: worth })
     pushRow(rows, { id: 'new-flix', title: 'New on FLIX', items: newFlix })

@@ -9,6 +9,7 @@ import { MediaRow } from '../components/MediaRow'
 import { useAuth } from '../auth/AuthContext'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
+import { isComingSoon } from '../lib/comingSoon'
 import { historyToListItems, likedToItems, stillWatching } from '../lib/homeRows'
 import { isShow, uniqueById } from '../lib/media'
 import { catalogNotices, filterByMaturity } from '../lib/netflix'
@@ -62,7 +63,7 @@ export function MyNetflix() {
   }
 
   async function playSomething() {
-    const pool = catalog
+    const pool = catalog.filter((item) => !isComingSoon(item))
     if (!pool.length) return
     const item = pool[Math.floor(Math.random() * pool.length)]
     playClick()

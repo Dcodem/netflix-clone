@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieListItem } from '../api/types'
+import { isComingSoon } from '../lib/comingSoon'
 import { isShow } from '../lib/media'
+import { toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
+import { notifyRemind } from './RemindToast'
 import { CatalogImage } from './CatalogImage'
-import { PlayIcon } from './Icons'
+import { BellIcon, CheckIcon, PlayIcon } from './Icons'
 
 export function SearchHitsList({
   items,
@@ -19,8 +22,15 @@ export function SearchHitsList({
 }) {
   const { openTitle } = useTitleModal()
   const { openWatch } = useWatch()
-  const { activeProfile } = useProfiles()
+  const { activeProfile, toggleMyList } = useProfiles()
   const [playingId, setPlayingId] = useState<string | null>(null)
+
+  function remindNow(item: MovieListItem) {
+    const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
+    playClick()
+    toggleMyList(toLiked(item))
+    notifyRemind(item.title, !onList)
+  }
 
   async function playNow(item: MovieListItem) {
     if (playingId) return
@@ -53,7 +63,24 @@ export function SearchHitsList({
             </span>
             <span className="search-top-title">{item.title}</span>
           </button>
-          {ranked ? null : (
+          {ranked ? null : isComingSoon(item) ? (
+            <button
+              type="button"
+              className="search-top-play"
+              aria-label={
+                activeProfile?.myList.some((entry) => entry.id === item.id)
+                  ? `Reminded for ${item.title}`
+                  : `Remind Me for ${item.title}`
+              }
+              onClick={() => remindNow(item)}
+            >
+              {activeProfile?.myList.some((entry) => entry.id === item.id) ? (
+                <CheckIcon className="icon" />
+              ) : (
+                <BellIcon className="icon" />
+              )}
+            </button>
+          ) : (
             <button
               type="button"
               className="search-top-play"

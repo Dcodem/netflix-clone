@@ -31,6 +31,7 @@ import { avatarFor } from '../profiles/types'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { stillFocus, episodeStill } from '../lib/media'
 import { skipMarks } from '../lib/skipMarks'
+import { readPlayerPrefs, writePlayerPrefs } from '../lib/playerPrefs'
 import { peekTrailer, resolveTrailer, youtubeIdFromHit } from '../trailers/resolve'
 import { findTmdbGallery, tmdbFileName } from '../trailers/tmdb'
 import { envKeys } from '../trailers/types'
@@ -140,17 +141,18 @@ export function WatchOverlay() {
   const [chrome, setChrome] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
   const [paused, setPaused] = useState(false)
-  const [muted, setMuted] = useState(false)
-  const [volume, setVolume] = useState(1)
+  const initialPrefs = readPlayerPrefs()
+  const [muted, setMuted] = useState(initialPrefs.muted)
+  const [volume, setVolume] = useState(initialPrefs.volume)
   const [current, setCurrent] = useState(0)
   const [duration, setDuration] = useState(0)
   const [showDetail, setShowDetail] = useState<ShowDetail | null>(null)
   const [episodesOpen, setEpisodesOpen] = useState(false)
   const [audioOpen, setAudioOpen] = useState(false)
   const [speedOpen, setSpeedOpen] = useState(false)
-  const [speed, setSpeed] = useState(1)
-  const [subs, setSubs] = useState<'off' | 'en' | 'cc'>('off')
-  const [audioTrack, setAudioTrack] = useState<'en' | 'ad'>('en')
+  const [speed, setSpeed] = useState(initialPrefs.speed)
+  const [subs, setSubs] = useState(initialPrefs.subs)
+  const [audioTrack, setAudioTrack] = useState(initialPrefs.audioTrack)
   const [introSkipped, setIntroSkipped] = useState(false)
   const [recapSkipped, setRecapSkipped] = useState(false)
   const [flash, setFlash] = useState<'play' | 'pause' | 'back' | 'fwd' | null>(null)
@@ -170,7 +172,7 @@ export function WatchOverlay() {
   const [clockKey, setClockKey] = useState('')
   const flashTimer = useRef(0)
   const tapRef = useRef({ at: 0, x: 0, play: 0 })
-  const audioRef = useRef({ muted: false, volume: 1 })
+  const audioRef = useRef({ muted: initialPrefs.muted, volume: initialPrefs.volume })
   const currentRef = useRef(0)
   const autoNextRef = useRef('')
   const streakRef = useRef(0)
@@ -299,6 +301,10 @@ export function WatchOverlay() {
   }, [muted, volume])
 
   useEffect(() => {
+    writePlayerPrefs({ muted, volume, speed, subs, audioTrack })
+  }, [muted, volume, speed, subs, audioTrack])
+
+  useEffect(() => {
     currentRef.current = current
   }, [current])
 
@@ -309,12 +315,9 @@ export function WatchOverlay() {
     }
     setChrome(true)
     setPaused(false)
-    setMuted(false)
-    setVolume(1)
     setEpisodesOpen(false)
     setAudioOpen(false)
     setSpeedOpen(false)
-    setSpeed(1)
     setVolOpen(false)
     setBarHover(false)
     setIntroSkipped(false)
@@ -329,9 +332,9 @@ export function WatchOverlay() {
         ambienceRef.current = null
       } else {
         ambienceRef.current = createWatchAmbience()
-        ambienceRef.current.setMuted(false)
+        ambienceRef.current.setMuted(audioRef.current.muted)
         ambienceRef.current.setPlaying(true)
-        ambienceRef.current.setVolume(1)
+        ambienceRef.current.setVolume(audioRef.current.volume)
       }
     } catch {
       ambienceRef.current = null

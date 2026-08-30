@@ -14,6 +14,7 @@ import { FeatureBadges } from '../components/FeatureBadges'
 import { GenreDots } from '../components/GenreDots'
 import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
+import { comingLineFor, isComingSoon } from '../lib/comingSoon'
 import { stillWatching } from '../lib/homeRows'
 import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
 import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes, filterByMaturity } from '../lib/netflix'
@@ -147,6 +148,8 @@ export function TitleModal() {
     ? last?.watch_href || resumeEpisode?.watch_href || detail?.watch_href
     : detail?.watch_href
   const continueMode = Boolean(last && stillWatching(last))
+  const soon = isComingSoon(item)
+  const coming = comingLineFor(item)
   const activeTab = tab ?? (isShow(item) ? 'episodes' : 'more')
 
   function selectTab(next: 'episodes' | 'more' | 'trailers') {
@@ -345,18 +348,18 @@ export function TitleModal() {
           <div className="title-modal-split">
             <div className="title-modal-split-main">
               <div className="jawbone-meta">
-                <span className="match">{match}% Match</span>
-                {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
+                {soon && coming ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}
+                {soon ? null : isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
                 {item.year ? <span>{item.year}</span> : null}
                 <span className="maturity">{maturity}</span>
-                {isShow(item) && seasons.length ? (
+                {soon ? null : isShow(item) && seasons.length ? (
                   <span>
                     {seasons.length} {seasons.length === 1 ? 'Season' : 'Seasons'}
                   </span>
                 ) : runtime ? (
                   <span>{runtime}</span>
                 ) : null}
-                <FeatureBadges quality={item.quality || detail?.quality} />
+                {soon ? null : <FeatureBadges quality={item.quality || detail?.quality} />}
               </div>
               {detail?.synopsis ? <p className="title-modal-syn">{detail.synopsis}</p> : null}
             </div>

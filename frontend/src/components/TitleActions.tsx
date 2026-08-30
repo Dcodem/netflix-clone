@@ -1,13 +1,16 @@
 import { useState } from 'react'
 import type { MovieDetail, MovieListItem } from '../api/types'
 import { useFineHover } from '../hooks/useFineHover'
+import { isComingSoon } from '../lib/comingSoon'
 import { toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
+import { notifyRemind } from './RemindToast'
 import {
+  BellIcon,
   CaretIcon,
   CheckIcon,
   DoubleThumbUpIcon,
@@ -54,7 +57,14 @@ export function TitleActions({
   const session = buildWatchSession(item, detail, history, false, watchHref)
   const href = session?.href
   const sheet = layout === 'sheet'
+  const soon = isComingSoon(item)
   const [copied, setCopied] = useState(false)
+
+  function remind() {
+    playClick()
+    toggleMyList(likedItem)
+    notifyRemind(item.title, !onList)
+  }
 
   async function shareTitle() {
     const url = `${window.location.origin}/browse?jbv=${encodeURIComponent(item.id)}`
@@ -151,7 +161,29 @@ export function TitleActions({
 
   return (
     <div className={`title-actions size-${size} play-${playStyle} ${sheet ? 'is-sheet' : ''}`}>
-      {playStyle === 'labeled' ? (
+      {soon ? (
+        playStyle === 'labeled' ? (
+          <button
+            type="button"
+            className={`btn ${onList ? 'btn-reminded' : 'btn-play'}`}
+            onClick={remind}
+            aria-pressed={onList}
+          >
+            {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
+            {onList ? 'Reminded' : 'Remind Me'}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className={`circle-btn ${onList ? 'is-on' : ''}`}
+            onClick={remind}
+            aria-label={onList ? 'Reminded' : 'Remind Me'}
+            aria-pressed={onList}
+          >
+            {onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" />}
+          </button>
+        )
+      ) : playStyle === 'labeled' ? (
         <button type="button" className="btn btn-play" onClick={() => play(false)} disabled={!href}>
           <PlayIcon className="icon" />
           {continueMode ? 'Resume' : 'Play'}
@@ -167,7 +199,7 @@ export function TitleActions({
           <PlayIcon className="icon" />
         </button>
       )}
-      {sheet ? (
+      {sheet && !soon ? (
         <button
           type="button"
           className={`btn btn-download ${downloaded ? 'is-on' : ''}`}
@@ -180,14 +212,14 @@ export function TitleActions({
           {downloaded ? 'Downloaded' : 'Download'}
         </button>
       ) : null}
-      {continueMode && playStyle === 'labeled' && !sheet ? (
+      {continueMode && playStyle === 'labeled' && !sheet && !soon ? (
         <button type="button" className="circle-btn" onClick={() => play(true)} disabled={!href} aria-label="Play from beginning">
           <RestartIcon className="icon" />
         </button>
       ) : null}
       {sheet ? (
         <div className={`title-sheet-tools ${continueMode ? 'is-continue' : ''}`}>
-          {continueMode ? (
+          {continueMode && !soon ? (
             <button
               type="button"
               className="title-sheet-btn"
@@ -198,6 +230,7 @@ export function TitleActions({
               <span>Restart</span>
             </button>
           ) : null}
+          {soon ? null : (
           <button
             type="button"
             className={`title-sheet-btn ${onList ? 'is-on' : ''}`}
@@ -206,13 +239,14 @@ export function TitleActions({
             {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
             <span>My List</span>
           </button>
+          )}
           {rateControl}
           <button type="button" className={`title-sheet-btn ${copied ? 'is-on' : ''}`} onClick={() => void shareTitle()}>
             <ShareIcon className="icon" />
             <span>{copied ? 'Copied' : 'Share'}</span>
           </button>
         </div>
-      ) : (
+      ) : soon ? null : (
         <button
           type="button"
           className={`circle-btn ${onList ? 'is-on' : ''}`}

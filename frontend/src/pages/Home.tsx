@@ -11,6 +11,7 @@ import { MediaRow } from '../components/MediaRow'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
+import { isComingSoon } from '../lib/comingSoon'
 import { buildBrowseRows, catalogGenres, exploreHrefForRow, type BrowseFilter } from '../lib/homeRows'
 import { matchesGenreFilter } from '../profiles/taste'
 import { isShow, ofKind, pickHero, sortByRating, uniqueById } from '../lib/media'
@@ -79,7 +80,11 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     [kindPool, genre],
   )
   const top10 = useMemo(() => sortByRating(pool).slice(0, 10), [pool])
-  const hero = useMemo(() => pickHero(top10.length ? top10 : pool), [top10, pool])
+  const hero = useMemo(() => {
+    const source = top10.length ? top10 : pool
+    const playable = source.filter((item) => !isComingSoon(item))
+    return pickHero(playable.length ? playable : source)
+  }, [top10, pool])
   const heroRank = useMemo(() => {
     if (!hero) return 0
     const index = top10.findIndex((item) => item.id === hero.id)

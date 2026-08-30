@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem, ShowDetail } from '../api/types'
+import { comingLineFor, isComingSoon } from '../lib/comingSoon'
 import { stillWatching } from '../lib/homeRows'
 import { formatRuntime, genresOf, isShow, remainingLabel } from '../lib/media'
 import { isNewEpisodes, matchPercent, maturityLabel } from '../lib/netflix'
@@ -72,6 +73,8 @@ export function TitleHoverCard({
   const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
   const episodeCount = seasons.reduce((count, season) => count + (season.episodes?.length ?? 0), 0)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
+  const soon = isComingSoon(item)
+  const coming = comingLineFor(item)
   const previewOn = activeProfile?.autoplayPreview !== false
   const watchHref =
     last?.watch_href ||
@@ -177,10 +180,12 @@ export function TitleHoverCard({
           continueMode={stillWatching({ progress, kind: item.kind })}
         />
         <div className="jawbone-meta">
-          <span className="match">{match}% Match</span>
-          {isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
+          {soon && coming ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}
+          {soon ? null : isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
           <span className="maturity">{maturity}</span>
-          {remainingLabel(progress, detail?.runtime) ? (
+          {soon ? (
+            item.year ? <span>{item.year}</span> : null
+          ) : remainingLabel(progress, detail?.runtime) ? (
             <span>{remainingLabel(progress, detail?.runtime)}</span>
           ) : isShow(item) ? (
             <span>
@@ -195,7 +200,7 @@ export function TitleHoverCard({
           ) : runtime ? (
             <span>{runtime}</span>
           ) : null}
-          <FeatureBadges quality={quality} compact />
+          {soon ? null : <FeatureBadges quality={quality} compact />}
         </div>
         {genres.length ? <GenreDots genres={genres} className="jawbone-genres" /> : null}
       </div>
