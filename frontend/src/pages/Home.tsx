@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { CategoriesSheet } from '../components/CategoriesSheet'
+import { CaretIcon } from '../components/Icons'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { GenreSelect } from '../components/GenreSelect'
@@ -193,6 +194,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           <Link to="/browse/movies">Movies</Link>
           <button type="button" onClick={() => setCategoriesOpen(true)}>
             Categories
+            <CaretIcon className="icon" />
           </button>
         </div>
       ) : null}
