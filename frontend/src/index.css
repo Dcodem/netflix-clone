@@ -13021,6 +13021,8 @@ img.is-logo-pending {
   position: fixed;
   z-index: 4200;
   max-height: min(70vh, 480px);
+  min-width: 0;
+  width: auto;
 }
 
 .outline-select-search {
