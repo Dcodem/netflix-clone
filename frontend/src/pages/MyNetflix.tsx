@@ -150,41 +150,6 @@ export function MyNetflix() {
         )}
       </section>
 
-      <section className="my-netflix-downloads">
-        <h2 className="section-title">Downloads</h2>
-        {downloadItems.length ? (
-          <ul className="download-list">
-            {downloadItems.map((item) => (
-              <li key={item.id}>
-                <button type="button" className="download-row" onClick={(event) => openTitle(item, event.currentTarget)}>
-                  <span className="download-still">
-                    <CatalogImage item={item} prefer="backdrop" alt="" />
-                  </span>
-                  <span className="download-copy">
-                    <strong>{item.title}</strong>
-                    <em>
-                      Download complete · {downloadQualityLabel(activeProfile.downloadQuality)}
-                      {activeProfile.smartDownloads !== false ? ' · Smart Downloads' : ''}
-                    </em>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="downloads-empty">
-            <span className="downloads-empty-icon">
-              <DownloadIcon className="icon" />
-            </span>
-            <strong>Downloads for You</strong>
-            <p>Movies and TV shows you download appear here.</p>
-            <Link to="/browse" className="downloads-find">
-              Find Something to Download
-            </Link>
-          </div>
-        )}
-      </section>
-
       {continueItems.length ? (
         desktop ? (
           <MediaRow
@@ -227,6 +192,42 @@ export function MyNetflix() {
           </section>
         )
       ) : null}
+
+      <section className="my-netflix-downloads">
+        <h2 className="section-title">Downloads</h2>
+        {downloadItems.length ? (
+          <ul className="download-list">
+            {downloadItems.map((item) => (
+              <li key={item.id}>
+                <button type="button" className="download-row" onClick={(event) => openTitle(item, event.currentTarget)}>
+                  <span className="download-still">
+                    <CatalogImage item={item} prefer="backdrop" alt="" />
+                  </span>
+                  <span className="download-copy">
+                    <strong>{item.title}</strong>
+                    <em>
+                      Download complete · {downloadQualityLabel(activeProfile.downloadQuality)}
+                      {activeProfile.smartDownloads !== false ? ' · Smart Downloads' : ''}
+                    </em>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="downloads-empty">
+            <span className="downloads-empty-icon">
+              <DownloadIcon className="icon" />
+            </span>
+            <strong>Downloads for You</strong>
+            <p>Movies and TV shows you download appear here.</p>
+            <Link to="/browse" className="downloads-find">
+              Find Something to Download
+            </Link>
+          </div>
+        )}
+      </section>
+
       {listItems.length ? <MediaRow title="My List" items={listItems} hoverable={desktop} /> : null}
       {because.map((row) => (
         <MediaRow key={row.id} title={row.title} items={row.items} seed={row.seed} hoverable={desktop} />
