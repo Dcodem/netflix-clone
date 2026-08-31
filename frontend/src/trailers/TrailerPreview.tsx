@@ -160,6 +160,10 @@ export const TrailerPreview = forwardRef<
   useImperativeHandle(ref, () => ({ setMuted: applyMute, replay }))
 
   useEffect(() => {
+    applyMute(muted)
+  }, [muted])
+
+  useEffect(() => {
     if (!hit || hit.kind !== 'youtube' || !armed) return
     const onMessage = (event: MessageEvent) => {
       const iframe = iframeRef.current
@@ -168,18 +172,15 @@ export const TrailerPreview = forwardRef<
       if (!payload) return
       if (payload.event === 'onReady' || payload.event === 'initialDelivery') {
         postYouTube(iframe, 'addEventListener', ['onStateChange'])
+        postYouTube(iframe, 'playVideo')
         applyMute(mutedRef.current)
       }
       const state = playerState(payload)
       if (state === PLAYING) markReady()
       if (state === ENDED) markEnded()
     }
-    const fail = window.setTimeout(() => {
-      if (!readyRef.current) setHit(null)
-    }, 8000)
     window.addEventListener('message', onMessage)
     return () => {
-      window.clearTimeout(fail)
       window.removeEventListener('message', onMessage)
     }
   }, [hit, loop, armed])
@@ -187,6 +188,7 @@ export const TrailerPreview = forwardRef<
   if (!hit || !armed) return null
 
   if (hit.kind === 'youtube') {
+    const origin = window.location.origin
     const params = new URLSearchParams({
       autoplay: '1',
       mute: '1',
@@ -197,7 +199,8 @@ export const TrailerPreview = forwardRef<
       iv_load_policy: '3',
       fs: '0',
       enablejsapi: '1',
-      origin: window.location.origin,
+      origin,
+      widget_referrer: origin,
     })
     if (loop) {
       params.set('loop', '1')
@@ -208,13 +211,18 @@ export const TrailerPreview = forwardRef<
         ref={iframeRef}
         className={`${className ?? ''} trailer-frame ${live ? 'is-live' : 'is-pending'}`}
         key={hit.src}
-        src={`https://www.youtube-nocookie.com/embed/${hit.src}?${params.toString()}`}
+        src={`https://www.youtube.com/embed/${hit.src}?${params.toString()}`}
         title={`${title} trailer`}
-        allow="autoplay; encrypted-media"
+        allow="autoplay; encrypted-media; picture-in-picture"
         tabIndex={-1}
         onLoad={() => {
-          iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'listening' }), '*')
+          const iframe = iframeRef.current
+          if (!iframe) return
+          iframe.contentWindow?.postMessage(JSON.stringify({ event: 'listening' }), '*')
+          postYouTube(iframe, 'playVideo')
+          applyMute(mutedRef.current)
         }}
+        onError={() => setHit(null)}
       />
     )
   }

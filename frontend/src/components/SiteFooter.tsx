@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { SITE_INFO_HREFS } from '../lib/siteInfo'
 import { useProfiles } from '../profiles/ProfileContext'
 import type { ProfileLanguage } from '../profiles/types'
-import { CaretIcon, CheckIcon, CloseIcon, FacebookIcon, GlobeIcon, InstagramIcon, TwitterIcon, YoutubeIcon } from './Icons'
+import { CaretIcon, CheckIcon, CloseIcon, GlobeIcon } from './Icons'
 
 const COOKIE_KEY = 'flix.cookiePrefs'
 
@@ -181,20 +181,6 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
-        <div className="site-footer-social">
-          <a href="#facebook" onClick={(event) => event.preventDefault()} aria-label="Facebook">
-            <FacebookIcon className="icon" />
-          </a>
-          <a href="#instagram" onClick={(event) => event.preventDefault()} aria-label="Instagram">
-            <InstagramIcon className="icon" />
-          </a>
-          <a href="#x" onClick={(event) => event.preventDefault()} aria-label="X">
-            <TwitterIcon className="icon" />
-          </a>
-          <a href="#youtube" onClick={(event) => event.preventDefault()} aria-label="YouTube">
-            <YoutubeIcon className="icon" />
-          </a>
-        </div>
         <div className="site-footer-grid">
           {COLUMNS.map((column, index) => (
             <ul key={index}>
