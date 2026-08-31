@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { SITE_INFO_HREFS } from '../lib/siteInfo'
 import { useProfiles } from '../profiles/ProfileContext'
 import type { ProfileLanguage } from '../profiles/types'
-import { CaretIcon, CheckIcon, CloseIcon, GlobeIcon } from './Icons'
+import { CaretIcon, CheckIcon, CloseIcon, FacebookIcon, GlobeIcon, InstagramIcon, TwitterIcon, YoutubeIcon } from './Icons'
 
 const COOKIE_KEY = 'flix.cookiePrefs'
 
@@ -88,7 +88,18 @@ export const FOOTER_NOTES: Record<string, string> = {
   'Buy Gift Cards': 'Gift cards are not sold on this device.',
   'Transfer Profile':
     'Open the account menu and choose Transfer Profile to get a one-time code. Profiles stay on this device.',
+  Facebook: 'FLIX has no Facebook page on this demo.',
+  Instagram: 'FLIX has no Instagram page on this demo.',
+  X: 'FLIX has no X page on this demo.',
+  YouTube: 'FLIX has no YouTube channel on this demo.',
 }
+
+const FOOTER_SOCIALS = [
+  { label: 'Facebook', Icon: FacebookIcon },
+  { label: 'Instagram', Icon: InstagramIcon },
+  { label: 'X', Icon: TwitterIcon },
+  { label: 'YouTube', Icon: YoutubeIcon },
+] as const
 
 const FOOTER_LANGS = [
   { value: 'en', label: 'English', profile: 'English' as ProfileLanguage },
@@ -181,6 +192,19 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
+        <div className="site-footer-social">
+          {FOOTER_SOCIALS.map(({ label, Icon }) => (
+            <button
+              type="button"
+              key={label}
+              className="site-footer-social-btn"
+              aria-label={label}
+              onClick={() => setNote(label)}
+            >
+              <Icon className="icon" />
+            </button>
+          ))}
+        </div>
         <div className="site-footer-grid">
           {COLUMNS.map((column, index) => (
             <ul key={index}>
