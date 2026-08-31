@@ -1007,7 +1007,12 @@ export function WatchOverlay() {
       ) : null}
       {stillWatching ? null : identPhase === 'logo' ? (
         <div className="watch-ident-bump" aria-hidden="true">
-          <strong>FLIX</strong>
+          <strong>
+            <span>F</span>
+            <span>L</span>
+            <span>I</span>
+            <span>X</span>
+          </strong>
         </div>
       ) : (
         <div className={`watch-ident ${chrome && !identOn ? 'is-raised' : ''} ${identOn ? 'is-on' : ''}`} aria-hidden="true">

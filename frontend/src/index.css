@@ -4795,6 +4795,13 @@ img.is-logo-pending {
   flex-shrink: 0;
 }
 
+.title-modal-hero-body .btn-play,
+.title-modal-hero-body .btn-reminded {
+  font-size: 20px;
+  min-height: 48px;
+  padding: 8px 28px;
+}
+
 .title-modal-phone-actions {
   display: none;
 }
@@ -5037,6 +5044,19 @@ img.is-logo-pending {
 
 .title-tabs-season {
   margin-left: auto;
+}
+
+.title-modal-main .episodes {
+  padding: 0;
+}
+
+.title-modal-main .episode {
+  margin-left: -28px;
+  margin-right: -28px;
+  width: calc(100% + 56px);
+  padding-left: 28px;
+  padding-right: 28px;
+  box-sizing: border-box;
 }
 
 .title-section {
@@ -5841,6 +5861,14 @@ img.is-logo-pending {
 
   .title-modal-hero-body {
     padding-right: 72px;
+  }
+
+  .title-modal-main .episode {
+    margin-left: -16px;
+    margin-right: -16px;
+    width: calc(100% + 32px);
+    padding-left: 16px;
+    padding-right: 16px;
   }
 
   .title-tabs-row {
@@ -9462,21 +9490,41 @@ img.is-logo-pending {
 .watch-ident-bump strong {
   position: relative;
   z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.02em;
   font-family: var(--display);
   font-size: clamp(80px, 16vw, 220px);
   font-weight: 900;
-  letter-spacing: -0.07em;
+  letter-spacing: -0.08em;
   line-height: 0.9;
   color: #ff1a24;
   text-transform: uppercase;
-  transform-style: preserve-3d;
   text-shadow:
     0 0 6px rgba(255, 70, 78, 1),
     0 0 22px rgba(255, 26, 36, 0.95),
     0 0 56px rgba(229, 9, 20, 0.85),
     0 0 110px rgba(229, 9, 20, 0.5);
   filter: brightness(1.2) saturate(1.25);
+}
+
+.watch-ident-bump strong span {
+  display: inline-block;
+  transform-origin: 50% 70%;
   animation: flix-ident-bump 3.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.watch-ident-bump strong span:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.watch-ident-bump strong span:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.watch-ident-bump strong span:nth-child(4) {
+  animation-delay: 0.16s;
 }
 
 @keyframes flix-ident-bloom {
@@ -12513,8 +12561,9 @@ img.is-logo-pending {
 .news-coming {
   margin: 0 0 8px;
   color: #fff;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .news-meta {
