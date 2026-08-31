@@ -34,13 +34,13 @@ Import the GitHub repo at [vercel.com/new](https://vercel.com/new), or from the 
 npx vercel --yes
 ```
 
-Optional: set `TMDB_API_KEY` in the Vercel project (server-only) so live TMDB matching works on preview/production. The `/tmdb` proxy attaches that key. Do not commit `.env.local`. Mini trailers for the bundled catalog also use built-in YouTube ids, so hover previews still play when the env var is missing.
+The TMDB v3 key is bundled in the client, the Vite `/tmdb` proxy, and the Vercel `/tmdb` function, so art, copy, and trailers work on preview/production without dashboard env vars. Override with `TMDB_API_KEY` or `VITE_TMDB_API_KEY` if you need a different key. Do not commit `.env.local`.
 
-Copy `frontend/.env.example` to `frontend/.env.local` for keys and origin overrides. `.env.local` is gitignored.
+Copy `frontend/.env.example` to `frontend/.env.local` for origin overrides. `.env.local` is gitignored.
 
 Optional trailer keys (Account screen, or env):
 
-- `VITE_TMDB_API_KEY` — default. Free TMDB key for YouTube trailers and missing poster art.
+- `VITE_TMDB_API_KEY` — default TMDB key for YouTube trailers and missing poster art. A bundled key is already compiled in.
 - `VITE_IVA_API_KEY` — optional paid Fabric Origin / IVA key. Used only when TMDB has no match. Leave this unset.
 
 ## Connect a real catalog / video site
@@ -51,7 +51,7 @@ This frontend is built so the catalog API and the video host can be swapped in w
 2. **Dev proxy.** Point Vite at your API with `VITE_API_ORIGIN` in `frontend/.env.local` (default `http://localhost:8090`). Restart `npm run dev` after changing it.
 3. **Fetch prefix.** Leave `VITE_API_BASE` empty while using the Vite proxy, or when the built UI is served from the same origin as the catalog. If the UI is hosted on a different host than the API, set `VITE_API_BASE` to that catalog origin (no trailing slash). The API already allows CORS.
 4. **Playback.** The player is only an iframe of `watch_href`. The UI never extracts a raw video URL. If those hrefs are relative (`/watch/...`), set `VITE_PLAYER_ORIGIN` to the origin of the video site (no trailing slash). Absolute `https://...` hrefs are used as-is.
-5. **Images.** Use `poster_url`, `backdrop_url`, and `thumb_url`. If a file fails, the UI retries `/img?u=`. Missing or mock `/art/...` posters can fall back to TMDB art when a TMDB key is present. Keep real catalog posters when you have them.
+5. **Images.** Use `poster_url`, `backdrop_url`, and `thumb_url`. If a file fails, the UI retries `/img?u=`. Missing or mock `/art/...` posters can fall back to TMDB art. Keep real catalog posters when you have them.
 6. **Do not run two APIs on 8090.** Stop the mock before starting the real catalog.
 
 Accounts, profiles, My List, Continue Watching, and taste stay in this browser. They will not sync until a later backend owns them.

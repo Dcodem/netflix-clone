@@ -11,4 +11,4 @@ Requires a catalog API on port 8090. From the repo root, `node mock/server.mjs` 
 
 To host the UI plus that mock catalog on Vercel, deploy from the repo root (`npx vercel` or import the GitHub repo). Production uses the same `/movies` paths on the Vercel origin.
 
-Optional trailer keys: copy `.env.example` to `.env.local` and fill `VITE_TMDB_API_KEY`. Leave `VITE_IVA_API_KEY` blank unless you already have a paid Fabric Origin subscription. You can also paste keys on the Account screen. `.env.local` is gitignored.
+A TMDB key is already bundled for trailers and art. Leave `VITE_IVA_API_KEY` blank unless you already have a paid Fabric Origin subscription. You can paste a different TMDB key on the Account screen or in `.env.local`. `.env.local` is gitignored.

@@ -1,3 +1,4 @@
+import { BUNDLED_TMDB_API_KEY } from '../config/tmdbKey'
 import { mapTmdbGenres, tmdbSearchTitle } from '../lib/catalogTitle'
 import type { TrailerHit } from './types'
 import { rememberTitleOverlay } from './tmdbOverlay'
@@ -26,9 +27,9 @@ type TmdbVideos = { results?: Array<{ key: string; site: string; type: string; o
 
 async function tmdbJson<T>(path: string, key: string, extra: Record<string, string> = {}): Promise<T> {
   const params = new URLSearchParams(extra)
-  if (key) params.set('api_key', key)
+  params.set('api_key', (key || BUNDLED_TMDB_API_KEY).trim())
   const query = params.toString()
-  const response = await fetch(query ? `/tmdb${path}?${query}` : `/tmdb${path}`)
+  const response = await fetch(`/tmdb${path}?${query}`)
   if (!response.ok) throw new Error(`TMDB request failed (${response.status})`)
   return (await response.json()) as T
 }
