@@ -22,6 +22,13 @@
   color-scheme: dark;
 }
 
+@media (max-width: 767px) {
+  :root {
+    --header-h: 48px;
+    --page-gutter: 16px;
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -2535,9 +2542,9 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 }
 
 .login-card h1 {
-  margin: 0 0 24px;
+  margin: 0 0 28px;
   font-size: 32px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .login-sub {
@@ -2561,8 +2568,13 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 .login-form,
 .account-form {
   display: grid;
-  gap: 10px;
+  gap: 16px;
   margin-top: 16px;
+}
+
+.login-card .login-form {
+  margin-top: 0;
+  gap: 16px;
 }
 
 .login-form input,
@@ -4099,8 +4111,8 @@ body:has(.account-page),
   gap: 8px;
   width: auto;
   min-width: 0;
-  min-height: 0;
-  padding: 6px 12px;
+  min-height: 36px;
+  padding: 8px 16px;
   background: rgba(0, 0, 0, 0.7);
 }
 
@@ -4110,7 +4122,7 @@ body:has(.account-page),
 
 .my-list-page .browse-heading .outline-select-value {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .browse-heading.is-stuck .outline-select-btn {
@@ -4699,7 +4711,7 @@ body:has(.account-page),
   overflow: hidden;
   isolation: isolate;
   contain: paint;
-  border-radius: 8px 8px 0 0;
+  border-radius: 6px 6px 0 0;
 }
 
 .title-modal-hero > img,
@@ -4843,7 +4855,7 @@ img.is-logo-pending {
 .title-actions.is-sheet {
   flex-direction: column;
   align-items: stretch;
-  gap: 10px;
+  gap: 12px;
 }
 
 .title-actions.is-sheet .btn-play,
@@ -5563,6 +5575,17 @@ img.is-logo-pending {
     transform: none;
   }
 
+  .hero-mute {
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+  }
+
+  .hero-mute .icon {
+    width: 16px;
+    height: 16px;
+  }
+
   .hero-actions .btn {
     min-height: 44px;
     font-size: 16px;
@@ -5811,8 +5834,8 @@ img.is-logo-pending {
     top: 8px;
     left: 50%;
     z-index: 24;
-    width: 42px;
-    height: 5px;
+    width: 36px;
+    height: 4px;
     margin: 0;
     border-radius: 99px;
     background: rgba(255, 255, 255, 0.72);
@@ -11884,6 +11907,10 @@ img.is-logo-pending {
     border-radius: 4px;
   }
 
+  .header-inner {
+    gap: 12px;
+  }
+
   .header-tools {
     gap: 14px;
   }
@@ -11932,9 +11959,9 @@ img.is-logo-pending {
     gap: 3px;
     color: #808080;
     text-decoration: none;
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0;
     padding: 4px 0 2px;
   }
 
@@ -12765,7 +12792,7 @@ img.is-logo-pending {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 64px 24px 108px;
+  padding: 48px 24px 108px;
   animation: categories-in 0.28s ease;
 }
 
@@ -12796,7 +12823,7 @@ img.is-logo-pending {
   background: none;
   border: 0;
   color: #808080;
-  font-size: clamp(26px, 7.6vw, 34px);
+  font-size: 32px;
   font-weight: 400;
   cursor: pointer;
   text-decoration: none;
@@ -13188,9 +13215,16 @@ img.is-logo-pending {
     width: auto;
   }
 
-  .my-list-page .browse-heading .genre-select {
-    padding: 5px 10px;
+  .my-list-page .browse-heading .genre-select,
+  .my-list-page .browse-heading .outline-select-btn {
+    padding: 8px 14px;
+    min-height: 36px;
     font-size: 13px;
+  }
+
+  .my-list-page .browse-heading .outline-select-value {
+    font-size: 13px;
+    font-weight: 700;
   }
 }
 
