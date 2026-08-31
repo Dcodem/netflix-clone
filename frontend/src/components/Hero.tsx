@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem } from '../api/types'
 import { comingLineFor, isComingSoon } from '../lib/comingSoon'
-import { stillWatching } from '../lib/homeRows'
 import { genresOf, isShow } from '../lib/media'
 import { buildWatchSession } from '../lib/watchSession'
 import { maturityLabel, toLiked } from '../lib/netflix'
@@ -211,7 +210,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
           ) : (
             <button type="button" className="btn btn-play" onClick={onWatch} disabled={!sessionReady}>
               <PlayIcon className="icon" />
-              {last && stillWatching(last) ? 'Resume' : 'Play'}
+              Play
             </button>
           )}
           <button type="button" className="btn btn-info hero-more" onClick={(event) => openTitle(item, event.currentTarget)}>

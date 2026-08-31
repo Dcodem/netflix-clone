@@ -186,7 +186,7 @@ export function TitleActions({
       ) : playStyle === 'labeled' ? (
         <button type="button" className="btn btn-play" onClick={() => play(false)} disabled={!href}>
           <PlayIcon className="icon" />
-          {continueMode ? 'Resume' : 'Play'}
+          Play
         </button>
       ) : (
         <button
@@ -194,7 +194,7 @@ export function TitleActions({
           className="circle-btn circle-play"
           onClick={() => play(false)}
           disabled={!href}
-          aria-label={continueMode ? 'Resume' : 'Play'}
+          aria-label="Play"
         >
           <PlayIcon className="icon" />
         </button>
