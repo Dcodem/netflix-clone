@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useHoverMenu } from '../hooks/useHoverMenu'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { AvatarArt } from './AvatarArt'
@@ -14,10 +15,23 @@ export function AccountMenu() {
   const navigate = useNavigate()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
   const [transferOpen, setTransferOpen] = useState(false)
+  const phone = useMediaQuery('(max-width: 767px)')
 
   if (!user || !activeProfile) return null
 
   const avatar = avatarFor(activeProfile)
+
+  if (phone) {
+    return (
+      <div className="account-menu">
+        <Link to="/browse/my-netflix" className="profile-chip" aria-label="My Netflix">
+          <span className="avatar-dot" style={{ background: avatar.color }}>
+            <AvatarArt avatar={avatar} alt={activeProfile.name} />
+          </span>
+        </Link>
+      </div>
+    )
+  }
 
   return (
     <div

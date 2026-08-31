@@ -149,17 +149,17 @@ export function TitleHoverCard({
             <div style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
         ) : null}
+        {previewOn ? (
+          <button
+            type="button"
+            className="hero-mute jawbone-mute"
+            onClick={toggleMute}
+            aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+          >
+            <SpeakerIcon muted={muted} className="icon" />
+          </button>
+        ) : null}
         <div className={`jawbone-controls ${progress ? 'has-progress' : ''}`}>
-          {previewOn ? (
-            <button
-              type="button"
-              className="hero-mute jawbone-mute"
-              onClick={toggleMute}
-              aria-label={muted ? 'Unmute preview' : 'Mute preview'}
-            >
-              <SpeakerIcon muted={muted} className="icon" />
-            </button>
-          ) : null}
           <span className="maturity-flag jawbone-rating">{maturity}</span>
         </div>
         {progress ? (

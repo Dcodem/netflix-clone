@@ -286,16 +286,6 @@ export function TitleActions({
           </button>
         </>
       )}
-      {!sheet && playStyle === 'labeled' ? (
-        <button
-          type="button"
-          className={`circle-btn ${copied ? 'is-on' : ''}`}
-          onClick={() => void shareTitle()}
-          aria-label={copied ? 'Copied' : 'Share'}
-        >
-          <ShareIcon className="icon" />
-        </button>
-      ) : null}
       {!sheet && showMore ? (
         <button type="button" className="circle-btn circle-more" onClick={(event) => openTitle(item, event.currentTarget)} aria-label="More info">
           <CaretIcon className="icon" />

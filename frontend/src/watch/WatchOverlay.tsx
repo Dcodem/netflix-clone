@@ -1232,15 +1232,6 @@ export function WatchOverlay() {
           </div>
           <span className="watch-time">{formatClock(remaining, true)}</span>
         </div>
-        <div className="watch-now-playing">
-          <p className="watch-now-title">{session.history?.title || session.title}</p>
-          {episodeLabel ? (
-            <p className="watch-now-ep">
-              {episodeLabel}
-              {playing?.episode.title ? ` ${playing.episode.title}` : ''}
-            </p>
-          ) : null}
-        </div>
         <div className="watch-controls">
           <div className="watch-controls-left">
             <button
@@ -1313,6 +1304,15 @@ export function WatchOverlay() {
                 </span>
               </div>
             </div>
+          </div>
+          <div className="watch-now-playing">
+            <p className="watch-now-title">{session.history?.title || session.title}</p>
+            {episodeLabel ? (
+              <p className="watch-now-ep">
+                {episodeLabel}
+                {playing?.episode.title ? ` ${playing.episode.title}` : ''}
+              </p>
+            ) : null}
           </div>
           <div className="watch-controls-right">
             {isShow && upcoming ? (

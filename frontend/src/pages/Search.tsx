@@ -169,11 +169,7 @@ export function Search() {
         </>
       ) : (
         <>
-          {hits.length ? (
-            <h1 className="search-heading">
-              Results for: <span>{q}</span>
-            </h1>
-          ) : related.length ? (
+          {hits.length ? null : related.length ? (
             <h1 className="search-heading">
               Explore titles related to: <span>{q}</span>
             </h1>
