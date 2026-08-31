@@ -4233,8 +4233,7 @@ body:has(.account-page),
 }
 
 .jawbone-art.is-playing .jawbone-logo {
-  opacity: 0;
-  transition: opacity 0.55s ease;
+  opacity: 1;
 }
 
 .jawbone-wordmark {
@@ -8555,13 +8554,15 @@ img.is-logo-pending {
 }
 
 .jawbone-mute {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  position: static;
+  top: auto;
+  right: auto;
+  bottom: auto;
   z-index: 6;
   width: 32px;
   height: 32px;
-  margin-right: 0;
+  margin-right: 8px;
+  flex-shrink: 0;
 }
 
 .jawbone-mute .icon {
@@ -8570,14 +8571,14 @@ img.is-logo-pending {
 }
 
 .jawbone-art:has(.jawbone-more) .jawbone-mute {
-  right: 46px;
+  right: auto;
 }
 
 .jawbone-controls {
   position: absolute;
   right: 0;
   bottom: 12px;
-  z-index: 4;
+  z-index: 6;
   display: flex;
   align-items: center;
   gap: 8px;
