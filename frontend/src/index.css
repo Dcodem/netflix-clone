@@ -4881,7 +4881,7 @@ img.is-logo-pending {
   color: #808080;
   font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 1px;
   text-transform: uppercase;
   padding: 16px 0 12px;
   cursor: pointer;
@@ -6485,7 +6485,8 @@ img.is-logo-pending {
 }
 
 .episode-btn:hover .ep-play,
-.episode-btn:focus-visible .ep-play {
+.episode-btn:focus-visible .ep-play,
+.episode-btn.is-resume .ep-play {
   opacity: 1;
 }
 

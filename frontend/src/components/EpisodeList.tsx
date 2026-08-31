@@ -105,10 +105,7 @@ export function EpisodeList({
                 </div>
                 <div className="ep-info">
                   <div className="ep-title-row">
-                    <div className="ep-title">
-                      {episode.title}
-                      {isResume ? <small className="ep-playing">Playing</small> : null}
-                    </div>
+                    <div className="ep-title">{episode.title}</div>
                     {episode.duration ? <div className="ep-meta">{episode.duration}m</div> : null}
                   </div>
                   {episode.synopsis ? <p className="ep-syn">{episode.synopsis}</p> : null}

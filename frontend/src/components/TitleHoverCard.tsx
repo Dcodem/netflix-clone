@@ -205,11 +205,8 @@ export function TitleHoverCard({
         <div className="jawbone-meta">
           {soon && coming ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}
           {soon ? null : isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
-          {detail?.year || item.year ? <span>{detail?.year || item.year}</span> : null}
           <span className="maturity">{maturity}</span>
-          {soon ? (
-            item.year ? <span>{item.year}</span> : null
-          ) : remainingLabel(progress, detail?.runtime) ? (
+          {soon ? null : remainingLabel(progress, detail?.runtime) ? (
             <span>{remainingLabel(progress, detail?.runtime)}</span>
           ) : isShow(item) ? (
             <span>
