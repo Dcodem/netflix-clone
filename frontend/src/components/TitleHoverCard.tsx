@@ -59,7 +59,8 @@ export function TitleHoverCard({
     }
   }, [item])
 
-  const width = Math.max(340, Math.min(430, Math.round(anchor.width * 1.65)))
+  const continueMode = stillWatching({ progress, kind: item.kind })
+  const width = Math.max(continueMode ? 392 : 352, Math.min(440, Math.round(anchor.width * 1.7)))
   const artH = width * (9 / 16)
   let left = anchor.left + anchor.width / 2 - width / 2
   left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
@@ -166,8 +167,8 @@ export function TitleHoverCard({
           item={item}
           detail={detail}
           watchHref={watchHref}
-          size="sm"
-          continueMode={stillWatching({ progress, kind: item.kind })}
+          size="md"
+          continueMode={continueMode}
         />
         <div className="jawbone-meta">
           {soon && coming ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}

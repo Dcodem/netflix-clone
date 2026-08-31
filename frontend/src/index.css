@@ -4515,14 +4515,19 @@ body:has(.account-page),
   margin-left: auto;
 }
 
+.jawbone .title-actions {
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
 .jawbone .circle-btn {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
 }
 
 .jawbone .circle-play {
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
 }
 
 .title-modal-backdrop {
@@ -6536,15 +6541,15 @@ img.is-logo-pending {
 }
 
 .search-top-rank {
-  width: 34px;
+  width: 40px;
   flex-shrink: 0;
   color: #6b6b6b;
   font-family: var(--display);
   font-weight: 200;
-  font-size: 36px;
-  line-height: 1;
+  font-size: 48px;
+  line-height: 0.9;
   text-align: center;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.08em;
 }
 
 .search-top.is-ranked .search-top-play {
@@ -8628,9 +8633,9 @@ img.is-logo-pending {
   content: '';
   position: absolute;
   left: 0;
-  top: 14px;
-  bottom: 14px;
-  width: 3px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
   background: #fff;
 }
 
