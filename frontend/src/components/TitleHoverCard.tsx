@@ -6,6 +6,7 @@ import { comingLineFor, isComingSoon } from '../lib/comingSoon'
 import { stillWatching } from '../lib/homeRows'
 import { formatRuntime, genresOf, isShow, remainingLabel } from '../lib/media'
 import { isNewEpisodes, matchPercent, maturityLabel } from '../lib/netflix'
+import { playWhoosh } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTmdbInfo } from '../trailers/useTmdbInfo'
@@ -39,6 +40,7 @@ export function TitleHoverCard({
 
   useEffect(() => {
     document.body.classList.add('is-jaw-open')
+    playWhoosh()
     return () => document.body.classList.remove('is-jaw-open')
   }, [])
 

@@ -49,15 +49,9 @@ const PLAYER_SOURCE = 'flix-player'
 const NEXT_CARD_AT = 16
 const AUTO_IN = 5
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] as const
-const CAPTIONS = [
-  'The city never really sleeps.',
-  'Stay close. We move on my mark.',
-  'This is the last chance we get.',
-  'Don’t look back.',
-]
 
 function captionLines(text?: string | null): string[] {
-  if (!text?.trim()) return CAPTIONS
+  if (!text?.trim()) return []
   const parts = text
     .split(/(?<=[.!?])\s+/)
     .map((line) => line.replace(/\s+/g, ' ').trim())
@@ -80,7 +74,7 @@ function captionLines(text?: string | null): string[] {
     }
     if (buf) wrapped.push(buf)
   }
-  return wrapped.length ? wrapped.slice(0, 12) : CAPTIONS
+  return wrapped.slice(0, 12)
 }
 
 function formatClock(seconds: number, remaining = false) {
@@ -592,7 +586,8 @@ export function WatchOverlay() {
         event.key.toLowerCase() === 's' &&
         isShow &&
         !introSkipped &&
-        currentRef.current < skipMarks(runtimeSec, session?.history?.genres).introUntil
+        currentRef.current > 2.4 &&
+        currentRef.current < skipMarks(runtimeSec, session?.history?.genres).introAt
       ) {
         event.preventDefault()
         setIntroSkipped(true)
@@ -706,7 +701,7 @@ export function WatchOverlay() {
     if (!session || !isShow || !activeProfile?.skipIntros) return
     if (identPhase === 'logo' || paused || stillWatching) return
     const marks = skipMarks(runtimeSec, session.history?.genres)
-    if (!introSkipped && current > 2.4 && current < marks.introUntil) {
+    if (!introSkipped && current > 2.4 && current < marks.introAt) {
       setIntroSkipped(true)
       post({ cmd: 'seek', seconds: marks.introAt })
       return
@@ -715,12 +710,12 @@ export function WatchOverlay() {
       marks.recapUntil > marks.recapAt &&
       !recapSkipped &&
       !identOn &&
-      current >= marks.introUntil &&
+      current >= marks.recapAt &&
       current < marks.recapUntil
     ) {
       setRecapSkipped(true)
       setIntroSkipped(true)
-      post({ cmd: 'seek', seconds: marks.recapAt })
+      post({ cmd: 'seek', seconds: marks.recapUntil })
     }
   }, [
     session,
@@ -819,7 +814,7 @@ export function WatchOverlay() {
     !introSkipped &&
     !activeProfile?.skipIntros &&
     current > 2.4 &&
-    current < marks.introUntil &&
+    current < marks.introAt &&
     !episodesOpen &&
     !audioOpen &&
     !speedOpen
@@ -830,7 +825,7 @@ export function WatchOverlay() {
     !identOn &&
     !showSkipIntro &&
     !activeProfile?.skipIntros &&
-    current >= marks.introUntil &&
+    current >= marks.recapAt &&
     current < marks.recapUntil &&
     !episodesOpen &&
     !audioOpen &&
@@ -843,7 +838,10 @@ export function WatchOverlay() {
   const captionPool = captionLines(
     playing?.episode.synopsis || showDetail?.synopsis || session?.history?.synopsis,
   )
-  const caption = subs === 'off' ? null : captionPool[Math.floor(current / 9) % captionPool.length]
+  const caption =
+    subs === 'off' || !captionPool.length
+      ? null
+      : captionPool[Math.floor(current / 9) % captionPool.length]
 
   function ratioFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect()
@@ -866,7 +864,7 @@ export function WatchOverlay() {
     playClick()
     setRecapSkipped(true)
     setIntroSkipped(true)
-    post({ cmd: 'seek', seconds: marks.recapAt })
+    post({ cmd: 'seek', seconds: marks.recapUntil })
   }
 
   function playEpisode(season: Season, episode: Episode, binge = false) {
@@ -1232,10 +1230,10 @@ export function WatchOverlay() {
                 {formatClock(scrubHint.ratio * length)}
               </span>
             ) : null}
-            {isShow && length > 0 && marks.introUntil > 0 ? (
+            {isShow && length > 0 && marks.introAt > 0 ? (
               <span
                 className="watch-mark is-intro"
-                style={{ left: `${Math.min(100, (marks.introUntil / length) * 100)}%` }}
+                style={{ left: `${Math.min(100, (marks.introAt / length) * 100)}%` }}
                 aria-hidden="true"
               />
             ) : null}

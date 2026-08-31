@@ -339,12 +339,101 @@ select,
   justify-content: flex-start;
 }
 
+.search-slot {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .search-wrap.is-open {
   width: min(270px, 48vw);
   height: 36px;
   background: #000;
   border-color: #fff;
   padding: 0 4px 0 0;
+}
+
+.search-suggest {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 70;
+  width: min(320px, 72vw);
+  padding: 8px 0;
+  background: #141414;
+  border: 1px solid #333;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.72);
+}
+
+.search-suggest-label {
+  margin: 0 16px 6px;
+  color: #808080;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.search-suggest-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.search-suggest-list li {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.search-suggest-list li > button:first-child {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px 10px 16px;
+  background: none;
+  border: 0;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.search-suggest-list li > button:first-child span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-suggest-list li > button:first-child:hover,
+.search-suggest-forget:hover {
+  background: #333;
+}
+
+.search-suggest-list .icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #808080;
+}
+
+.search-suggest-forget {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  margin-right: 8px;
+  border: 0;
+  background: none;
+  color: #808080;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.search-suggest-forget .icon {
+  width: 12px;
+  height: 12px;
 }
 
 .search-toggle {
@@ -816,12 +905,6 @@ select,
   transform: scale(0.52);
 }
 
-.hero.is-playing .hero-title,
-.hero.is-playing .hero-logo {
-  opacity: 0;
-  transition: opacity 0.55s ease, transform 0.9s cubic-bezier(0.5, 0, 0.1, 1);
-}
-
 .hero-syn,
 .hero-meta {
   max-height: 7.2em;
@@ -865,7 +948,13 @@ select,
 }
 
 .hero-open-title {
-  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
 }
 
 .hero-actions .hero-list {
@@ -5554,6 +5643,15 @@ img.is-logo-pending {
   .site-header.is-searching .header-tools {
     flex: 1;
     min-width: 0;
+  }
+
+  .site-header.is-searching .search-slot {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .search-suggest {
+    display: none;
   }
 
   .site-header.is-searching .search-wrap.is-open {
