@@ -315,7 +315,7 @@ select,
 }
 
 .nav-link:hover {
-  color: #b3b3b3;
+  color: #fff;
 }
 
 .nav-link.active,
@@ -345,7 +345,7 @@ select,
 }
 
 .search-wrap.is-open {
-  width: min(270px, 48vw);
+  width: min(280px, 48vw);
   height: 36px;
   background: #000;
   border-color: #fff;
@@ -358,7 +358,7 @@ select,
   right: 0;
   z-index: 70;
   width: 100%;
-  min-width: 270px;
+  min-width: 280px;
   padding: 10px 0 8px;
   background: rgba(0, 0, 0, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -3625,7 +3625,7 @@ body:has(.account-page),
   position: absolute;
   right: 0;
   top: calc(100% + 14px);
-  min-width: 252px;
+  min-width: 260px;
   background: rgba(0, 0, 0, 0.91);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0;
@@ -3672,21 +3672,21 @@ body:has(.account-page),
 .account-dropdown button {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
   background: none;
   border: 0;
   color: #fff;
   text-align: left;
-  padding: 8px 16px;
+  padding: 10px 20px;
   font-size: 13px;
   cursor: pointer;
   text-decoration: none;
 }
 
 .account-dropdown .icon {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   color: #b3b3b3;
 }
@@ -3697,7 +3697,7 @@ body:has(.account-page),
 }
 
 .account-dropdown > button:last-child {
-  justify-content: center;
+  justify-content: flex-start;
   padding-top: 12px;
   padding-bottom: 12px;
 }
@@ -3863,7 +3863,7 @@ body:has(.account-page),
 .btn-play {
   background: #fff;
   color: #141414;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   padding: 8px 28px;
   min-height: 48px;
@@ -5056,7 +5056,7 @@ img.is-logo-pending {
 
 .title-tabs > button.is-on {
   color: #fff;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .title-tabs > button.is-on::after {
@@ -5081,6 +5081,8 @@ img.is-logo-pending {
   margin: 14px 0 0;
   color: #d6d6d6;
   max-width: 640px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .title-modal-cast {
@@ -10901,6 +10903,18 @@ img.is-logo-pending {
 .watch-audio button.is-on {
   color: #fff;
   font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .watch-panel.watch-audio {
+    width: min(520px, calc(100% - 48px));
+    padding: 22px 28px 24px;
+    right: 28px;
+    bottom: 118px;
+    border: 0;
+    max-height: 56vh;
+    background: rgba(20, 20, 20, 0.94);
+  }
 }
 
 @media (max-width: 767px) {
