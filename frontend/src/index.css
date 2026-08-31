@@ -1846,6 +1846,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 .watch-overlay.is-pip .skip-intro,
 .watch-overlay.is-pip .next-ep-card,
 .watch-overlay.is-pip .watch-credits,
+.watch-overlay.is-pip .watch-end-cluster,
 .watch-overlay.is-pip .watch-caption,
 .watch-overlay.is-pip .watch-title-stack,
 .watch-overlay.is-pip .watch-lock,
@@ -8742,6 +8743,7 @@ img.is-logo-pending {
 .watch-overlay.is-locked .skip-intro,
 .watch-overlay.is-locked .next-ep-card,
 .watch-overlay.is-locked .watch-credits,
+.watch-overlay.is-locked .watch-end-cluster,
 .watch-overlay.is-locked .watch-flash {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -9651,7 +9653,8 @@ img.is-logo-pending {
 .watch-overlay.is-help .watch-center,
 .watch-overlay.is-help .skip-intro,
 .watch-overlay.is-help .next-ep-card,
-.watch-overlay.is-help .watch-credits {
+.watch-overlay.is-help .watch-credits,
+.watch-overlay.is-help .watch-end-cluster {
   opacity: 0 !important;
   pointer-events: none !important;
 }
@@ -9673,6 +9676,7 @@ img.is-logo-pending {
 .watch-overlay.is-still .skip-intro,
 .watch-overlay.is-still .next-ep-card,
 .watch-overlay.is-still .watch-credits,
+.watch-overlay.is-still .watch-end-cluster,
 .watch-overlay.is-still .watch-caption {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -10401,6 +10405,28 @@ img.is-logo-pending {
   text-decoration: none;
 }
 
+.watch-end-cluster {
+  position: absolute;
+  right: 24px;
+  bottom: 118px;
+  z-index: 2150;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+  transition: bottom 0.28s ease;
+}
+
+.watch-end-cluster .watch-credits,
+.watch-end-cluster .next-ep-card {
+  position: relative;
+  right: auto;
+  left: auto;
+  bottom: auto;
+  z-index: auto;
+}
+
 .watch-ep-empty {
   margin: 12px 0 0;
   color: #b3b3b3;
@@ -10789,12 +10815,28 @@ img.is-logo-pending {
 }
 
 .next-ep-card,
-.watch-credits {
+.watch-credits,
+.watch-end-cluster {
   transition: bottom 0.28s ease, opacity 0.2s ease;
 }
 
 @media (max-width: 767px) {
-  .next-ep-card {
+  .watch-end-cluster {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .watch-end-cluster .watch-credits {
+    margin-left: 16px;
+  }
+
+  .next-ep-card,
+  .watch-end-cluster .next-ep-card {
     left: 0;
     right: 0;
     width: 100%;
@@ -10814,8 +10856,7 @@ img.is-logo-pending {
 }
 
 .watch-overlay.is-chrome:not(.is-ident) .skip-intro,
-.watch-overlay.is-chrome .next-ep-card,
-.watch-overlay.is-chrome .watch-credits {
+.watch-overlay.is-chrome .watch-end-cluster {
   bottom: 118px;
 }
 
@@ -10847,13 +10888,17 @@ img.is-logo-pending {
     bottom: 108px;
   }
 
+  .watch-overlay.is-chrome .watch-end-cluster {
+    bottom: 0;
+  }
+
   .watch-overlay.is-chrome .next-ep-card {
     bottom: 0;
     padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   }
 
   .watch-overlay.is-chrome .watch-credits {
-    bottom: calc(220px + env(safe-area-inset-bottom, 0px));
+    bottom: auto;
   }
 }
 
@@ -11819,6 +11864,13 @@ img.is-logo-pending {
   font-weight: 500;
 }
 
+.news-card-art-wrap {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000;
+}
+
 .news-card-art {
   display: block;
   width: 100%;
@@ -11836,6 +11888,44 @@ img.is-logo-pending {
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  transition: opacity 0.55s ease;
+}
+
+.news-card-trailer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.news-card-art-wrap.is-playing .news-card-trailer {
+  opacity: 1;
+}
+
+.news-card-art-wrap.is-playing .news-card-art img,
+.news-card-art-wrap.is-playing .news-card-art .media-fallback {
+  opacity: 0;
+}
+
+.news-card-mute {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+}
+
+.news-card-mute .icon {
+  width: 18px;
+  height: 18px;
 }
 
 .news-title-row {
@@ -12030,7 +12120,7 @@ img.is-logo-pending {
   grid-row: 1 / span 2;
 }
 
-.news-card.is-soon .news-card-art,
+.news-card.is-soon .news-card-art-wrap,
 .news-card.is-soon .news-card-body {
   grid-column: 2;
 }
@@ -12078,7 +12168,7 @@ img.is-logo-pending {
     grid-row: auto;
   }
 
-  .news-card.is-soon .news-card-art {
+  .news-card.is-soon .news-card-art-wrap {
     grid-column: 2;
   }
 

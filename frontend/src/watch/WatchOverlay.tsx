@@ -1068,6 +1068,7 @@ export function WatchOverlay() {
         </button>
       ) : null}
       {showNext && upcoming ? (
+        <div className="watch-end-cluster">
         <button
           type="button"
           className="watch-credits is-visible"
@@ -1078,8 +1079,6 @@ export function WatchOverlay() {
         >
           Watch Credits
         </button>
-      ) : null}
-      {showNext && upcoming ? (
         <div
           className="next-ep-card is-visible"
           onClick={(event) => event.stopPropagation()}
@@ -1128,6 +1127,7 @@ export function WatchOverlay() {
               </span>
             </span>
           </button>
+        </div>
         </div>
       ) : null}
       {caption ? (
