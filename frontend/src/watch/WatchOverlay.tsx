@@ -173,10 +173,10 @@ export function WatchOverlay() {
   const [speedOpen, setSpeedOpen] = useState(false)
   const [speed, setSpeed] = useState(initialPrefs.speed)
   const [subs, setSubs] = useState(initialPrefs.subs)
-  const [captionSize, setCaptionSize] = useState<CaptionSize>(initialPrefs.captionSize)
-  const [captionBg, setCaptionBg] = useState<CaptionBg>(initialPrefs.captionBg)
-  const [captionFont, setCaptionFont] = useState<CaptionFont>(initialPrefs.captionFont)
-  const [captionColor, setCaptionColor] = useState<CaptionColor>(initialPrefs.captionColor)
+  const [captionSize] = useState<CaptionSize>(initialPrefs.captionSize)
+  const [captionBg] = useState<CaptionBg>(initialPrefs.captionBg)
+  const [captionFont] = useState<CaptionFont>(initialPrefs.captionFont)
+  const [captionColor] = useState<CaptionColor>(initialPrefs.captionColor)
   const [audioTrack, setAudioTrack] = useState(initialPrefs.audioTrack)
   const [introSkipped, setIntroSkipped] = useState(false)
   const [recapSkipped, setRecapSkipped] = useState(false)
@@ -1734,80 +1734,6 @@ export function WatchOverlay() {
               {subs === 'cc' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English [CC]
             </button>
-            <h2 className="watch-caption-size-label">Size</h2>
-            {(
-              [
-                ['s', 'Small'],
-                ['m', 'Medium'],
-                ['l', 'Large'],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                type="button"
-                key={value}
-                className={captionSize === value ? 'is-on' : ''}
-                onClick={() => setCaptionSize(value)}
-              >
-                {captionSize === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-                {label}
-              </button>
-            ))}
-            <h2 className="watch-caption-size-label">Background</h2>
-            {(
-              [
-                ['shadow', 'Drop shadow'],
-                ['box', 'Opaque'],
-                ['none', 'None'],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                type="button"
-                key={value}
-                className={captionBg === value ? 'is-on' : ''}
-                onClick={() => setCaptionBg(value)}
-              >
-                {captionBg === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-                {label}
-              </button>
-            ))}
-            <h2 className="watch-caption-size-label">Font</h2>
-            {(
-              [
-                ['default', 'Default'],
-                ['casual', 'Casual'],
-                ['cursive', 'Cursive'],
-                ['smallcaps', 'Small Caps'],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                type="button"
-                key={value}
-                className={captionFont === value ? 'is-on' : ''}
-                onClick={() => setCaptionFont(value)}
-              >
-                {captionFont === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-                {label}
-              </button>
-            ))}
-            <h2 className="watch-caption-size-label">Font color</h2>
-            {(
-              [
-                ['white', 'White'],
-                ['yellow', 'Yellow'],
-                ['cyan', 'Cyan'],
-                ['green', 'Green'],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                type="button"
-                key={value}
-                className={captionColor === value ? 'is-on' : ''}
-                onClick={() => setCaptionColor(value)}
-              >
-                {captionColor === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-                {label}
-              </button>
-            ))}
           </div>
         </div>
       ) : null}

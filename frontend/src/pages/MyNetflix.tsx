@@ -108,6 +108,7 @@ export function MyNetflix() {
         <button
           type="button"
           className="my-netflix-profile"
+          aria-label={`Switch profiles, ${activeProfile.name}`}
           onClick={() => {
             clearActive()
             navigate('/')
@@ -118,7 +119,6 @@ export function MyNetflix() {
           </span>
           <span>
             <strong>{activeProfile.name}</strong>
-            <em>Switch Profiles</em>
           </span>
           <CaretIcon className="icon" />
         </button>
