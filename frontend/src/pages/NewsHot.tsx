@@ -526,7 +526,7 @@ function NewsHotFeed() {
 
   return (
     <main className="page page-pad news-hot-page">
-      <h1 className="news-page-title">New &amp; Hot</h1>
+      <h1 className="news-page-title visually-hidden">New &amp; Hot</h1>
       <nav className="news-chips" aria-label="New & Hot">
         {chips.map((entry) => (
           <button

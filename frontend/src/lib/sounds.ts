@@ -90,10 +90,11 @@ export function playIdentBump() {
   try {
     const ac = audio()
     const now = ac.currentTime
-    tone(ac, 78, now, 0.48, 0.16, 'sine')
-    tone(ac, 117, now, 0.32, 0.07, 'triangle')
-    tone(ac, 208, now + 0.16, 0.62, 0.14, 'triangle')
-    tone(ac, 312, now + 0.16, 0.46, 0.05, 'sine')
+    tone(ac, 82, now, 0.62, 0.17, 'sine')
+    tone(ac, 123, now, 0.4, 0.07, 'triangle')
+    tone(ac, 196, now + 0.22, 0.78, 0.15, 'triangle')
+    tone(ac, 294, now + 0.22, 0.58, 0.055, 'sine')
+    tone(ac, 147, now + 0.48, 0.7, 0.06, 'sine')
   } catch {
     /* autoplay / closed context */
   }

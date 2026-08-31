@@ -198,7 +198,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           </button>
         </div>
       ) : null}
-      {hero && filter !== 'popular' ? (
+      {hero ? (
         <Hero item={hero} rank={heroRank || undefined} rankLabel={heroRank ? heroRankLabel : undefined} />
       ) : null}
       {rows.map((row) => (
