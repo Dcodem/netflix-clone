@@ -217,6 +217,7 @@ export function WatchOverlay() {
   const autoNextRef = useRef('')
   const streakRef = useRef(0)
   const showIdRef = useRef('')
+  const identFromStartRef = useRef(false)
   const showChromeRef = useRef<() => void>(() => setChrome(true))
 
   const runtimeSec = Math.max(60, (session?.history?.runtime ?? 48) * 60)
@@ -227,14 +228,15 @@ export function WatchOverlay() {
     if (showIdRef.current && showIdRef.current !== showId) streakRef.current = 0
     showIdRef.current = showId
     autoNextRef.current = ''
+    identFromStartRef.current = startProgress < 0.02
     setClockKey(sessionKey)
     setCurrent(startProgress * runtimeSec)
     setDuration(runtimeSec)
     setPaused(false)
     setNextDismissed(false)
     setStillWatching(false)
-    setIdentOn(startProgress < 0.02)
-    setIdentPhase(startProgress < 0.02 ? (streakRef.current > 0 ? 'title' : 'logo') : 'off')
+    setIdentOn(identFromStartRef.current)
+    setIdentPhase(identFromStartRef.current ? (streakRef.current > 0 ? 'title' : 'logo') : 'off')
     setIntroSkipped(false)
     setRecapSkipped(false)
     setHelpOpen(false)
@@ -392,7 +394,7 @@ export function WatchOverlay() {
 
   useEffect(() => {
     if (!sessionKey) return
-    const fromStart = startProgress < 0.02
+    const fromStart = identFromStartRef.current
     const bingeTitle = fromStart && streakRef.current > 0
     setIdentOn(fromStart)
     setIdentPhase(fromStart ? (bingeTitle ? 'title' : 'logo') : 'off')
@@ -401,17 +403,17 @@ export function WatchOverlay() {
       return
     }
     if (!bingeTitle) playIdentBump()
-    const toTitle = bingeTitle ? 0 : window.setTimeout(() => setIdentPhase('title'), 3200)
+    const toTitle = bingeTitle ? 0 : window.setTimeout(() => setIdentPhase('title'), 1800)
     const timer = window.setTimeout(() => {
       setIdentOn(false)
       setIdentPhase('off')
       showChromeRef.current()
-    }, bingeTitle ? 2200 : 6000)
+    }, bingeTitle ? 1800 : 4000)
     return () => {
       if (toTitle) window.clearTimeout(toTitle)
       window.clearTimeout(timer)
     }
-  }, [sessionKey, startProgress])
+  }, [sessionKey])
 
   useEffect(() => {
     if (!session?.history?.id || session.history.kind !== 'show') {
@@ -904,7 +906,7 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identPhase === 'logo' && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''} ${reportOpen ? 'is-report' : ''} ${locked ? 'is-locked' : ''} ${pip ? 'is-pip' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome && !identOn ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identPhase === 'logo' && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''} ${reportOpen ? 'is-report' : ''} ${locked ? 'is-locked' : ''} ${pip ? 'is-pip' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
