@@ -331,13 +331,15 @@ export function Login() {
               </button>
             </>
           ) : null}
-          <button type="button" className="login-help" onClick={() => setHelp((value) => !value)}>
-            Forgot password?
-          </button>
-          <label className="login-remember">
-            <input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} />
-            Remember me
-          </label>
+          <div className="login-row">
+            <label className="login-remember">
+              <input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} />
+              Remember me
+            </label>
+            <button type="button" className="login-help" onClick={() => setHelp((value) => !value)}>
+              Forgot password?
+            </button>
+          </div>
           {help ? (
             <p className="login-help-copy">
               Passwords stay in this browser. If you forgot yours, create a new account with the same email after

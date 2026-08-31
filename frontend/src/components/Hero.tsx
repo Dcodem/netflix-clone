@@ -215,7 +215,9 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
           <button type="button" className="btn btn-info hero-more" onClick={(event) => openTitle(item, event.currentTarget)}>
             <InfoIcon className="icon" />
             <span className="hero-more-wide">More Info</span>
-            <span className="hero-more-short">Info</span>
+            <span className="hero-more-short" aria-hidden="true">
+              Info
+            </span>
           </button>
           {soon ? null : (
             <button
