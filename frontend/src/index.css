@@ -12291,7 +12291,7 @@ img.is-logo-pending {
 }
 
 .news-card.is-soon {
-  grid-template-columns: 56px 1fr;
+  grid-template-columns: 64px 1fr;
   align-items: start;
   column-gap: 16px;
   row-gap: 14px;
@@ -12334,7 +12334,7 @@ img.is-logo-pending {
 .news-date {
   justify-items: start;
   padding-top: 0;
-  min-width: 52px;
+  min-width: 56px;
 }
 
 .news-date em {
@@ -12358,9 +12358,9 @@ img.is-logo-pending {
 .news-kind {
   display: block;
   margin-top: 6px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
   color: #808080;
@@ -12479,19 +12479,22 @@ img.is-logo-pending {
   opacity: 0;
 }
 
+.hero-mute.news-card-mute,
 .news-card-mute {
   position: absolute;
+  top: 10px;
   right: 10px;
-  bottom: 10px;
+  left: auto;
+  bottom: auto;
   z-index: 3;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   margin: 0;
 }
 
 .news-card-mute .icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .news-title-row {
