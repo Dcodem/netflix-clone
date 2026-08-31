@@ -21,6 +21,7 @@ export type WatchHistoryItem = {
   episodeId?: string | null
   episodeProgress?: Record<string, EpisodeWatch>
   tmdb_id?: number | string | null
+  synopsis?: string | null
 }
 
 export type LikedTitle = {

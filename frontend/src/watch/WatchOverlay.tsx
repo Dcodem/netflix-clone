@@ -62,7 +62,25 @@ function captionLines(text?: string | null): string[] {
     .split(/(?<=[.!?])\s+/)
     .map((line) => line.replace(/\s+/g, ' ').trim())
     .filter((line) => line.length >= 8)
-  return parts.length ? parts : CAPTIONS
+  const wrapped: string[] = []
+  for (const part of parts) {
+    if (part.length <= 72) {
+      wrapped.push(part)
+      continue
+    }
+    let buf = ''
+    for (const word of part.split(' ')) {
+      const next = buf ? `${buf} ${word}` : word
+      if (next.length > 64 && buf) {
+        wrapped.push(buf)
+        buf = word
+      } else {
+        buf = next
+      }
+    }
+    if (buf) wrapped.push(buf)
+  }
+  return wrapped.length ? wrapped.slice(0, 12) : CAPTIONS
 }
 
 function formatClock(seconds: number, remaining = false) {
@@ -822,7 +840,9 @@ export function WatchOverlay() {
   const countingDown = remaining <= AUTO_IN && activeProfile?.autoplayNext !== false
   const nextCount = countingDown ? Math.max(1, Math.ceil(remaining)) : null
   const nextProgress = countingDown ? Math.min(1, remaining / AUTO_IN) : 1
-  const captionPool = captionLines(playing?.episode.synopsis)
+  const captionPool = captionLines(
+    playing?.episode.synopsis || showDetail?.synopsis || session?.history?.synopsis,
+  )
   const caption = subs === 'off' ? null : captionPool[Math.floor(current / 9) % captionPool.length]
 
   function ratioFromEvent(event: ReactPointerEvent<HTMLDivElement>) {

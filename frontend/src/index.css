@@ -2053,11 +2053,6 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   border-color: #fff;
 }
 
-.profiles-page .profile-cell:hover .profile-avatar:not(.is-managing),
-.profiles-page .profile-cell:focus-visible .profile-avatar:not(.is-managing) {
-  transform: scale(1.05);
-}
-
 .profile-cell:hover .profile-name,
 .profile-cell:focus-visible .profile-name {
   color: #fff;
@@ -2154,15 +2149,16 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 }
 
 .manage-profiles {
-  margin-top: 72px;
+  margin-top: 4em;
   background: transparent;
   color: #808080;
   border: 1px solid #808080;
   border-radius: 0;
   letter-spacing: 2px;
-  text-transform: uppercase;
-  font-size: 13px;
-  padding: 8px 24px;
+  text-transform: none;
+  font-size: 18px;
+  font-weight: 400;
+  padding: 0.5em 1.5em;
 }
 
 .manage-profiles:hover {
@@ -2835,9 +2831,10 @@ body:has(.account-page),
   position: relative;
   background: #fff;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 22px 24px 20px;
-  max-width: 420px;
+  border-radius: 6px;
+  padding: 24px 28px 22px;
+  max-width: 480px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .account-brand {
@@ -6661,7 +6658,7 @@ img.is-logo-pending {
 .profile-cell:focus-visible .profile-add-plus {
   background: transparent;
   border-color: transparent;
-  color: #e5e5e5;
+  color: #fff;
 }
 
 .profile-cell:hover .profile-name,
@@ -8513,7 +8510,7 @@ img.is-logo-pending {
   top: 14px;
   bottom: 14px;
   width: 3px;
-  background: #e50914;
+  background: #fff;
 }
 
 .notify-row:hover {
@@ -11202,7 +11199,7 @@ img.is-logo-pending {
   gap: 12px;
   width: 100%;
   max-width: 100%;
-  margin: 8px 0 28px;
+  margin: 4px 0 22px;
 }
 
 .my-netflix-profile {
@@ -11224,14 +11221,14 @@ img.is-logo-pending {
 }
 
 .my-netflix-avatar {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 4px;
 }
 
 .my-netflix-profile strong {
   display: block;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -11423,22 +11420,31 @@ img.is-logo-pending {
 }
 
 .notify-rail {
-  display: grid;
-  gap: 0;
-  margin: 8px 0 0;
-  padding: 0;
+  --notify-card-w: 236px;
+  display: flex;
+  gap: 12px;
+  margin: 8px calc(var(--page-gutter) * -1) 0;
+  padding: 0 var(--page-gutter) 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.notify-rail::-webkit-scrollbar {
+  display: none;
 }
 
 .notify-card {
   position: relative;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0 12px 10px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  flex: 0 0 var(--notify-card-w);
+  width: var(--notify-card-w);
+  padding: 0;
   background: none;
   border: 0;
-  border-bottom: 1px solid #2a2a2a;
   color: #fff;
   text-align: left;
   cursor: pointer;
@@ -11448,19 +11454,19 @@ img.is-logo-pending {
   content: '';
   position: absolute;
   left: 0;
-  top: 16px;
-  bottom: 16px;
+  top: 0;
   width: 3px;
-  height: auto;
-  border-radius: 0 2px 2px 0;
-  background: #e50914;
+  height: calc(var(--notify-card-w) * 9 / 16);
+  border-radius: 4px 0 0 4px;
+  background: #fff;
   z-index: 1;
 }
 
 .notify-card img,
 .notify-card .media-fallback {
-  width: 112px;
-  height: 63px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
   flex-shrink: 0;
   object-fit: cover;
   border-radius: 4px;
@@ -12506,7 +12512,7 @@ img.is-logo-pending {
 
 .categories-list {
   display: grid;
-  gap: 18px;
+  gap: 22px;
   text-align: center;
   flex: 1;
   max-height: none;
@@ -12520,7 +12526,7 @@ img.is-logo-pending {
   background: none;
   border: 0;
   color: #808080;
-  font-size: clamp(22px, 5.6vw, 30px);
+  font-size: clamp(26px, 7vw, 36px);
   font-weight: 400;
   cursor: pointer;
   text-decoration: none;
