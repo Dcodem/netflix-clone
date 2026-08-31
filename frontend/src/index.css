@@ -1192,10 +1192,11 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 }
 
 .continue-more {
-  position: absolute;
-  top: 6px;
-  right: 6px;
+  position: relative;
+  top: auto;
+  right: auto;
   z-index: 5;
+  justify-self: end;
 }
 
 .continue-hide {
@@ -1275,21 +1276,24 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   outline-offset: 2px;
 }
 
+.poster-wrap.is-peeking {
+  z-index: 6;
+}
+
+.poster-wrap.is-peeking:not(.is-previewing) .poster-card {
+  transform: scale(1.08);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.58);
+}
+
+.poster-wrap.is-poster.is-peeking:not(.is-previewing) .poster-card,
+.poster-wrap.is-ranked.is-peeking:not(.is-previewing) .poster-card,
+.poster-wrap.scene-wrap.is-peeking:not(.is-previewing) .poster-card {
+  transform: scale(1.08);
+}
+
 @media (hover: hover) and (pointer: fine) {
-  .poster-wrap:hover,
-  .poster-wrap.is-peeking {
+  .poster-wrap:hover {
     z-index: 6;
-  }
-
-  .poster-wrap.is-peeking:not(.is-previewing) .poster-card {
-    transform: scale(1.08);
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.58);
-  }
-
-  .poster-wrap.is-poster.is-peeking:not(.is-previewing) .poster-card,
-  .poster-wrap.is-ranked.is-peeking:not(.is-previewing) .poster-card,
-  .poster-wrap.scene-wrap.is-peeking:not(.is-previewing) .poster-card {
-    transform: scale(1.08);
   }
 
   .poster-wrap.is-previewing .poster-card {
@@ -11599,6 +11603,14 @@ img.is-logo-pending {
 
 .continue-meta {
   margin-top: 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 2px 8px;
+  min-width: 0;
+}
+
+.continue-copy {
   display: grid;
   gap: 2px;
   min-width: 0;

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { MovieListItem } from '../api/types'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
@@ -92,8 +92,8 @@ export function PosterCard({
     if (Math.abs(delta) > 2) scroller.scrollLeft += delta
   }
 
-  function onEnter(event: PointerEvent<HTMLDivElement>) {
-    if (!hoverable || event.pointerType !== 'mouse' || rowMenu) return
+  function onEnter() {
+    if (!hoverable || rowMenu) return
     cancelClose()
     takeLock()
     setPeek(true)
@@ -107,8 +107,7 @@ export function PosterCard({
     }, 400)
   }
 
-  function onLeave(event: PointerEvent<HTMLDivElement>) {
-    if (event.pointerType !== 'mouse') return
+  function onLeave() {
     cancelClose()
     timer.current = window.setTimeout(() => dropLock(), 140)
   }
@@ -116,8 +115,8 @@ export function PosterCard({
   return (
     <div
       className={`poster-wrap ${scene ? 'scene-wrap' : ''} ${ranked ? 'is-ranked' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'} ${peek ? 'is-peeking' : ''} ${hover ? 'is-previewing' : ''} ${rowMenu ? 'is-row-menu' : ''}`}
-      onPointerEnter={onEnter}
-      onPointerLeave={onLeave}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
     >
       {ranked ? (
         <span
@@ -159,42 +158,42 @@ export function PosterCard({
       </button>
       {continueMode ? (
         <div className="continue-meta">
-          <span className="continue-title">{item.title}</span>
-          {item.continueLabel ? <span className="continue-ep">{item.continueLabel}</span> : null}
-        </div>
-      ) : null}
-      {continueMode ? (
-        <div className={`continue-more ${rowMenu ? 'is-open' : ''}`}>
-          <button
-            type="button"
-            className="continue-hide"
-            onPointerDown={(event) => {
-              event.preventDefault()
-              event.stopPropagation()
-              dropLock()
-              setRowMenu((open) => !open)
-            }}
-            onClick={(event) => {
-              event.preventDefault()
-              event.stopPropagation()
-            }}
-            aria-label="More"
-            aria-expanded={rowMenu}
-          >
-            <MoreVertIcon className="icon" />
-          </button>
-          {rowMenu ? (
-            <ContinueMenu
-              onRemove={() => {
-                hideContinue(item.id)
-                setRowMenu(false)
+          <span className="continue-copy">
+            <span className="continue-title">{item.title}</span>
+            {item.continueLabel ? <span className="continue-ep">{item.continueLabel}</span> : null}
+          </span>
+          <div className={`continue-more ${rowMenu ? 'is-open' : ''}`}>
+            <button
+              type="button"
+              className="continue-hide"
+              onPointerDown={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                dropLock()
+                setRowMenu((open) => !open)
               }}
-              onDetails={() => {
-                setRowMenu(false)
-                openTitle(item, rootRef.current)
+              onClick={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
               }}
-            />
-          ) : null}
+              aria-label="More"
+              aria-expanded={rowMenu}
+            >
+              <MoreVertIcon className="icon" />
+            </button>
+            {rowMenu ? (
+              <ContinueMenu
+                onRemove={() => {
+                  hideContinue(item.id)
+                  setRowMenu(false)
+                }}
+                onDetails={() => {
+                  setRowMenu(false)
+                  openTitle(item, rootRef.current)
+                }}
+              />
+            ) : null}
+          </div>
         </div>
       ) : null}
       {hover && anchor && !openItem ? (
