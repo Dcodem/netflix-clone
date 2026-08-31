@@ -63,8 +63,10 @@ const VIDEO_LABELS: Record<string, string> = {
 export async function findTmdbVideos(item: SearchItem, key: string): Promise<TmdbVideoClip[]> {
   const match = await findTmdbMatch(item, key)
   if (!match) return []
-  const isShow = item.kind === 'show'
-  const videos = await tmdbJson<TmdbVideos>(isShow ? `/3/tv/${match.id}/videos` : `/3/movie/${match.id}/videos`, key)
+  const videos = await tmdbJson<TmdbVideos>(
+    match.isTv ? `/3/tv/${match.id}/videos` : `/3/movie/${match.id}/videos`,
+    key,
+  )
   const seen = new Set<string>()
   const clips: TmdbVideoClip[] = []
   const typeCount: Record<string, number> = {}
@@ -85,14 +87,12 @@ export async function findTmdbVideos(item: SearchItem, key: string): Promise<Tmd
 }
 
 export async function findTmdbTrailer(item: SearchItem, key: string): Promise<TrailerHit | null> {
-  const isShow = item.kind === 'show'
-  const path = isShow ? '/3/search/tv' : '/3/search/movie'
-  const extra: Record<string, string> = { query: item.title }
-  if (item.year) extra[isShow ? 'first_air_date_year' : 'year'] = String(item.year)
-  const search = await tmdbJson<TmdbSearch>(path, key, extra)
-  const match = search.results?.[0]
+  const match = await findTmdbMatch(item, key)
   if (!match) return null
-  const videos = await tmdbJson<TmdbVideos>(isShow ? `/3/tv/${match.id}/videos` : `/3/movie/${match.id}/videos`, key)
+  const videos = await tmdbJson<TmdbVideos>(
+    match.isTv ? `/3/tv/${match.id}/videos` : `/3/movie/${match.id}/videos`,
+    key,
+  )
   const youtubeKey = pickYoutube(videos.results)
   if (!youtubeKey) return null
   return {
@@ -111,12 +111,20 @@ export type TmdbArt = {
 }
 
 async function findTmdbMatch(item: SearchItem, key: string) {
-  const isShow = item.kind === 'show'
-  const path = isShow ? '/3/search/tv' : '/3/search/movie'
-  const extra: Record<string, string> = { query: item.title }
-  if (item.year) extra[isShow ? 'first_air_date_year' : 'year'] = String(item.year)
-  const search = await tmdbJson<TmdbSearch>(path, key, extra)
-  return search.results?.[0] ?? null
+  const primaryTv = item.kind === 'show'
+  const attempts: Array<{ isTv: boolean; year?: number }> = []
+  if (item.year) attempts.push({ isTv: primaryTv, year: item.year })
+  attempts.push({ isTv: primaryTv })
+  attempts.push({ isTv: !primaryTv })
+  for (const attempt of attempts) {
+    const path = attempt.isTv ? '/3/search/tv' : '/3/search/movie'
+    const extra: Record<string, string> = { query: item.title }
+    if (attempt.year) extra[attempt.isTv ? 'first_air_date_year' : 'year'] = String(attempt.year)
+    const search = await tmdbJson<TmdbSearch>(path, key, extra)
+    const match = search.results?.[0]
+    if (match) return { ...match, isTv: attempt.isTv }
+  }
+  return null
 }
 
 export async function findTmdbArt(item: SearchItem, key: string): Promise<TmdbArt | null> {
@@ -148,9 +156,8 @@ type TmdbImages = {
 export async function findTmdbLogo(item: SearchItem, key: string): Promise<string | null> {
   const match = await findTmdbMatch(item, key)
   if (!match) return null
-  const isTv = item.kind === 'show'
   const images = await tmdbJson<TmdbImages>(
-    isTv ? `/3/tv/${match.id}/images` : `/3/movie/${match.id}/images`,
+    match.isTv ? `/3/tv/${match.id}/images` : `/3/movie/${match.id}/images`,
     key,
     { include_image_language: 'en,null' },
   )
@@ -179,8 +186,10 @@ export async function findTmdbLogo(item: SearchItem, key: string): Promise<strin
 export async function findTmdbGallery(item: SearchItem, key: string): Promise<string[]> {
   const match = await findTmdbMatch(item, key)
   if (!match) return []
-  const isShow = item.kind === 'show'
-  const images = await tmdbJson<TmdbImages>(isShow ? `/3/tv/${match.id}/images` : `/3/movie/${match.id}/images`, key)
+  const images = await tmdbJson<TmdbImages>(
+    match.isTv ? `/3/tv/${match.id}/images` : `/3/movie/${match.id}/images`,
+    key,
+  )
   const ranked = [...(images.backdrops ?? [])]
     .filter((entry) => entry.file_path && tmdbFileName(entry.file_path))
     .sort((a, b) => {

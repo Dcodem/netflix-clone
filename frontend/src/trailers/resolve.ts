@@ -21,7 +21,7 @@ export async function resolveTrailer(
   try {
     const cached = sessionStorage.getItem(key)
     if (cached) {
-      const parsed = JSON.parse(cached) as TrailerHit
+      const parsed = JSON.parse(cached) as TrailerHit | null
       memory.set(key, parsed)
       return parsed
     }
@@ -45,12 +45,10 @@ export async function resolveTrailer(
     }
   }
   memory.set(key, hit)
-  if (hit) {
-    try {
-      sessionStorage.setItem(key, JSON.stringify(hit))
-    } catch {
-      // quota
-    }
+  try {
+    sessionStorage.setItem(key, JSON.stringify(hit))
+  } catch {
+    // quota
   }
   return hit
 }

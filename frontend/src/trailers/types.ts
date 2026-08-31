@@ -18,5 +18,5 @@ export function envKeys(): TrailerKeys {
 }
 
 export function cacheKey(title: string, year: number | null | undefined, kind: string) {
-  return `flix.trailer.v2:${kind}:${title.toLowerCase()}:${year ?? ''}`
+  return `flix.trailer.v3:${kind}:${title.toLowerCase()}:${year ?? ''}`
 }
