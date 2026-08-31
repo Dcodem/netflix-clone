@@ -28,7 +28,7 @@ export function ContinueMenu({
             onDetails()
           }}
         >
-          More info
+          More Info
         </button>
       ) : null}
     </div>

@@ -278,7 +278,7 @@ select,
 
 .logo {
   font-family: var(--display);
-  font-size: 27px;
+  font-size: 30px;
   font-weight: 900;
   letter-spacing: -0.06em;
   text-decoration: none;
@@ -6156,18 +6156,7 @@ img.is-logo-pending {
 }
 
 .more-like-play {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  background: rgba(0, 0, 0, 0.28);
-  border: 0;
-  color: #fff;
-  padding: 0;
-  font: inherit;
-  cursor: pointer;
-  transition: opacity 0.16s ease;
+  display: none;
 }
 
 .more-like-card:hover .more-like-play,
@@ -8815,6 +8804,13 @@ img.is-logo-pending {
   min-width: 0;
   padding: 0 8px;
   pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .watch-now-playing {
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 
 .watch-now-title,

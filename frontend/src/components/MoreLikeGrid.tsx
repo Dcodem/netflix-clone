@@ -9,14 +9,12 @@ import { envKeys } from '../trailers/types'
 import { getTitleOverlay } from '../trailers/tmdbOverlay'
 import { isNewEpisodes, matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
-import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
-import { useWatch } from '../watch/WatchContext'
 import { notifyRemind } from './RemindToast'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
-import { BellIcon, CheckIcon, PlayIcon, PlusIcon } from './Icons'
+import { BellIcon, CheckIcon, PlusIcon } from './Icons'
 
 type LikeChip = { chip: string; synopsis: string }
 
@@ -65,8 +63,7 @@ async function chipFor(item: MovieListItem): Promise<LikeChip> {
 }
 
 export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
-  const { openTitle, closeTitle } = useTitleModal()
-  const { openWatch } = useWatch()
+  const { openTitle } = useTitleModal()
   const { activeProfile, toggleMyList } = useProfiles()
   const slice = items.slice(0, 12)
   const ids = slice.map((item) => item.id).join(',')
@@ -131,61 +128,37 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
               <div className="more-like-art-wrap">
                 <div className="more-like-art">
                   <CatalogImage item={item} alt="" prefer="backdrop" />
-                  <button
-                    type="button"
-                    className={`more-like-play ${soon ? 'is-remind' : ''}`}
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      event.preventDefault()
-                      if (soon) {
-                        playClick()
-                        toggleMyList(toLiked(item))
-                        notifyRemind(item.title, !onList)
-                        return
-                      }
-                      playClick()
-                      void (async () => {
-                        try {
-                          const detail = isShow(item) ? await getShow(item.id) : await getMovie(item.id)
-                          const session = buildWatchSession(item, detail)
-                          if (!session) {
-                            openTitle(item)
-                            return
-                          }
-                          closeTitle()
-                          openWatch(session.href, item.title, session.payload)
-                        } catch {
-                          openTitle(item)
-                        }
-                      })()
-                    }}
-                    aria-label={soon ? (onList ? `Reminded for ${item.title}` : `Remind Me for ${item.title}`) : `Play ${item.title}`}
-                  >
-                    {soon ? onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" /> : <PlayIcon className="icon" />}
-                  </button>
                   {soon && coming ? <span className="more-like-runtime">{coming}</span> : info?.chip ? <span className="more-like-runtime">{info.chip}</span> : null}
                 </div>
               </div>
               <div className="more-like-body">
+                <button
+                  type="button"
+                  className={`circle-btn more-like-add ${onList ? 'is-on' : ''}`}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    playClick()
+                    toggleMyList(toLiked(item))
+                    if (soon) notifyRemind(item.title, !onList)
+                  }}
+                  aria-label={
+                    soon
+                      ? onList
+                        ? `Reminded for ${item.title}`
+                        : `Remind Me for ${item.title}`
+                      : onList
+                        ? 'Remove from My List'
+                        : 'Add to My List'
+                  }
+                >
+                  {soon ? onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" /> : onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
+                </button>
                 <div className="more-like-meta">
-                  {soon ? null : <span className="match">{match}% Match</span>}
+                  {soon ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}
                   {soon ? null : isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
                   {item.year ? <span className="more-like-year">{item.year}</span> : null}
                   <span className="maturity">{maturityLabel(item)}</span>
                   <FeatureBadges quality={item.quality} compact />
-                  {soon ? null : (
-                    <button
-                      type="button"
-                      className={`circle-btn more-like-add ${onList ? 'is-on' : ''}`}
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        toggleMyList(toLiked(item))
-                      }}
-                      aria-label={onList ? 'Remove from My List' : 'Add to My List'}
-                    >
-                      {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
-                    </button>
-                  )}
                 </div>
                 {info?.synopsis ? <p className="more-like-syn">{info.synopsis}</p> : <p className="more-like-title">{item.title}</p>}
               </div>
