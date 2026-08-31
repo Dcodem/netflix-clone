@@ -4,6 +4,10 @@
   "buildCommand": "npm --prefix frontend run build",
   "outputDirectory": "frontend/dist",
   "ignoreCommand": "[ \"$VERCEL_PROJECT_ID\" = \"prj_jl13z9YWovLshbQwiJHVq7e9TuKM\" ]",
+  "env": {
+    "TMDB_API_KEY": "1dd1c4a1a9ac111f790158c69f59b620",
+    "VITE_TMDB_API_KEY": "1dd1c4a1a9ac111f790158c69f59b620"
+  },
   "git": {
     "deploymentEnabled": {
       "main": true,
@@ -12,12 +16,16 @@
       "cursor/title-modal-legal-a7c7": true,
       "cursor/tmdb-trailers-a7c7": true,
       "cursor/tmdb-title-enrich-a7c7": true,
-      "cursor/vercel-hover-trailers-a7c7": true
+      "cursor/vercel-hover-trailers-a7c7": true,
+      "cursor/embed-tmdb-key-a7c7": true
     }
   },
   "functions": {
     "api/catalog.js": {
       "includeFiles": "mock/**"
+    },
+    "api/tmdb.js": {
+      "includeFiles": "frontend/src/config/tmdbKey.js"
     }
   },
   "rewrites": [
