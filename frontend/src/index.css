@@ -10308,6 +10308,7 @@ img.is-logo-pending {
   bottom: 118px;
   z-index: 2150;
   width: min(380px, calc(100% - 40px));
+  flex-shrink: 0;
   display: grid;
   gap: 10px;
   padding: 14px 14px 12px;
@@ -10798,6 +10799,13 @@ img.is-logo-pending {
   left: auto;
   bottom: auto;
   z-index: auto;
+  pointer-events: auto;
+}
+
+.watch-end-cluster .next-ep-card {
+  width: 380px;
+  max-width: min(380px, calc(100vw - 168px));
+  flex-shrink: 0;
 }
 
 .watch-end-cluster.is-credits-only {
