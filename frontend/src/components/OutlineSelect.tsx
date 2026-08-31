@@ -3,14 +3,14 @@ import { createPortal } from 'react-dom'
 import { CaretIcon, CheckIcon } from './Icons'
 
 export function OutlineSelect({
-  label,
+  label = '',
   value,
   options,
   searchable = false,
   searchPlaceholder = 'Search',
   onChange,
 }: {
-  label: string
+  label?: string
   value: string
   options: { value: string; label: string }[]
   searchable?: boolean
@@ -67,16 +67,17 @@ export function OutlineSelect({
     <div className={`outline-select ${open ? 'is-open' : ''}`} ref={rootRef}>
       <button
         type="button"
-        className="outline-select-btn"
+        className={`outline-select-btn ${label ? '' : 'is-value-only'}`}
         ref={btnRef}
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-label={label || selected?.label || 'Select'}
         onClick={() => {
           syncBox()
           setOpen((next) => !next)
         }}
       >
-        <span className="outline-select-kicker">{label}</span>
+        {label ? <span className="outline-select-kicker">{label}</span> : null}
         <span className="outline-select-value">
           {selected?.label ?? ''}
           <CaretIcon className="icon" />
@@ -87,7 +88,7 @@ export function OutlineSelect({
             <div
               className="outline-select-menu is-portal"
               role="listbox"
-              aria-label={label}
+              aria-label={label || selected?.label || 'Select'}
               ref={menuRef}
               style={{ top: box.bottom + 6, left, width: menuWidth }}
             >

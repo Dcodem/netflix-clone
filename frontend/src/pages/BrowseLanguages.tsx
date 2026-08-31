@@ -11,13 +11,15 @@ import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import {
+  LANGUAGE_PRESENTATIONS,
   LANGUAGE_SORTS,
   ORIGINAL_LANGUAGES,
   languageOptionsFor,
   originalLanguageOf,
   sortLanguageTitles,
-  titlesInLanguage,
+  titlesForPresentation,
   type LanguageCode,
+  type LanguagePresentation,
   type LanguageSort,
 } from '../lib/languages'
 import { uniqueById } from '../lib/media'
@@ -30,9 +32,14 @@ function isLanguageCode(value: string | null): value is LanguageCode {
 }
 
 const SORT_VALUES = new Set(LANGUAGE_SORTS.map((entry) => entry.id))
+const PRESENTATION_VALUES = new Set(LANGUAGE_PRESENTATIONS.map((entry) => entry.id))
 
 function sortKey(profileId?: string | null) {
   return profileId ? `flix.languageSort.${profileId}` : null
+}
+
+function presentationKey(profileId?: string | null) {
+  return profileId ? `flix.languagePresentation.${profileId}` : null
 }
 
 function readLanguageSort(profileId?: string | null): LanguageSort {
@@ -55,6 +62,26 @@ function writeLanguageSort(profileId: string, sort: LanguageSort) {
   }
 }
 
+function readLanguagePresentation(profileId?: string | null): LanguagePresentation {
+  const key = presentationKey(profileId)
+  if (!key) return 'original'
+  try {
+    const raw = localStorage.getItem(key)
+    if (raw && PRESENTATION_VALUES.has(raw as LanguagePresentation)) return raw as LanguagePresentation
+  } catch {
+    /* ignore */
+  }
+  return 'original'
+}
+
+function writeLanguagePresentation(profileId: string, presentation: LanguagePresentation) {
+  try {
+    localStorage.setItem(presentationKey(profileId) as string, presentation)
+  } catch {
+    /* ignore */
+  }
+}
+
 export function BrowseLanguages() {
   const { activeProfile } = useProfiles()
   const desktop = useMediaQuery('(min-width: 768px)')
@@ -62,6 +89,9 @@ export function BrowseLanguages() {
   const langParam = params.get('lang')
   const picked = isLanguageCode(langParam) ? langParam : null
   const [sort, setSort] = useState<LanguageSort>(() => readLanguageSort(activeProfile?.id))
+  const [presentation, setPresentation] = useState<LanguagePresentation>(() =>
+    readLanguagePresentation(activeProfile?.id),
+  )
   const [headStuck, setHeadStuck] = useState(false)
   const catalog = useFetch(async () => {
     const [movies, shows] = await Promise.all([
@@ -76,7 +106,11 @@ export function BrowseLanguages() {
       [catalog.data, activeProfile],
     ),
   )
-  const offered = useMemo(() => languageOptionsFor(matureCatalog, picked), [matureCatalog, picked])
+  const offered = useMemo(
+    () => languageOptionsFor(matureCatalog, picked, presentation),
+    [matureCatalog, picked, presentation],
+  )
+  const tileLanguages = useMemo(() => languageOptionsFor(matureCatalog, picked, 'original'), [matureCatalog, picked])
   const language = useMemo(() => {
     if (picked) return picked
     if (!desktop) return null
@@ -87,8 +121,8 @@ export function BrowseLanguages() {
 
   const items = useMemo(() => {
     if (!language) return []
-    return sortLanguageTitles(titlesInLanguage(matureCatalog, language), sort, activeProfile)
-  }, [matureCatalog, language, sort, activeProfile])
+    return sortLanguageTitles(titlesForPresentation(matureCatalog, language, presentation), sort, activeProfile)
+  }, [matureCatalog, language, presentation, sort, activeProfile])
 
   const tileArt = useMemo(() => {
     const art = new Map<LanguageCode, MovieListItem>()
@@ -107,6 +141,7 @@ export function BrowseLanguages() {
 
   useEffect(() => {
     setSort(readLanguageSort(activeProfile?.id))
+    setPresentation(readLanguagePresentation(activeProfile?.id))
   }, [activeProfile?.id])
 
   useEffect(() => {
@@ -135,7 +170,7 @@ export function BrowseLanguages() {
           <h1>Browse by Languages</h1>
         </header>
         <div className="languages-tiles" role="list">
-          {offered.map((entry) => {
+          {tileLanguages.map((entry) => {
             const art = tileArt.get(entry.code)
             return (
               <button
@@ -154,6 +189,13 @@ export function BrowseLanguages() {
       </main>
     )
   }
+
+  const emptyDetail =
+    presentation === 'original'
+      ? 'Pick another original language.'
+      : presentation === 'dubbing'
+        ? 'No dubbed titles in this language yet.'
+        : 'No subtitled titles in this language yet.'
 
   return (
     <main className="page page-pad languages-page">
@@ -178,12 +220,21 @@ export function BrowseLanguages() {
               if (activeProfile?.id) writeLanguageSort(activeProfile.id, value)
             }}
           />
+          <OutlineSelect
+            value={presentation}
+            options={LANGUAGE_PRESENTATIONS.map((entry) => ({ value: entry.id, label: entry.label }))}
+            onChange={(next) => {
+              const value = next as LanguagePresentation
+              setPresentation(value)
+              if (activeProfile?.id) writeLanguagePresentation(activeProfile.id, value)
+            }}
+          />
         </div>
       </header>
       {items.length ? (
         <MediaGrid items={items} layout="poster" hoverable={desktop} />
       ) : (
-        <EmptyState title="No titles in this language" detail="Pick another original language." />
+        <EmptyState title="No titles in this language" detail={emptyDetail} />
       )}
     </main>
   )

@@ -699,9 +699,9 @@ export function WatchOverlay() {
 
   useEffect(() => {
     if (!session || !isShow || !activeProfile?.skipIntros) return
-    if (identPhase === 'logo' || paused || stillWatching) return
+    if (identOn || paused || stillWatching) return
     const marks = skipMarks(runtimeSec, session.history?.genres)
-    if (!introSkipped && current > 2.4 && current < marks.introAt) {
+    if (!introSkipped && playhead > 2.4 && playhead < marks.introAt) {
       setIntroSkipped(true)
       post({ cmd: 'seek', seconds: marks.introAt })
       return
@@ -709,9 +709,8 @@ export function WatchOverlay() {
     if (
       marks.recapUntil > marks.recapAt &&
       !recapSkipped &&
-      !identOn &&
-      current >= marks.recapAt &&
-      current < marks.recapUntil
+      playhead >= marks.recapAt &&
+      playhead < marks.recapUntil
     ) {
       setRecapSkipped(true)
       setIntroSkipped(true)
@@ -721,13 +720,12 @@ export function WatchOverlay() {
     session,
     isShow,
     activeProfile?.skipIntros,
-    identPhase,
     identOn,
     paused,
     stillWatching,
     introSkipped,
     recapSkipped,
-    current,
+    playhead,
     runtimeSec,
     post,
   ])
@@ -800,8 +798,8 @@ export function WatchOverlay() {
   if (!session) return null
 
   const length = duration || runtimeSec
-  const progress = length ? Math.min(1, current / length) : 0
-  const remaining = Math.max(0, length - current)
+  const progress = length ? Math.min(1, playhead / length) : 0
+  const remaining = Math.max(0, length - playhead)
   const episodeLabel = playing
     ? `S${playing.season.season_number}:E${playing.episode.number}`
     : isShow
@@ -810,11 +808,11 @@ export function WatchOverlay() {
   const marks = skipMarks(runtimeSec, session.history?.genres)
   const showSkipIntro =
     isShow &&
-    identPhase !== 'logo' &&
+    !identOn &&
     !introSkipped &&
     !activeProfile?.skipIntros &&
-    current > 2.4 &&
-    current < marks.introAt &&
+    playhead > 2.4 &&
+    playhead < marks.introAt &&
     !episodesOpen &&
     !audioOpen &&
     !speedOpen
@@ -825,8 +823,8 @@ export function WatchOverlay() {
     !identOn &&
     !showSkipIntro &&
     !activeProfile?.skipIntros &&
-    current >= marks.recapAt &&
-    current < marks.recapUntil &&
+    playhead >= marks.recapAt &&
+    playhead < marks.recapUntil &&
     !episodesOpen &&
     !audioOpen &&
     !speedOpen

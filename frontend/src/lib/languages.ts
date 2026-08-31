@@ -23,12 +23,19 @@ export const ORIGINAL_LANGUAGES = [
 
 export type LanguageCode = (typeof ORIGINAL_LANGUAGES)[number]['code']
 export type LanguageSort = 'suggestions' | 'year' | 'az' | 'za'
+export type LanguagePresentation = 'original' | 'dubbing' | 'subtitles'
 
 export const LANGUAGE_SORTS: { id: LanguageSort; label: string }[] = [
   { id: 'suggestions', label: 'Suggestions For You' },
   { id: 'year', label: 'Year Released' },
   { id: 'az', label: 'A-Z' },
   { id: 'za', label: 'Z-A' },
+]
+
+export const LANGUAGE_PRESENTATIONS: { id: LanguagePresentation; label: string }[] = [
+  { id: 'original', label: 'Original' },
+  { id: 'dubbing', label: 'Dubbing' },
+  { id: 'subtitles', label: 'Subtitles' },
 ]
 
 /** Named catalog titles that are not originally English. Everything else defaults to English. */
@@ -75,8 +82,26 @@ export function titlesInLanguage(items: MovieListItem[], code: LanguageCode): Mo
   return items.filter((item) => originalLanguageOf(item) === code)
 }
 
-/** Languages that actually have an original-language title. Extra keeps a deep-linked empty pick in the menu. */
-export function languageOptionsFor(items: MovieListItem[], extra?: LanguageCode | null) {
+/** Original = shot in that language. Dubbing = other originals available dubbed. Subtitles = titles with subs in that language. */
+export function titlesForPresentation(
+  items: MovieListItem[],
+  code: LanguageCode,
+  presentation: LanguagePresentation,
+): MovieListItem[] {
+  if (presentation === 'original') return titlesInLanguage(items, code)
+  if (presentation === 'dubbing') return items.filter((item) => originalLanguageOf(item) !== code)
+  return items
+}
+
+/** Languages that actually have an original-language title. Dubbing/Subtitles offer the full language list. Extra keeps a deep-linked empty pick in the menu. */
+export function languageOptionsFor(
+  items: MovieListItem[],
+  extra?: LanguageCode | null,
+  presentation: LanguagePresentation = 'original',
+) {
+  if (presentation !== 'original') {
+    return [...ORIGINAL_LANGUAGES]
+  }
   const have = new Set(items.map((item) => originalLanguageOf(item)))
   if (extra) have.add(extra)
   return ORIGINAL_LANGUAGES.filter((entry) => have.has(entry.code))

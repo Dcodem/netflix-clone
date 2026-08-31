@@ -117,7 +117,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         id: 'languages',
         title: 'Browse by Languages',
-        body: 'Browse by Languages lists titles in their original language. The menu only offers languages that have a title. Sort by Suggestions, year, A–Z, or Z–A.',
+        body: 'Browse by Languages lists titles by original language, dubbing, or subtitles. Original only offers languages that have a title. Sort by Suggestions, year, A–Z, or Z–A.',
       },
     ],
   },
