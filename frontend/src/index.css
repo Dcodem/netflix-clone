@@ -2237,9 +2237,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 @media (min-width: 768px) {
   .header-inner,
   .hero-body,
-  .section-title,
   .section-sub,
-  .row-heading,
   .row-scroller,
   .grid,
   .detail-hero-body,
@@ -6170,7 +6168,7 @@ img.is-logo-pending {
   line-height: 0.72;
   color: #000;
   -webkit-text-fill-color: #000;
-  -webkit-text-stroke: 5px #7a7a7a;
+  -webkit-text-stroke: 6px #8c8c8c;
   paint-order: stroke fill;
   letter-spacing: -0.12em;
   margin: 0 -0.48em 0 0;
@@ -6764,7 +6762,7 @@ img.is-logo-pending {
     min-width: 0.62em;
     letter-spacing: -0.1em;
     padding-left: 0;
-    -webkit-text-stroke-width: 4px;
+    -webkit-text-stroke-width: 5px;
   }
 
   .rank-num.is-first {
