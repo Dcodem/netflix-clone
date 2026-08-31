@@ -165,19 +165,6 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
                   </button>
                   {soon && coming ? <span className="more-like-runtime">{coming}</span> : info?.chip ? <span className="more-like-runtime">{info.chip}</span> : null}
                 </div>
-                {soon ? null : (
-                <button
-                  type="button"
-                  className={`circle-btn more-like-add ${onList ? 'is-on' : ''}`}
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    toggleMyList(toLiked(item))
-                  }}
-                  aria-label={onList ? 'Remove from My List' : 'Add to My List'}
-                >
-                  {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
-                </button>
-                )}
               </div>
               <div className="more-like-body">
                 <div className="more-like-meta">
@@ -186,6 +173,19 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
                   {item.year ? <span className="more-like-year">{item.year}</span> : null}
                   <span className="maturity">{maturityLabel(item)}</span>
                   <FeatureBadges quality={item.quality} compact />
+                  {soon ? null : (
+                    <button
+                      type="button"
+                      className={`circle-btn more-like-add ${onList ? 'is-on' : ''}`}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        toggleMyList(toLiked(item))
+                      }}
+                      aria-label={onList ? 'Remove from My List' : 'Add to My List'}
+                    >
+                      {onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
+                    </button>
+                  )}
                 </div>
                 {info?.synopsis ? <p className="more-like-syn">{info.synopsis}</p> : <p className="more-like-title">{item.title}</p>}
               </div>

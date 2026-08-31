@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { useHoverMenu } from '../hooks/useHoverMenu'
@@ -68,7 +67,7 @@ export function NotificationsMenu() {
     >
       <button
         type="button"
-        className="notify-toggle"
+        className={`notify-toggle ${unread ? 'has-unread' : ''}`}
         aria-label="Notifications"
         aria-expanded={open}
         onClick={toggle}
@@ -107,9 +106,6 @@ export function NotificationsMenu() {
           ) : (
             <p>No recent notifications.</p>
           )}
-          <Link className="notify-foot" to="/browse/my-netflix" onClick={() => setOpen(false)}>
-            Go to My Netflix
-          </Link>
         </div>
       ) : null}
     </div>

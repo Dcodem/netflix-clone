@@ -38,7 +38,10 @@ export function MediaRow({
   const fineHover = useFineHover()
   const ranked = variant === 'top10'
   const looping = loop && !seed && !ranked && items.length >= 8 && fineHover
-  const { ref, canPrev, canNext, copies, scrollByPage } = useRowOverflow(looping, items.length)
+  const { ref, canPrev, canNext, copies, pageIndex, pageCount, scrollByPage } = useRowOverflow(
+    looping,
+    items.length,
+  )
 
   if (!items.length) return null
 
@@ -60,6 +63,13 @@ export function MediaRow({
         ) : (
           <h2 className="section-title">{title}</h2>
         )}
+        {pageCount > 1 ? (
+          <div className="row-pages" aria-hidden="true">
+            {Array.from({ length: pageCount }, (_, index) => (
+              <span key={index} className={index === pageIndex ? 'is-on' : ''} />
+            ))}
+          </div>
+        ) : null}
       </div>
       {subtitle ? <p className="section-sub row-sub">{subtitle}</p> : null}
       <div className="row-wrap">
