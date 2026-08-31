@@ -174,7 +174,6 @@ export const TrailerPreview = forwardRef<
         postYouTube(iframe, 'addEventListener', ['onStateChange'])
         postYouTube(iframe, 'playVideo')
         applyMute(mutedRef.current)
-        markReady()
       }
       const state = playerState(payload)
       if (state === PLAYING) markReady()
@@ -222,7 +221,6 @@ export const TrailerPreview = forwardRef<
           iframe.contentWindow?.postMessage(JSON.stringify({ event: 'listening' }), '*')
           postYouTube(iframe, 'playVideo')
           applyMute(mutedRef.current)
-          window.setTimeout(() => markReady(), 700)
         }}
         onError={() => setHit(null)}
       />
