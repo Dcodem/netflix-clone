@@ -20,7 +20,12 @@ import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
+import { findTmdbInfo } from '../trailers/tmdb'
+import { envKeys } from '../trailers/types'
+import { getTitleOverlay } from '../trailers/tmdbOverlay'
+import { useCatalogEnrichment } from '../trailers/useCatalogEnrichment'
 import { useWatch } from '../watch/WatchContext'
+import { weakCopy } from '../lib/catalogTitle'
 
 const synCache = new Map<string, string>()
 
@@ -31,9 +36,33 @@ async function synopsisForItem(item: MovieListItem): Promise<string> {
   const hit = synCache.get(item.id)
   if (hit) return hit
   const detail = isShow(item) ? await getShow(item.id) : await getMovie(item.id)
-  const synopsis = detail.synopsis?.trim() ?? ''
-  if (synopsis) synCache.set(item.id, synopsis)
-  return synopsis
+  const catalogSyn = detail.synopsis?.trim() ?? ''
+  if (!weakCopy(catalogSyn)) {
+    synCache.set(item.id, catalogSyn)
+    return catalogSyn
+  }
+  const overlay = getTitleOverlay(item)
+  if (overlay?.overview) {
+    synCache.set(item.id, overlay.overview)
+    return overlay.overview
+  }
+  const key = envKeys().tmdb.trim()
+  if (key) {
+    try {
+      const info = await findTmdbInfo(
+        { title: item.title, year: item.year, kind: item.kind, tmdb_id: item.tmdb_id },
+        key,
+      )
+      if (info?.overview) {
+        synCache.set(item.id, info.overview)
+        return info.overview
+      }
+    } catch {
+      /* keep catalog copy */
+    }
+  }
+  if (catalogSyn) synCache.set(item.id, catalogSyn)
+  return catalogSyn
 }
 
 function FeedCard({
@@ -100,6 +129,7 @@ function FeedCard({
           title={item.title}
           year={item.year}
           kind={item.kind}
+          tmdb_id={item.tmdb_id}
           mode="mini"
           muted={muted}
           className="news-card-trailer"
@@ -290,10 +320,11 @@ function NewsHotFeed() {
     toggleMyList(toLiked(item))
     notifyRemind(item.title, !onList)
   }
-  const catalog = useMemo(
+  const source = useMemo(
     () => filterByMaturity(uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]), activeProfile),
     [movies.data, extras.data, activeProfile],
   )
+  const catalog = useCatalogEnrichment(source)
   const comingRef = useRef<HTMLElement>(null)
   const watchingRef = useRef<HTMLElement>(null)
   const worthRef = useRef<HTMLElement>(null)

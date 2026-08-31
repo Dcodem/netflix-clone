@@ -5,15 +5,20 @@ import { envKeys } from './types'
 
 const memory = new Map<string, string[]>()
 
-function cacheId(title: string, year?: number | null, kind?: string) {
-  return `flix.gallery.v1:${kind ?? 'movie'}:${title.toLowerCase()}:${year ?? ''}`
+function cacheId(item: { title?: string; year?: number | null; kind?: string; tmdb_id?: number | string | null }) {
+  return `flix.gallery.v1:${item.kind ?? 'movie'}:${item.tmdb_id ?? ''}:${(item.title ?? '').toLowerCase()}:${item.year ?? ''}`
 }
 
-export function useTmdbGallery(item: { title?: string; year?: number | null; kind?: string } | null): string[] {
+export function useTmdbGallery(item: {
+  title?: string
+  year?: number | null
+  kind?: string
+  tmdb_id?: number | string | null
+} | null): string[] {
   const { user } = useAuth()
   const key = (user?.tmdbKey || envKeys().tmdb).trim()
   const title = item?.title ?? ''
-  const cacheKey = cacheId(title, item?.year, item?.kind)
+  const cacheKey = cacheId(item ?? {})
   const [stills, setStills] = useState<string[]>(() => memory.get(cacheKey) ?? [])
 
   useEffect(() => {
@@ -39,7 +44,7 @@ export function useTmdbGallery(item: { title?: string; year?: number | null; kin
       return
     }
     let cancelled = false
-    findTmdbGallery({ title, year: item?.year, kind: item?.kind }, key)
+    findTmdbGallery({ title, year: item?.year, kind: item?.kind, tmdb_id: item?.tmdb_id }, key)
       .then((result) => {
         memory.set(cacheKey, result)
         try {
@@ -56,7 +61,7 @@ export function useTmdbGallery(item: { title?: string; year?: number | null; kin
     return () => {
       cancelled = true
     }
-  }, [cacheKey, item?.kind, item?.year, key, title])
+  }, [cacheKey, item?.kind, item?.tmdb_id, item?.year, key, title])
 
   return stills
 }

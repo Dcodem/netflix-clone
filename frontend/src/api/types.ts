@@ -11,6 +11,10 @@ export type MovieListItem = {
   poster_url?: string | null
   href: string
   continueLabel?: string
+  /** Existing-site id. Playback still uses watch_href from that source. */
+  source_id?: string | null
+  /** TMDB id for art, copy, and rails. Never used as a play URL. */
+  tmdb_id?: number | string | null
 }
 
 export type MovieDetail = MovieListItem & {

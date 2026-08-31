@@ -101,12 +101,16 @@ const REPORT_REASONS = [
   { id: 'other', label: 'Something else' },
 ] as const
 
-function trailerSearch(session: { title: string; history?: { title?: string; year?: number | null; kind?: string } } | null) {
-  if (!session) return { title: '', year: null as number | null, kind: 'movie' }
+function trailerSearch(session: {
+  title: string
+  history?: { title?: string; year?: number | null; kind?: string; tmdb_id?: number | string | null }
+} | null) {
+  if (!session) return { title: '', year: null as number | null, kind: 'movie', tmdb_id: null as number | string | null }
   return {
     title: session.history?.title || session.title,
     year: session.history?.year ?? null,
     kind: session.history?.kind ?? 'movie',
+    tmdb_id: session.history?.tmdb_id ?? null,
   }
 }
 

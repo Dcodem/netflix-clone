@@ -19,6 +19,7 @@ import { filterByMaturity } from '../lib/netflix'
 import { uniqueById } from '../lib/media'
 import { matchesGenreFilter } from '../profiles/taste'
 import { useProfiles } from '../profiles/ProfileContext'
+import { useCatalogEnrichment } from '../trailers/useCatalogEnrichment'
 
 const SORT_VALUES = new Set(MY_LIST_SORTS.map((entry) => entry.value))
 
@@ -82,10 +83,11 @@ export function MyList() {
       ]),
     'home-extra',
   )
-  const catalog = useMemo(
+  const source = useMemo(
     () => [...(movies.data ?? []), ...(extra.data?.[0] ?? []), ...(extra.data?.[1] ?? [])],
     [movies.data, extra.data],
   )
+  const catalog = useCatalogEnrichment(source)
   const items = useMemo(
     () =>
       enrichListItems(filterByMaturity(likedToItems(activeProfile?.myList ?? []), activeProfile), catalog),

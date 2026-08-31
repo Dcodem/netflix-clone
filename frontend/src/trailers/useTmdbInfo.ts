@@ -1,49 +1,49 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
-import { findTmdbVideos, type TmdbVideoClip } from './tmdb'
+import { findTmdbInfo, type TmdbInfo } from './tmdb'
 import { envKeys } from './types'
 
-const memory = new Map<string, TmdbVideoClip[]>()
+const memory = new Map<string, TmdbInfo | null>()
 
 function cacheId(item: { title?: string; year?: number | null; kind?: string; tmdb_id?: number | string | null }) {
-  return `flix.videos.v1:${item.kind ?? 'movie'}:${item.tmdb_id ?? ''}:${(item.title ?? '').toLowerCase()}:${item.year ?? ''}`
+  return `flix.info.v1:${item.kind ?? 'movie'}:${item.tmdb_id ?? ''}:${(item.title ?? '').toLowerCase()}:${item.year ?? ''}`
 }
 
-export function useTmdbVideos(item: {
+export function useTmdbInfo(item: {
   title?: string
   year?: number | null
   kind?: string
   tmdb_id?: number | string | null
-} | null): TmdbVideoClip[] {
+} | null): TmdbInfo | null {
   const { user } = useAuth()
   const key = (user?.tmdbKey || envKeys().tmdb).trim()
   const title = item?.title ?? ''
   const cacheKey = cacheId(item ?? {})
-  const [clips, setClips] = useState<TmdbVideoClip[]>(() => memory.get(cacheKey) ?? [])
+  const [info, setInfo] = useState<TmdbInfo | null>(() => memory.get(cacheKey) ?? null)
 
   useEffect(() => {
     if (!key || !title) {
-      setClips([])
+      setInfo(null)
       return
     }
     if (memory.has(cacheKey)) {
-      setClips(memory.get(cacheKey) ?? [])
+      setInfo(memory.get(cacheKey) ?? null)
       return
     }
     let cancelled = false
-    findTmdbVideos({ title, year: item?.year, kind: item?.kind, tmdb_id: item?.tmdb_id }, key)
+    findTmdbInfo({ title, year: item?.year, kind: item?.kind, tmdb_id: item?.tmdb_id }, key)
       .then((result) => {
         memory.set(cacheKey, result)
-        if (!cancelled) setClips(result)
+        if (!cancelled) setInfo(result)
       })
       .catch(() => {
-        memory.set(cacheKey, [])
-        if (!cancelled) setClips([])
+        memory.set(cacheKey, null)
+        if (!cancelled) setInfo(null)
       })
     return () => {
       cancelled = true
     }
   }, [cacheKey, item?.kind, item?.tmdb_id, item?.year, key, title])
 
-  return clips
+  return info
 }

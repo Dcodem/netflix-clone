@@ -12,6 +12,7 @@ import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { isComingSoon } from '../lib/comingSoon'
+import { useCatalogEnrichment } from '../trailers/useCatalogEnrichment'
 import { buildBrowseRows, catalogGenres, exploreHrefForRow, type BrowseFilter } from '../lib/homeRows'
 import { matchesGenreFilter } from '../profiles/taste'
 import { isShow, ofKind, pickHero, sortByRating, uniqueById } from '../lib/media'
@@ -62,13 +63,14 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [heading])
 
-  const catalog = useMemo(() => {
+  const source = useMemo(() => {
     const homeItems = movies.data ?? []
     const extraMovies = extras.data?.catalogMovies ?? []
     const extraShows = extras.data?.catalogShows ?? []
     const merged = uniqueById([...homeItems, ...extraMovies, ...extraShows])
     return filterByMaturity(merged, activeProfile)
   }, [movies.data, extras.data, activeProfile])
+  const catalog = useCatalogEnrichment(source)
 
   const kindPool = useMemo(
     () => ofKind(catalog, filter === 'home' || filter === 'popular' ? 'all' : filter),

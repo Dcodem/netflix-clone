@@ -8,6 +8,7 @@ type SearchItem = {
   title: string
   year?: number | null
   kind?: string
+  tmdb_id?: number | string | null
 }
 
 export async function resolveTrailer(
@@ -16,7 +17,7 @@ export async function resolveTrailer(
   opts: { seconds?: number } = {},
 ): Promise<TrailerHit | null> {
   if (!item.title) return null
-  const key = cacheKey(item.title, item.year, item.kind ?? 'movie')
+  const key = cacheKey(item.title, item.year, item.kind ?? 'movie', item.tmdb_id)
   if (memory.has(key)) return memory.get(key) ?? null
   try {
     const cached = sessionStorage.getItem(key)
@@ -56,7 +57,11 @@ export async function resolveTrailer(
 export function peekTrailer(item: SearchItem): TrailerHit | null {
   if (!item.title) return null
   const kind = item.kind ?? 'movie'
-  const keys = [cacheKey(item.title, item.year, kind), cacheKey(item.title, undefined, kind)]
+  const keys = [
+    cacheKey(item.title, item.year, kind, item.tmdb_id),
+    cacheKey(item.title, item.year, kind),
+    cacheKey(item.title, undefined, kind),
+  ]
   const seen = new Set<string>()
   for (const key of keys) {
     if (seen.has(key)) continue
