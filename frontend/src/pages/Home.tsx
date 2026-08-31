@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { getCatalogMany, getMovies } from '../api/client'
+import { getCatalogMany, getMovies, getTrending } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { CategoriesSheet } from '../components/CategoriesSheet'
 import { EmptyState } from '../components/EmptyState'
@@ -35,6 +35,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   const genre = params.get('genre') ?? ''
   const heading = filter === 'home' && genre ? genre : HEADINGS[filter]
   const movies = useFetch(() => getMovies(), 'home-movies')
+  const trending = useFetch(() => getTrending('all').catch(() => [] as MovieListItem[]), 'home-trending')
   const extras = useFetch(async () => {
     const [catalogMovies, catalogShows] = await Promise.all([
       getCatalogMany('movies').catch(() => [] as MovieListItem[]),
@@ -98,16 +99,32 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
       : filter === 'shows' || (hero ? isShow(hero) : false)
         ? 'TV Shows Today'
         : 'Movies Today'
-  const rows = useMemo(
-    () =>
-      buildBrowseRows({
-        catalog,
-        filter,
-        profile: activeProfile,
-        genre,
-      }),
-    [catalog, filter, activeProfile, genre],
-  )
+  const rows = useMemo(() => {
+    const built = buildBrowseRows({
+      catalog,
+      filter,
+      profile: activeProfile,
+      genre,
+    })
+    // Real-world trending rail (TMDB weekly), right after Continue Watching.
+    const trendingItems = (trending.data ?? []).filter((item) =>
+      genre ? matchesGenreFilter(item, genre) : true,
+    )
+    if (trendingItems.length >= 4 && filter !== 'popular') {
+      const ids = new Set(trendingItems.map((item) => item.id))
+      const idx = built.findIndex((row) => row.id === 'continue')
+      const insertAt = idx >= 0 ? idx + 1 : 0
+      built.splice(insertAt, 0, {
+        id: 'trending-world',
+        title: 'Trending Now',
+        subtitle: 'What the world is watching this week',
+        items: trendingItems,
+        loop: trendingItems.length >= 8,
+      })
+      void ids
+    }
+    return built
+  }, [catalog, filter, activeProfile, genre, trending.data])
   const progressById = useMemo(() => {
     const map: Record<string, number> = {}
     for (const item of activeProfile?.history ?? []) {

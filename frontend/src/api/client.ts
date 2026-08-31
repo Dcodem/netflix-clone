@@ -56,6 +56,14 @@ export async function getCatalog(
   return data.items ?? []
 }
 
+/** Real-world trending (TMDB weekly), matched to the playable catalog. */
+export function getTrending(kind: 'movies' | 'shows' | 'all' = 'all'): Promise<MovieListItem[]> {
+  const path = `/trending/${kind}`
+  return getJson<CatalogPage | MovieListItem[]>(path).then((data) =>
+    Array.isArray(data) ? data : data.items ?? [],
+  )
+}
+
 /** Fetch a few catalog pages so home rails have enough titles to theme. */
 export async function getCatalogMany(
   kind: 'movies' | 'shows',
