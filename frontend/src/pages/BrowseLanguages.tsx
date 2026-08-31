@@ -62,6 +62,7 @@ export function BrowseLanguages() {
   const langParam = params.get('lang')
   const picked = isLanguageCode(langParam) ? langParam : null
   const [sort, setSort] = useState<LanguageSort>(() => readLanguageSort(activeProfile?.id))
+  const [headStuck, setHeadStuck] = useState(false)
   const catalog = useFetch(async () => {
     const [movies, shows] = await Promise.all([
       getCatalogMany('movies').catch(() => [] as MovieListItem[]),
@@ -108,6 +109,13 @@ export function BrowseLanguages() {
     setSort(readLanguageSort(activeProfile?.id))
   }, [activeProfile?.id])
 
+  useEffect(() => {
+    const onScroll = () => setHeadStuck(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   if (catalog.loading && !catalog.data) {
     return (
       <main className="page page-pad languages-page">
@@ -123,7 +131,7 @@ export function BrowseLanguages() {
   if (!language) {
     return (
       <main className="page page-pad languages-page">
-        <header className="languages-head">
+        <header className={`languages-head ${headStuck ? 'is-stuck' : ''}`}>
           <h1>Browse by Languages</h1>
         </header>
         <div className="languages-tiles" role="list">
@@ -149,7 +157,7 @@ export function BrowseLanguages() {
 
   return (
     <main className="page page-pad languages-page">
-      <header className="languages-head">
+      <header className={`languages-head ${headStuck ? 'is-stuck' : ''}`}>
         <h1>Browse by Languages</h1>
         <div className="languages-filters">
           <OutlineSelect

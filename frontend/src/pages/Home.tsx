@@ -34,7 +34,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   const [headingStuck, setHeadingStuck] = useState(false)
   const desktop = useMediaQuery('(min-width: 768px)')
   const genre = params.get('genre') ?? ''
-  const heading = filter === 'home' && genre ? genre : HEADINGS[filter]
+  const heading = genre && filter !== 'popular' ? genre : HEADINGS[filter]
   const movies = useFetch(() => getMovies(), 'home-movies')
   const extras = useFetch(async () => {
     const [catalogMovies, catalogShows] = await Promise.all([
@@ -153,7 +153,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
                 onChange={setGenre}
                 useMenu={useGenreMenu}
                 onFallback={() => setCategoriesOpen(true)}
-                buttonLabel={filter === 'home' && genre ? 'Genres' : undefined}
+                buttonLabel="Genres"
               />
             ) : null}
           </div>
@@ -183,7 +183,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
               onChange={setGenre}
               useMenu={useGenreMenu}
               onFallback={() => setCategoriesOpen(true)}
-              buttonLabel={filter === 'home' && genre ? 'Genres' : undefined}
+              buttonLabel="Genres"
             />
           ) : null}
         </div>
