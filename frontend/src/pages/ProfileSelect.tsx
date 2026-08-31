@@ -725,10 +725,11 @@ export function ProfileSelect() {
                       <span className="profile-pencil" aria-hidden="true">
                         <PencilIcon className="icon" />
                       </span>
+                    ) : profile.pinHash ? (
+                      <LockIcon className="profile-lock" />
                     ) : null}
                   </span>
                   <span className="profile-name">{profile.name}</span>
-                  {profile.pinHash && !managing ? <LockIcon className="profile-lock" /> : null}
                 </button>
               )
             })}
