@@ -12512,7 +12512,7 @@ img.is-logo-pending {
 
 .categories-list {
   display: grid;
-  gap: 22px;
+  gap: 24px;
   text-align: center;
   flex: 1;
   max-height: none;
@@ -12526,7 +12526,7 @@ img.is-logo-pending {
   background: none;
   border: 0;
   color: #808080;
-  font-size: clamp(26px, 7vw, 36px);
+  font-size: clamp(28px, 8.4vw, 38px);
   font-weight: 400;
   cursor: pointer;
   text-decoration: none;
