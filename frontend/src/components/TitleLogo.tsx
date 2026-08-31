@@ -36,7 +36,7 @@ export function TitleLogo({
   titleClassName,
   imageOnly,
 }: {
-  item: { title: string; year?: number | null; kind?: string }
+  item: { title: string; year?: number | null; kind?: string; tmdb_id?: number | string | null }
   className?: string
   titleClassName?: string
   imageOnly?: boolean

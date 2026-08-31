@@ -41,6 +41,7 @@ export function historyToListItems(history: WatchHistoryItem[]): MovieListItem[]
       item.kind === 'show' && item.seasonNumber && item.episodeNumber
         ? `S${item.seasonNumber}:E${item.episodeNumber}`
         : remainingLabel(item.progress, item.runtime) ?? undefined,
+    tmdb_id: item.tmdb_id,
   }))
 }
 
@@ -53,6 +54,7 @@ export function likedToItems(items: LikedTitle[]): MovieListItem[] {
     poster_url: item.poster_url,
     genres: item.genres,
     href: `/${item.kind === 'show' ? 'shows' : 'movies'}/view/${item.id}`,
+    tmdb_id: item.tmdb_id,
   }))
 }
 
@@ -78,6 +80,7 @@ export function enrichListItems(list: MovieListItem[], catalog: MovieListItem[])
       rating: item.rating ?? hit.rating,
       genres: item.genres?.length ? item.genres : hit.genres,
       poster_url: item.poster_url ?? hit.poster_url,
+      tmdb_id: item.tmdb_id ?? hit.tmdb_id,
     }
   })
 }

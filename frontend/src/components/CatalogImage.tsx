@@ -11,6 +11,7 @@ export function CatalogImage({
     title: string
     year?: number | null
     kind?: string
+    tmdb_id?: number | string | null
     poster_url?: string | null
     backdrop_url?: string | null
   }

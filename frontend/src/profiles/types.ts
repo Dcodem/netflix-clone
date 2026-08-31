@@ -20,6 +20,7 @@ export type WatchHistoryItem = {
   episodeNumber?: number | null
   episodeId?: string | null
   episodeProgress?: Record<string, EpisodeWatch>
+  tmdb_id?: number | string | null
 }
 
 export type LikedTitle = {
@@ -29,6 +30,7 @@ export type LikedTitle = {
   year?: number | null
   poster_url: string | null
   genres: string[]
+  tmdb_id?: number | string | null
 }
 
 export type ProfileAvatar = {

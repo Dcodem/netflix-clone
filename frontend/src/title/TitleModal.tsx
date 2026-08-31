@@ -25,7 +25,9 @@ import { rankByTaste, similarByGenres } from '../profiles/taste'
 import { usesPersonalizedRecs } from '../profiles/types'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTmdbGallery } from '../trailers/useTmdbGallery'
+import { useTmdbInfo } from '../trailers/useTmdbInfo'
 import { useTmdbVideos } from '../trailers/useTmdbVideos'
+import { presentCopy } from '../trailers/tmdbOverlay'
 import type { TrailerHit } from '../trailers/types'
 import { useTitleModal } from './TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
@@ -48,6 +50,7 @@ export function TitleModal() {
   const [dragY, setDragY] = useState(0)
   const stills = useTmdbGallery(item)
   const clips = useTmdbVideos(item)
+  const tmdbInfo = useTmdbInfo(item)
   const [muted, setMuted] = useState(true)
   const [clipHit, setClipHit] = useState<TrailerHit | null>(null)
   const [heroStill, setHeroStill] = useState<string | null>(null)
@@ -175,11 +178,20 @@ export function TitleModal() {
     resumeSeason?.episodes?.find(
       (episode) => episode.id === last?.episodeId || episode.number === last?.episodeNumber,
     ) ?? resumeSeason?.episodes?.[0]
+  const copy = presentCopy(
+    {
+      synopsis: detail?.synopsis,
+      runtime: detail?.runtime,
+      year: item.year ?? detail?.year,
+      genres: genresOf(detail ?? item),
+    },
+    tmdbInfo,
+  )
   const match = matchPercent(item, activeProfile)
-  const maturity = maturityLabel(item)
-  const genres = genresOf(detail ?? item)
-  const moods = moodTags(detail ?? item)
-  const runtime = formatRuntime(detail?.runtime)
+  const maturity = maturityLabel({ ...item, genres: copy.genres })
+  const genres = copy.genres
+  const moods = moodTags({ ...item, genres: copy.genres })
+  const runtime = formatRuntime(copy.runtime)
   const watchHref = isShow(item)
     ? last?.watch_href || resumeEpisode?.watch_href || detail?.watch_href
     : detail?.watch_href
@@ -324,8 +336,9 @@ export function TitleModal() {
           <TrailerPreview
             ref={trailerRef}
             title={item.title}
-            year={item.year}
+            year={copy.year ?? item.year}
             kind={item.kind}
+            tmdb_id={item.tmdb_id}
             className="title-modal-trailer"
             muted={muted}
             overrideHit={clipHit}
@@ -391,7 +404,7 @@ export function TitleModal() {
               <div className="jawbone-meta">
                 {soon && coming ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}
                 {soon ? null : isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
-                {item.year ? <span>{item.year}</span> : null}
+                {copy.year ? <span>{copy.year}</span> : null}
                 <span className="maturity">{maturity}</span>
                 {soon ? null : isShow(item) && seasons.length ? (
                   <span>
@@ -402,7 +415,7 @@ export function TitleModal() {
                 ) : null}
                 {soon ? null : <FeatureBadges quality={item.quality || detail?.quality} />}
               </div>
-              {detail?.synopsis ? <p className="title-modal-syn">{detail.synopsis}</p> : null}
+              {copy.synopsis ? <p className="title-modal-syn">{copy.synopsis}</p> : null}
             </div>
             <div className="title-modal-split-side">
               {detail?.cast?.length ? (

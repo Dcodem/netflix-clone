@@ -246,6 +246,7 @@ export function toLiked(item: {
   year?: number | null
   poster_url?: string | null
   genres?: string[]
+  tmdb_id?: number | string | null
 }) {
   return {
     id: item.id,
@@ -254,6 +255,7 @@ export function toLiked(item: {
     year: item.year ?? null,
     poster_url: item.poster_url ?? null,
     genres: item.genres ?? [],
+    tmdb_id: item.tmdb_id ?? null,
   }
 }
 

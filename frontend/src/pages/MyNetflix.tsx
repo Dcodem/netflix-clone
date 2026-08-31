@@ -22,6 +22,7 @@ import { becauseYouWatchedRows, rankByTaste } from '../profiles/taste'
 import { avatarFor, downloadQualityLabel, usesPersonalizedRecs } from '../profiles/types'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
+import { useCatalogEnrichment } from '../trailers/useCatalogEnrichment'
 
 export function MyNetflix() {
   const { user, logout } = useAuth()
@@ -38,7 +39,11 @@ export function MyNetflix() {
     ])
     return uniqueById([...catalogMovies, ...catalogShows])
   }, 'mynetflix-catalog')
-  const catalog = filterByMaturity(uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]), activeProfile)
+  const source = useMemo(
+    () => filterByMaturity(uniqueById([...(movies.data ?? []), ...(extras.data ?? [])]), activeProfile),
+    [movies.data, extras.data, activeProfile],
+  )
+  const catalog = useCatalogEnrichment(source)
   const continueItems = historyToListItems(
     (activeProfile?.history ?? []).filter(
       (item) => stillWatching(item) && !activeProfile?.hiddenContinueIds.includes(item.id),

@@ -10,6 +10,8 @@ import { playClick } from '../lib/sounds'
 import { notifyRemind } from './RemindToast'
 import { useProfiles } from '../profiles/ProfileContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
+import { useTmdbInfo } from '../trailers/useTmdbInfo'
+import { presentCopy } from '../trailers/tmdbOverlay'
 import { useTitleModal } from '../title/TitleModalContext'
 import { useWatch } from '../watch/WatchContext'
 import { BellIcon, CheckIcon, InfoIcon, PlayIcon, PlusIcon, RestartIcon, SpeakerIcon } from './Icons'
@@ -89,9 +91,19 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
   const backdrop = detail?.backdrop_url || item.poster_url
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
   const sessionReady = buildWatchSession(item, detail, last)
-  const maturity = maturityLabel(item)
-  const synopsis = detail?.synopsis
-  const genres = genresOf(detail ?? item).slice(0, 3)
+  const tmdbInfo = useTmdbInfo(item)
+  const copy = presentCopy(
+    {
+      synopsis: detail?.synopsis,
+      runtime: detail?.runtime,
+      year: item.year ?? detail?.year,
+      genres: genresOf(detail ?? item),
+    },
+    tmdbInfo,
+  )
+  const maturity = maturityLabel({ ...item, genres: copy.genres })
+  const synopsis = copy.synopsis
+  const genres = copy.genres.slice(0, 3)
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
   const soon = isComingSoon(item)
   const coming = comingLineFor(item)
@@ -155,8 +167,9 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
             <TrailerPreview
               ref={trailerRef}
               title={item.title}
-              year={item.year}
+              year={copy.year ?? item.year}
               kind={item.kind}
+              tmdb_id={item.tmdb_id}
               className="hero-trailer"
               muted={muted}
               onReady={() => {

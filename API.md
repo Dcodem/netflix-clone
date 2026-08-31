@@ -48,6 +48,8 @@ quality      string             ("FHD", "480p", etc.)
 genres       string[]
 poster_url   string
 href         string   required
+source_id    string             (existing-site id; optional)
+tmdb_id      integer            (TMDB match for art/copy; never a play URL)
 ```
 
 ### MovieDetail (extends the above)
@@ -89,7 +91,22 @@ Do not construct player URLs or extract `.m3u8` streams.
 For a show, an episode's `watch_href` already points at the right episode.
 If `watch_href` is a relative path, set `VITE_PLAYER_ORIGIN` on the frontend.
 
-## Images
+## Images and enrichment
 
-Use `poster_url` / `backdrop_url` / `thumb_url` directly. If an image fails,
+Playback always comes from `watch_href` on your catalog (the existing site’s
+linked media). Art, logos, trailers, synopsis, and genres may be **enriched**
+from TMDB.
+
+- Send a cleaned `title`, `kind` (`movie` | `show`), and `year` so TMDB can match.
+- Prefer also sending `tmdb_id` after you resolve a match. The UI uses that id
+  for posters, backdrops, logos, galleries, and trailers.
+- `source_id` may store the existing site’s id. Do not put play URLs there.
+- Never replace `watch_href` with a TMDB or YouTube URL.
+- If `poster_url` from the source site is a weak thumbnail, the UI still prefers
+  TMDB art when a match exists.
+- The UI also matches messy source titles (quality tags, dotted filenames, years
+  in parentheses) to TMDB, then uses TMDB genres to fill empty rails. Playback
+  still uses the source `watch_href`.
+
+Use `poster_url` / `backdrop_url` / `thumb_url` as fallbacks. If an image fails,
 retry through the same-origin proxy: `/img?u=<url-encoded-url>`.
