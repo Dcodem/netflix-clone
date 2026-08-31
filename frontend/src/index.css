@@ -278,9 +278,9 @@ select,
 
 .logo {
   font-family: var(--display);
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 900;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.07em;
   text-decoration: none;
   flex-shrink: 0;
   color: var(--accent);
@@ -2234,13 +2234,13 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 }
 
 .manage-profiles {
-  margin-top: 4em;
+  margin-top: 2em;
   background: transparent;
   color: #808080;
   border: 1px solid #808080;
   border-radius: 0;
-  letter-spacing: 2px;
-  text-transform: none;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   font-size: 18px;
   font-weight: 400;
   padding: 0.5em 1.5em;
@@ -2509,7 +2509,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   background: rgba(0, 0, 0, 0.75);
   border: 0;
   border-radius: 4px;
-  padding: 48px 58px 40px;
+  padding: 60px 68px 40px;
 }
 
 .login-submit {
@@ -4575,9 +4575,14 @@ body:has(.account-page),
   animation: modal-from-tile 0.42s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
+.title-modal.is-leaving,
 .title-modal.is-from-tile.is-leaving {
   animation: modal-to-tile 0.28s cubic-bezier(0.4, 0, 1, 1) both;
   pointer-events: none;
+}
+
+.title-modal.is-leaving:not(.is-from-tile) {
+  animation: modal-out 0.28s cubic-bezier(0.4, 0, 1, 1) both;
 }
 
 .title-modal-backdrop.is-leaving {
@@ -4603,6 +4608,17 @@ body:has(.account-page),
   }
   to {
     transform: scale(var(--modal-from, 0.42));
+    opacity: 0.2;
+  }
+}
+
+@keyframes modal-out {
+  from {
+    transform: none;
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.92);
     opacity: 0.2;
   }
 }
@@ -5742,28 +5758,33 @@ img.is-logo-pending {
     height: 44px;
   }
 
+  .logo {
+    font-size: 24px;
+    letter-spacing: -0.05em;
+  }
+
   .title-modal-backdrop {
     padding: 0;
-    align-items: stretch;
-    background: #141414;
+    align-items: flex-end;
+    background: rgba(0, 0, 0, 0.58);
   }
 
   .title-modal {
     max-width: none;
     width: 100%;
-    border-radius: 0;
-    min-height: 100svh;
-    max-height: 100svh;
+    border-radius: 12px 12px 0 0;
+    min-height: calc(100svh - 12px - var(--safe-top, 0px));
+    max-height: calc(100svh - 12px - var(--safe-top, 0px));
     margin: 0;
     animation: sheet-up 0.32s cubic-bezier(0.16, 1, 0.3, 1);
     transform-origin: center;
-    box-shadow: none;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55);
   }
 
   .title-modal-handle {
     display: block;
     position: absolute;
-    top: calc(8px + var(--safe-top, 0px));
+    top: 8px;
     left: 50%;
     z-index: 24;
     width: 42px;
@@ -5784,7 +5805,7 @@ img.is-logo-pending {
   .title-modal-close {
     position: absolute;
     float: none;
-    top: calc(10px + var(--safe-top));
+    top: 10px;
     right: 12px;
     z-index: 23;
     width: 36px;
@@ -5795,7 +5816,7 @@ img.is-logo-pending {
   .title-modal-hero {
     aspect-ratio: 16 / 9;
     min-height: min(56vw, 320px);
-    border-radius: 0;
+    border-radius: 12px 12px 0 0;
   }
 
   .title-modal-desktop-actions {
@@ -6738,27 +6759,27 @@ img.is-logo-pending {
 }
 
 .profile-add-plus {
-  width: 58%;
-  height: 58%;
-  border-radius: 0;
-  background: transparent;
+  width: 52%;
+  height: 52%;
+  border-radius: 50%;
+  background: #808080;
   border: 0;
-  color: #808080;
+  color: #141414;
   display: grid;
   place-items: center;
 }
 
 .profile-add-plus .icon {
-  width: 100%;
-  height: 100%;
+  width: 68%;
+  height: 68%;
 }
 
 .profile-add:hover .profile-add-plus,
 .profile-cell:hover .profile-add-plus,
 .profile-cell:focus-visible .profile-add-plus {
-  background: transparent;
+  background: #fff;
   border-color: transparent;
-  color: #fff;
+  color: #141414;
 }
 
 .profile-cell:hover .profile-name,
@@ -6850,7 +6871,7 @@ img.is-logo-pending {
   }
 
   .login-card {
-    padding: 60px 68px 48px;
+    padding: 60px 68px 40px;
   }
 }
 
@@ -8660,15 +8681,15 @@ img.is-logo-pending {
   right: auto;
   bottom: auto;
   z-index: 6;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   margin-right: 8px;
   flex-shrink: 0;
 }
 
 .jawbone-mute .icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 .jawbone-art:has(.jawbone-more) .jawbone-mute {
@@ -8725,6 +8746,16 @@ img.is-logo-pending {
   font-size: 20px;
   min-height: 48px;
   padding: 8px 28px;
+}
+
+.title-actions.is-sheet.play-labeled .btn-play,
+.title-actions.is-sheet.play-labeled .btn-reminded,
+.title-actions.is-sheet .btn-download {
+  width: 100%;
+  justify-content: center;
+  min-height: 48px;
+  font-size: 18px;
+  padding: 10px 24px;
 }
 
 .watch-bottombar {
@@ -8877,8 +8908,20 @@ img.is-logo-pending {
     justify-content: center;
   }
 
+  .title-actions.is-sheet.play-labeled .btn-play,
+  .title-actions.is-sheet.play-labeled .btn-reminded,
+  .title-actions.is-sheet .btn-download {
+    min-height: 48px;
+    font-size: 18px;
+  }
+
   .title-modal {
     animation: sheet-up 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .title-modal.is-leaving,
+  .title-modal.is-from-tile.is-leaving {
+    animation: sheet-down 0.28s cubic-bezier(0.4, 0, 1, 1) both;
   }
 }
 
@@ -8890,6 +8933,17 @@ img.is-logo-pending {
   to {
     transform: none;
     opacity: 1;
+  }
+}
+
+@keyframes sheet-down {
+  from {
+    transform: none;
+    opacity: 1;
+  }
+  to {
+    transform: translateY(32px);
+    opacity: 0.2;
   }
 }
 
@@ -9505,15 +9559,15 @@ img.is-logo-pending {
 }
 
 .watch-ident-bump strong span:nth-child(2) {
-  animation-delay: 0.05s;
+  animation-delay: 0.03s;
 }
 
 .watch-ident-bump strong span:nth-child(3) {
-  animation-delay: 0.1s;
+  animation-delay: 0.06s;
 }
 
 .watch-ident-bump strong span:nth-child(4) {
-  animation-delay: 0.16s;
+  animation-delay: 0.09s;
 }
 
 @keyframes flix-ident-bloom {
@@ -9538,20 +9592,20 @@ img.is-logo-pending {
 @keyframes flix-ident-bump {
   0% {
     opacity: 0;
-    transform: scale(0.62) rotateX(16deg);
-    letter-spacing: 0.22em;
-    filter: brightness(1.5) saturate(1.45);
+    transform: scale(0.36) rotateX(24deg);
+    letter-spacing: 0.18em;
+    filter: brightness(1.6) saturate(1.5);
   }
-  8% {
+  10% {
     opacity: 1;
-    transform: scale(1.1) rotateX(0deg);
-    letter-spacing: -0.09em;
-    filter: brightness(1.55) saturate(1.45);
+    transform: scale(1.18) rotateX(0deg);
+    letter-spacing: -0.1em;
+    filter: brightness(1.62) saturate(1.5);
   }
-  16% {
+  18% {
     opacity: 1;
     transform: scale(1) rotateX(0deg);
-    letter-spacing: -0.07em;
+    letter-spacing: -0.08em;
     filter: brightness(1.22) saturate(1.25);
   }
   78% {
@@ -11795,7 +11849,7 @@ img.is-logo-pending {
   }
 
   .cast-menu {
-    display: block;
+    display: none;
   }
 
   .site-footer {

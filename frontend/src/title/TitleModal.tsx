@@ -83,11 +83,6 @@ export function TitleModal() {
   useEffect(() => () => window.clearTimeout(leaveTimer.current), [])
 
   const requestClose = useCallback(() => {
-    const desktopFromTile = Boolean(origin && typeof window !== 'undefined' && window.innerWidth >= 768)
-    if (!desktopFromTile) {
-      closeTitle()
-      return
-    }
     if (leavingRef.current) return
     leavingRef.current = true
     setLeaving(true)
@@ -97,7 +92,7 @@ export function TitleModal() {
       setLeaving(false)
       closeTitle()
     }, 280)
-  }, [origin, closeTitle])
+  }, [closeTitle])
 
   useEffect(() => {
     if (!item) return
