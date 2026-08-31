@@ -3513,7 +3513,7 @@ body:has(.account-page),
   position: absolute;
   right: 0;
   top: calc(100% + 14px);
-  min-width: 226px;
+  min-width: 240px;
   background: rgba(0, 0, 0, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-top: 2px solid #fff;
@@ -5731,7 +5731,8 @@ img.is-logo-pending {
 
   .title-tabs-row .season-menu {
     width: auto;
-    margin: 4px 0 10px auto;
+    margin: 10px 0 8px;
+    order: 2;
   }
 
   .title-tabs-row .season-menu-btn {
@@ -8727,7 +8728,9 @@ img.is-logo-pending {
 }
 
 .my-list-page .state {
-  min-height: calc(100svh - var(--header-offset) - 180px);
+  min-height: 0;
+  padding-top: 96px;
+  display: block;
   color: #808080;
   font-size: 18px;
   font-weight: 400;
@@ -11844,12 +11847,12 @@ img.is-logo-pending {
 
 .news-chips button {
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   background: transparent;
   color: #fff;
   border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 13.5px;
+  padding: 7px 16px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -11859,6 +11862,7 @@ img.is-logo-pending {
   background: #fff;
   color: #141414;
   border-color: #fff;
+  font-weight: 700;
 }
 
 @media (max-width: 767px) {
@@ -11938,20 +11942,20 @@ img.is-logo-pending {
 
 .news-date em {
   font-style: normal;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   line-height: 1;
-  color: #8c8c8c;
+  color: #e50914;
 }
 
 .news-date strong {
   font-family: var(--display);
-  font-size: 58px;
-  font-weight: 100;
-  line-height: 0.82;
-  letter-spacing: -0.04em;
-  margin-top: 2px;
+  font-size: 64px;
+  font-weight: 200;
+  line-height: 0.78;
+  letter-spacing: -0.05em;
+  margin-top: 4px;
 }
 
 .news-kind {
@@ -12255,8 +12259,8 @@ img.is-logo-pending {
 .news-coming {
   margin: 0 0 8px;
   color: #fff;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .news-meta {
