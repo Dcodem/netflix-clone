@@ -7,15 +7,13 @@ import { stillWatching } from '../lib/homeRows'
 import { formatRuntime, genresOf, isShow, remainingLabel } from '../lib/media'
 import { isNewEpisodes, matchPercent, maturityLabel } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
-import { useTitleModal } from '../title/TitleModalContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTmdbInfo } from '../trailers/useTmdbInfo'
 import { presentCopy } from '../trailers/tmdbOverlay'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
 import { GenreDots } from './GenreDots'
-import { ContinueMenu } from './ContinueMenu'
-import { SpeakerIcon, MoreVertIcon } from './Icons'
+import { SpeakerIcon } from './Icons'
 import { TitleActions } from './TitleActions'
 import { TitleLogo } from './TitleLogo'
 
@@ -32,14 +30,12 @@ export function TitleHoverCard({
   onClose: () => void
   onKeep: () => void
 }) {
-  const { activeProfile, hideContinue } = useProfiles()
-  const { openTitle } = useTitleModal()
+  const { activeProfile } = useProfiles()
   const trailerRef = useRef<TrailerHandle>(null)
   const jawRef = useRef<HTMLDivElement>(null)
   const [detail, setDetail] = useState<MovieDetail | null>(null)
   const [trailerReady, setTrailerReady] = useState(false)
   const [muted, setMuted] = useState(true)
-  const [rowMenu, setRowMenu] = useState(false)
 
   useEffect(() => {
     document.body.classList.add('is-jaw-open')
@@ -67,10 +63,10 @@ export function TitleHoverCard({
   left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
   const heightGuess = artH + 196
   let top = anchor.top + anchor.height / 2 - artH / 2
-  if (top < 12) top = 12
   if (top + heightGuess > window.innerHeight - 12) {
-    top = Math.max(12, window.innerHeight - heightGuess - 12)
+    top = Math.max(12, anchor.bottom - heightGuess)
   }
+  if (top < 12) top = 12
   const fromScale = Math.max(0.42, Math.min(0.82, anchor.width / width))
 
   const tmdbInfo = useTmdbInfo(item)
@@ -162,37 +158,6 @@ export function TitleHoverCard({
         <div className={`jawbone-controls ${progress ? 'has-progress' : ''}`}>
           <span className="maturity-flag jawbone-rating">{maturity}</span>
         </div>
-        {progress ? (
-          <div className={`continue-more jawbone-more ${rowMenu ? 'is-open' : ''}`}>
-            <button
-              type="button"
-              className="continue-hide"
-              onClick={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                setRowMenu((open) => !open)
-              }}
-              aria-label="More"
-              aria-expanded={rowMenu}
-            >
-              <MoreVertIcon className="icon" />
-            </button>
-            {rowMenu ? (
-              <ContinueMenu
-                onRemove={() => {
-                  hideContinue(item.id)
-                  setRowMenu(false)
-                  onClose()
-                }}
-                onDetails={() => {
-                  setRowMenu(false)
-                  onClose()
-                  openTitle(item, jawRef.current)
-                }}
-              />
-            ) : null}
-          </div>
-        ) : null}
       </div>
       <div className="jawbone-body">
         <TitleActions
