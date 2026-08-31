@@ -2155,7 +2155,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 .profile-name {
   margin-top: 0.7em;
   color: #808080;
-  font-size: clamp(12px, 1.25vw, 17px);
+  font-size: clamp(14px, 1.4vw, 20px);
   font-weight: 400;
   letter-spacing: 0.01em;
   transition: color 0.12s ease;
@@ -3894,7 +3894,7 @@ body:has(.account-page),
 .btn-info {
   background: rgba(109, 109, 110, 0.7);
   color: #fff;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   padding: 8px 26px;
   min-height: 48px;
@@ -9284,6 +9284,12 @@ img.is-logo-pending {
   opacity: 1;
 }
 
+@media (hover: none), (pointer: coarse) {
+  .watch-ep-thumb > .icon {
+    opacity: 1;
+  }
+}
+
 .watch-ep-watched {
   position: absolute;
   top: 6px;
@@ -10069,7 +10075,7 @@ img.is-logo-pending {
   position: absolute;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 4px;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 2px;
   pointer-events: none;
@@ -10077,7 +10083,7 @@ img.is-logo-pending {
 
 .watch-progress-fill {
   position: relative;
-  height: 3px;
+  height: 4px;
   background: #e50914;
   border-radius: 2px;
 }
@@ -10086,10 +10092,10 @@ img.is-logo-pending {
   position: absolute;
   right: 0;
   top: 50%;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: #e50914;
+  background: #fff;
   transform: translate(50%, -50%) scale(0);
   transition: transform 0.12s ease;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
@@ -10097,12 +10103,12 @@ img.is-logo-pending {
 
 .watch-progress:hover::before,
 .watch-progress:focus-visible::before {
-  height: 8px;
+  height: 6px;
 }
 
 .watch-progress:hover .watch-progress-fill,
 .watch-progress:focus-visible .watch-progress-fill {
-  height: 8px;
+  height: 6px;
 }
 
 .watch-progress:hover .watch-knob,
@@ -10301,12 +10307,12 @@ img.is-logo-pending {
   right: 24px;
   bottom: 118px;
   z-index: 2150;
-  width: min(400px, calc(100% - 40px));
+  width: min(380px, calc(100% - 40px));
   display: grid;
   gap: 10px;
   padding: 14px 14px 12px;
-  background: rgba(20, 20, 20, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(20, 20, 20, 0.94);
+  border: 0;
   border-radius: 4px;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
   color: #fff;
@@ -10591,11 +10597,12 @@ img.is-logo-pending {
   left: 50%;
   bottom: calc(100% + 8px);
   transform: translateX(-50%);
-  min-width: 196px;
-  padding: 12px 0 8px;
+  min-width: 220px;
+  padding: 14px 0 10px;
   background: rgba(20, 20, 20, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 0;
   border-radius: 4px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
   display: none;
   z-index: 5;
 }
@@ -10622,9 +10629,9 @@ img.is-logo-pending {
   background: none;
   border: 0;
   color: #b3b3b3;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
-  padding: 9px 16px;
+  padding: 10px 20px;
   cursor: pointer;
   text-align: left;
   width: 100%;
