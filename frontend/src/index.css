@@ -2339,7 +2339,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .browse-page .hero {
-    margin-bottom: -176px;
+    margin-bottom: -224px;
   }
 
   .browse-page .hero-body {
@@ -2347,7 +2347,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .hero-controls-right {
-    bottom: 176px;
+    bottom: 200px;
   }
 }
 
@@ -5082,6 +5082,26 @@ img.is-logo-pending {
   .hero-controls-right {
     right: 0;
     bottom: 148px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .browse-page .hero {
+    margin-bottom: -224px;
+  }
+
+  .browse-page .hero-controls-right {
+    bottom: 200px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .browse-page .hero {
+    margin-bottom: -224px;
+  }
+
+  .browse-page .hero-controls-right {
+    bottom: 200px;
   }
 }
 
