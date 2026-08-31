@@ -84,8 +84,8 @@ a {
 }
 
 .profile-gate-avatar {
-  width: 128px;
-  height: 128px;
+  width: 160px;
+  height: 160px;
   border-radius: 6px;
   overflow: hidden;
   animation: profile-gate-in 0.42s cubic-bezier(0.33, 1, 0.68, 1);
@@ -109,8 +109,8 @@ a {
 
 @media (max-width: 767px) {
   .profile-gate-avatar {
-    width: 96px;
-    height: 96px;
+    width: 112px;
+    height: 112px;
   }
 
   .profile-gate-name {
@@ -145,6 +145,7 @@ a {
 @keyframes profile-gate-out {
   to {
     opacity: 0;
+    transform: scale(1.04);
   }
 }
 
@@ -5777,7 +5778,7 @@ img.is-logo-pending {
 
   .logo {
     font-size: 24px;
-    letter-spacing: -0.05em;
+    letter-spacing: 0.04em;
   }
 
   .title-modal-backdrop {
@@ -6714,6 +6715,16 @@ img.is-logo-pending {
   }
 }
 
+@media (hover: none), (pointer: coarse) {
+  .ep-play {
+    opacity: 1;
+  }
+
+  .episode.is-watched .ep-play {
+    opacity: 0.9;
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .ep-play {
     opacity: 0;
@@ -7043,13 +7054,13 @@ img.is-logo-pending {
   top: calc(100% + 14px);
   width: min(428px, 82vw);
   background: rgba(0, 0, 0, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 0;
   border-top: 3px solid #e50914;
   padding: 0;
   z-index: 80;
   color: #ccc;
   font-size: 14px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.72);
   animation: menu-drop 0.16s ease-out;
 }
 
@@ -9635,10 +9646,10 @@ img.is-logo-pending {
   z-index: 2210;
   max-width: min(72vw, 720px);
   opacity: 0;
-  transform: translateY(14px) scale(0.97);
+  transform: translateY(18px) scale(0.96);
   pointer-events: none;
   text-shadow: 0 2px 28px rgba(0, 0, 0, 0.85), 0 0 42px rgba(0, 0, 0, 0.55);
-  transition: opacity 0.9s ease, transform 0.9s ease, bottom 0.22s ease;
+  transition: opacity 1s ease, transform 1s ease, bottom 0.22s ease;
 }
 
 .watch-ident.is-on {
@@ -9707,8 +9718,8 @@ img.is-logo-pending {
   padding: 24px 24px 12vh;
   color: #fff;
   text-align: center;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(18px);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(24px);
 }
 
 .watch-still-inner {
@@ -10260,8 +10271,9 @@ img.is-logo-pending {
   color: #fff;
   border: 1px solid #fff;
   border-radius: 2px;
-  padding: 10px 16px 10px 18px;
-  font-size: 17px;
+  padding: 8px 16px 8px 18px;
+  min-height: 42px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -11637,7 +11649,7 @@ img.is-logo-pending {
 }
 
 .notify-rail {
-  --notify-card-w: 236px;
+  --notify-card-w: 158px;
   display: flex;
   gap: 12px;
   margin: 8px calc(var(--page-gutter) * -1) 0;
@@ -11797,7 +11809,9 @@ img.is-logo-pending {
     gap: 6px;
     border: 1px solid rgba(255, 255, 255, 0.55);
     border-radius: 999px;
-    padding: 7px 16px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0 16px;
     font-size: 14px;
     font-weight: 500;
     background: rgba(0, 0, 0, 0.28);
@@ -11805,6 +11819,7 @@ img.is-logo-pending {
     color: #fff;
     cursor: pointer;
     font-family: inherit;
+    box-sizing: border-box;
   }
 
   .home-pills .is-on {
@@ -12730,17 +12745,29 @@ img.is-logo-pending {
   align-items: center;
   justify-content: flex-start;
   padding: 64px 24px 108px;
+  animation: categories-in 0.28s ease;
+}
+
+@keyframes categories-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .categories-list {
   display: grid;
-  gap: 24px;
+  gap: 18px;
   text-align: center;
   flex: 1;
   max-height: none;
   overflow: auto;
   width: min(560px, 100%);
-  padding: 8px 0 28px;
+  padding: 20px 0 36px;
+  mask-image: linear-gradient(180deg, transparent 0, #000 28px, #000 calc(100% - 40px), transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 28px, #000 calc(100% - 40px), transparent);
 }
 
 .categories-list a,
@@ -12748,7 +12775,7 @@ img.is-logo-pending {
   background: none;
   border: 0;
   color: #808080;
-  font-size: clamp(28px, 8.4vw, 38px);
+  font-size: clamp(26px, 7.6vw, 34px);
   font-weight: 400;
   cursor: pointer;
   text-decoration: none;
@@ -12760,7 +12787,7 @@ img.is-logo-pending {
 .categories-list button:hover,
 .categories-list .is-on {
   color: #fff;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .categories-close {
@@ -12769,8 +12796,8 @@ img.is-logo-pending {
   bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
   z-index: 91;
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   border: 0;
   background: #fff;

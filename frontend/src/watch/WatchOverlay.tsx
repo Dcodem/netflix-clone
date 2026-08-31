@@ -201,6 +201,7 @@ export function WatchOverlay() {
   const [stillWatching, setStillWatching] = useState(false)
   const [identOn, setIdentOn] = useState(true)
   const [identPhase, setIdentPhase] = useState<'logo' | 'title' | 'off'>('logo')
+  const [identBump, setIdentBump] = useState(true)
   const [helpOpen, setHelpOpen] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
   const [reportReason, setReportReason] = useState<(typeof REPORT_REASONS)[number]['id']>('buffering')
@@ -236,7 +237,8 @@ export function WatchOverlay() {
     setNextDismissed(false)
     setStillWatching(false)
     setIdentOn(identFromStartRef.current)
-    setIdentPhase(identFromStartRef.current ? (streakRef.current > 0 ? 'title' : 'logo') : 'off')
+    setIdentBump(identFromStartRef.current && streakRef.current === 0)
+    setIdentPhase(identFromStartRef.current ? 'logo' : 'off')
     setIntroSkipped(false)
     setRecapSkipped(false)
     setHelpOpen(false)
@@ -397,20 +399,24 @@ export function WatchOverlay() {
     const fromStart = identFromStartRef.current
     const bingeTitle = fromStart && streakRef.current > 0
     setIdentOn(fromStart)
-    setIdentPhase(fromStart ? (bingeTitle ? 'title' : 'logo') : 'off')
+    setIdentBump(fromStart && !bingeTitle)
+    setIdentPhase(fromStart ? 'logo' : 'off')
     if (!fromStart) {
       showChromeRef.current()
       return
     }
     if (!bingeTitle) playIdentBump()
-    const toTitle = bingeTitle ? 0 : window.setTimeout(() => setIdentPhase('title'), 1800)
+    const toTitle = window.setTimeout(() => setIdentPhase('title'), bingeTitle ? 40 : 1400)
+    const bumpOff = bingeTitle ? 0 : window.setTimeout(() => setIdentBump(false), 1800)
     const timer = window.setTimeout(() => {
       setIdentOn(false)
+      setIdentBump(false)
       setIdentPhase('off')
       showChromeRef.current()
     }, bingeTitle ? 1800 : 4000)
     return () => {
-      if (toTitle) window.clearTimeout(toTitle)
+      window.clearTimeout(toTitle)
+      if (bumpOff) window.clearTimeout(bumpOff)
       window.clearTimeout(timer)
     }
   }, [sessionKey])
@@ -906,7 +912,7 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome && !identOn ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identPhase === 'logo' && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''} ${reportOpen ? 'is-report' : ''} ${locked ? 'is-locked' : ''} ${pip ? 'is-pip' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome && !identOn ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identBump && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''} ${reportOpen ? 'is-report' : ''} ${locked ? 'is-locked' : ''} ${pip ? 'is-pip' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
@@ -1005,29 +1011,35 @@ export function WatchOverlay() {
           {flash === 'fwd' ? <SkipForwardIcon className="icon" /> : null}
         </div>
       ) : null}
-      {stillWatching ? null : identPhase === 'logo' ? (
-        <div className="watch-ident-bump" aria-hidden="true">
-          <strong>
-            <span>F</span>
-            <span>L</span>
-            <span>I</span>
-            <span>X</span>
-          </strong>
-        </div>
-      ) : (
-        <div className={`watch-ident ${chrome && !identOn ? 'is-raised' : ''} ${identOn ? 'is-on' : ''}`} aria-hidden="true">
-          <TitleLogo
-            item={trailerSearch(session)}
-            className="watch-ident-logo"
-            titleClassName="watch-ident-title"
-          />
-          {isShow ? (
-            <p className="watch-ident-ep">
-              {episodeLabel}
-              {playing?.episode.title ? ` ${playing.episode.title}` : ''}
-            </p>
+      {stillWatching ? null : (
+        <>
+          {identBump ? (
+            <div className="watch-ident-bump" aria-hidden="true">
+              <strong>
+                <span>F</span>
+                <span>L</span>
+                <span>I</span>
+                <span>X</span>
+              </strong>
+            </div>
           ) : null}
-        </div>
+          <div
+            className={`watch-ident ${chrome && !identOn ? 'is-raised' : ''} ${identOn && identPhase === 'title' ? 'is-on' : ''}`}
+            aria-hidden="true"
+          >
+            <TitleLogo
+              item={trailerSearch(session)}
+              className="watch-ident-logo"
+              titleClassName="watch-ident-title"
+            />
+            {isShow ? (
+              <p className="watch-ident-ep">
+                {episodeLabel}
+                {playing?.episode.title ? ` ${playing.episode.title}` : ''}
+              </p>
+            ) : null}
+          </div>
+        </>
       )}
       <div
         className={`watch-topbar ${chrome ? 'is-visible' : ''}`}
