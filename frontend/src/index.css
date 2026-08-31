@@ -2525,12 +2525,10 @@ body:has(.account-page),
   background: #f3f3f3;
 }
 
-.app-shell:has(.account-page) .site-footer-social a,
 .app-shell:has(.account-page) .site-footer-grid a {
   color: #737373;
 }
 
-.app-shell:has(.account-page) .site-footer-social a:hover,
 .app-shell:has(.account-page) .site-footer-grid a:hover {
   color: #221f1f;
 }
@@ -6876,27 +6874,6 @@ img.is-logo-pending {
 .site-footer-inner {
   max-width: 980px;
   margin: 0 auto;
-}
-
-.site-footer-social {
-  display: flex;
-  gap: 18px;
-  margin: 0 0 22px;
-}
-
-.site-footer-social a {
-  color: #808080;
-  display: grid;
-  place-items: center;
-}
-
-.site-footer-social .icon {
-  width: 36px;
-  height: 36px;
-}
-
-.site-footer-social a:hover {
-  color: #fff;
 }
 
 .site-footer-grid {
