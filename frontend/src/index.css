@@ -11506,14 +11506,14 @@ img.is-logo-pending {
   gap: 6px;
   flex-shrink: 0;
   margin: 0;
-  width: 88px;
+  width: 80px;
   background: none;
   color: #fff;
   border: 0;
   border-radius: 0;
   min-height: 0;
   padding: 0;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   line-height: 1.2;
   text-align: center;
@@ -11523,8 +11523,8 @@ img.is-logo-pending {
 }
 
 .play-something-disc {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   border: 1.6px solid #fff;
   border-radius: 50%;
   display: grid;
@@ -11533,8 +11533,8 @@ img.is-logo-pending {
 }
 
 .play-something .icon {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
 }
 
 .play-something:hover {
