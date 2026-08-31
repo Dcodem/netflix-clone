@@ -103,7 +103,9 @@ export function Search() {
     return (
       <main className="page page-pad search-page">
         {phone ? recentBlock : null}
-        {popularItems.length ? (
+        {popular.loading && !popularItems.length ? (
+          <Spinner label="Loading titles" />
+        ) : popularItems.length ? (
           <>
             <h2 className="section-title search-recommended-title">
               {phone ? 'Top Searches' : 'Recommended TV Shows and Movies'}
