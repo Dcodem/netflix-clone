@@ -23,5 +23,5 @@ export function cacheKey(
   kind: string,
   tmdbId?: number | string | null,
 ) {
-  return `flix.trailer.v4:${kind}:${tmdbId ?? ''}:${title.toLowerCase()}:${year ?? ''}`
+  return `flix.trailer.v5:${kind}:${tmdbId ?? ''}:${title.toLowerCase()}:${year ?? ''}`
 }

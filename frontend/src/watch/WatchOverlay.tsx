@@ -431,11 +431,10 @@ export function WatchOverlay() {
       iva: (user?.ivaKey || envKeys().iva).trim(),
       tmdb: (user?.tmdbKey || envKeys().tmdb).trim(),
     }
-    if (!keys.tmdb && !keys.iva) return
     let cancelled = false
     Promise.all([
       resolveTrailer(item, keys).catch(() => null),
-      keys.tmdb ? findTmdbGallery(item, keys.tmdb).catch(() => [] as string[]) : Promise.resolve([] as string[]),
+      findTmdbGallery(item, keys.tmdb).catch(() => [] as string[]),
     ])
       .then(([hit, gallery]) => {
         if (cancelled) return

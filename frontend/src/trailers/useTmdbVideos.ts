@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { findTmdbVideos, type TmdbVideoClip } from './tmdb'
 import { envKeys } from './types'
+import { knownTrailer } from './catalogTrailers'
 
 const memory = new Map<string, TmdbVideoClip[]>()
 
@@ -22,7 +23,7 @@ export function useTmdbVideos(item: {
   const [clips, setClips] = useState<TmdbVideoClip[]>(() => memory.get(cacheKey) ?? [])
 
   useEffect(() => {
-    if (!key || !title) {
+    if (!title) {
       setClips([])
       return
     }
@@ -33,12 +34,20 @@ export function useTmdbVideos(item: {
     let cancelled = false
     findTmdbVideos({ title, year: item?.year, kind: item?.kind, tmdb_id: item?.tmdb_id }, key)
       .then((result) => {
-        memory.set(cacheKey, result)
-        if (!cancelled) setClips(result)
+        const hit = knownTrailer({ title, year: item?.year })
+        const clips = result.length
+          ? result
+          : hit
+            ? [{ key: hit.src, type: 'Trailer', label: 'Trailer' }]
+            : []
+        memory.set(cacheKey, clips)
+        if (!cancelled) setClips(clips)
       })
       .catch(() => {
-        memory.set(cacheKey, [])
-        if (!cancelled) setClips([])
+        const hit = knownTrailer({ title, year: item?.year })
+        const clips = hit ? [{ key: hit.src, type: 'Trailer', label: 'Trailer' }] : []
+        memory.set(cacheKey, clips)
+        if (!cancelled) setClips(clips)
       })
     return () => {
       cancelled = true

@@ -6,6 +6,11 @@ async function proxy(req, res, origin) {
   const path = rewritten || incoming.pathname.replace(/^\/api\/(?:tmdb|iva)/, '') || '/'
   const target = new URL(path.startsWith('/') ? path : `/${path}`, origin)
   incoming.searchParams.forEach((value, key) => target.searchParams.set(key, value))
+  const clientKey = (target.searchParams.get('api_key') || '').trim()
+  const serverKey = String(process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY || '').trim()
+  const apiKey = clientKey || serverKey
+  if (apiKey) target.searchParams.set('api_key', apiKey)
+  else target.searchParams.delete('api_key')
 
   const upstream = await fetch(target, {
     method: req.method || 'GET',

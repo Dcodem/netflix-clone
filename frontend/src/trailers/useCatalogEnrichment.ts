@@ -21,7 +21,7 @@ export function useCatalogEnrichment(items: MovieListItem[]): MovieListItem[] {
   useEffect(() => subscribeTitleOverlay(() => setVersion((value) => value + 1)), [])
 
   useEffect(() => {
-    if (!key || !items.length) return
+    if (!items.length) return
     const queue = items.filter(needsCatalogEnrichment)
     if (!queue.length) return
     let cancelled = false

@@ -22,7 +22,7 @@ export function useTmdbGallery(item: {
   const [stills, setStills] = useState<string[]>(() => memory.get(cacheKey) ?? [])
 
   useEffect(() => {
-    if (!key || !title) {
+    if (!title) {
       setStills([])
       return
     }

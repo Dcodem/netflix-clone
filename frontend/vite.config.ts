@@ -42,7 +42,13 @@ export default defineConfig(({ mode }) => {
         '/tmdb': {
           target: 'https://api.themoviedb.org',
           changeOrigin: true,
-          rewrite: (path: string) => path.replace(/^\/tmdb/, ''),
+          rewrite: (path: string) => {
+            const stripped = path.replace(/^\/tmdb/, '') || '/'
+            const url = new URL(stripped, 'https://api.themoviedb.org')
+            const key = env.TMDB_API_KEY || env.VITE_TMDB_API_KEY
+            if (key && !url.searchParams.get('api_key')) url.searchParams.set('api_key', key)
+            return `${url.pathname}${url.search}`
+          },
         },
       },
     },

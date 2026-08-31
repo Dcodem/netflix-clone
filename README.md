@@ -34,7 +34,7 @@ Import the GitHub repo at [vercel.com/new](https://vercel.com/new), or from the 
 npx vercel --yes
 ```
 
-Optional: set `VITE_TMDB_API_KEY` in the Vercel project so mini trailers work without pasting a key on Account. Do not commit `.env.local`.
+Optional: set `TMDB_API_KEY` in the Vercel project (server-only) so live TMDB matching works on preview/production. The `/tmdb` proxy attaches that key. Do not commit `.env.local`. Mini trailers for the bundled catalog also use built-in YouTube ids, so hover previews still play when the env var is missing.
 
 Copy `frontend/.env.example` to `frontend/.env.local` for keys and origin overrides. `.env.local` is gitignored.
 
