@@ -2107,7 +2107,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 }
 
 .profile-cell {
-  width: clamp(84px, 10vw, 200px);
+  width: clamp(96px, 11.5vw, 200px);
   background: none;
   border: 0;
   padding: 0;
@@ -6597,6 +6597,7 @@ img.is-logo-pending {
   gap: 2px;
   min-width: 0;
   flex: 1;
+  align-content: center;
 }
 
 .search-top-title {

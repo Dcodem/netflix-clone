@@ -3,7 +3,7 @@ import { getMovie, getShow } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { isComingSoon } from '../lib/comingSoon'
 import { isShow } from '../lib/media'
-import { maturityLabel, toLiked } from '../lib/netflix'
+import { toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
 import { useProfiles } from '../profiles/ProfileContext'
@@ -63,11 +63,6 @@ export function SearchHitsList({
             </span>
             <span className="search-top-copy">
               <span className="search-top-title">{item.title}</span>
-              <span className="search-top-meta">
-                {item.year ? <span>{item.year}</span> : null}
-                <span>{maturityLabel(item)}</span>
-                <span>{isShow(item) ? 'TV Show' : 'Movie'}</span>
-              </span>
             </span>
           </button>
           {ranked ? null : isComingSoon(item) ? (
