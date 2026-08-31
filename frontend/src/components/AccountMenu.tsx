@@ -5,7 +5,7 @@ import { useHoverMenu } from '../hooks/useHoverMenu'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { AvatarArt } from './AvatarArt'
-import { CaretIcon, ExitIcon, HelpCircleIcon, MyNetflixIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
+import { CaretIcon, CheckIcon, ExitIcon, HelpCircleIcon, MyNetflixIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
 import { TransferProfileDialog } from './TransferProfileDialog'
 
 export function AccountMenu() {
@@ -18,7 +18,6 @@ export function AccountMenu() {
   if (!user || !activeProfile) return null
 
   const avatar = avatarFor(activeProfile)
-  const others = profiles.filter((profile) => profile.id !== activeProfile.id)
 
   return (
     <div
@@ -35,15 +34,17 @@ export function AccountMenu() {
       </button>
       {open ? (
         <div className="account-dropdown">
-          {others.map((profile) => {
-            const other = avatarFor(profile)
+          {profiles.map((profile) => {
+            const art = avatarFor(profile)
+            const current = profile.id === activeProfile.id
             return (
               <button
                 type="button"
                 key={profile.id}
-                className="account-profile-row"
+                className={`account-profile-row ${current ? 'is-current' : ''}`}
                 onClick={() => {
                   setOpen(false)
+                  if (current) return
                   if (profile.pinHash) {
                     try {
                       sessionStorage.setItem('flix.unlockProfile', profile.id)
@@ -57,10 +58,11 @@ export function AccountMenu() {
                   selectProfile(profile.id)
                 }}
               >
-                <span className="avatar-dot" style={{ background: other.color }}>
-                  <AvatarArt avatar={other} alt={profile.name} />
+                <span className="avatar-dot" style={{ background: art.color }}>
+                  <AvatarArt avatar={art} alt={profile.name} />
                 </span>
                 <span className="account-profile-name">{profile.name}</span>
+                {current ? <CheckIcon className="account-check" /> : null}
               </button>
             )
           })}

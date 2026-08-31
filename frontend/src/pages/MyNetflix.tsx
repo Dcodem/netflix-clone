@@ -186,14 +186,46 @@ export function MyNetflix() {
       </section>
 
       {continueItems.length ? (
-        <MediaRow
-          title={activeProfile?.name ? `Continue Watching for ${activeProfile.name}` : 'Continue Watching'}
-          items={continueItems}
-          progressById={progressById}
-          continueMode
-          hoverable={desktop}
-          variant="continue"
-        />
+        desktop ? (
+          <MediaRow
+            title={activeProfile?.name ? `Continue Watching for ${activeProfile.name}` : 'Continue Watching'}
+            items={continueItems}
+            progressById={progressById}
+            continueMode
+            hoverable={desktop}
+            variant="continue"
+          />
+        ) : (
+          <section className="continue-stack" aria-label="Continue Watching">
+            <h2 className="section-title">
+              {activeProfile?.name ? `Continue Watching for ${activeProfile.name}` : 'Continue Watching'}
+            </h2>
+            <ul className="continue-stack-list">
+              {continueItems.map((item) => (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    className="continue-stack-card"
+                    onClick={(event) => openTitle(item, event.currentTarget)}
+                  >
+                    <span className="continue-stack-art">
+                      <CatalogImage item={item} prefer="backdrop" alt="" />
+                      {progressById[item.id] ? (
+                        <div className="progress-track">
+                          <div style={{ width: `${Math.round((progressById[item.id] ?? 0) * 100)}%` }} />
+                        </div>
+                      ) : null}
+                    </span>
+                    <span className="continue-stack-copy">
+                      <strong>{item.title}</strong>
+                      {item.continueLabel ? <em>{item.continueLabel}</em> : null}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
       ) : null}
       {listItems.length ? <MediaRow title="My List" items={listItems} hoverable={desktop} /> : null}
       {because.map((row) => (

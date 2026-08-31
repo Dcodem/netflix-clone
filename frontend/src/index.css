@@ -769,15 +769,13 @@ select,
   inset: 0;
   overflow: hidden;
   opacity: 0;
-  visibility: hidden;
   z-index: 1;
   pointer-events: none;
-  transition: opacity 1.35s ease, visibility 1.35s ease;
+  transition: opacity 1.35s ease;
 }
 
 .hero-media.is-playing .hero-trailer-clip {
   opacity: 1;
-  visibility: visible;
 }
 
 .hero::after,
@@ -2352,7 +2350,6 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 
 .trailer-frame.is-pending {
   opacity: 0 !important;
-  visibility: hidden !important;
   pointer-events: none !important;
 }
 
@@ -10427,6 +10424,10 @@ img.is-logo-pending {
   z-index: auto;
 }
 
+.watch-end-cluster.is-credits-only {
+  justify-content: flex-end;
+}
+
 .watch-ep-empty {
   margin: 12px 0 0;
   color: #b3b3b3;
@@ -11484,7 +11485,7 @@ img.is-logo-pending {
 
 @media (min-width: 768px) {
   .continue-meta {
-    display: none;
+    max-width: 100%;
   }
 
   .continue-hide {
@@ -11502,6 +11503,71 @@ img.is-logo-pending {
     opacity: 0;
     pointer-events: none;
   }
+}
+
+.continue-stack {
+  margin: 8px 0 28px;
+}
+
+.continue-stack-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+
+.continue-stack-card {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.continue-stack-art {
+  position: relative;
+  display: block;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #141414;
+}
+
+.continue-stack-art img,
+.continue-stack-art .media-fallback {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.continue-stack-art .progress-track {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+}
+
+.continue-stack-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.continue-stack-copy strong {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.continue-stack-copy em {
+  font-style: normal;
+  font-size: 14px;
+  color: #808080;
 }
 
 .continue-title {

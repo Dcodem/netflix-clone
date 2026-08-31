@@ -815,7 +815,8 @@ export function WatchOverlay() {
     !episodesOpen &&
     !audioOpen &&
     !speedOpen
-  const showNext = Boolean(upcoming && remaining <= NEXT_CARD_AT && !nextDismissed && !episodesOpen && !audioOpen && !speedOpen && !stillWatching && length > 0)
+  const showCredits = Boolean(remaining <= NEXT_CARD_AT && !nextDismissed && !episodesOpen && !audioOpen && !speedOpen && !stillWatching && length > 0)
+  const showNext = Boolean(upcoming && showCredits)
   const countingDown = remaining <= AUTO_IN && activeProfile?.autoplayNext !== false
   const nextCount = countingDown ? Math.max(1, Math.ceil(remaining)) : null
   const nextProgress = countingDown ? Math.min(1, remaining / AUTO_IN) : 1
@@ -1067,8 +1068,8 @@ export function WatchOverlay() {
           <SkipIntroIcon className="icon" />
         </button>
       ) : null}
-      {showNext && upcoming ? (
-        <div className="watch-end-cluster">
+      {showCredits ? (
+        <div className={`watch-end-cluster ${showNext ? 'has-card' : 'is-credits-only'}`}>
         <button
           type="button"
           className="watch-credits is-visible"
@@ -1079,6 +1080,7 @@ export function WatchOverlay() {
         >
           Watch Credits
         </button>
+        {showNext && upcoming ? (
         <div
           className="next-ep-card is-visible"
           onClick={(event) => event.stopPropagation()}
@@ -1128,6 +1130,7 @@ export function WatchOverlay() {
             </span>
           </button>
         </div>
+        ) : null}
         </div>
       ) : null}
       {caption ? (
