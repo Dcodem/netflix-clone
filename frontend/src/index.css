@@ -295,7 +295,7 @@ select,
 .primary-nav {
   display: none;
   align-items: center;
-  gap: 14px;
+  gap: 18px;
   min-width: 0;
   overflow-x: auto;
   scrollbar-width: none;
@@ -321,7 +321,7 @@ select,
 .nav-link.active,
 .nav-link.active:hover {
   color: #fff;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .search-wrap {
@@ -1707,10 +1707,6 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   padding: 20px 16px 20px 8px;
   border-bottom: 1px solid #2f2f2f;
   border-radius: 0;
-}
-
-.episode-btn:hover {
-  background: #2f2f2f;
 }
 
 .ep-thumb,
@@ -6033,14 +6029,6 @@ img.is-logo-pending {
 
 .more-like-card:hover {
   background: #393939;
-}
-
-.more-like-art img,
-.more-like-art .media-fallback {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
 }
 
 .more-like-art img,
