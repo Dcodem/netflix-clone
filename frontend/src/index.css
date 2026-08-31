@@ -11193,6 +11193,11 @@ img.is-logo-pending {
   letter-spacing: -0.4px;
 }
 
+.my-netflix-page {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
 .my-netflix-head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -11200,6 +11205,7 @@ img.is-logo-pending {
   gap: 12px;
   width: 100%;
   max-width: 100%;
+  min-width: 0;
   margin: 4px 0 22px;
 }
 
@@ -11418,6 +11424,8 @@ img.is-logo-pending {
 
 .my-netflix-notes {
   margin-bottom: 28px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .notify-rail {
@@ -11427,6 +11435,9 @@ img.is-logo-pending {
   margin: 8px calc(var(--page-gutter) * -1) 0;
   padding: 0 var(--page-gutter) 10px;
   overflow-x: auto;
+  min-width: 0;
+  width: calc(100% + var(--page-gutter) * 2);
+  box-sizing: border-box;
   scrollbar-width: none;
   overscroll-behavior-x: contain;
 }
