@@ -25,8 +25,10 @@ type TmdbSearch = {
 type TmdbVideos = { results?: Array<{ key: string; site: string; type: string; official?: boolean }> }
 
 async function tmdbJson<T>(path: string, key: string, extra: Record<string, string> = {}): Promise<T> {
-  const params = new URLSearchParams({ api_key: key, ...extra })
-  const response = await fetch(`/tmdb${path}?${params.toString()}`)
+  const params = new URLSearchParams(extra)
+  if (key) params.set('api_key', key)
+  const query = params.toString()
+  const response = await fetch(query ? `/tmdb${path}?${query}` : `/tmdb${path}`)
   if (!response.ok) throw new Error(`TMDB request failed (${response.status})`)
   return (await response.json()) as T
 }

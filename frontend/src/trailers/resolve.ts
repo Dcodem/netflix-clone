@@ -1,6 +1,7 @@
 import { cacheKey, type TrailerHit, type TrailerKeys } from './types'
 import { findIvaTrailer } from './iva'
 import { findTmdbTrailer } from './tmdb'
+import { knownTrailer } from './catalogTrailers'
 
 const memory = new Map<string, TrailerHit | null>()
 
@@ -23,20 +24,20 @@ export async function resolveTrailer(
     const cached = sessionStorage.getItem(key)
     if (cached) {
       const parsed = JSON.parse(cached) as TrailerHit | null
-      memory.set(key, parsed)
-      return parsed
+      if (parsed?.src) {
+        memory.set(key, parsed)
+        return parsed
+      }
     }
   } catch {
     // ignore cache
   }
 
-  let hit: TrailerHit | null = null
-  if (keys.tmdb) {
-    try {
-      hit = await findTmdbTrailer(item, keys.tmdb)
-    } catch {
-      hit = null
-    }
+  let hit: TrailerHit | null = knownTrailer(item)
+  try {
+    hit = (await findTmdbTrailer(item, keys.tmdb)) ?? hit
+  } catch {
+    /* keep catalog fallback when the TMDB proxy has no key */
   }
   if (!hit && keys.iva) {
     try {
@@ -46,10 +47,12 @@ export async function resolveTrailer(
     }
   }
   memory.set(key, hit)
-  try {
-    sessionStorage.setItem(key, JSON.stringify(hit))
-  } catch {
-    // quota
+  if (hit) {
+    try {
+      sessionStorage.setItem(key, JSON.stringify(hit))
+    } catch {
+      // quota
+    }
   }
   return hit
 }
@@ -75,14 +78,16 @@ export function peekTrailer(item: SearchItem): TrailerHit | null {
       const cached = sessionStorage.getItem(key)
       if (cached) {
         const parsed = JSON.parse(cached) as TrailerHit
-        memory.set(key, parsed)
-        return parsed
+        if (parsed?.src) {
+          memory.set(key, parsed)
+          return parsed
+        }
       }
     } catch {
       // ignore cache
     }
   }
-  return null
+  return knownTrailer(item)
 }
 
 export function youtubeIdFromHit(hit: TrailerHit | null | undefined): string | null {

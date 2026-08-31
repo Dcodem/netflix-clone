@@ -22,7 +22,7 @@ export function useTmdbInfo(item: {
   const [info, setInfo] = useState<TmdbInfo | null>(() => memory.get(cacheKey) ?? null)
 
   useEffect(() => {
-    if (!key || !title) {
+    if (!title) {
       setInfo(null)
       return
     }
