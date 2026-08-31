@@ -21,7 +21,7 @@ export function useTmdbLogo(item: {
   const [logo, setLogo] = useState<string | null>(() => memory.get(cacheKey) ?? null)
 
   useEffect(() => {
-    if (!key) return
+    if (!item.title) return
     if (memory.has(cacheKey)) {
       setLogo(memory.get(cacheKey) ?? null)
       return

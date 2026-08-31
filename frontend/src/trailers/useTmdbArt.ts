@@ -21,7 +21,7 @@ export function useTmdbArt(item: {
   const { user } = useAuth()
   const key = (user?.tmdbKey || envKeys().tmdb).trim()
   const cacheKey = cacheId(item)
-  const skip = !key
+  const skip = !item.title
   const [art, setArt] = useState<TmdbArt>(() => memory.get(cacheKey) ?? { poster: null, backdrop: null })
 
   useEffect(() => {

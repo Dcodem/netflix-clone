@@ -88,7 +88,6 @@ export const TrailerPreview = forwardRef<
       setHit(overrideHit)
       return
     }
-    if (!keys.iva && !keys.tmdb) return
     const timer = window.setTimeout(() => {
       resolveTrailer({ title, year, kind, tmdb_id }, keys, { seconds: mode === 'mini' ? 12 : 30 })
         .then((result) => {
