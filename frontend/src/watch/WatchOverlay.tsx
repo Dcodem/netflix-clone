@@ -1637,7 +1637,7 @@ export function WatchOverlay() {
           <span className="watch-sheet-handle" aria-hidden="true" />
           <div className="watch-ep-head">
             <h2>{session.history?.title || session.title}</h2>
-            {showDetail && showDetail.seasons && showDetail.seasons.length > 1 ? (
+            {showDetail?.seasons?.length ? (
               <SeasonMenu
                 seasons={showDetail.seasons}
                 history={session.history ? { ...session.history, watchedAt: 0 } : undefined}

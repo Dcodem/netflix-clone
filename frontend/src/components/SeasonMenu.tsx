@@ -49,10 +49,7 @@ export function SeasonMenu({
     }
   }, [open])
 
-  if (seasons.length <= 1) {
-    const count = seasons[0]?.episodes?.length ?? 0
-    return count ? <span className={`season-count ${className ?? ''}`.trim()}>{count} Episodes</span> : null
-  }
+  if (!seasons.length) return null
 
   const current = seasons.find((season) => season.season_number === value) ?? seasons[0]
 

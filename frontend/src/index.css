@@ -4870,6 +4870,13 @@ img.is-logo-pending {
   align-self: center;
 }
 
+.title-tabs-row .season-menu-btn {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 12px;
+  min-height: 36px;
+}
+
 .title-tabs::-webkit-scrollbar {
   display: none;
 }
