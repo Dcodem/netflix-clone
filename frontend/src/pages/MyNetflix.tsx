@@ -134,7 +134,7 @@ export function MyNetflix() {
                 type="button"
                 key={item.id}
                 className={`notify-card ${unread ? 'is-unread' : ''}`}
-                onClick={() => openTitle(item)}
+                onClick={(event) => openTitle(item, event.currentTarget)}
               >
                 <CatalogImage item={item} prefer="backdrop" alt="" />
                 <span>
@@ -150,13 +150,56 @@ export function MyNetflix() {
         )}
       </section>
 
+      {continueItems.length ? (
+        desktop ? (
+          <MediaRow
+            title={activeProfile?.name ? `Continue Watching for ${activeProfile.name}` : 'Continue Watching'}
+            items={continueItems}
+            progressById={progressById}
+            continueMode
+            hoverable={desktop}
+            variant="continue"
+          />
+        ) : (
+          <section className="continue-stack" aria-label="Continue Watching">
+            <h2 className="section-title">
+              {activeProfile?.name ? `Continue Watching for ${activeProfile.name}` : 'Continue Watching'}
+            </h2>
+            <ul className="continue-stack-list">
+              {continueItems.map((item) => (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    className="continue-stack-card"
+                    onClick={(event) => openTitle(item, event.currentTarget)}
+                  >
+                    <span className="continue-stack-art">
+                      <CatalogImage item={item} prefer="backdrop" alt="" />
+                      {progressById[item.id] ? (
+                        <div className="progress-track">
+                          <div style={{ width: `${Math.round((progressById[item.id] ?? 0) * 100)}%` }} />
+                        </div>
+                      ) : null}
+                    </span>
+                    <span className="continue-stack-copy">
+                      <strong>{item.title}</strong>
+                      {item.continueLabel ? <em>{item.continueLabel}</em> : null}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      ) : null}
+
       <section className="my-netflix-downloads">
         <h2 className="section-title">Downloads</h2>
         {downloadItems.length ? (
           <ul className="download-list">
             {downloadItems.map((item) => (
               <li key={item.id}>
-                <button type="button" className="download-row" onClick={() => openTitle(item)}>
+                <button type="button" className="download-row" onClick={(event) => openTitle(item, event.currentTarget)}>
                   <span className="download-still">
                     <CatalogImage item={item} prefer="backdrop" alt="" />
                   </span>
@@ -185,16 +228,6 @@ export function MyNetflix() {
         )}
       </section>
 
-      {continueItems.length ? (
-        <MediaRow
-          title={activeProfile?.name ? `Continue Watching for ${activeProfile.name}` : 'Continue Watching'}
-          items={continueItems}
-          progressById={progressById}
-          continueMode
-          hoverable={desktop}
-          variant="continue"
-        />
-      ) : null}
       {listItems.length ? <MediaRow title="My List" items={listItems} hoverable={desktop} /> : null}
       {because.map((row) => (
         <MediaRow key={row.id} title={row.title} items={row.items} seed={row.seed} hoverable={desktop} />

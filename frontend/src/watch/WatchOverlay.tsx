@@ -815,7 +815,8 @@ export function WatchOverlay() {
     !episodesOpen &&
     !audioOpen &&
     !speedOpen
-  const showNext = Boolean(upcoming && remaining <= NEXT_CARD_AT && !nextDismissed && !episodesOpen && !audioOpen && !speedOpen && !stillWatching && length > 0)
+  const showCredits = Boolean(remaining <= NEXT_CARD_AT && !nextDismissed && !episodesOpen && !audioOpen && !speedOpen && !stillWatching && length > 0)
+  const showNext = Boolean(upcoming && showCredits)
   const countingDown = remaining <= AUTO_IN && activeProfile?.autoplayNext !== false
   const nextCount = countingDown ? Math.max(1, Math.ceil(remaining)) : null
   const nextProgress = countingDown ? Math.min(1, remaining / AUTO_IN) : 1
@@ -1067,7 +1068,8 @@ export function WatchOverlay() {
           <SkipIntroIcon className="icon" />
         </button>
       ) : null}
-      {showNext && upcoming ? (
+      {showCredits ? (
+        <div className={`watch-end-cluster ${showNext ? 'has-card' : 'is-credits-only'}`}>
         <button
           type="button"
           className="watch-credits is-visible"
@@ -1078,8 +1080,7 @@ export function WatchOverlay() {
         >
           Watch Credits
         </button>
-      ) : null}
-      {showNext && upcoming ? (
+        {showNext && upcoming ? (
         <div
           className="next-ep-card is-visible"
           onClick={(event) => event.stopPropagation()}
@@ -1120,6 +1121,7 @@ export function WatchOverlay() {
               <PlayIcon className="icon" />
             </span>
             <span className="next-ep-copy">
+              {session.history?.title ? <strong className="next-ep-show">{session.history.title}</strong> : null}
               <em>{upcoming.episode.title}</em>
               <span className="next-ep-code">
                 S{upcoming.season.season_number}:E{upcoming.episode.number}
@@ -1127,6 +1129,8 @@ export function WatchOverlay() {
               </span>
             </span>
           </button>
+        </div>
+        ) : null}
         </div>
       ) : null}
       {caption ? (
@@ -1602,6 +1606,12 @@ export function WatchOverlay() {
               </div>
             ) : null}
             {session.history?.title ? <p className="watch-still-kicker">{session.history.title}</p> : null}
+            {episodeLabel ? (
+              <p className="watch-still-ep">
+                {episodeLabel}
+                {playing?.episode.title ? `  ${playing.episode.title}` : ''}
+              </p>
+            ) : null}
             <h2>Are you still watching?</h2>
             <div className="watch-still-actions">
               <button type="button" className="btn btn-play" onClick={continueWatching}>

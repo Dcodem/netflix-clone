@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCatalogMany, getMovie, getShow, proxyImageUrl } from '../api/client'
 import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '../api/types'
@@ -35,7 +35,7 @@ function isShowDetail(detail: MovieDetail): detail is ShowDetail {
 }
 
 export function TitleModal() {
-  const { item, closeTitle } = useTitleModal()
+  const { item, origin, closeTitle } = useTitleModal()
   const { openWatch } = useWatch()
   const navigate = useNavigate()
   const { activeProfile } = useProfiles()
@@ -56,6 +56,9 @@ export function TitleModal() {
   const [settled, setSettled] = useState(false)
   const [tab, setTab] = useState<'episodes' | 'more' | 'trailers' | null>(null)
   const [seasonNumber, setSeasonNumber] = useState(1)
+  const [leaving, setLeaving] = useState(false)
+  const leaveTimer = useRef(0)
+  const leavingRef = useRef(false)
 
   useEffect(() => {
     setMuted(true)
@@ -65,16 +68,38 @@ export function TitleModal() {
     setHeroStill(null)
     setSettled(false)
     setTab(null)
+    setLeaving(false)
+    leavingRef.current = false
     setSeasonNumber(last?.seasonNumber ?? 1)
     setDragY(0)
     dragYRef.current = 0
     dragStartY.current = null
+    window.clearTimeout(leaveTimer.current)
   }, [item?.id, last?.seasonNumber])
+
+  useEffect(() => () => window.clearTimeout(leaveTimer.current), [])
+
+  const requestClose = useCallback(() => {
+    const desktopFromTile = Boolean(origin && typeof window !== 'undefined' && window.innerWidth >= 768)
+    if (!desktopFromTile) {
+      closeTitle()
+      return
+    }
+    if (leavingRef.current) return
+    leavingRef.current = true
+    setLeaving(true)
+    window.clearTimeout(leaveTimer.current)
+    leaveTimer.current = window.setTimeout(() => {
+      leavingRef.current = false
+      setLeaving(false)
+      closeTitle()
+    }, 280)
+  }, [origin, closeTitle])
 
   useEffect(() => {
     if (!item) return
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeTitle()
+      if (event.key === 'Escape') requestClose()
     }
     window.addEventListener('keydown', onKey)
     const previous = document.body.style.overflow
@@ -83,7 +108,7 @@ export function TitleModal() {
       window.removeEventListener('keydown', onKey)
       document.body.style.overflow = previous
     }
-  }, [item, closeTitle])
+  }, [item, requestClose])
 
   const trailerPlaying = trailerReady && !trailerEnded
   useEffect(() => {
@@ -132,6 +157,15 @@ export function TitleModal() {
   }, [clips, stills])
 
   if (!item) return null
+
+  const fromTile = Boolean(origin && typeof window !== 'undefined' && window.innerWidth >= 768)
+  const fromTileStyle = fromTile && origin
+    ? ({
+        '--modal-ox': `${origin.left + origin.width / 2 - Math.max(0, (window.innerWidth - Math.min(920, window.innerWidth - 24)) / 2)}px`,
+        '--modal-oy': `${Math.max(24, origin.top + origin.height / 2 - 32)}px`,
+        '--modal-from': String(Math.max(0.28, Math.min(0.86, origin.width / Math.min(920, window.innerWidth - 24)))),
+      } as CSSProperties)
+    : undefined
 
   const detail = detailFetch.data
   const seasons = detail && isShowDetail(detail) ? (detail.seasons ?? []) : []
@@ -255,14 +289,19 @@ export function TitleModal() {
   }
 
   return (
-    <div className="title-modal-backdrop" onClick={closeTitle} role="presentation" ref={backdropRef}>
+    <div
+      className={`title-modal-backdrop ${leaving ? 'is-leaving' : ''}`}
+      onClick={requestClose}
+      role="presentation"
+      ref={backdropRef}
+    >
       <div
-        className={`title-modal ${dragY ? 'is-dragging' : ''}`}
+        className={`title-modal ${dragY ? 'is-dragging' : ''} ${fromTile ? 'is-from-tile' : ''} ${leaving ? 'is-leaving' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-label={item.title}
         ref={modalRef}
-        style={dragY ? { transform: `translateY(${dragY}px)` } : undefined}
+        style={dragY ? { transform: `translateY(${dragY}px)` } : fromTileStyle}
         onClick={(event) => event.stopPropagation()}
         onPointerDown={onSheetPointerDown}
         onPointerMove={onSheetPointerMove}
@@ -270,7 +309,7 @@ export function TitleModal() {
         onPointerCancel={onSheetPointerUp}
       >
         <span className="title-modal-handle" aria-hidden="true" />
-        <button type="button" className="title-modal-close" onClick={closeTitle} aria-label="Close">
+        <button type="button" className="title-modal-close" onClick={requestClose} aria-label="Close">
           <CloseIcon className="icon" />
         </button>
         <div

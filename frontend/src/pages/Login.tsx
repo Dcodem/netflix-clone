@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { uniqueById } from '../lib/media'
 import { useAuth } from '../auth/AuthContext'
 import { CatalogImage } from '../components/CatalogImage'
 import { FooterLang, CookiePrefsDialog, FooterNoteDialog, FOOTER_NOTES } from '../components/SiteFooter'
+import { SITE_INFO_HREFS } from '../lib/siteInfo'
 
 const REMEMBER_KEY = 'flix.remember'
 
@@ -389,6 +390,10 @@ export function Login() {
                   <button type="button" className="login-footer-link" onClick={() => setCookies(true)}>
                     Cookie Preferences
                   </button>
+                ) : SITE_INFO_HREFS[label] ? (
+                  <Link className="login-footer-link" to={SITE_INFO_HREFS[label]}>
+                    {label}
+                  </Link>
                 ) : (
                   <button type="button" className="login-footer-link" onClick={() => setNote(label)}>
                     {label}

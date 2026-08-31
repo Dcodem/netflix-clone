@@ -84,11 +84,11 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
             <article
               key={item.id}
               className="more-like-card"
-              onClick={() => openTitle(item)}
+              onClick={(event) => openTitle(item, event.currentTarget)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
-                  openTitle(item)
+                  openTitle(item, event.currentTarget)
                 }
               }}
               role="link"

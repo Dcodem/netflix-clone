@@ -33,6 +33,7 @@ export function historyToListItems(history: WatchHistoryItem[]): MovieListItem[]
     id: item.id,
     title: item.title,
     kind: item.kind,
+    year: item.year ?? undefined,
     poster_url: item.poster_url,
     genres: item.genres,
     href: `/${item.kind === 'show' ? 'shows' : 'movies'}/view/${item.id}`,
@@ -182,7 +183,7 @@ export function buildBrowseRows(opts: {
   }
   const movies = ofKind(pool, 'movies')
   const shows = ofKind(pool, 'shows')
-  const historyPool = ofKind(historyToListItems(history), kind)
+  const historyPool = ofKind(enrichListItems(historyToListItems(history), catalog), kind)
   const becauseHistory =
     kind === 'all' ? history : history.filter((item) => (kind === 'shows' ? item.kind === 'show' : item.kind !== 'show'))
   const rows: HomeRow[] = []

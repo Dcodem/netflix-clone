@@ -116,6 +116,12 @@ export function noticeStamp(id: string): string {
   return labels[moodSeed(id) % labels.length]
 }
 
+export function noticeGroup(stamp: string): 'Today' | 'Yesterday' | 'Earlier' {
+  if (stamp === 'Yesterday') return 'Yesterday'
+  if (stamp === 'Just now' || stamp === 'Today' || /h ago$/.test(stamp)) return 'Today'
+  return 'Earlier'
+}
+
 export function activityStamp(watchedAt: number) {
   const watched = new Date(watchedAt)
   const today = new Date()

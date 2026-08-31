@@ -56,7 +56,7 @@ export function SearchHitsList({
     <ul className={`search-top ${ranked ? 'is-ranked' : ''}`}>
       {items.map((item, index) => (
         <li key={item.id}>
-          <button type="button" className="search-top-hit" onClick={() => openTitle(item)} aria-label={item.title}>
+          <button type="button" className="search-top-hit" onClick={(event) => openTitle(item, event.currentTarget)} aria-label={item.title}>
             {ranked ? <span className="search-top-rank">{index + 1}</span> : null}
             <span className="search-top-still">
               <CatalogImage item={item} alt="" prefer="backdrop" />
