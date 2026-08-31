@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieListItem, ShowDetail } from '../api/types'
 import { comingLineFor, isComingSoon } from '../lib/comingSoon'
+import { weakCopy } from '../lib/catalogTitle'
 import { formatRuntime, isShow } from '../lib/media'
+import { findTmdbInfo } from '../trailers/tmdb'
+import { envKeys } from '../trailers/types'
+import { getTitleOverlay } from '../trailers/tmdbOverlay'
 import { isNewEpisodes, matchPercent, maturityLabel, toLiked } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { buildWatchSession } from '../lib/watchSession'
@@ -27,6 +31,35 @@ async function chipFor(item: MovieListItem): Promise<LikeChip> {
     ? `${seasons} ${seasons === 1 ? 'Season' : 'Seasons'}`
     : formatRuntime(detail.runtime) ?? (item.year ? String(item.year) : '')
   const info = { chip, synopsis: detail.synopsis?.trim() ?? '' }
+  if (!weakCopy(info.synopsis)) {
+    chipCache.set(item.id, info)
+    return info
+  }
+  const overlay = getTitleOverlay(item)
+  if (overlay?.overview) {
+    const filled = { chip: info.chip || (overlay.runtime ? formatRuntime(overlay.runtime) ?? '' : ''), synopsis: overlay.overview }
+    chipCache.set(item.id, filled)
+    return filled
+  }
+  const key = envKeys().tmdb.trim()
+  if (key) {
+    try {
+      const tmdb = await findTmdbInfo(
+        { title: item.title, year: item.year, kind: item.kind, tmdb_id: item.tmdb_id },
+        key,
+      )
+      if (tmdb?.overview) {
+        const filled = {
+          chip: info.chip || formatRuntime(tmdb.runtime) || (tmdb.year ? String(tmdb.year) : ''),
+          synopsis: tmdb.overview,
+        }
+        chipCache.set(item.id, filled)
+        return filled
+      }
+    } catch {
+      /* keep catalog copy */
+    }
+  }
   if (info.chip || info.synopsis) chipCache.set(item.id, info)
   return info
 }

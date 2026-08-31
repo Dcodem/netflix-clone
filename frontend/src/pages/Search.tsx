@@ -15,6 +15,7 @@ import { catalogHits, rankSearchHits } from '../lib/searchHits'
 import { clearRecentSearches, listRecentSearches, removeRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { relatedSearchResults } from '../profiles/taste'
+import { useCatalogEnrichment } from '../trailers/useCatalogEnrichment'
 
 export function Search() {
   const { activeProfile } = useProfiles()
@@ -31,14 +32,16 @@ export function Search() {
   }, 'search-catalog')
   const popular = useFetch(() => getMovies(), 'search-popular', { enabled: !enabled })
   const [recents, setRecents] = useState(listRecentSearches)
-  const pool = useMemo(
+  const poolSource = useMemo(
     () => filterByMaturity(catalog.data ?? [], activeProfile),
     [catalog.data, activeProfile],
   )
-  const hits = useMemo(() => {
+  const pool = useCatalogEnrichment(poolSource)
+  const ranked = useMemo(() => {
     const fromApi = filterByMaturity(data ?? [], activeProfile)
     return rankSearchHits(q, uniqueById([...fromApi, ...catalogHits(q, pool)]))
   }, [data, q, pool, activeProfile])
+  const hits = useCatalogEnrichment(ranked)
   const related = useMemo(() => {
     const hitIds = new Set(hits.map((item) => item.id))
     return relatedSearchResults(hits, pool, activeProfile, 48).filter((item) => !hitIds.has(item.id))

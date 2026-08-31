@@ -42,6 +42,7 @@ export const TrailerPreview = forwardRef<
     title: string
     year?: number | null
     kind?: string
+    tmdb_id?: number | string | null
     className?: string
     mode?: 'hero' | 'mini'
     muted?: boolean
@@ -50,7 +51,7 @@ export const TrailerPreview = forwardRef<
     onEnded?: () => void
   }
 >(function TrailerPreview(
-  { title, year, kind, className, mode = 'hero', muted = true, overrideHit, onReady, onEnded },
+  { title, year, kind, tmdb_id, className, mode = 'hero', muted = true, overrideHit, onReady, onEnded },
   ref,
 ) {
   const { user } = useAuth()
@@ -89,7 +90,7 @@ export const TrailerPreview = forwardRef<
     }
     if (!keys.iva && !keys.tmdb) return
     const timer = window.setTimeout(() => {
-      resolveTrailer({ title, year, kind }, keys, { seconds: mode === 'mini' ? 12 : 30 })
+      resolveTrailer({ title, year, kind, tmdb_id }, keys, { seconds: mode === 'mini' ? 12 : 30 })
         .then((result) => {
           if (!cancelled) setHit(result)
         })
@@ -101,7 +102,7 @@ export const TrailerPreview = forwardRef<
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [title, year, kind, keys.iva, keys.tmdb, mode, overrideHit])
+  }, [title, year, kind, tmdb_id, keys.iva, keys.tmdb, mode, overrideHit])
 
   const onReadyRef = useRef(onReady)
   const onEndedRef = useRef(onEnded)

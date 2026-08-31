@@ -23,6 +23,7 @@ import {
 import { uniqueById } from '../lib/media'
 import { filterByMaturity, profileLanguageCode } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
+import { useCatalogEnrichment } from '../trailers/useCatalogEnrichment'
 
 function isLanguageCode(value: string | null): value is LanguageCode {
   return Boolean(value && ORIGINAL_LANGUAGES.some((entry) => entry.code === value))
@@ -68,9 +69,11 @@ export function BrowseLanguages() {
     ])
     return uniqueById([...movies, ...shows])
   }, 'browse-languages')
-  const matureCatalog = useMemo(
-    () => filterByMaturity(catalog.data ?? [], activeProfile),
-    [catalog.data, activeProfile],
+  const matureCatalog = useCatalogEnrichment(
+    useMemo(
+      () => filterByMaturity(catalog.data ?? [], activeProfile),
+      [catalog.data, activeProfile],
+    ),
   )
   const offered = useMemo(() => languageOptionsFor(matureCatalog, picked), [matureCatalog, picked])
   const language = useMemo(() => {

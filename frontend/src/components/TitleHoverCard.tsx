@@ -9,6 +9,8 @@ import { isNewEpisodes, matchPercent, maturityLabel } from '../lib/netflix'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
+import { useTmdbInfo } from '../trailers/useTmdbInfo'
+import { presentCopy } from '../trailers/tmdbOverlay'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
 import { GenreDots } from './GenreDots'
@@ -71,11 +73,21 @@ export function TitleHoverCard({
   }
   const fromScale = Math.max(0.42, Math.min(0.82, anchor.width / width))
 
+  const tmdbInfo = useTmdbInfo(item)
+  const copy = presentCopy(
+    {
+      synopsis: detail?.synopsis,
+      runtime: detail?.runtime,
+      year: item.year ?? detail?.year,
+      genres: genresOf(detail ?? item),
+    },
+    tmdbInfo,
+  )
   const match = matchPercent(item, activeProfile)
-  const maturity = maturityLabel(item)
-  const runtime = formatRuntime(detail?.runtime)
+  const maturity = maturityLabel({ ...item, genres: copy.genres })
+  const runtime = formatRuntime(copy.runtime)
   const quality = item.quality || detail?.quality
-  const genres = genresOf(detail ?? item).slice(0, 3)
+  const genres = copy.genres.slice(0, 3)
   const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
   const episodeCount = seasons.reduce((count, season) => count + (season.episodes?.length ?? 0), 0)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
@@ -120,8 +132,9 @@ export function TitleHoverCard({
           <TrailerPreview
             ref={trailerRef}
             title={item.title}
-            year={item.year}
+            year={copy.year ?? item.year}
             kind={item.kind}
+            tmdb_id={item.tmdb_id}
             mode="mini"
             muted={muted}
             className="jawbone-trailer"

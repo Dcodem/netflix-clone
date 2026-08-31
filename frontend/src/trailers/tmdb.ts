@@ -1,10 +1,15 @@
+import { mapTmdbGenres, tmdbSearchTitle } from '../lib/catalogTitle'
 import type { TrailerHit } from './types'
+import { rememberTitleOverlay } from './tmdbOverlay'
 
-type SearchItem = {
+export type CatalogTitle = {
   title: string
   year?: number | null
   kind?: string
+  tmdb_id?: number | string | null
 }
+
+type SearchItem = CatalogTitle
 
 type TmdbSearch = {
   results?: Array<{
@@ -110,15 +115,42 @@ export type TmdbArt = {
   backdrop: string | null
 }
 
+type TmdbLookup = {
+  id: number
+  title?: string
+  name?: string
+  poster_path?: string | null
+  backdrop_path?: string | null
+  release_date?: string
+  first_air_date?: string
+  overview?: string
+  runtime?: number | null
+  episode_run_time?: number[]
+  genres?: Array<{ name?: string }>
+}
+
 async function findTmdbMatch(item: SearchItem, key: string) {
+  const tmdbId = Number(item.tmdb_id)
+  if (Number.isFinite(tmdbId) && tmdbId > 0) {
+    const order = item.kind === 'show' ? [true, false] : [false, true]
+    for (const isTv of order) {
+      try {
+        const detail = await tmdbJson<TmdbLookup>(isTv ? `/3/tv/${tmdbId}` : `/3/movie/${tmdbId}`, key)
+        if (detail?.id) return { ...detail, isTv }
+      } catch {
+        /* try the other media type */
+      }
+    }
+  }
+  const query = tmdbSearchTitle(item)
   const primaryTv = item.kind === 'show'
   const attempts: Array<{ isTv: boolean; year?: number }> = []
-  if (item.year) attempts.push({ isTv: primaryTv, year: item.year })
+  if (query.year) attempts.push({ isTv: primaryTv, year: query.year })
   attempts.push({ isTv: primaryTv })
   attempts.push({ isTv: !primaryTv })
   for (const attempt of attempts) {
     const path = attempt.isTv ? '/3/search/tv' : '/3/search/movie'
-    const extra: Record<string, string> = { query: item.title }
+    const extra: Record<string, string> = { query: query.title }
     if (attempt.year) extra[attempt.isTv ? 'first_air_date_year' : 'year'] = String(attempt.year)
     const search = await tmdbJson<TmdbSearch>(path, key, extra)
     const match = search.results?.[0]
@@ -127,11 +159,47 @@ async function findTmdbMatch(item: SearchItem, key: string) {
   return null
 }
 
+export type TmdbInfo = {
+  tmdb_id: number
+  overview: string
+  year: number | null
+  runtime: number | null
+  genres: string[]
+}
+
+function yearFromDate(value?: string) {
+  const year = Number.parseInt(String(value ?? '').slice(0, 4), 10)
+  return Number.isFinite(year) && year > 1800 ? year : null
+}
+
+function infoFromLookup(detail: TmdbLookup, isTv: boolean): TmdbInfo {
+  return {
+    tmdb_id: detail.id,
+    overview: detail.overview?.trim() ?? '',
+    year: yearFromDate(detail.release_date) ?? yearFromDate(detail.first_air_date),
+    runtime: isTv ? detail.episode_run_time?.[0] ?? null : detail.runtime ?? null,
+    genres: mapTmdbGenres((detail.genres ?? []).map((entry) => entry.name)),
+  }
+}
+
+export async function findTmdbInfo(item: SearchItem, key: string): Promise<TmdbInfo | null> {
+  const match = await findTmdbMatch(item, key)
+  if (!match) return null
+  const detail =
+    match.overview != null && match.genres
+      ? match
+      : await tmdbJson<TmdbLookup>(match.isTv ? `/3/tv/${match.id}` : `/3/movie/${match.id}`, key)
+  const info = infoFromLookup(detail, match.isTv)
+  rememberTitleOverlay(item, info)
+  return info
+}
+
 export async function findTmdbArt(item: SearchItem, key: string): Promise<TmdbArt | null> {
   const match = await findTmdbMatch(item, key)
   if (!match) return null
+  if (match.id) rememberTitleOverlay(item, infoFromLookup(match, match.isTv))
   return {
-    poster: match.poster_path ? `${TMDB_IMG}/w342${match.poster_path}` : null,
+    poster: match.poster_path ? `${TMDB_IMG}/w500${match.poster_path}` : null,
     backdrop: match.backdrop_path ? `${TMDB_IMG}/w1280${match.backdrop_path}` : null,
   }
 }
