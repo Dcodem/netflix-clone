@@ -703,6 +703,8 @@ select,
 .search-wrap input {
   flex: 1;
   min-width: 0;
+  height: 34px;
+  line-height: 34px;
   background: none;
   border: none;
   outline: none;
@@ -6607,6 +6609,13 @@ img.is-logo-pending {
   background: #222;
 }
 
+@media (max-width: 767px) {
+  .search-top-still,
+  .search-top.is-ranked .search-top-still {
+    border-radius: 0;
+  }
+}
+
 .search-top-still img,
 .search-top-still .media-fallback {
   width: 100%;
@@ -11993,6 +12002,11 @@ img.is-logo-pending {
   .search-page {
     padding-bottom: 28px;
   }
+
+  .media-row .section-title,
+  .section-title {
+    font-size: 18px;
+  }
 }
 
 .continue-meta {
@@ -12272,15 +12286,19 @@ img.is-logo-pending {
 
 .news-chips button {
   flex-shrink: 0;
+  box-sizing: border-box;
+  height: 36px;
+  min-height: 36px;
   border: 1px solid rgba(255, 255, 255, 0.55);
   background: transparent;
   color: #fff;
   border-radius: 999px;
-  padding: 7px 16px;
+  padding: 0 16px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
+  font-family: inherit;
 }
 
 .news-chips button.is-on {
@@ -12367,9 +12385,9 @@ img.is-logo-pending {
 
 .news-date em {
   font-style: normal;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   line-height: 1;
   color: #e50914;
 }
