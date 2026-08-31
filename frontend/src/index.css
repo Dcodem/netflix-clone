@@ -5046,19 +5046,6 @@ img.is-logo-pending {
   margin-left: auto;
 }
 
-.title-modal-main .episodes {
-  padding: 0;
-}
-
-.title-modal-main .episode {
-  margin-left: -28px;
-  margin-right: -28px;
-  width: calc(100% + 56px);
-  padding-left: 28px;
-  padding-right: 28px;
-  box-sizing: border-box;
-}
-
 .title-section {
   scroll-margin-top: 72px;
 }
@@ -5126,15 +5113,14 @@ img.is-logo-pending {
   padding: 0;
 }
 
-.title-modal .episode {
-  padding: 16px 0;
-  gap: 16px;
-}
-
+.title-modal .episode,
 .title-modal .episode.is-resume {
-  margin: 0;
-  padding-left: 8px;
-  padding-right: 8px;
+  margin-left: -28px;
+  margin-right: -28px;
+  width: calc(100% + 56px);
+  padding: 16px 28px;
+  gap: 16px;
+  box-sizing: border-box;
 }
 
 .title-modal .more-like-grid {
@@ -8743,6 +8729,13 @@ img.is-logo-pending {
   font-size: 18px;
   padding: 8px 24px;
   min-height: 42px;
+}
+
+.title-modal-hero-body .title-actions.play-labeled .btn-play,
+.title-modal-hero-body .title-actions.play-labeled .btn-reminded {
+  font-size: 20px;
+  min-height: 48px;
+  padding: 8px 28px;
 }
 
 .watch-bottombar {
