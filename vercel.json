@@ -10,7 +10,8 @@
       "cursor/*": false,
       "cursor/mylist-sort-captions-a7c7": true,
       "cursor/title-modal-legal-a7c7": true,
-      "cursor/tmdb-trailers-a7c7": true
+      "cursor/tmdb-trailers-a7c7": true,
+      "cursor/tmdb-title-enrich-a7c7": true
     }
   },
   "functions": {
