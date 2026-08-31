@@ -132,6 +132,7 @@ export function MyList() {
               if (activeProfile?.id) writeMyListGenre(activeProfile.id, next)
             }}
             useMenu
+            buttonLabel="Genres"
           />
         ) : null}
         {uniqueItems.length ? (

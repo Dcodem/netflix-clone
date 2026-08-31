@@ -50,7 +50,6 @@ export function Search() {
     () => sortByRating(filterByMaturity(popular.data ?? [], activeProfile)).slice(0, 18),
     [popular.data, activeProfile],
   )
-  const desktopItems = useMemo(() => uniqueById([...hits, ...related]), [hits, related])
   const phone = useMediaQuery('(max-width: 767px)')
 
   useEffect(() => {
@@ -169,12 +168,15 @@ export function Search() {
         </>
       ) : (
         <>
-          {hits.length ? null : related.length ? (
-            <h1 className="search-heading">
-              Explore titles related to: <span>{q}</span>
-            </h1>
+          {hits.length ? <MediaGrid items={hits} layout="landscape" /> : null}
+          {related.length ? (
+            <>
+              <h1 className={`search-heading ${hits.length ? 'is-related' : ''}`}>
+                Explore titles related to: <span>{q}</span>
+              </h1>
+              <MediaGrid items={related} layout="landscape" />
+            </>
           ) : null}
-          <MediaGrid items={desktopItems} layout="landscape" />
         </>
       )}
     </main>

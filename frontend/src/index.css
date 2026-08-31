@@ -5318,7 +5318,7 @@ img.is-logo-pending {
   }
 
   .browse-heading h1 {
-    font-size: 24px;
+    font-size: 28px;
   }
 
   .has-browse-heading .hero {
@@ -5362,10 +5362,6 @@ img.is-logo-pending {
     padding: 56px 16px 16px;
   }
 
-  .browse-page:not(.has-browse-heading) .hero-syn {
-    display: none;
-  }
-
   .browse-page:not(.has-browse-heading) .hero.is-settled .billboard-kicker,
   .browse-page:not(.has-browse-heading) .hero.is-settled .hero-genre-dots,
   .browse-page:not(.has-browse-heading) .hero.is-settled .hero-rank {
@@ -5392,8 +5388,7 @@ img.is-logo-pending {
   }
 
   .hero-syn {
-    -webkit-line-clamp: 2;
-    font-size: 14px;
+    display: none;
   }
 
   .hero-genre-dots {
@@ -6241,12 +6236,12 @@ img.is-logo-pending {
 
 @media (min-width: 768px) {
   .search-page .grid {
-    gap: 8px;
+    gap: 4px;
   }
 
   .search-page .grid:not(.is-poster-grid) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px 8px;
+    gap: 4px;
   }
 
   .search-heading {
