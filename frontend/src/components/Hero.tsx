@@ -182,11 +182,13 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
         ) : null}
       </div>
       <div className="hero-body">
-        <div className="billboard-kicker">
-          <span className="n-mark">F</span>
-          <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
+        <div className="hero-lockup">
+          <div className="billboard-kicker">
+            <span className="n-mark">F</span>
+            <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
+          </div>
+          <TitleLogo item={item} className="hero-logo" titleClassName="hero-title" />
         </div>
-        <TitleLogo item={item} className="hero-logo" titleClassName="hero-title" />
         {rank && rankLabel ? (
           <p className="hero-rank">
             <span>#{rank}</span> in {rankLabel}

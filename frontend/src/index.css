@@ -887,6 +887,15 @@ select,
   max-width: 640px;
 }
 
+.hero-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+  transform-origin: left bottom;
+  transition: transform 0.9s cubic-bezier(0.5, 0, 0.1, 1);
+}
+
 .hero-title,
 .detail-title {
   margin: 0;
@@ -900,8 +909,7 @@ select,
   transition: transform 0.9s cubic-bezier(0.5, 0, 0.1, 1);
 }
 
-.hero.is-settled .hero-title,
-.hero.is-settled .hero-logo {
+.hero.is-settled .hero-lockup {
   transform: scale(0.52);
 }
 
@@ -913,7 +921,6 @@ select,
 
 .hero.is-settled .hero-syn,
 .hero.is-settled .hero-meta,
-.hero.is-settled .billboard-kicker,
 .hero.is-settled .hero-genre-dots,
 .hero.is-settled .hero-rank {
   opacity: 0;
@@ -5539,9 +5546,13 @@ img.is-logo-pending {
     display: flex;
   }
 
+  .hero.is-settled .hero-lockup {
+    transform: scale(0.78);
+  }
+
   .hero.is-settled .hero-title,
   .hero.is-settled .hero-logo {
-    transform: scale(0.78);
+    transform: none;
   }
 
   .hero-actions .btn {
@@ -6029,11 +6040,11 @@ img.is-logo-pending {
 .n-mark {
   display: grid;
   place-items: center;
-  width: 20px;
-  height: 24px;
+  width: 22px;
+  height: 28px;
   background: var(--accent);
   color: #fff;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 900;
   letter-spacing: 0;
   border-radius: 1px;
