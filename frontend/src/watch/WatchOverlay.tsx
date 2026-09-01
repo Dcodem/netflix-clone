@@ -197,6 +197,8 @@ export function WatchOverlay() {
   const [volOpen, setVolOpen] = useState(false)
   const [barHover, setBarHover] = useState(false)
   const [scrubHover, setScrubHover] = useState(false)
+  const [creditsHover, setCreditsHover] = useState(false)
+  const [nextEpHover, setNextEpHover] = useState(false)
   const [epHoverId, setEpHoverId] = useState<string | null>(null)
   const [scrubHint, setScrubHint] = useState<{ ratio: number; x: number } | null>(null)
   const [nextDismissed, setNextDismissed] = useState(false)
@@ -1105,7 +1107,9 @@ export function WatchOverlay() {
         <div className={`watch-end-cluster ${showNext ? 'has-card' : 'is-credits-only'}`}>
         <button
           type="button"
-          className="watch-credits is-visible"
+          className={`watch-credits is-visible ${creditsHover ? 'is-hover' : ''}`}
+          onMouseEnter={() => setCreditsHover(true)}
+          onMouseLeave={() => setCreditsHover(false)}
           onClick={(event) => {
             event.stopPropagation()
             setNextDismissed(true)
@@ -1143,7 +1147,9 @@ export function WatchOverlay() {
           </span>
           <button
             type="button"
-            className="next-ep-body"
+            className={`next-ep-body ${nextEpHover ? 'is-hover' : ''}`}
+            onMouseEnter={() => setNextEpHover(true)}
+            onMouseLeave={() => setNextEpHover(false)}
             onClick={(event) => {
               event.stopPropagation()
               playEpisode(upcoming.season, upcoming.episode, true)

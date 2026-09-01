@@ -14405,6 +14405,178 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: Top 10 uses a reserved peek column and identical 2:3 posters. */
+.poster-wrap.is-ranked {
+  display: grid;
+  grid-template-columns: minmax(92px, 0.36fr) minmax(0, 1fr);
+  align-items: end;
+  overflow: visible;
+  line-height: 0;
+}
+
+.poster-wrap.is-ranked .rank-num {
+  grid-column: 1;
+  grid-row: 1;
+  z-index: 0;
+  align-self: end;
+  justify-self: start;
+  display: block;
+  flex: none;
+  width: auto;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  font-size: clamp(240px, 24.5vw, 392px);
+  line-height: 0.78;
+  letter-spacing: -0.08em;
+  -webkit-text-stroke: 6px #8c8c8c;
+}
+
+.poster-wrap.is-ranked .rank-num.is-first {
+  min-width: 0;
+  margin: 0;
+  letter-spacing: 0;
+  padding: 0;
+}
+
+.poster-wrap.is-ranked .rank-num.is-ten {
+  font-size: clamp(170px, 18vw, 280px);
+  min-width: 0;
+  margin: 0;
+  letter-spacing: -0.18em;
+  -webkit-text-stroke-width: 5px;
+}
+
+.poster-wrap.is-ranked .poster-card {
+  grid-column: 2;
+  grid-row: 1;
+  z-index: 1;
+  flex: none;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  aspect-ratio: 2 / 3;
+}
+
+@media (min-width: 768px) {
+  .is-top10 .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 2.72);
+  }
+}
+
+@media (min-width: 1100px) {
+  .is-top10 .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 3.52);
+  }
+}
+
+@media (max-width: 767px) {
+  .poster-wrap.is-ranked {
+    grid-template-columns: minmax(72px, 0.42fr) minmax(0, 1fr);
+  }
+
+  .poster-wrap.is-ranked .rank-num {
+    font-size: 168px;
+    -webkit-text-stroke-width: 5px;
+  }
+
+  .poster-wrap.is-ranked .rank-num.is-ten {
+    font-size: 118px;
+  }
+
+  .is-top10 .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 1.32);
+  }
+}
+
+/* Netflix-exact: next-episode card 400px with 160px still; credits invert on hover. */
+.watch-end-cluster {
+  gap: 16px;
+}
+
+.next-ep-card,
+.watch-end-cluster .next-ep-card {
+  width: 400px;
+  max-width: min(400px, calc(100vw - 168px));
+  padding: 16px 16px 14px;
+  gap: 12px;
+}
+
+.next-ep-body {
+  grid-template-columns: 160px 1fr;
+  gap: 12px;
+}
+
+.next-ep-body.is-hover .next-ep-thumb .icon,
+.next-ep-body:hover .next-ep-thumb .icon,
+.next-ep-body:focus-visible .next-ep-thumb .icon {
+  background: #e6e6e6;
+  border-color: #e6e6e6;
+}
+
+.watch-credits {
+  min-height: 42px;
+  padding: 8px 18px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.watch-credits.is-hover,
+.watch-credits:hover,
+.watch-credits:focus-visible {
+  background: #fff;
+  color: #141414;
+  text-decoration: none;
+}
+
+.watch-ident-title {
+  font-size: clamp(40px, 5.4vw, 76px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+.watch-ident-ep {
+  margin-top: 8px;
+  font-size: clamp(16px, 1.8vw, 22px);
+}
+
+.categories-close {
+  width: 52px;
+  height: 52px;
+}
+
+.categories-close .icon {
+  width: 24px;
+  height: 24px;
+}
+
+@media (max-width: 767px) {
+  .next-ep-card,
+  .watch-end-cluster .next-ep-card {
+    width: 100%;
+    max-width: none;
+  }
+
+  .next-ep-body {
+    grid-template-columns: 132px 1fr;
+  }
+
+  .categories-sheet {
+    padding-top: 64px;
+  }
+
+  .categories-list .cat-nav {
+    font-size: 28px;
+  }
+
+  .categories-list .cat-genre {
+    font-size: 22px;
+  }
+}
+
 
 
 
