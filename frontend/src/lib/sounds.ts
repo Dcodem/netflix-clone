@@ -58,19 +58,24 @@ export function playWhoosh() {
   try {
     const ac = audio()
     const now = ac.currentTime
-    const osc = ac.createOscillator()
+    const frames = Math.max(1, Math.floor(ac.sampleRate * 0.2))
+    const buffer = ac.createBuffer(1, frames, ac.sampleRate)
+    const data = buffer.getChannelData(0)
+    for (let i = 0; i < frames; i++) {
+      data[i] = (Math.random() * 2 - 1) * (1 - i / frames)
+    }
+    const src = ac.createBufferSource()
     const filter = ac.createBiquadFilter()
     const gain = ac.createGain()
-    osc.type = 'sawtooth'
-    osc.frequency.setValueAtTime(210, now)
-    osc.frequency.exponentialRampToValueAtTime(72, now + 0.24)
-    filter.type = 'lowpass'
-    filter.frequency.value = 820
-    gain.gain.setValueAtTime(0.05, now)
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3)
-    osc.connect(filter).connect(gain).connect(ac.destination)
-    osc.start(now)
-    osc.stop(now + 0.32)
+    src.buffer = buffer
+    filter.type = 'bandpass'
+    filter.frequency.setValueAtTime(1600, now)
+    filter.frequency.exponentialRampToValueAtTime(380, now + 0.18)
+    filter.Q.value = 0.65
+    gain.gain.setValueAtTime(0.04, now)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2)
+    src.connect(filter).connect(gain).connect(ac.destination)
+    src.start(now)
   } catch {
     /* ignore */
   }
