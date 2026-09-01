@@ -13451,15 +13451,15 @@ img.is-logo-pending {
 .billboard-kicker {
   gap: 10px;
   margin-bottom: 12px;
-  font-size: 24px;
+  font-size: 28px;
   letter-spacing: 0.16em;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.72);
 }
 
 .n-mark {
-  width: 32px;
-  height: 40px;
-  font-size: 20px;
+  width: 36px;
+  height: 46px;
+  font-size: 22px;
   text-shadow: none;
 }
 
