@@ -47,6 +47,7 @@ export function EpisodeList({
   hideHeader?: boolean
 }) {
   const [internalSeason, setInternalSeason] = useState(history?.seasonNumber ?? seasons[0]?.season_number ?? 1)
+  const [hoverId, setHoverId] = useState<string | null>(null)
   const activeNumber = seasonNumber ?? internalSeason
 
   useEffect(() => {
@@ -83,7 +84,9 @@ export function EpisodeList({
               <button
                 type="button"
                 key={episode.id}
-                className={`episode episode-btn ${isResume ? 'is-resume' : ''} ${started ? 'has-progress' : ''} ${done ? 'is-watched' : ''}`}
+                className={`episode episode-btn ${isResume ? 'is-resume' : ''} ${started ? 'has-progress' : ''} ${done ? 'is-watched' : ''} ${hoverId === episode.id ? 'is-hover' : ''}`}
+                onMouseEnter={() => setHoverId(episode.id)}
+                onMouseLeave={() => setHoverId(null)}
                 onClick={() => onPlay(episode, activeSeason)}
               >
                 <span className="ep-num">{episode.number}</span>

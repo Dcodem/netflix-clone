@@ -196,6 +196,8 @@ export function WatchOverlay() {
   const [seasonNumber, setSeasonNumber] = useState<number | null>(null)
   const [volOpen, setVolOpen] = useState(false)
   const [barHover, setBarHover] = useState(false)
+  const [scrubHover, setScrubHover] = useState(false)
+  const [epHoverId, setEpHoverId] = useState<string | null>(null)
   const [scrubHint, setScrubHint] = useState<{ ratio: number; x: number } | null>(null)
   const [nextDismissed, setNextDismissed] = useState(false)
   const [stillWatching, setStillWatching] = useState(false)
@@ -1214,12 +1216,17 @@ export function WatchOverlay() {
       >
         <div className="watch-scrub">
           <div
-            className="watch-progress"
+            className={`watch-progress ${scrubHover || scrubHint ? 'is-hover' : ''}`}
             role="slider"
             aria-label="Seek"
             aria-valuemin={0}
             aria-valuemax={Math.round(length)}
             aria-valuenow={Math.round(current)}
+            onMouseEnter={() => setScrubHover(true)}
+            onMouseLeave={() => {
+              setScrubHover(false)
+              setScrubHint(null)
+            }}
             onPointerDown={(event) => {
               event.currentTarget.setPointerCapture(event.pointerId)
               seekFromEvent(event)
@@ -1695,7 +1702,9 @@ export function WatchOverlay() {
                 <button
                   type="button"
                   key={episode.id}
-                  className={`watch-ep ${active ? 'is-on' : ''} ${done ? 'is-watched' : ''}`}
+                  className={`watch-ep ${active ? 'is-on' : ''} ${done ? 'is-watched' : ''} ${epHoverId === episode.id ? 'is-hover' : ''}`}
+                  onMouseEnter={() => setEpHoverId(episode.id)}
+                  onMouseLeave={() => setEpHoverId(null)}
                   onClick={() => playEpisode(season, episode)}
                 >
                   <span className="watch-ep-num">{episode.number}</span>

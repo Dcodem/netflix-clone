@@ -14177,6 +14177,125 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: continue captions, outlined footer socials, hover without :hover, empty search. */
+.site-footer-social {
+  gap: 18px;
+}
+
+.site-footer-social-btn {
+  width: 36px;
+  height: 36px;
+  box-sizing: border-box;
+  border: 1px solid #808080;
+  color: #fff;
+}
+
+.site-footer-social-btn:hover,
+.site-footer-social-btn:focus-visible {
+  border-color: #fff;
+  color: #fff;
+}
+
+.search-empty p {
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.search-empty-kicker {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  color: #fff;
+}
+
+.search-empty ul {
+  font-size: 16px;
+  color: #8c8c8c;
+}
+
+.match {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.jawbone-meta {
+  font-size: 16px;
+}
+
+.watch-time {
+  font-size: 18px;
+}
+
+.watch-progress.is-hover::before,
+.watch-progress.is-hover .watch-progress-fill {
+  height: 6px;
+}
+
+.watch-progress.is-hover .watch-knob {
+  transform: translate(50%, -50%) scale(1);
+}
+
+@media (min-width: 768px) {
+  .ep-play {
+    opacity: 0;
+  }
+
+  .episode-btn.is-hover .ep-play,
+  .episode-btn.is-resume .ep-play,
+  .episode-btn:focus-visible .ep-play,
+  .episode.is-watched.is-hover .ep-play {
+    opacity: 1;
+  }
+
+  .watch-ep-thumb > .icon {
+    opacity: 0;
+  }
+
+  .watch-ep.is-hover .watch-ep-thumb > .icon,
+  .watch-ep.is-on .watch-ep-thumb > .icon,
+  .watch-ep:focus-visible .watch-ep-thumb > .icon {
+    opacity: 1;
+  }
+}
+
+.poster-wrap.is-hover .continue-hide {
+  opacity: 1;
+}
+
+.maturity-flag {
+  padding: 6px 44px 6px 10px;
+}
+
+@media (min-width: 768px) {
+  .continue-meta {
+    display: grid;
+  }
+
+  .languages-filters {
+    flex-wrap: nowrap;
+  }
+
+  .languages-filters .outline-select,
+  .languages-filters .outline-select-btn {
+    width: 252px;
+    min-width: 252px;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-actions .btn-play,
+  .hero-actions .btn-reminded {
+    display: inline-flex;
+    order: 2;
+    min-width: 128px;
+    min-height: 42px;
+    height: 42px;
+    padding: 8px 24px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 4px;
+  }
+}
+
 
 
 
