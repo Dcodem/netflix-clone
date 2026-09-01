@@ -13928,6 +13928,18 @@ img.is-logo-pending {
   height: 48px;
 }
 
+.account-dropdown a,
+.account-dropdown button {
+  font-size: 14px;
+}
+
+@media (max-width: 767px) {
+  .account-dropdown a,
+  .account-dropdown button {
+    font-size: 15px;
+  }
+}
+
 
 
 
