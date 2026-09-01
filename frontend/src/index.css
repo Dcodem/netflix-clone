@@ -7102,7 +7102,7 @@ img.is-logo-pending {
   position: absolute;
   right: -8px;
   top: calc(100% + 14px);
-  width: min(428px, 82vw);
+  width: min(408px, 82vw);
   background: rgba(0, 0, 0, 0.95);
   border: 0;
   border-top: 3px solid #e50914;
@@ -10945,7 +10945,7 @@ img.is-logo-pending {
   right: 40px;
   top: auto;
   bottom: 96px;
-  width: min(520px, calc(100% - 80px));
+  width: min(560px, calc(100% - 80px));
   max-height: min(72vh, calc(100% - 120px));
   overflow-y: auto;
   padding: 22px 28px 20px;
@@ -11021,7 +11021,7 @@ img.is-logo-pending {
 
 @media (min-width: 768px) {
   .watch-panel.watch-audio {
-    width: min(520px, calc(100% - 48px));
+    width: min(560px, calc(100% - 48px));
     padding: 22px 28px 24px;
     right: 28px;
     bottom: 118px;
@@ -12003,22 +12003,9 @@ img.is-logo-pending {
   }
 
   .browse-menu,
-  .header-tools .notify-menu {
-    display: none;
-  }
-
+  .header-tools .notify-menu,
   .header-tools .account-menu {
-    display: block;
-  }
-
-  .header-tools .account-menu .profile-caret {
     display: none;
-  }
-
-  .header-tools .account-menu .avatar-dot {
-    width: 26px;
-    height: 26px;
-    border-radius: 4px;
   }
 
   .header-inner {
@@ -12490,7 +12477,7 @@ img.is-logo-pending {
 
 .news-date em {
   font-style: normal;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1;
@@ -12499,7 +12486,7 @@ img.is-logo-pending {
 
 .news-date strong {
   font-family: var(--display);
-  font-size: 48px;
+  font-size: 44px;
   font-weight: 300;
   line-height: 0.82;
   letter-spacing: -0.04em;
@@ -12509,12 +12496,18 @@ img.is-logo-pending {
 .news-kind {
   display: block;
   margin-top: 6px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
   color: #808080;
+}
+
+@media (max-width: 767px) {
+  .news-date strong {
+    font-size: 36px;
+  }
 }
 
 .news-rank {
