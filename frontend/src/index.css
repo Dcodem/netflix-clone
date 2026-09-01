@@ -14162,11 +14162,11 @@ img.is-logo-pending {
   }
 
   .search-top li:first-child {
-    background: #262626;
+    background: transparent;
   }
 
-  .search-top.is-ranked li:first-child {
-    background: transparent;
+  .search-page > .search-top:first-of-type:not(.is-ranked) li:first-child {
+    background: #262626;
   }
 
   .search-top-play {
