@@ -14406,9 +14406,15 @@ img.is-logo-pending {
 }
 
 /* Netflix-exact: Top 10 uses a reserved peek column and identical 2:3 posters. */
+.is-top10 .row-scroller {
+  padding-top: 36px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 .poster-wrap.is-ranked {
   display: grid;
-  grid-template-columns: minmax(92px, 0.36fr) minmax(0, 1fr);
+  grid-template-columns: minmax(118px, 0.48fr) minmax(0, 1fr);
   align-items: end;
   overflow: visible;
   line-height: 0;
@@ -14428,7 +14434,7 @@ img.is-logo-pending {
   margin: 0;
   padding: 0;
   overflow: visible;
-  font-size: clamp(240px, 24.5vw, 392px);
+  font-size: clamp(320px, 36vw, 520px);
   line-height: 0.78;
   letter-spacing: -0.08em;
   -webkit-text-stroke: 6px #8c8c8c;
@@ -14475,7 +14481,7 @@ img.is-logo-pending {
 
 @media (max-width: 767px) {
   .poster-wrap.is-ranked {
-    grid-template-columns: minmax(72px, 0.42fr) minmax(0, 1fr);
+    grid-template-columns: minmax(88px, 0.5fr) minmax(0, 1fr);
   }
 
   .poster-wrap.is-ranked .rank-num {
