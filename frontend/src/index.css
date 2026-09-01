@@ -13875,6 +13875,59 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: genre overlay, cookie, account menu, peek, My Netflix avatar. */
+@media (min-width: 768px) {
+  .genre-menu {
+    min-width: 680px;
+    max-height: min(72vh, 520px);
+    padding: 22px 32px 20px;
+    gap: 4px 36px;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+  }
+
+  .genre-menu button {
+    font-size: 16px;
+    padding: 8px 0;
+  }
+
+  .account-dropdown {
+    min-width: 240px;
+  }
+
+  .account-dropdown a,
+  .account-dropdown button {
+    font-size: 14px;
+    padding: 11px 20px;
+  }
+
+  .cookie-prefs-card,
+  .cookie-prefs-card.is-light {
+    width: min(720px, calc(100% - 48px));
+  }
+
+  .cookie-prefs-card h2,
+  .cookie-prefs-card.is-light h2 {
+    font-size: 28px;
+  }
+}
+
+.poster-wrap.is-peeking:not(.is-previewing) .poster-card,
+.poster-wrap.is-poster.is-peeking:not(.is-previewing) .poster-card,
+.poster-wrap.is-ranked.is-peeking:not(.is-previewing) .poster-card,
+.poster-wrap.scene-wrap.is-peeking:not(.is-previewing) .poster-card {
+  transform: scale(1.2);
+}
+
+.my-netflix-avatar {
+  width: 56px;
+  height: 56px;
+}
+
+.play-something-disc {
+  width: 48px;
+  height: 48px;
+}
+
 
 
 
