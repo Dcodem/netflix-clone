@@ -325,7 +325,7 @@ export function CookiePrefsDialog({ open, onClose }: { open: boolean; onClose: (
   return (
     <div className="cookie-prefs" role="presentation" onClick={onClose}>
       <div
-        className="cookie-prefs-card"
+        className="cookie-prefs-card is-light"
         role="dialog"
         aria-modal="true"
         aria-labelledby="cookie-prefs-title"
@@ -383,16 +383,21 @@ export function CookiePrefsDialog({ open, onClose }: { open: boolean; onClose: (
           </ul>
         </div>
         <div className="cookie-prefs-actions">
-          <button type="button" className="btn btn-ghost" onClick={() => persist(choice)}>
-            Confirm My Choices
+          <button type="button" className="btn btn-ghost" onClick={() => persist(COOKIE_OFF)}>
+            Reject All
           </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => persist({ performance: true, functional: true, targeting: true })}
-          >
-            Accept All
-          </button>
+          <div className="cookie-prefs-actions-end">
+            <button type="button" className="btn btn-ghost" onClick={() => persist(choice)}>
+              Confirm My Choices
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => persist({ performance: true, functional: true, targeting: true })}
+            >
+              Accept All
+            </button>
+          </div>
         </div>
       </div>
     </div>

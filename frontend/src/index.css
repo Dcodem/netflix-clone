@@ -6425,10 +6425,10 @@ img.is-logo-pending {
 }
 
 .search-recommended-title {
-  margin: 8px 0 20px;
-  font-size: 24px;
+  margin: 8px 0 16px;
+  font-size: 18px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   color: #fff;
 }
 
@@ -7396,6 +7396,67 @@ img.is-logo-pending {
   border-color: #fff;
 }
 
+.cookie-prefs-actions-end {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.cookie-prefs-card.is-light {
+  background: #fff;
+  color: #333;
+}
+
+.cookie-prefs-card.is-light h2 {
+  color: #141414;
+}
+
+.cookie-prefs-card.is-light .cookie-prefs-close {
+  background: #e6e6e6;
+  color: #141414;
+}
+
+.cookie-prefs-card.is-light .cookie-prefs-body > p,
+.cookie-prefs-card.is-light .cookie-prefs-detail {
+  color: #4d4d4d;
+}
+
+.cookie-prefs-card.is-light .cookie-prefs-list li {
+  border-top-color: #e5e5e5;
+}
+
+.cookie-prefs-card.is-light .cookie-prefs-toggle-copy {
+  color: #141414;
+}
+
+.cookie-prefs-card.is-light .cookie-prefs-list em {
+  color: #1a8d29;
+}
+
+.cookie-prefs-card.is-light .cookie-prefs-actions {
+  justify-content: flex-start;
+  border-top-color: #e5e5e5;
+  background: #fff;
+}
+
+.cookie-prefs-card.is-light .cookie-prefs-actions .btn-ghost {
+  background: #fff;
+  border: 1px solid #8c8c8c;
+  color: #141414;
+}
+
+.cookie-prefs-card.is-light .cookie-prefs-actions .btn-ghost:hover {
+  background: #f5f5f5;
+  border-color: #141414;
+}
+
+.cookie-prefs-card.is-light .cookie-prefs-actions .btn-primary {
+  background: #e50914;
+  color: #fff;
+  border: 0;
+}
+
 .cookie-prefs-card:not(:has(.cookie-prefs-head)) {
   width: min(480px, 100%);
   padding: 28px 24px;
@@ -7467,6 +7528,8 @@ img.is-logo-pending {
 }
 
 .service-code {
+  display: block;
+  width: max-content;
   margin-top: 24px;
   background: transparent;
   border: 1px solid #808080;

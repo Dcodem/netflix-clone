@@ -47,7 +47,7 @@ export function Search() {
     return relatedSearchResults(hits, pool, activeProfile, 48).filter((item) => !hitIds.has(item.id))
   }, [hits, pool, activeProfile])
   const popularItems = useMemo(
-    () => sortByRating(filterByMaturity(popular.data ?? [], activeProfile)).slice(0, 18),
+    () => sortByRating(filterByMaturity(popular.data ?? [], activeProfile)).slice(0, 36),
     [popular.data, activeProfile],
   )
   const phone = useMediaQuery('(max-width: 767px)')
@@ -108,7 +108,7 @@ export function Search() {
         ) : popularItems.length ? (
           <>
             <h2 className="section-title search-recommended-title">
-              {phone ? 'Top Searches' : 'Recommended TV Shows and Movies'}
+              {phone ? 'Top Searches' : 'Recommended TV Shows & Movies'}
             </h2>
             {phone ? (
               <SearchHitsList items={popularItems.slice(0, 10)} ranked />
