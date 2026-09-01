@@ -14397,6 +14397,7 @@ img.is-logo-pending {
     letter-spacing: -0.02em;
   }
 
+  .my-list-page .browse-heading .outline-select,
   .my-list-page .browse-heading .outline-select-btn,
   .my-list-page .browse-heading .outline-select-value {
     font-size: 14px;
