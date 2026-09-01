@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type MouseEvent } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieListItem, ShowDetail } from '../api/types'
 import { comingLineFor, isComingSoon } from '../lib/comingSoon'
 import { weakCopy } from '../lib/catalogTitle'
 import { formatRuntime, isShow } from '../lib/media'
+import { buildWatchSession } from '../lib/watchSession'
 import { findTmdbInfo } from '../trailers/tmdb'
 import { envKeys } from '../trailers/types'
 import { getTitleOverlay } from '../trailers/tmdbOverlay'
@@ -11,6 +12,7 @@ import { isNewEpisodes, matchPercent, maturityLabel, toLiked } from '../lib/netf
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { useTitleModal } from '../title/TitleModalContext'
+import { useWatch } from '../watch/WatchContext'
 import { notifyRemind } from './RemindToast'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
@@ -63,7 +65,8 @@ async function chipFor(item: MovieListItem): Promise<LikeChip> {
 }
 
 export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
-  const { openTitle } = useTitleModal()
+  const { openTitle, closeTitle } = useTitleModal()
+  const { openWatch } = useWatch()
   const { activeProfile, toggleMyList } = useProfiles()
   const slice = items.slice(0, 12)
   const ids = slice.map((item) => item.id).join(',')
@@ -102,6 +105,23 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
 
   if (!items.length) return null
 
+  async function playItem(event: MouseEvent, item: MovieListItem) {
+    event.preventDefault()
+    event.stopPropagation()
+    if (isComingSoon(item)) return
+    playClick()
+    const history = activeProfile?.history.find((entry) => entry.id === item.id)
+    try {
+      const detail = isShow(item) ? await getShow(item.id) : await getMovie(item.id)
+      const next = buildWatchSession(item, detail, history, false)
+      if (!next) return
+      closeTitle()
+      openWatch(next.href, item.title, next.payload)
+    } catch {
+      /* catalog miss */
+    }
+  }
+
   return (
     <div className="more-like">
       <div className="more-like-grid">
@@ -132,9 +152,18 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
                 <div className="more-like-art">
                   <CatalogImage item={item} alt="" prefer="backdrop" />
                   {soon && coming ? <span className="more-like-runtime">{coming}</span> : info?.chip ? <span className="more-like-runtime">{info.chip}</span> : null}
-                  <span className="more-like-play" aria-hidden="true">
-                    <PlayIcon className="icon" />
-                  </span>
+                  {soon ? null : (
+                    <button
+                      type="button"
+                      className="more-like-play"
+                      aria-label={`Play ${item.title}`}
+                      onClick={(event) => {
+                        void playItem(event, item)
+                      }}
+                    >
+                      <PlayIcon className="icon" />
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="more-like-body">

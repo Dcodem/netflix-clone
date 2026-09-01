@@ -14909,6 +14909,89 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: title-modal stills 160×90, Skip Intro 148×42, volume rail 32×148. */
+@media (min-width: 768px) {
+  .title-modal .ep-thumb-wrap {
+    width: 160px;
+    height: 90px;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+
+  .title-modal .ep-thumb,
+  .title-modal .ep-thumb.media-fallback {
+    width: 160px;
+    height: 90px;
+    aspect-ratio: 16 / 9;
+  }
+
+  .title-modal .ep-play .icon {
+    width: 48px;
+    height: 48px;
+    padding: 12px;
+    border-width: 2px;
+  }
+}
+
+.skip-intro,
+.next-episode {
+  min-width: 148px;
+  height: 42px;
+  padding: 0 16px 0 18px;
+  box-sizing: border-box;
+}
+
+.watch-vol.is-open .watch-vol-rail,
+.watch-vol:hover .watch-vol-rail,
+.watch-vol:focus-within .watch-vol-rail {
+  width: 32px;
+  height: 148px;
+}
+
+.more-like-play {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.more-like-card.is-hover .more-like-play,
+.more-like-card:hover .more-like-play,
+.more-like-card:focus-visible .more-like-play {
+  pointer-events: auto;
+}
+
+@media (max-width: 767px) {
+  .more-like-play {
+    display: none;
+  }
+
+  .title-sheet-tools .thumbs-pop:hover .thumbs-menu {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate(-50%, calc(-100% - 10px)) scale(0.9);
+  }
+
+  .title-sheet-tools .thumbs-pop:hover .thumbs-face {
+    opacity: 1;
+  }
+
+  .title-sheet-tools .thumbs-pop.is-open .thumbs-menu,
+  .title-sheet-tools .thumbs-pop:focus-within .thumbs-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate(-50%, calc(-100% - 10px)) scale(1);
+  }
+
+  .title-sheet-tools .thumbs-pop.is-open .thumbs-face,
+  .title-sheet-tools .thumbs-pop:focus-within .thumbs-face {
+    opacity: 0;
+  }
+}
+
 
 
 
