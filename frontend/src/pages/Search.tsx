@@ -113,7 +113,7 @@ export function Search() {
             {phone ? (
               <SearchHitsList items={popularItems.slice(0, 10)} ranked />
             ) : (
-              <MediaGrid items={popularItems} layout="landscape" />
+              <MediaGrid items={popularItems} layout="poster" />
             )}
           </>
         ) : null}
@@ -170,13 +170,13 @@ export function Search() {
         </>
       ) : (
         <>
-          {hits.length ? <MediaGrid items={hits} layout="landscape" /> : null}
+          {hits.length ? <MediaGrid items={hits} layout="poster" hoverable /> : null}
           {related.length ? (
             <>
               <h1 className={`search-heading ${hits.length ? 'is-related' : ''}`}>
                 Explore titles related to: <span>{q}</span>
               </h1>
-              <MediaGrid items={related} layout="landscape" />
+              <MediaGrid items={related} layout="poster" hoverable />
             </>
           ) : null}
         </>

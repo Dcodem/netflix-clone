@@ -13825,6 +13825,56 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: search posters, continue tiles, Who's Watching, Add Profile. */
+@media (min-width: 768px) {
+  .continue-meta {
+    display: none;
+  }
+
+  .profiles-page h1 {
+    font-size: 56px;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .hero-actions .hero-more {
+    min-height: 48px;
+    padding: 8px 26px;
+    font-size: 20px;
+  }
+
+  .hero-actions .hero-more .icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.profile-add-plus {
+  width: 72%;
+  height: 72%;
+}
+
+.search-page .search-recommended-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.search-heading {
+  font-size: 18px;
+}
+
+@media (max-width: 767px) {
+  .continue-meta {
+    display: grid;
+  }
+
+  .profile-add-plus {
+    width: 64%;
+    height: 64%;
+  }
+}
+
 
 
 
