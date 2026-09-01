@@ -15260,6 +15260,16 @@ img.is-logo-pending {
   }
 }
 
+.trailer-card-caption {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.more-like-play {
+  background: rgba(0, 0, 0, 0.32);
+}
+
 .more-like-play .icon {
   transition: transform 0.15s ease, background 0.15s ease;
 }
