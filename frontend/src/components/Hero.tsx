@@ -84,7 +84,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
     setSettled(false)
     setHeroHover(false)
     if (!previewActive) return
-    const timer = window.setTimeout(() => setSettled(true), 6000)
+    const timer = window.setTimeout(() => setSettled(true), 7500)
     return () => window.clearTimeout(timer)
   }, [previewActive, item.id])
 
