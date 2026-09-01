@@ -63,7 +63,9 @@ export function TitleHoverCard({
 
   const liveDetail = detail?.id === item.id ? detail : null
   const continueMode = stillWatching({ progress, kind: item.kind })
-  const width = Math.max(continueMode ? 392 : 352, Math.min(440, Math.round(anchor.width * 1.7)))
+  const width = continueMode
+    ? Math.max(420, Math.min(520, Math.round(anchor.width * 1.65)))
+    : Math.max(352, Math.min(440, Math.round(anchor.width * 1.7)))
   const artH = width * (9 / 16)
   let left = anchor.left + anchor.width / 2 - width / 2
   left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
@@ -93,6 +95,17 @@ export function TitleHoverCard({
   const seasons = isShow(item) ? ((liveDetail as ShowDetail | null)?.seasons ?? []) : []
   const episodeCount = seasons.reduce((count, season) => count + (season.episodes?.length ?? 0), 0)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
+  const watchRuntime =
+    last?.runtime ??
+    (isShow(item)
+      ? ((liveDetail as ShowDetail | null)?.seasons ?? [])
+          .find((season) => season.season_number === last?.seasonNumber)
+          ?.episodes?.find(
+            (episode) => episode.id === last?.episodeId || episode.number === last?.episodeNumber,
+          )?.duration
+      : null) ??
+    copy.runtime
+  const remaining = remainingLabel(progress, watchRuntime)
   const soon = isComingSoon(item)
   const coming = comingLineFor(item)
   const previewOn = activeProfile?.autoplayPreview !== false
@@ -176,8 +189,8 @@ export function TitleHoverCard({
           {soon && coming ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}
           {soon ? null : isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
           <span className="maturity">{maturity}</span>
-          {soon ? null : remainingLabel(progress, liveDetail?.runtime) ? (
-            <span>{remainingLabel(progress, liveDetail?.runtime)}</span>
+          {soon ? null : remaining ? (
+            <span>{remaining}</span>
           ) : isShow(item) ? (
             <span>
               {seasons.length > 1

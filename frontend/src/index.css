@@ -14992,6 +14992,17 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: continue more is a 24px kebab; continue hover is the larger jaw. */
+.continue-hide {
+  width: 24px;
+  height: 24px;
+}
+
+.continue-hide .icon {
+  width: 20px;
+  height: 20px;
+}
+
 
 
 
