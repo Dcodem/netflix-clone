@@ -55,7 +55,7 @@ export function MediaRow({
 
   return (
     <section
-      className={`media-row ${seed ? 'has-scene' : ''} ${ranked ? 'is-top10' : ''} ${rowHover ? 'is-hover' : ''}`}
+      className={`media-row ${seed ? 'has-scene' : ''} ${ranked ? 'is-top10' : ''} ${continueMode ? 'is-continue' : ''} ${rowHover ? 'is-hover' : ''}`}
       onMouseEnter={() => setRowHover(true)}
       onMouseLeave={() => {
         setRowHover(false)

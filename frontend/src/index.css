@@ -14102,6 +14102,40 @@ img.is-logo-pending {
   color: #141414;
 }
 
+/* Netflix-exact: Continue Watching tiles are larger; billboard fades into the rails. */
+.hero::after,
+.detail-hero::after {
+  background:
+    linear-gradient(90deg, rgba(20, 20, 20, 0.92) 0%, rgba(20, 20, 20, 0.42) 36%, transparent 62%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.38) 0%, transparent 20%, transparent 48%, rgba(20, 20, 20, 0.7) 76%, var(--bg) 92%);
+}
+
+.media-row.is-continue .row-scroller .poster-wrap {
+  flex-basis: calc(100% / 1.35);
+}
+
+@media (min-width: 768px) {
+  .media-row.is-continue .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 2.55);
+  }
+}
+
+@media (min-width: 1100px) {
+  .media-row.is-continue .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 4.15);
+  }
+}
+
+@media (max-width: 767px) {
+  .browse-page:not(.has-browse-heading) .hero::after {
+    background: linear-gradient(180deg, transparent 34%, rgba(0, 0, 0, 0.48) 62%, rgba(0, 0, 0, 0.92) 100%);
+  }
+
+  .media-row.is-continue .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 1.35);
+  }
+}
+
 
 
 
