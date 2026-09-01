@@ -36,6 +36,7 @@ export function PosterCard({
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
   const [rowMenu, setRowMenu] = useState(false)
   const timer = useRef<number>(0)
+  const baseRect = useRef<DOMRect | null>(null)
   const lock = useRef<HoverLock>({ dismiss() {} }).current
   const ranked = typeof rank === 'number'
 
@@ -96,13 +97,25 @@ export function PosterCard({
     if (!hoverable || rowMenu) return
     cancelClose()
     takeLock()
+    const card = rootRef.current
+    if (card) baseRect.current = card.getBoundingClientRect()
     setPeek(true)
     timer.current = window.setTimeout(() => {
-      const card = rootRef.current
-      if (!card) return
-      nudgeRow(card)
-      const rect = card.getBoundingClientRect()
-      setAnchor(rect)
+      const next = rootRef.current
+      if (!next) return
+      nudgeRow(next)
+      const live = next.getBoundingClientRect()
+      const base = baseRect.current
+      setAnchor(
+        base
+          ? new DOMRect(
+              live.left + live.width / 2 - base.width / 2,
+              live.top + live.height / 2 - base.height / 2,
+              base.width,
+              base.height,
+            )
+          : live,
+      )
       setHover(true)
     }, 400)
   }
