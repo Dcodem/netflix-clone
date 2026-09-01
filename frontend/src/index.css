@@ -14583,6 +14583,147 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: Who's Watching Add Profile is a square tile; still-watching overlay; More Like This play. */
+.profile-add {
+  border: 4px solid #808080;
+  border-radius: 4px;
+  background: #141414;
+}
+
+.profile-add-plus {
+  width: 46%;
+  height: 46%;
+  border-radius: 0;
+  background: transparent;
+  color: #808080;
+}
+
+.profile-add-plus .icon {
+  width: 100%;
+  height: 100%;
+}
+
+.profile-cell.is-hover .profile-add,
+.profile-cell:hover .profile-add,
+.profile-cell:focus-visible .profile-add {
+  border-color: #fff;
+}
+
+.profile-cell.is-hover .profile-add-plus,
+.profile-cell:hover .profile-add-plus,
+.profile-cell:focus-visible .profile-add-plus {
+  background: transparent;
+  color: #fff;
+}
+
+.manage-profiles {
+  margin-top: 3.2em;
+  font-size: 17px;
+  letter-spacing: 0.14em;
+  padding: 0.45em 1.6em;
+}
+
+.watch-still-avatar {
+  width: 160px;
+  height: 160px;
+  border-radius: 4px;
+}
+
+.watch-still h2 {
+  font-size: clamp(36px, 5.2vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 8px 0 0;
+}
+
+.watch-still .btn-play,
+.watch-still-actions .btn-play {
+  min-width: 360px;
+  min-height: 52px;
+  padding: 12px 32px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.watch-still-actions .btn-ghost {
+  background: none;
+  border: 0;
+  color: #fff;
+  min-width: auto;
+  min-height: 40px;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.watch-still-actions .btn-ghost:hover,
+.watch-still-actions .btn-ghost:focus-visible {
+  text-decoration: underline;
+  background: none;
+}
+
+.more-like-art-wrap,
+.more-like-art {
+  position: relative;
+}
+
+.more-like-play {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.28);
+  transition: opacity 0.12s ease;
+}
+
+.more-like-card.is-hover .more-like-play,
+.more-like-card:hover .more-like-play,
+.more-like-card:focus-visible .more-like-play {
+  opacity: 1;
+}
+
+.more-like-play .icon {
+  width: 48px;
+  height: 48px;
+  padding: 12px 12px 12px 14px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .watch-still-avatar {
+    width: 112px;
+    height: 112px;
+  }
+
+  .watch-still h2 {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+
+  .watch-still .btn-play,
+  .watch-still-actions .btn-play,
+  .watch-still-actions .btn-ghost {
+    width: min(100%, 320px);
+    min-width: 0;
+  }
+
+  .title-modal-phone-actions .btn-play,
+  .title-modal-phone-actions .btn-download,
+  .title-actions.is-sheet .btn-play,
+  .title-actions.is-sheet .btn-download {
+    width: 100%;
+    min-height: 48px;
+    height: 48px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
 
 
 

@@ -14,7 +14,7 @@ import { useTitleModal } from '../title/TitleModalContext'
 import { notifyRemind } from './RemindToast'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
-import { BellIcon, CheckIcon, PlusIcon } from './Icons'
+import { BellIcon, CheckIcon, PlayIcon, PlusIcon } from './Icons'
 
 type LikeChip = { chip: string; synopsis: string }
 
@@ -68,6 +68,7 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
   const slice = items.slice(0, 12)
   const ids = slice.map((item) => item.id).join(',')
   const [chips, setChips] = useState<Record<string, LikeChip>>({})
+  const [hoverId, setHoverId] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -113,7 +114,9 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
           return (
             <article
               key={item.id}
-              className="more-like-card"
+              className={`more-like-card ${hoverId === item.id ? 'is-hover' : ''}`}
+              onMouseEnter={() => setHoverId(item.id)}
+              onMouseLeave={() => setHoverId((id) => (id === item.id ? null : id))}
               onClick={(event) => openTitle(item, event.currentTarget)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
@@ -129,6 +132,9 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
                 <div className="more-like-art">
                   <CatalogImage item={item} alt="" prefer="backdrop" />
                   {soon && coming ? <span className="more-like-runtime">{coming}</span> : info?.chip ? <span className="more-like-runtime">{info.chip}</span> : null}
+                  <span className="more-like-play" aria-hidden="true">
+                    <PlayIcon className="icon" />
+                  </span>
                 </div>
               </div>
               <div className="more-like-body">
