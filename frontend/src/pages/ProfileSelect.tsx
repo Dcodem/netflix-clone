@@ -376,6 +376,7 @@ export function ProfileSelect() {
             </button>
             <div className="edit-profile-fields">
               <input
+                name="name"
                 value={editName}
                 onChange={(event) => setEditName(event.target.value)}
                 placeholder="Name"
@@ -756,7 +757,10 @@ export function ProfileSelect() {
             <button
               type="button"
               className={`btn manage-profiles ${managing ? 'is-done' : ''}`}
-              onClick={() => setManaging((value) => !value)}
+              onClick={() => {
+                setHoverId(null)
+                setManaging((value) => !value)
+              }}
             >
               {managing ? 'Done' : 'Manage Profiles'}
             </button>

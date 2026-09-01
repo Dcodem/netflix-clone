@@ -15214,6 +15214,62 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: Trailers & More always shows a still (backdrop fallback) and a hover play overlay. */
+.trailer-card-art img,
+.trailer-card-art .media-img,
+.trailer-card-art .media-fallback {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #111;
+}
+
+.trailer-card-play .icon {
+  width: 48px;
+  height: 48px;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.trailer-card.is-hover .trailer-card-play,
+.trailer-card:hover .trailer-card-play,
+.trailer-card:focus-visible .trailer-card-play {
+  background: rgba(0, 0, 0, 0.38);
+}
+
+.trailer-card.is-hover .trailer-card-play .icon,
+.trailer-card:hover .trailer-card-play .icon,
+.trailer-card:focus-visible .trailer-card-play .icon {
+  transform: scale(1.08);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* Netflix-exact: Manage Profiles uses the pencil overlay, not the Who's Watching white hover border. */
+.profile-cell.is-managing.is-hover .profile-avatar,
+.profile-cell.is-managing:hover .profile-avatar,
+.profile-cell.is-managing:focus-visible .profile-avatar {
+  border-color: #808080;
+}
+
+@media (min-width: 768px) {
+  .edit-profile-sheet h1 {
+    font-size: 56px;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+}
+
+.more-like-play .icon {
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.more-like-card.is-hover .more-like-play .icon,
+.more-like-card:hover .more-like-play .icon,
+.more-like-card:focus-visible .more-like-play .icon {
+  transform: scale(1.08);
+}
+
 
 
 
