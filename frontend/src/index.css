@@ -366,7 +366,7 @@ select,
   right: 0;
   z-index: 70;
   width: 100%;
-  min-width: 280px;
+  min-width: 270px;
   padding: 10px 0 8px;
   background: rgba(0, 0, 0, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -14144,6 +14144,37 @@ img.is-logo-pending {
 .poster-wrap.is-previewing .scene-caption {
   opacity: 0;
   pointer-events: none;
+}
+
+/* Netflix-exact: phone search is a black list with hairline rows; recents match the 270px field. */
+.search-suggest {
+  min-width: 270px;
+}
+
+@media (max-width: 767px) {
+  .search-top li {
+    background: transparent;
+    padding-right: 12px;
+  }
+
+  .search-top li + li {
+    border-top: 1px solid #2a2a2a;
+  }
+
+  .search-top li:first-child {
+    background: #262626;
+  }
+
+  .search-top.is-ranked li:first-child {
+    background: transparent;
+  }
+
+  .search-top-play {
+    width: 40px;
+    height: 40px;
+    border-width: 1.5px;
+    background: transparent;
+  }
 }
 
 
