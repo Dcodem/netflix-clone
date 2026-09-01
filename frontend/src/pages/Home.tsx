@@ -11,6 +11,7 @@ import { Hero } from '../components/Hero'
 import { MediaRow } from '../components/MediaRow'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
+import { useKeyedState } from '../hooks/useKeyedState'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { isComingSoon } from '../lib/comingSoon'
 import { useCatalogEnrichment } from '../trailers/useCatalogEnrichment'
@@ -83,11 +84,22 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     [kindPool, genre],
   )
   const top10 = useMemo(() => sortByRating(pool).slice(0, 10), [pool])
+  const heroScope = `${filter}:${genre}:${activeProfile?.id ?? ''}`
+  const [lockedHeroId, setLockedHeroId] = useKeyedState<string | null>(heroScope, null)
   const hero = useMemo(() => {
     const source = top10.length ? top10 : pool
     const playable = source.filter((item) => !isComingSoon(item))
-    return pickHero(playable.length ? playable : source)
-  }, [top10, pool])
+    const candidates = playable.length ? playable : source
+    if (lockedHeroId) {
+      const locked =
+        candidates.find((item) => item.id === lockedHeroId) ?? pool.find((item) => item.id === lockedHeroId)
+      if (locked) return locked
+    }
+    return pickHero(candidates)
+  }, [top10, pool, lockedHeroId])
+  useEffect(() => {
+    if (hero?.id && hero.id !== lockedHeroId) setLockedHeroId(hero.id)
+  }, [hero, lockedHeroId, setLockedHeroId])
   const heroRank = useMemo(() => {
     if (!hero) return 0
     const index = top10.findIndex((item) => item.id === hero.id)

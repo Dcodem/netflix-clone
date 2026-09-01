@@ -14813,7 +14813,15 @@ img.is-logo-pending {
   .languages-filters .outline-select-btn {
     width: 252px;
     min-width: 252px;
-    min-height: 57px;
+  }
+
+  .languages-page .outline-select-btn,
+  .languages-filters .outline-select-btn {
+    height: 56px;
+    min-height: 56px;
+    max-height: 56px;
+    box-sizing: border-box;
+    padding: 6px 16px 8px 18px;
   }
 
   .languages-page .outline-select-kicker {
