@@ -3640,7 +3640,7 @@ body:has(.account-page),
   position: absolute;
   right: 0;
   top: calc(100% + 14px);
-  min-width: 260px;
+  min-width: 220px;
   background: rgba(0, 0, 0, 0.91);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0;
@@ -3711,10 +3711,12 @@ body:has(.account-page),
   background: #333;
 }
 
-.account-dropdown > button:last-child {
-  justify-content: flex-start;
+.account-dropdown > button:last-child,
+.account-signout {
+  justify-content: center;
   padding-top: 12px;
   padding-bottom: 12px;
+  font-size: 13px;
 }
 
 .taste-chips {
@@ -6257,22 +6259,27 @@ img.is-logo-pending {
 }
 
 .more-like-add {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+  position: static;
+  grid-column: 2;
+  grid-row: 1;
   z-index: 2;
   width: 36px;
   height: 36px;
-  margin: 0 0 0 auto;
+  margin: 0;
+  justify-self: end;
 }
 
 .more-like-body {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 8px 10px;
   padding: 14px 14px 16px;
 }
 
 .more-like-body:has(.more-like-add) {
-  padding-right: 52px;
+  padding-right: 14px;
 }
 
 .more-like-meta {
@@ -6280,6 +6287,8 @@ img.is-logo-pending {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .more-like-year {
@@ -6295,6 +6304,7 @@ img.is-logo-pending {
 
 .more-like-genres,
 .more-like-title {
+  grid-column: 1 / -1;
   margin: 8px 0 0;
   color: #d2d2d2;
   font-size: 13px;
@@ -8579,9 +8589,9 @@ img.is-logo-pending {
 }
 
 .account-profile-row.is-current {
-  padding: 8px;
+  padding: 10px 20px;
   color: #fff;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .account-profile-name {
@@ -9889,10 +9899,10 @@ img.is-logo-pending {
   top: 50%;
   z-index: 2400;
   transform: translate(-50%, -50%);
-  width: min(480px, calc(100% - 40px));
-  padding: 22px 28px 20px;
-  background: rgba(20, 20, 20, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  width: min(560px, calc(100% - 40px));
+  padding: 24px 32px 28px;
+  background: rgba(20, 20, 20, 0.95);
+  border: 0;
   border-radius: 4px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
   color: #fff;
@@ -9908,7 +9918,7 @@ img.is-logo-pending {
 
 .watch-help h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
 }
 
@@ -9949,7 +9959,7 @@ img.is-logo-pending {
 }
 
 .watch-help dt {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   color: #e5e5e5;
 }
@@ -10034,16 +10044,16 @@ img.is-logo-pending {
 .watch-help kbd {
   display: inline-grid;
   place-items: center;
-  min-width: 32px;
-  height: 32px;
+  min-width: 28px;
+  height: 28px;
   padding: 0 8px;
   background: #333;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 0;
   border-radius: 2px;
   color: #fff;
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .watch-overlay.is-help .watch-center,
@@ -11203,6 +11213,17 @@ img.is-logo-pending {
     display: none;
   }
 
+  .watch-help {
+    width: calc(100% - 24px);
+    max-height: min(78vh, 640px);
+    overflow: auto;
+    padding: 20px 20px 24px;
+  }
+
+  .watch-help h2 {
+    font-size: 20px;
+  }
+
   .watch-caption {
     font-size: 15px;
   }
@@ -11438,6 +11459,7 @@ img.is-logo-pending {
 }
 
 .more-like-syn {
+  grid-column: 1 / -1;
   margin: 8px 0 0;
   color: #d2d2d2;
   font-size: 14px;

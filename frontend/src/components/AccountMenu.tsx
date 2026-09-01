@@ -125,6 +125,7 @@ export function AccountMenu() {
           <div className="account-dropdown-rule" />
           <button
             type="button"
+            className="account-signout"
             onClick={() => {
               clearActive()
               logout()
