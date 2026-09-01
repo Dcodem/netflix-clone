@@ -6690,7 +6690,7 @@ img.is-logo-pending {
   flex-shrink: 0;
   font-size: 24px;
   font-weight: 400;
-  color: #d2d2d2;
+  color: #808080;
   text-align: center;
 }
 
@@ -9294,19 +9294,22 @@ img.is-logo-pending {
 }
 
 .watch-ep-num {
-  color: #d2d2d2;
+  color: #808080;
   font-size: 24px;
   font-weight: 400;
   text-align: center;
+  width: 36px;
 }
 
 .watch-ep-thumb {
   position: relative;
   display: block;
+  width: 154px;
   aspect-ratio: 16 / 9;
   background: #222;
   overflow: hidden;
   border-radius: 2px;
+  flex-shrink: 0;
 }
 
 .watch-ep-thumb img,
@@ -9387,7 +9390,9 @@ img.is-logo-pending {
 
 .watch-ep-copy em {
   font-style: normal;
+  font-size: 16px;
   font-weight: 700;
+  color: #fff;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -9415,9 +9420,12 @@ img.is-logo-pending {
 }
 
 .watch-ep-playing {
-  color: #fff;
-  font-weight: 700;
   margin-left: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
 }
 
 .watch-episodes {
@@ -10791,12 +10799,17 @@ img.is-logo-pending {
   display: grid;
 }
 
+.watch-panel.watch-episodes .watch-ep,
 .watch-ep {
-  grid-template-columns: 36px minmax(168px, 240px) 1fr !important;
+  grid-template-columns: 36px 154px 1fr !important;
   gap: 16px;
-  padding: 12px 8px !important;
-  border-top: 1px solid #2a2a2a;
-  align-items: start;
+  padding: 16px 8px !important;
+  border-top: 1px solid #2f2f2f;
+  align-items: center;
+}
+
+.watch-panel.watch-episodes .watch-ep-thumb {
+  width: 154px;
 }
 
 .watch-ep-progress {
@@ -10890,6 +10903,9 @@ img.is-logo-pending {
 
 .watch-ep-copy em {
   display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -10901,13 +10917,14 @@ img.is-logo-pending {
 }
 
 .watch-ep-dur {
-  color: #b3b3b3;
+  color: #d2d2d2;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .watch-ep-copy > span {
   color: #d2d2d2;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -11127,12 +11144,30 @@ img.is-logo-pending {
     content: none;
   }
 
+  .watch-panel.watch-episodes .watch-ep,
   .watch-ep {
-    grid-template-columns: 28px 96px 1fr !important;
+    grid-template-columns: 28px 148px 1fr !important;
+    gap: 12px;
+    padding: 14px 0 !important;
+    align-items: start;
+  }
+
+  .watch-ep-head h2 {
+    font-size: 20px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .watch-panel.watch-episodes .watch-ep-thumb,
+  .watch-ep-thumb {
+    width: 148px;
   }
 
   .watch-ep-num {
-    font-size: 20px;
+    width: 28px;
+    font-size: 18px;
   }
 
   .watch-ctrl {
