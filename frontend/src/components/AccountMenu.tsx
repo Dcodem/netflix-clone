@@ -6,7 +6,7 @@ import { useMediaQuery } from '../hooks/useMediaQuery'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { AvatarArt } from './AvatarArt'
-import { CaretIcon, CheckIcon, ExitIcon, HelpCircleIcon, MyNetflixIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
+import { CaretIcon, CheckIcon, ExitIcon, HelpCircleIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
 import { TransferProfileDialog } from './TransferProfileDialog'
 
 export function AccountMenu() {
@@ -88,10 +88,6 @@ export function AccountMenu() {
           >
             <PencilIcon className="icon" />
             Manage Profiles
-          </Link>
-          <Link to="/browse/my-netflix" onClick={() => setOpen(false)}>
-            <MyNetflixIcon className="icon" />
-            My Netflix
           </Link>
           <div className="account-dropdown-rule" />
           <Link
