@@ -13674,6 +13674,157 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: still watching, languages filters, account card, episode thumbs, title tabs. */
+.watch-still {
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(10px);
+}
+
+.watch-still-inner {
+  max-width: 640px;
+}
+
+.watch-still-profile {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.watch-still-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 4px;
+}
+
+.watch-still-kicker {
+  font-size: clamp(20px, 2.8vw, 28px);
+}
+
+.watch-still-ep {
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+
+.watch-still h2 {
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.watch-still .btn-play,
+.watch-still-actions .btn-play {
+  min-width: 320px;
+  min-height: 48px;
+  padding: 10px 28px;
+  font-size: 20px;
+}
+
+@media (min-width: 768px) {
+  .watch-still-profile {
+    display: grid;
+  }
+
+  .languages-page .outline-select,
+  .languages-page .outline-select-btn {
+    min-width: 252px;
+    width: 252px;
+  }
+
+  .languages-page .outline-select-btn {
+    min-height: 56px;
+    padding: 10px 16px 10px 18px;
+  }
+
+  .watch-panel.watch-episodes .watch-ep,
+  .watch-ep {
+    grid-template-columns: 40px 160px 1fr !important;
+  }
+
+  .watch-panel.watch-episodes .watch-ep-thumb,
+  .watch-ep-thumb {
+    width: 160px;
+  }
+
+  .watch-ep-num {
+    width: 40px;
+    font-size: 28px;
+  }
+}
+
+.account-membership {
+  max-width: 720px;
+}
+
+.account-membership-card {
+  max-width: 620px;
+  padding: 28px 32px 24px;
+}
+
+.account-plan-name {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.title-tabs > button {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 14px;
+}
+
+.title-tabs > button.is-on::after {
+  height: 3px;
+}
+
+@media (max-width: 767px) {
+  .watch-still-avatar {
+    width: 96px;
+    height: 96px;
+  }
+
+  .watch-still h2 {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+
+  .watch-still .btn-play,
+  .watch-still-actions .btn-play,
+  .watch-still-actions .btn-ghost {
+    width: min(100%, 320px);
+    min-width: 0;
+  }
+
+  .title-tabs > button {
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    padding: 12px 0 10px;
+  }
+
+  .title-tabs > button.is-on::after {
+    left: 0;
+    right: auto;
+    width: 100%;
+    height: 3px;
+    background: #e50914;
+  }
+
+  .watch-panel.watch-episodes .watch-ep,
+  .watch-ep {
+    grid-template-columns: 32px 148px 1fr !important;
+  }
+
+  .watch-panel.watch-episodes .watch-ep-thumb,
+  .watch-ep-thumb {
+    width: 148px;
+  }
+
+  .watch-ep-num {
+    width: 32px;
+    font-size: 20px;
+  }
+}
+
 
 
 

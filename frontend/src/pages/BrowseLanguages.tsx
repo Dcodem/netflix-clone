@@ -221,7 +221,7 @@ export function BrowseLanguages() {
             }}
           />
           <OutlineSelect
-            label="Presentation"
+            label="Audio & Subtitles"
             value={presentation}
             options={LANGUAGE_PRESENTATIONS.map((entry) => ({ value: entry.id, label: entry.label }))}
             onChange={(next) => {
