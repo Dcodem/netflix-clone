@@ -13564,6 +13564,112 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: single-letter ident slam, 2px notify rail, 36px modal close, 400px next-ep. */
+.watch-ident-bump strong,
+.watch-ident-mark {
+  display: grid;
+  place-items: center;
+  gap: 0;
+  font-size: clamp(160px, 32vw, 340px);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 0.78;
+  animation: flix-ident-mark 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes flix-ident-mark {
+  0% {
+    opacity: 0;
+    transform: scale(0.18) rotateX(22deg);
+    filter: brightness(1.85) saturate(1.6);
+  }
+  12% {
+    opacity: 1;
+    transform: scale(1.18) rotateX(0deg);
+    filter: brightness(1.7) saturate(1.5);
+  }
+  26% {
+    opacity: 1;
+    transform: scale(0.96) rotateX(0deg);
+    filter: brightness(1.22) saturate(1.25);
+  }
+  36% {
+    opacity: 1;
+    transform: scale(1.02) rotateX(0deg);
+    filter: brightness(1.2) saturate(1.22);
+  }
+  78% {
+    opacity: 1;
+    transform: scale(1) rotateX(0deg);
+    filter: brightness(1.18) saturate(1.22);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.08) rotateX(-4deg);
+    filter: brightness(1.35) saturate(1.3);
+  }
+}
+
+.notify-dropdown {
+  width: min(408px, 82vw);
+  border-top: 2px solid #e50914;
+}
+
+.notify-dropdown::after {
+  top: -9px;
+  border-width: 7px;
+  border-bottom-color: #e50914;
+}
+
+.search-wrap.is-open {
+  width: min(270px, 48vw);
+  height: 36px;
+}
+
+.title-modal-close {
+  width: 36px;
+  height: 36px;
+  margin: 16px 16px -52px 0;
+}
+
+.title-modal-syn {
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.next-ep-card {
+  width: min(400px, calc(100% - 40px));
+  padding: 16px 16px 14px;
+}
+
+.next-ep-count {
+  width: 42px;
+  height: 42px;
+}
+
+.next-ep-count > span {
+  width: 34px;
+  height: 34px;
+}
+
+@media (max-width: 767px) {
+  .watch-ident-bump strong,
+  .watch-ident-mark {
+    font-size: clamp(120px, 42vw, 220px);
+  }
+
+  .title-modal-syn {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .next-ep-card,
+  .watch-end-cluster .next-ep-card {
+    width: 100%;
+    max-width: none;
+  }
+}
+
 
 
 

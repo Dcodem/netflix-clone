@@ -1016,12 +1016,7 @@ export function WatchOverlay() {
         <>
           {identBump ? (
             <div className="watch-ident-bump" aria-hidden="true">
-              <strong>
-                <span>F</span>
-                <span>L</span>
-                <span>I</span>
-                <span>X</span>
-              </strong>
+              <strong className="watch-ident-mark">F</strong>
             </div>
           ) : null}
           <div
