@@ -97,6 +97,9 @@ export function TitleActions({
   const rateControl = (
     <div
       className={`thumbs-pop ${rateOpen ? 'is-open' : ''} ${sheet ? 'title-sheet-tool' : ''}`}
+      onMouseEnter={() => {
+        if (fineHover) setRateOpen(true)
+      }}
       onMouseLeave={() => setRateOpen(false)}
     >
       <button

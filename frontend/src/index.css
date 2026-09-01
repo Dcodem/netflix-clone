@@ -14136,6 +14136,16 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: hide the source tile while the jaw covers it; rate pop via is-open. */
+.poster-wrap.is-previewing .poster-card,
+.poster-wrap.is-previewing .rank-num,
+.poster-wrap.is-previewing .continue-meta,
+.poster-wrap.is-previewing .continue-hide,
+.poster-wrap.is-previewing .scene-caption {
+  opacity: 0;
+  pointer-events: none;
+}
+
 
 
 
