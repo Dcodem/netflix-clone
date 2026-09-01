@@ -15,6 +15,7 @@ export function AccountMenu() {
   const navigate = useNavigate()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
   const [transferOpen, setTransferOpen] = useState(false)
+  const [hoverKey, setHoverKey] = useState<string | null>(null)
   const phone = useMediaQuery('(max-width: 767px)')
 
   if (!user || !activeProfile) return null
@@ -55,7 +56,9 @@ export function AccountMenu() {
               <button
                 type="button"
                 key={profile.id}
-                className={`account-profile-row ${current ? 'is-current' : ''}`}
+                className={`account-profile-row ${current ? 'is-current' : ''} ${hoverKey === profile.id ? 'is-hover' : ''}`}
+                onMouseEnter={() => setHoverKey(profile.id)}
+                onMouseLeave={() => setHoverKey((currentKey) => (currentKey === profile.id ? null : currentKey))}
                 onClick={() => {
                   setOpen(false)
                   if (current) return
@@ -82,8 +85,10 @@ export function AccountMenu() {
           })}
           <Link
             to="/"
-            className="account-manage"
+            className={`account-manage ${hoverKey === 'manage' ? 'is-hover' : ''}`}
             state={{ manage: true }}
+            onMouseEnter={() => setHoverKey('manage')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'manage' ? null : current))}
             onClick={() => setOpen(false)}
           >
             <PencilIcon className="icon" />
@@ -92,6 +97,9 @@ export function AccountMenu() {
           <div className="account-dropdown-rule" />
           <Link
             to="/"
+            className={hoverKey === 'exit' ? 'is-hover' : ''}
+            onMouseEnter={() => setHoverKey('exit')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'exit' ? null : current))}
             onClick={() => {
               setOpen(false)
               clearActive()
@@ -102,6 +110,9 @@ export function AccountMenu() {
           </Link>
           <button
             type="button"
+            className={hoverKey === 'transfer' ? 'is-hover' : ''}
+            onMouseEnter={() => setHoverKey('transfer')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'transfer' ? null : current))}
             onClick={() => {
               setOpen(false)
               setTransferOpen(true)
@@ -110,18 +121,32 @@ export function AccountMenu() {
             <TransferIcon className="icon" />
             Transfer Profile
           </button>
-          <Link to="/account" onClick={() => setOpen(false)}>
+          <Link
+            to="/account"
+            className={hoverKey === 'account' ? 'is-hover' : ''}
+            onMouseEnter={() => setHoverKey('account')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'account' ? null : current))}
+            onClick={() => setOpen(false)}
+          >
             <PersonIcon className="icon" />
             Account
           </Link>
-          <Link to="/help" onClick={() => setOpen(false)}>
+          <Link
+            to="/help"
+            className={hoverKey === 'help' ? 'is-hover' : ''}
+            onMouseEnter={() => setHoverKey('help')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'help' ? null : current))}
+            onClick={() => setOpen(false)}
+          >
             <HelpCircleIcon className="icon" />
             Help Center
           </Link>
           <div className="account-dropdown-rule" />
           <button
             type="button"
-            className="account-signout"
+            className={`account-signout ${hoverKey === 'signout' ? 'is-hover' : ''}`}
+            onMouseEnter={() => setHoverKey('signout')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'signout' ? null : current))}
             onClick={() => {
               clearActive()
               logout()

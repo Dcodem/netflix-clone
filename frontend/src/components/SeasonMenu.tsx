@@ -20,6 +20,7 @@ export function SeasonMenu({
 }) {
   const [open, setOpen] = useState(false)
   const [box, setBox] = useState<DOMRect | null>(null)
+  const [hoverSeason, setHoverSeason] = useState<number | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
@@ -90,7 +91,11 @@ export function SeasonMenu({
                     role="option"
                     aria-selected={on}
                     key={season.season_number}
-                    className={on ? 'is-on' : ''}
+                    className={`${on ? 'is-on' : ''} ${hoverSeason === season.season_number ? 'is-hover' : ''}`}
+                    onMouseEnter={() => setHoverSeason(season.season_number)}
+                    onMouseLeave={() =>
+                      setHoverSeason((current) => (current === season.season_number ? null : current))
+                    }
                     onClick={() => {
                       onChange(season.season_number)
                       setOpen(false)

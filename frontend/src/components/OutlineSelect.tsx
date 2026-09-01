@@ -20,6 +20,7 @@ export function OutlineSelect({
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [box, setBox] = useState<DOMRect | null>(null)
+  const [hoverValue, setHoverValue] = useState<string | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -110,7 +111,9 @@ export function OutlineSelect({
                       role="option"
                       aria-selected={entry.value === value}
                       key={entry.value}
-                      className={entry.value === value ? 'is-on' : ''}
+                      className={`${entry.value === value ? 'is-on' : ''} ${hoverValue === entry.value ? 'is-hover' : ''}`}
+                      onMouseEnter={() => setHoverValue(entry.value)}
+                      onMouseLeave={() => setHoverValue((current) => (current === entry.value ? null : current))}
                       onClick={() => {
                         onChange(entry.value)
                         setOpen(false)

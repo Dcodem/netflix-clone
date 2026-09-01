@@ -15318,6 +15318,46 @@ img.is-logo-pending {
   text-decoration: underline;
 }
 
+/* Netflix-exact: menus highlight via is-hover (this Chrome never applies CSS :hover). */
+.season-menu-list button.is-hover,
+.season-menu-list button:hover,
+.season-menu-list button.is-on {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.continue-menu button.is-hover,
+.continue-menu button:hover,
+.continue-menu button:focus-visible {
+  background: #333;
+}
+
+.account-dropdown a.is-hover,
+.account-dropdown button.is-hover,
+.account-dropdown a:hover,
+.account-dropdown button:hover {
+  background: #333;
+}
+
+.search-suggest-list li.is-hover > button:first-child,
+.search-suggest-list li.is-hover .search-suggest-forget,
+.search-suggest-list li > button:first-child:hover,
+.search-suggest-forget:hover {
+  background: #333;
+}
+
+.watch-speed-menu button.is-hover,
+.watch-speed-menu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.outline-select-list button.is-hover,
+.outline-select-list button:hover,
+.outline-select-list button.is-on {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
 
 
 

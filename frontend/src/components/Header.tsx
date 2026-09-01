@@ -35,6 +35,7 @@ export function Header() {
   const phone = useMediaQuery('(max-width: 767px)')
   const [searchOpen, setSearchOpen] = useState(Boolean(urlQuery) || location.pathname === '/search')
   const [recents, setRecents] = useState(listRecentSearches)
+  const [hoverRecent, setHoverRecent] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const searchRef = useRef<HTMLDivElement>(null)
   const browseRef = useRef<HTMLDetailsElement>(null)
@@ -210,9 +211,11 @@ export function Header() {
                 <p className="search-suggest-label">Recent Searches</p>
                 <ul className="search-suggest-list">
                   {recents.slice(0, 5).map((entry) => (
-                    <li key={entry}>
+                    <li key={entry} className={hoverRecent === entry ? 'is-hover' : ''}>
                       <button
                         type="button"
+                        onMouseEnter={() => setHoverRecent(entry)}
+                        onMouseLeave={() => setHoverRecent((current) => (current === entry ? null : current))}
                         onClick={() => {
                           setQuery(entry)
                           navigate(`/search?q=${encodeURIComponent(entry)}`)
@@ -225,6 +228,8 @@ export function Header() {
                         type="button"
                         className="search-suggest-forget"
                         aria-label={`Remove ${entry}`}
+                        onMouseEnter={() => setHoverRecent(entry)}
+                        onMouseLeave={() => setHoverRecent((current) => (current === entry ? null : current))}
                         onClick={() => {
                           removeRecentSearch(entry)
                           setRecents(listRecentSearches())

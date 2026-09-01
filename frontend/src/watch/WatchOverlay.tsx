@@ -183,6 +183,7 @@ export function WatchOverlay() {
   const [episodesOpen, setEpisodesOpen] = useState(false)
   const [audioOpen, setAudioOpen] = useState(false)
   const [speedOpen, setSpeedOpen] = useState(false)
+  const [speedHover, setSpeedHover] = useState<number | null>(null)
   const [speed, setSpeed] = useState(initialPrefs.speed)
   const [subs, setSubs] = useState(initialPrefs.subs)
   const [captionSize] = useState<CaptionSize>(initialPrefs.captionSize)
@@ -1426,7 +1427,9 @@ export function WatchOverlay() {
                     <button
                       type="button"
                       key={rate}
-                      className={speed === rate ? 'is-on' : ''}
+                      className={`${speed === rate ? 'is-on' : ''} ${speedHover === rate ? 'is-hover' : ''}`}
+                      onMouseEnter={() => setSpeedHover(rate)}
+                      onMouseLeave={() => setSpeedHover((current) => (current === rate ? null : current))}
                       onClick={() => {
                         setSpeed(rate)
                         post({ cmd: 'rate', value: rate })
