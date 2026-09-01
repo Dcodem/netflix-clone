@@ -1421,7 +1421,7 @@ export function WatchOverlay() {
                       }}
                     >
                       {speed === rate ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-                      {rate === 1 ? 'Normal' : `${rate}x`}
+                      {rate === 1 ? '1x (Normal)' : `${rate}x`}
                     </button>
                   ))}
                 </div>
