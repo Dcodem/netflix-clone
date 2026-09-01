@@ -212,7 +212,7 @@ export function TitleActions({
           {downloaded ? 'Downloaded' : 'Download'}
         </button>
       ) : null}
-      {continueMode && !sheet && !soon ? (
+      {continueMode && !sheet && !soon && playStyle !== 'labeled' ? (
         <button type="button" className="circle-btn" onClick={() => play(true)} disabled={!href} aria-label="Play from beginning">
           <RestartIcon className="icon" />
         </button>

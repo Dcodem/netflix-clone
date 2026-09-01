@@ -154,7 +154,7 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
                   {soon ? onList ? <CheckIcon className="icon" /> : <BellIcon className="icon" /> : onList ? <CheckIcon className="icon" /> : <PlusIcon className="icon" />}
                 </button>
                 <div className="more-like-meta">
-                  {soon ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}
+                  {soon ? null : <span className="match">{match}% Match</span>}
                   {soon ? null : isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
                   {item.year ? <span className="more-like-year">{item.year}</span> : null}
                   <span className="maturity">{maturityLabel(item)}</span>

@@ -8818,6 +8818,17 @@ img.is-logo-pending {
   padding: 8px 28px;
 }
 
+.title-modal-hero-body .title-actions .circle-btn,
+.title-modal-hero-body .title-actions .thumbs-pop {
+  width: 42px;
+  height: 42px;
+}
+
+.title-modal-hero-body .title-actions .thumbs-face {
+  width: 42px;
+  height: 42px;
+}
+
 .title-actions.is-sheet.play-labeled .btn-play,
 .title-actions.is-sheet.play-labeled .btn-reminded,
 .title-actions.is-sheet .btn-download {
@@ -9831,6 +9842,12 @@ img.is-logo-pending {
   padding: 8px 16px;
 }
 
+@media (min-width: 768px) {
+  .watch-still-actions .btn-ghost {
+    display: none;
+  }
+}
+
 .watch-still-actions .btn-ghost:hover {
   background: rgba(255, 255, 255, 0.08);
 }
@@ -10342,7 +10359,7 @@ img.is-logo-pending {
   right: 24px;
   bottom: 118px;
   z-index: 2150;
-  width: min(380px, calc(100% - 40px));
+  width: min(340px, calc(100% - 40px));
   flex-shrink: 0;
   display: grid;
   gap: 10px;
@@ -10388,8 +10405,8 @@ img.is-logo-pending {
   align-items: center;
   gap: 10px;
   padding-right: 28px;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
   color: #fff;
