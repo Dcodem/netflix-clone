@@ -13610,6 +13610,7 @@ img.is-logo-pending {
   }
 }
 
+.header-tools .notify-dropdown,
 .notify-dropdown {
   width: min(408px, 82vw);
   border-top: 2px solid #e50914;
@@ -13637,8 +13638,11 @@ img.is-logo-pending {
   line-height: 1.45;
 }
 
-.next-ep-card {
-  width: min(400px, calc(100% - 40px));
+.next-ep-card,
+.watch-end-cluster .next-ep-card {
+  width: 400px;
+  max-width: min(400px, calc(100vw - 168px));
+  flex-shrink: 0;
   padding: 16px 16px 14px;
 }
 
