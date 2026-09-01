@@ -15053,6 +15053,131 @@ img.is-logo-pending {
   min-height: 40px;
 }
 
+/* Netflix-exact: still-watching on web is the question + Continue Watching, not a TV profile card. */
+.watch-still {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: none;
+  padding: 24px 24px 10vh;
+}
+
+.watch-still-inner {
+  max-width: 560px;
+  gap: 0;
+}
+
+.watch-still h2 {
+  font-size: clamp(28px, 3.8vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.watch-still .btn-play,
+.watch-still-actions .btn-play {
+  min-width: 280px;
+  min-height: 48px;
+  height: 48px;
+  padding: 8px 24px;
+  font-size: 18px;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.watch-still-actions {
+  margin-top: 22px;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .watch-still-profile,
+  .watch-still-kicker,
+  .watch-still-ep,
+  .watch-still-actions .btn-ghost {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .watch-still-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 4px;
+  }
+
+  .watch-still-kicker {
+    font-size: 18px;
+  }
+
+  .watch-still-ep {
+    font-size: 14px;
+  }
+
+  .watch-still h2 {
+    font-size: clamp(26px, 7vw, 32px);
+  }
+
+  .watch-still .btn-play,
+  .watch-still-actions .btn-play,
+  .watch-still-actions .btn-ghost {
+    width: min(100%, 280px);
+    min-width: 0;
+  }
+}
+
+/* Netflix-exact: row arrows cover the thumbnails; Explore All slides in cyan at 13px. */
+.row-arrow {
+  width: 60px;
+  min-width: 60px;
+}
+
+.row-arrow .icon {
+  width: 48px;
+  height: 48px;
+}
+
+.row-arrow-prev {
+  background: linear-gradient(90deg, rgba(20, 20, 20, 0.72) 0%, rgba(20, 20, 20, 0.28) 70%, transparent 100%);
+}
+
+.row-arrow-next {
+  background: linear-gradient(270deg, rgba(20, 20, 20, 0.72) 0%, rgba(20, 20, 20, 0.28) 70%, transparent 100%);
+}
+
+.media-row.is-continue .row-arrow {
+  bottom: 108px;
+}
+
+.is-top10 .row-arrow {
+  top: 36px;
+}
+
+.row-explore {
+  color: #54b9c5;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transform: translate3d(-16px, 0, 0);
+  max-width: 0;
+}
+
+.row-heading-link:hover .row-explore,
+.row-heading-link:focus-visible .row-explore,
+.row-heading-link.is-hover .row-explore {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  max-width: 160px;
+}
+
+@media (max-width: 767px) {
+  .row-explore {
+    max-width: none;
+    opacity: 1;
+    transform: none;
+    font-size: 0;
+    color: #fff;
+  }
+}
+
 
 
 

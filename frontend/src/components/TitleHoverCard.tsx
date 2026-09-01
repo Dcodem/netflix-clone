@@ -67,14 +67,16 @@ export function TitleHoverCard({
     ? Math.max(420, Math.min(520, Math.round(anchor.width * 1.65)))
     : Math.max(352, Math.min(440, Math.round(anchor.width * 1.7)))
   const artH = width * (9 / 16)
+  const gutter = Math.max(12, Math.round(window.innerWidth * 0.04))
   let left = anchor.left + anchor.width / 2 - width / 2
-  left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
-  const heightGuess = artH + 196
+  left = Math.max(gutter, Math.min(left, window.innerWidth - width - gutter))
+  // Keep the 16:9 art locked to the tile. Shifting the whole jaw to fit metadata
+  // made continue-on-hero previews jump up off the thumbnail.
   let top = anchor.top + anchor.height / 2 - artH / 2
-  if (top + heightGuess > window.innerHeight - 12) {
-    top = Math.max(12, anchor.bottom - heightGuess)
-  }
   if (top < 12) top = 12
+  if (top + artH > window.innerHeight - 24) {
+    top = Math.max(12, window.innerHeight - artH - 24)
+  }
   const fromScale = Math.max(0.42, Math.min(0.82, anchor.width / width))
 
   const tmdbInfo = useTmdbInfo(item)
@@ -125,7 +127,7 @@ export function TitleHoverCard({
 
   return createPortal(
     <div
-      className="jawbone"
+      className={`jawbone ${continueMode ? 'is-continue' : ''}`}
       ref={jawRef}
       style={
         {
