@@ -13940,6 +13940,91 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: row arrows/pages via is-hover (this Chrome never applies CSS :hover). */
+.row-arrow {
+  pointer-events: none;
+}
+
+.media-row:hover .row-arrow,
+.media-row.is-hover .row-arrow,
+.row-arrow:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.media-row:hover .row-pages,
+.media-row.is-hover .row-pages {
+  opacity: 1;
+}
+
+.row-heading-link.is-hover .row-explore {
+  opacity: 1;
+  transform: none;
+  max-width: 148px;
+}
+
+.row-heading-link.is-hover .section-title {
+  color: #fff;
+}
+
+.row-arrow.is-hover {
+  color: #fff;
+}
+
+.row-arrow.is-hover .icon {
+  transform: scale(1.25);
+}
+
+.row-arrow-prev.is-hover {
+  background: linear-gradient(90deg, rgba(20, 20, 20, 0.92) 0%, rgba(20, 20, 20, 0.5) 68%, transparent 100%);
+}
+
+.row-arrow-next.is-hover {
+  background: linear-gradient(270deg, rgba(20, 20, 20, 0.92) 0%, rgba(20, 20, 20, 0.5) 68%, transparent 100%);
+}
+
+@media (min-width: 768px) {
+  .watch-speed-menu {
+    min-width: 264px;
+  }
+}
+
+.categories-list .cat-nav {
+  font-size: 32px;
+  font-weight: 400;
+  color: #808080;
+}
+
+.categories-list .cat-nav.is-on {
+  color: #fff;
+  font-weight: 700;
+}
+
+.categories-list .cat-divider {
+  width: 42px;
+  height: 2px;
+  margin: 10px auto 6px;
+  background: #333;
+  border-radius: 1px;
+}
+
+.categories-list .cat-genre {
+  font-size: 24px;
+  font-weight: 400;
+  color: #808080;
+}
+
+.categories-list .cat-genre.is-on {
+  color: #fff;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .categories-sheet.is-genres .categories-list .cat-genre {
+    font-size: 16px;
+  }
+}
+
 
 
 
