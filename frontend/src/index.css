@@ -14722,6 +14722,33 @@ img.is-logo-pending {
     font-size: 18px;
     font-weight: 700;
   }
+
+  .site-header.is-searching .search-wrap.is-open {
+    height: 40px;
+  }
+
+  .site-header.is-searching .search-wrap input {
+    height: 40px;
+    line-height: 40px;
+    font-size: 16px;
+  }
+
+  .search-top-still,
+  .search-top.is-ranked .search-top-still {
+    width: 146px;
+    height: 82px;
+  }
+
+  .news-date strong {
+    font-size: 40px;
+    font-weight: 300;
+    line-height: 0.8;
+  }
+
+  .news-date em {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+  }
 }
 
 
