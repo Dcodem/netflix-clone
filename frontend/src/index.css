@@ -14868,6 +14868,47 @@ img.is-logo-pending {
   max-width: 620px;
 }
 
+.search-suggest {
+  border: 0;
+  background: rgba(0, 0, 0, 0.96);
+}
+
+.search-suggest-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: #808080;
+}
+
+.search-suggest-list li > button:first-child {
+  min-height: 40px;
+  font-size: 14px;
+}
+
+.search-heading {
+  font-size: 18px;
+  font-weight: 400;
+  color: #fff;
+}
+
+.search-heading span {
+  font-weight: 700;
+}
+
+.more-like-syn {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .title-tabs > button.is-on::after {
+    background: #fff;
+    height: 3px;
+  }
+}
+
 
 
 

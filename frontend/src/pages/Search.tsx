@@ -168,19 +168,16 @@ export function Search() {
             </>
           ) : null}
         </>
-      ) : (
+      ) : hits.length || related.length ? (
         <>
-          {hits.length ? <MediaGrid items={hits} layout="poster" hoverable /> : null}
-          {related.length ? (
-            <>
-              <h1 className={`search-heading ${hits.length ? 'is-related' : ''}`}>
-                Explore titles related to: <span>{q}</span>
-              </h1>
-              <MediaGrid items={related} layout="poster" hoverable />
-            </>
+          {hits.length < 6 && related.length ? (
+            <h1 className={`search-heading ${hits.length ? 'is-related' : ''}`}>
+              Explore titles related to: <span>{q}</span>
+            </h1>
           ) : null}
+          <MediaGrid items={[...hits, ...related]} layout="poster" hoverable />
         </>
-      )}
+      ) : null}
     </main>
   )
 }
