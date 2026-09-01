@@ -2536,6 +2536,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   margin-top: 8px;
   min-height: 48px;
   font-size: 16px;
+  font-weight: 500;
 }
 
 .login-logo {
@@ -9846,6 +9847,10 @@ img.is-logo-pending {
   .watch-still-actions .btn-ghost {
     display: none;
   }
+
+  .watch-still-profile {
+    display: none;
+  }
 }
 
 .watch-still-actions .btn-ghost:hover {
@@ -9870,7 +9875,7 @@ img.is-logo-pending {
 .watch-still h2 {
   margin: 0;
   font-size: clamp(28px, 4.6vw, 42px);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
@@ -9903,10 +9908,14 @@ img.is-logo-pending {
   }
 
   .watch-overlay .cast-sheet-card {
-    width: min(360px, calc(100vw - 64px));
+    width: min(320px, calc(100vw - 64px));
     border-radius: 4px;
-    padding: 20px 20px 22px;
+    padding: 18px 20px 20px;
     animation: none;
+  }
+
+  .watch-overlay .cast-sheet-head h2 {
+    font-size: 18px;
   }
 }
 
@@ -10801,22 +10810,23 @@ img.is-logo-pending {
 
 .watch-credits {
   position: absolute;
-  right: min(440px, calc(100% - 48px));
+  right: min(400px, calc(100% - 48px));
   bottom: 118px;
   z-index: 2150;
-  background: rgba(42, 42, 42, 0.55);
+  background: rgba(20, 20, 20, 0.62);
   border: 1px solid #fff;
-  border-radius: 4px;
+  border-radius: 2px;
   color: #fff;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0;
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
   text-shadow: none;
-  padding: 10px 16px;
-  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  min-height: 42px;
+  backdrop-filter: blur(2px);
   white-space: nowrap;
 }
 
@@ -10855,8 +10865,8 @@ img.is-logo-pending {
 }
 
 .watch-end-cluster .next-ep-card {
-  width: 380px;
-  max-width: min(380px, calc(100vw - 168px));
+  width: 340px;
+  max-width: min(340px, calc(100vw - 168px));
   flex-shrink: 0;
 }
 
