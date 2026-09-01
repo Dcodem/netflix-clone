@@ -14025,6 +14025,83 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: bold active nav, rail tile count, Who's Watching hover. */
+.nav-link.active,
+.nav-link.active:hover {
+  color: #fff;
+  font-weight: 700;
+}
+
+.row-scroller .poster-wrap {
+  flex-basis: calc(100% / 2.2);
+}
+
+.row-scroller .scene-wrap {
+  flex-basis: calc(100% / 1.45);
+}
+
+@media (min-width: 480px) {
+  .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 3.15);
+  }
+
+  .row-scroller .scene-wrap {
+    flex-basis: calc(100% / 2.15);
+  }
+}
+
+@media (min-width: 768px) {
+  .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 3.2);
+  }
+
+  .row-scroller .scene-wrap {
+    flex-basis: calc(100% / 2.55);
+  }
+
+  .is-top10 .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 3.5);
+  }
+}
+
+@media (min-width: 1100px) {
+  .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 6.2);
+  }
+
+  .row-scroller .scene-wrap {
+    flex-basis: calc(100% / 3.15);
+  }
+
+  .is-top10 .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 4.05);
+  }
+}
+
+@media (max-width: 767px) {
+  .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 2.2);
+  }
+
+  .is-top10 .row-scroller .poster-wrap {
+    flex-basis: calc(100% / 1.52);
+  }
+}
+
+.profile-cell.is-hover .profile-avatar {
+  border-color: #fff;
+}
+
+.profile-cell.is-hover .profile-name {
+  color: #fff;
+}
+
+.profile-cell.is-hover .profile-add-plus {
+  background: #fff;
+  border-color: transparent;
+  color: #141414;
+}
+
 
 
 

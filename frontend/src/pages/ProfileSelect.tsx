@@ -97,6 +97,7 @@ export function ProfileSelect() {
   const navigate = useNavigate()
   const location = useLocation()
   const [managing, setManaging] = useState(() => Boolean((location.state as { manage?: boolean } | null)?.manage))
+  const [hoverId, setHoverId] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
   const [name, setName] = useState('')
   const [pin, setPin] = useState('')
@@ -712,7 +713,9 @@ export function ProfileSelect() {
                 <button
                   type="button"
                   key={profile.id}
-                  className={`profile-cell ${managing ? 'is-managing' : ''}`}
+                  className={`profile-cell ${managing ? 'is-managing' : ''} ${hoverId === profile.id ? 'is-hover' : ''}`}
+                  onMouseEnter={() => setHoverId(profile.id)}
+                  onMouseLeave={() => setHoverId(null)}
                   onClick={() => onSelect(profile)}
                   aria-label={managing ? `Edit ${profile.name}` : `Watch as ${profile.name}`}
                 >
@@ -733,7 +736,14 @@ export function ProfileSelect() {
                 </button>
               )
             })}
-            <button type="button" className="profile-cell" onClick={() => setAdding(true)} aria-label="Add profile">
+            <button
+              type="button"
+              className={`profile-cell ${hoverId === 'add' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setHoverId('add')}
+              onMouseLeave={() => setHoverId(null)}
+              onClick={() => setAdding(true)}
+              aria-label="Add profile"
+            >
               <span className="profile-add">
                 <span className="profile-add-plus">
                   <PlusIcon className="icon" />

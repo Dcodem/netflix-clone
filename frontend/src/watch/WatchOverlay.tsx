@@ -1290,6 +1290,8 @@ export function WatchOverlay() {
             </button>
             <div
               className={`watch-vol ${volOpen ? 'is-open' : ''}`}
+              onMouseEnter={() => setVolOpen(true)}
+              onMouseLeave={() => setVolOpen(false)}
               onPointerEnter={() => setVolOpen(true)}
               onPointerLeave={() => setVolOpen(false)}
             >
