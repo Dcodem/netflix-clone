@@ -10024,6 +10024,13 @@ img.is-logo-pending {
   opacity: 1;
 }
 
+@media (min-width: 768px) {
+  .watch-overlay.is-panel .watch-report-btn {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
 .watch-report-btn .icon {
   width: 22px;
   height: 22px;
@@ -10916,6 +10923,7 @@ img.is-logo-pending {
   font-weight: 700;
 }
 
+.watch-ep-copy .watch-ep-dur,
 .watch-ep-dur {
   color: #d2d2d2;
   font-size: 16px;
@@ -11154,10 +11162,20 @@ img.is-logo-pending {
 
   .watch-ep-head h2 {
     font-size: 20px;
+  }
+
+  .watch-episodes .season-menu {
+    flex-shrink: 0;
+    width: auto;
+  }
+
+  .watch-episodes .season-menu-btn {
+    width: auto;
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    min-height: 36px;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 6px 10px;
   }
 
   .watch-panel.watch-episodes .watch-ep-thumb,
@@ -11320,6 +11338,7 @@ img.is-logo-pending {
     background: #141414;
     max-height: min(72vh, 640px);
     padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    border-radius: 12px 12px 0 0;
   }
 
   .watch-ident {
