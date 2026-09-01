@@ -15280,6 +15280,44 @@ img.is-logo-pending {
   transform: scale(1.08);
 }
 
+/* Netflix-exact: episode / notify / genre hover via is-hover (this Chrome never applies CSS :hover). */
+.episode-btn.is-hover,
+.episode-btn:hover,
+.episode-btn:focus-visible {
+  background: #333;
+}
+
+@media (min-width: 768px) {
+  .ep-play,
+  .episode.is-watched .ep-play {
+    opacity: 0;
+  }
+
+  .episode-btn.is-hover .ep-play,
+  .episode-btn.is-resume .ep-play,
+  .episode-btn:focus-visible .ep-play,
+  .episode.is-watched.is-hover .ep-play {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.28);
+  }
+}
+
+.more-like-card.is-hover,
+.more-like-card:hover {
+  background: #393939;
+}
+
+.notify-row.is-hover,
+.notify-row:hover {
+  background: #333;
+}
+
+.genre-menu button.is-hover,
+.genre-menu button:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
 
 
 

@@ -170,8 +170,8 @@ export function Search() {
         </>
       ) : hits.length || related.length ? (
         <>
-          {hits.length < 6 && related.length ? (
-            <h1 className={`search-heading ${hits.length ? 'is-related' : ''}`}>
+          {!hits.length && related.length ? (
+            <h1 className="search-heading is-related">
               Explore titles related to: <span>{q}</span>
             </h1>
           ) : null}
