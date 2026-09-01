@@ -14385,6 +14385,25 @@ img.is-logo-pending {
   font-weight: 700;
 }
 
+@media (min-width: 768px) {
+  .browse-page:not(.has-browse-heading) .hero.is-settled .hero-lockup {
+    transform: scale(0.52);
+  }
+
+  .my-list-page .browse-heading h1 {
+    font-size: 32px;
+    font-weight: 700;
+    text-shadow: none;
+    letter-spacing: -0.02em;
+  }
+
+  .my-list-page .browse-heading .outline-select-btn,
+  .my-list-page .browse-heading .outline-select-value {
+    font-size: 14px;
+    font-weight: 700;
+  }
+}
+
 
 
 
