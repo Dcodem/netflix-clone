@@ -709,7 +709,7 @@ export function WatchOverlay() {
     if (!session || !isShow || !activeProfile?.skipIntros) return
     if (identOn || paused || stillWatching) return
     const marks = skipMarks(runtimeSec, session.history?.genres)
-    if (!introSkipped && playhead > 2.4 && playhead < marks.introAt) {
+    if (!introSkipped && playhead < marks.introAt && (playhead > 2.4 || identFromStartRef.current)) {
       setIntroSkipped(true)
       post({ cmd: 'seek', seconds: marks.introAt })
       return
@@ -814,12 +814,13 @@ export function WatchOverlay() {
       ? `S${session.history?.seasonNumber ?? 1}:E${session.history?.episodeNumber ?? 1}`
       : null
   const marks = skipMarks(runtimeSec, session.history?.genres)
+  const pastIntroGate = playhead > 2.4 || (identFromStartRef.current && !identOn)
   const showSkipIntro =
     isShow &&
     !identOn &&
     !introSkipped &&
     !activeProfile?.skipIntros &&
-    playhead > 2.4 &&
+    pastIntroGate &&
     playhead < marks.introAt &&
     !episodesOpen &&
     !audioOpen &&
