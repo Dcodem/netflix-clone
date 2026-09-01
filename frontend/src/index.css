@@ -14308,9 +14308,9 @@ img.is-logo-pending {
 }
 
 .poster-wrap.is-ranked .poster-card {
-  flex: 1 1 58%;
-  width: auto;
-  min-width: 0;
+  flex: 1 0 66%;
+  width: 66%;
+  min-width: 220px;
   z-index: 1;
 }
 
@@ -14318,16 +14318,17 @@ img.is-logo-pending {
   align-self: stretch;
   display: flex;
   align-items: flex-end;
+  flex: 0 1 auto;
   font-size: clamp(220px, 26vw, 400px);
   line-height: 0.82;
-  min-width: 0.62em;
-  margin: 0 -0.34em 0 0;
+  min-width: 0.36em;
+  margin: 0 -0.42em 0 0;
   -webkit-text-stroke: 7px #8c8c8c;
 }
 
 .rank-num.is-first {
-  min-width: 0.5em;
-  margin-right: -0.26em;
+  min-width: 0.3em;
+  margin-right: -0.32em;
 }
 
 .rank-num.is-ten {
