@@ -14751,6 +14751,116 @@ img.is-logo-pending {
   }
 }
 
+/* Netflix-exact: keep title identity, notify rail, languages filters, account plan. */
+.header-tools .notify-dropdown,
+.notify-dropdown {
+  width: min(408px, 90vw);
+  border: 0;
+  border-top: 0;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.72);
+}
+
+.header-tools .notify-dropdown::before,
+.notify-dropdown::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: #e50914;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.header-tools .notify-dropdown::after,
+.notify-dropdown::after {
+  top: -10px;
+  border-width: 8px;
+  border-bottom-color: #e50914;
+}
+
+.notify-row img,
+.notify-row .media-fallback,
+.notify-art-fallback {
+  width: 112px;
+  height: 63px;
+  min-width: 112px;
+  min-height: 63px;
+  object-fit: cover;
+}
+
+.notify-row strong {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.notify-row em {
+  font-size: 14px;
+}
+
+.notify-group h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #808080;
+}
+
+@media (min-width: 768px) {
+  .languages-page .outline-select,
+  .languages-page .outline-select-btn,
+  .languages-filters .outline-select,
+  .languages-filters .outline-select-btn {
+    width: 252px;
+    min-width: 252px;
+    min-height: 57px;
+  }
+
+  .languages-page .outline-select-kicker {
+    font-size: 13px;
+    font-weight: 500;
+    color: #b3b3b3;
+  }
+
+  .languages-page .outline-select-value {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .browse-heading h1 {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .browse-heading .genre-select {
+    min-width: 102px;
+    min-height: 36px;
+    height: 36px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+}
+
+.account-page h1 {
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.account-plan-name {
+  display: inline-block;
+  font-size: 24px;
+  font-weight: 700;
+  color: #141414;
+  line-height: 1.15;
+}
+
+.account-membership-card {
+  max-width: 620px;
+}
+
+
 
 
 

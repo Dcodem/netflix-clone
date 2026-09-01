@@ -329,9 +329,10 @@ export function TitleModal() {
             prefer="backdrop"
           />
           <TrailerPreview
+            key={item.id}
             ref={trailerRef}
             title={item.title}
-            year={copy.year ?? item.year}
+            year={item.year}
             kind={item.kind}
             tmdb_id={item.tmdb_id}
             className="title-modal-trailer"

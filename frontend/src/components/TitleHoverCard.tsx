@@ -46,6 +46,8 @@ export function TitleHoverCard({
 
   useEffect(() => {
     let cancelled = false
+    setDetail(null)
+    setTrailerReady(false)
     const load = isShow(item) ? getShow(item.id) : getMovie(item.id)
     load
       .then((result) => {
@@ -57,8 +59,9 @@ export function TitleHoverCard({
     return () => {
       cancelled = true
     }
-  }, [item])
+  }, [item.id])
 
+  const liveDetail = detail?.id === item.id ? detail : null
   const continueMode = stillWatching({ progress, kind: item.kind })
   const width = Math.max(continueMode ? 392 : 352, Math.min(440, Math.round(anchor.width * 1.7)))
   const artH = width * (9 / 16)
@@ -75,19 +78,19 @@ export function TitleHoverCard({
   const tmdbInfo = useTmdbInfo(item)
   const copy = presentCopy(
     {
-      synopsis: detail?.synopsis,
-      runtime: detail?.runtime,
-      year: item.year ?? detail?.year,
-      genres: genresOf(detail ?? item),
+      synopsis: liveDetail?.synopsis,
+      runtime: liveDetail?.runtime,
+      year: item.year ?? liveDetail?.year,
+      genres: genresOf(liveDetail ?? item),
     },
     tmdbInfo,
   )
   const match = matchPercent(item, activeProfile)
   const maturity = maturityLabel({ ...item, genres: copy.genres })
   const runtime = formatRuntime(copy.runtime)
-  const quality = item.quality || detail?.quality
+  const quality = item.quality || liveDetail?.quality
   const genres = copy.genres.slice(0, 3)
-  const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
+  const seasons = isShow(item) ? ((liveDetail as ShowDetail | null)?.seasons ?? []) : []
   const episodeCount = seasons.reduce((count, season) => count + (season.episodes?.length ?? 0), 0)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
   const soon = isComingSoon(item)
@@ -95,10 +98,8 @@ export function TitleHoverCard({
   const previewOn = activeProfile?.autoplayPreview !== false
   const watchHref =
     last?.watch_href ||
-    (isShow(item)
-      ? (detail as { seasons?: { episodes?: { watch_href: string }[] }[] })?.seasons?.[0]?.episodes?.[0]?.watch_href ||
-        detail?.watch_href
-      : detail?.watch_href)
+    (isShow(item) ? (liveDetail as ShowDetail | null)?.seasons?.[0]?.episodes?.[0]?.watch_href : undefined) ||
+    liveDetail?.watch_href
 
   const originX = Math.max(24, Math.min(width - 24, anchor.left + anchor.width / 2 - left))
   const originY = Math.max(24, Math.min(160, anchor.top + anchor.height / 2 - top))
@@ -126,12 +127,13 @@ export function TitleHoverCard({
       onMouseLeave={onClose}
     >
       <div className={`jawbone-art ${trailerReady ? 'is-playing' : ''}`}>
-        <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
+        <CatalogImage item={{ ...item, backdrop_url: liveDetail?.backdrop_url }} alt="" prefer="backdrop" />
         {previewOn ? (
           <TrailerPreview
+            key={item.id}
             ref={trailerRef}
             title={item.title}
-            year={copy.year ?? item.year}
+            year={item.year}
             kind={item.kind}
             tmdb_id={item.tmdb_id}
             mode="mini"
@@ -165,7 +167,7 @@ export function TitleHoverCard({
       <div className="jawbone-body">
         <TitleActions
           item={item}
-          detail={detail}
+          detail={liveDetail}
           watchHref={watchHref}
           size="sm"
           continueMode={continueMode}
@@ -174,8 +176,8 @@ export function TitleHoverCard({
           {soon && coming ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}
           {soon ? null : isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
           <span className="maturity">{maturity}</span>
-          {soon ? null : remainingLabel(progress, detail?.runtime) ? (
-            <span>{remainingLabel(progress, detail?.runtime)}</span>
+          {soon ? null : remainingLabel(progress, liveDetail?.runtime) ? (
+            <span>{remainingLabel(progress, liveDetail?.runtime)}</span>
           ) : isShow(item) ? (
             <span>
               {seasons.length > 1

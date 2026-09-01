@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { findTmdbInfo, type TmdbInfo } from './tmdb'
 import { envKeys } from './types'
+import { useKeyedState } from '../hooks/useKeyedState'
 
 const memory = new Map<string, TmdbInfo | null>()
 
@@ -19,7 +20,7 @@ export function useTmdbInfo(item: {
   const key = (user?.tmdbKey || envKeys().tmdb).trim()
   const title = item?.title ?? ''
   const cacheKey = cacheId(item ?? {})
-  const [info, setInfo] = useState<TmdbInfo | null>(() => memory.get(cacheKey) ?? null)
+  const [info, setInfo] = useKeyedState<TmdbInfo | null>(cacheKey, memory.get(cacheKey) ?? null)
 
   useEffect(() => {
     if (!title) {

@@ -46,6 +46,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
 
   useEffect(() => {
     let cancelled = false
+    setDetail(null)
     setTrailerReady(false)
     setTrailerEnded(false)
     setMuted(true)
@@ -60,7 +61,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
     return () => {
       cancelled = true
     }
-  }, [item])
+  }, [item.id])
 
   useEffect(() => {
     const el = mediaRef.current
@@ -87,16 +88,17 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
     return () => window.clearTimeout(timer)
   }, [previewActive, item.id])
 
-  const backdrop = detail?.backdrop_url || item.poster_url
+  const liveDetail = detail?.id === item.id ? detail : null
+  const backdrop = liveDetail?.backdrop_url || item.poster_url
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
-  const sessionReady = buildWatchSession(item, detail, last)
+  const sessionReady = buildWatchSession(item, liveDetail, last)
   const tmdbInfo = useTmdbInfo(item)
   const copy = presentCopy(
     {
-      synopsis: detail?.synopsis,
-      runtime: detail?.runtime,
-      year: item.year ?? detail?.year,
-      genres: genresOf(detail ?? item),
+      synopsis: liveDetail?.synopsis,
+      runtime: liveDetail?.runtime,
+      year: item.year ?? liveDetail?.year,
+      genres: genresOf(liveDetail ?? item),
     },
     tmdbInfo,
   )
@@ -108,7 +110,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
   const coming = comingLineFor(item)
 
   function onWatch() {
-    const next = buildWatchSession(item, detail, last)
+    const next = buildWatchSession(item, liveDetail, last)
     if (!next) return
     playClick()
     openWatch(next.href, item.title, next.payload)
@@ -164,9 +166,10 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
             style={{ '--trailer-scale': String(scale) } as CSSProperties}
           >
             <TrailerPreview
+              key={item.id}
               ref={trailerRef}
               title={item.title}
-              year={copy.year ?? item.year}
+              year={item.year}
               kind={item.kind}
               tmdb_id={item.tmdb_id}
               className="hero-trailer"
@@ -186,7 +189,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
             <span className="n-mark">F</span>
             <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
           </div>
-          <TitleLogo item={item} className="hero-logo" titleClassName="hero-title" />
+          <TitleLogo key={item.id} item={item} className="hero-logo" titleClassName="hero-title" />
         </div>
         {rank && rankLabel ? (
           <p className="hero-rank">

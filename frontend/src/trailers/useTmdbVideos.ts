@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { findTmdbVideos, type TmdbVideoClip } from './tmdb'
 import { envKeys } from './types'
 import { knownTrailer } from './catalogTrailers'
+import { useKeyedState } from '../hooks/useKeyedState'
 
 const memory = new Map<string, TmdbVideoClip[]>()
 
@@ -20,7 +21,7 @@ export function useTmdbVideos(item: {
   const key = (user?.tmdbKey || envKeys().tmdb).trim()
   const title = item?.title ?? ''
   const cacheKey = cacheId(item ?? {})
-  const [clips, setClips] = useState<TmdbVideoClip[]>(() => memory.get(cacheKey) ?? [])
+  const [clips, setClips] = useKeyedState<TmdbVideoClip[]>(cacheKey, memory.get(cacheKey) ?? [])
 
   useEffect(() => {
     if (!title) {
