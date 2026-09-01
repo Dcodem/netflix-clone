@@ -15003,6 +15003,34 @@ img.is-logo-pending {
   height: 20px;
 }
 
+/* Netflix-exact: next-ep ring depletes for 16s; player episodes is a 560px right rail. */
+.next-ep-body {
+  grid-template-columns: 160px 1fr;
+}
+
+.next-ep-thumb {
+  width: 160px;
+}
+
+.watch-credits {
+  min-width: 148px;
+  height: 42px;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .watch-panel.watch-episodes {
+    width: min(40vw, 560px);
+    padding: 28px 32px 128px 48px;
+  }
+
+  .watch-panel.watch-episodes h2 {
+    font-size: 28px;
+    font-weight: 700;
+  }
+}
+
 
 
 

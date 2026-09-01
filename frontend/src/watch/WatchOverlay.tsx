@@ -845,7 +845,8 @@ export function WatchOverlay() {
   const showNext = Boolean(upcoming && showCredits)
   const countingDown = remaining <= AUTO_IN && activeProfile?.autoplayNext !== false
   const nextCount = countingDown ? Math.max(1, Math.ceil(remaining)) : null
-  const nextProgress = countingDown ? Math.min(1, remaining / AUTO_IN) : 1
+  const nextProgress =
+    activeProfile?.autoplayNext !== false ? Math.min(1, Math.max(0, remaining / NEXT_CARD_AT)) : 1
   const captionPool = captionLines(
     playing?.episode.synopsis || showDetail?.synopsis || session?.history?.synopsis,
   )
@@ -1140,7 +1141,9 @@ export function WatchOverlay() {
                 style={{ '--p': String(nextProgress) } as CSSProperties}
                 aria-hidden="true"
               >
-                <span key={nextCount ?? 'go'}>{nextCount != null ? nextCount : <PlayIcon className="icon" />}</span>
+                <span key={nextCount ?? (remaining <= 0.85 ? 'go' : 'wait')}>
+                  {nextCount != null ? nextCount : remaining <= 0.85 ? <PlayIcon className="icon" /> : null}
+                </span>
               </span>
             ) : null}
             Next Episode
