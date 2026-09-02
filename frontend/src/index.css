@@ -2262,7 +2262,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 2.2);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 5.3);
   }
 
   .grid {
@@ -2313,7 +2313,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 2.35);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 5.5);
   }
 
   .btn-play,
@@ -6118,29 +6118,31 @@ img.is-logo-pending {
   align-items: flex-end;
 }
 
-/* Netflix Top-10 geometry: an SVG numeral (viewBox-scaled, so it can never
-   clip or mis-size) sits absolutely behind the poster; the poster is offset
-   right so the number's right half tucks behind it. */
+/* Netflix Top-10 geometry: the wrap carries aspect-ratio 2/3 (uniform tile),
+   the numeral SVG is absolutely positioned behind, and the poster-card is
+   absolutely inset — nothing sizes off image content, so tiles stay identical. */
 .is-top10 .row-scroller .poster-wrap {
   position: relative;
   overflow: visible;
-  flex-basis: calc((100% - var(--page-gutter) * 2) / 2.2);
+  flex-basis: calc((100% - var(--page-gutter) * 2) / 5.3);
+  aspect-ratio: 2 / 3;
 }
 
 .is-top10 .row-scroller .poster-card {
-  position: relative;
+  position: absolute;
   z-index: 1;
-  width: 72% !important;
-  margin-left: 28% !important;
+  inset: 0 0 0 30%;
+  width: 70%;
+  height: 100%;
 }
 
 .rank-num.rank-num-svg {
   position: absolute;
-  left: -8%;
-  bottom: -5%;
+  left: -6%;
+  bottom: -4%;
   z-index: 0;
-  width: 80%;
-  height: 108%;
+  width: 76%;
+  height: 106%;
   overflow: visible;
   user-select: none;
   pointer-events: none;
@@ -6701,7 +6703,7 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - 56px) / 1.1);
+    flex-basis: calc((100% - 56px) / 2.5);
     scroll-snap-align: none;
   }
 
@@ -6738,13 +6740,13 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 2.2);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 5.3);
   }
 }
 
 @media (min-width: 1100px) {
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 2.35);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 5.5);
   }
 }
 

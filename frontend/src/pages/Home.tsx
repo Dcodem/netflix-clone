@@ -132,14 +132,14 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
         })
       }
     }
-    const tailRails: Array<[string, string]> = [
-      ['popular_ca', 'Popular in Canada'],
-      ['top10_movies', 'Top 10 Movies Today'],
-      ['top10_tv', 'Top 10 TV Shows Today'],
-      ['new', 'New Releases'],
-      ['gems', 'Hidden Gems'],
+    const tailRails: Array<[string, string, 'top10' | undefined]> = [
+      ['popular_ca', 'Popular in Canada', undefined],
+      ['top10_movies', 'Top 10 Movies Today', 'top10'],
+      ['top10_tv', 'Top 10 TV Shows Today', 'top10'],
+      ['new', 'New Releases', undefined],
+      ['gems', 'Hidden Gems', undefined],
     ]
-    for (const [railId, fallbackTitle] of tailRails) {
+    for (const [railId, fallbackTitle, variant] of tailRails) {
       const rail = byTitle.get(railId)
       if (!rail || rail.items.length < 4) continue
       if (built.some((row) => row.id === railId)) continue
@@ -152,6 +152,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
         title: rail.title || fallbackTitle,
         items,
         loop: items.length >= 8,
+        ...(variant ? { variant } : {}),
       })
     }
     return built
