@@ -54,14 +54,10 @@ export function Header() {
 
   useEffect(() => {
     const live = query.trim()
-    // Title-modal / recents set `?q=` while this input is still empty. Do not
-    // strip the URL on that first tick — only after the field has synced.
-    const pendingUrlSync = Boolean(urlQuery.trim()) && query !== urlQuery && syncedQuery !== urlQuery
     if (live.length < 2) {
-      if (pendingUrlSync) return
-      if (location.pathname === '/search' && searchParams.get('q')) {
-        navigate('/search')
-      }
+      // Do NOT rewrite the URL here. Stripping `?q=` on empty input races with
+      // back/leave navigation (it re-navigated to /search after the user left).
+      // The Search page renders recents fine with no `q` param.
       return
     }
     // Only drive the URL while the user is actually ON the search page.
@@ -121,7 +117,7 @@ export function Header() {
   function leaveSearch() {
     setQuery('')
     setSearchOpen(false)
-    if (location.pathname === '/search') navigate('/browse')
+    if (location.pathname === '/search') navigate('/browse', { replace: true })
   }
 
   function syncBrowseCaret() {
@@ -140,7 +136,16 @@ export function Header() {
         <button type="button" className="search-back" onClick={leaveSearch} aria-label="Back">
           <ChevronLeftIcon className="icon" />
         </button>
-        <Link className="logo" to="/browse" onClick={() => { setQuery(''); setSearchOpen(false) }}>
+        <Link
+          className="logo"
+          to="/browse"
+          onClick={(event) => {
+            if (location.pathname === '/search' || query) {
+              event.preventDefault()
+              leaveSearch()
+            }
+          }}
+        >
           FLIX
         </Link>
         <details className="browse-menu" ref={browseRef} onToggle={syncBrowseCaret}>
@@ -173,7 +178,15 @@ export function Header() {
               className="nav-link"
               to={link.to}
               end={'end' in link ? link.end : false}
-              onClick={() => { setQuery(''); setSearchOpen(false) }}
+              onClick={(event) => {
+                if (location.pathname === '/search' || query) {
+                  event.preventDefault()
+                  const target = link.to
+                  setQuery('')
+                  setSearchOpen(false)
+                  navigate(target)
+                }
+              }}
             >
               {link.label}
             </NavLink>
