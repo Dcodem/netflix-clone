@@ -88,7 +88,7 @@ export function MediaRow({
                 continueMode={continueMode}
                 hoverable={hoverable}
                 rank={ranked ? index + 1 : undefined}
-                layout={ranked ? 'poster' : 'landscape'}
+                layout='poster'
               />
             )),
           )}

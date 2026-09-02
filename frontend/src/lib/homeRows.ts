@@ -291,15 +291,6 @@ export function buildBrowseRows(opts: {
 
   const newTitle = filter === 'movies' ? 'New Movies' : filter === 'shows' ? 'New TV Shows' : 'New Releases'
   const recUsed = new Set<string>()
-  pushRecRow(
-    rows,
-    {
-      id: 'only-flix',
-      title: 'Only on FLIX',
-      items: recommendRail(filter === 'movies' ? movies : filter === 'shows' ? shows : shows, profile),
-    },
-    recUsed,
-  )
   pushRow(rows, { id: 'new', title: newTitle, items: sortByYear(pool) })
 
   pushRow(rows, {
