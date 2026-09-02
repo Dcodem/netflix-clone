@@ -3,14 +3,14 @@ import { createPortal } from 'react-dom'
 import { CaretIcon, CheckIcon } from './Icons'
 
 export function OutlineSelect({
-  label,
+  label = '',
   value,
   options,
   searchable = false,
   searchPlaceholder = 'Search',
   onChange,
 }: {
-  label: string
+  label?: string
   value: string
   options: { value: string; label: string }[]
   searchable?: boolean
@@ -20,6 +20,7 @@ export function OutlineSelect({
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [box, setBox] = useState<DOMRect | null>(null)
+  const [hoverValue, setHoverValue] = useState<string | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -67,16 +68,17 @@ export function OutlineSelect({
     <div className={`outline-select ${open ? 'is-open' : ''}`} ref={rootRef}>
       <button
         type="button"
-        className="outline-select-btn"
+        className={`outline-select-btn ${label ? '' : 'is-value-only'}`}
         ref={btnRef}
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-label={label || selected?.label || 'Select'}
         onClick={() => {
           syncBox()
           setOpen((next) => !next)
         }}
       >
-        <span className="outline-select-kicker">{label}</span>
+        {label ? <span className="outline-select-kicker">{label}</span> : null}
         <span className="outline-select-value">
           {selected?.label ?? ''}
           <CaretIcon className="icon" />
@@ -87,7 +89,7 @@ export function OutlineSelect({
             <div
               className="outline-select-menu is-portal"
               role="listbox"
-              aria-label={label}
+              aria-label={label || selected?.label || 'Select'}
               ref={menuRef}
               style={{ top: box.bottom + 6, left, width: menuWidth }}
             >
@@ -109,7 +111,9 @@ export function OutlineSelect({
                       role="option"
                       aria-selected={entry.value === value}
                       key={entry.value}
-                      className={entry.value === value ? 'is-on' : ''}
+                      className={`${entry.value === value ? 'is-on' : ''} ${hoverValue === entry.value ? 'is-hover' : ''}`}
+                      onMouseEnter={() => setHoverValue(entry.value)}
+                      onMouseLeave={() => setHoverValue((current) => (current === entry.value ? null : current))}
                       onClick={() => {
                         onChange(entry.value)
                         setOpen(false)

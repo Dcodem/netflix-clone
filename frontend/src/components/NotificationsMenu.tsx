@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { getCatalogMany, getMovies } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { useHoverMenu } from '../hooks/useHoverMenu'
@@ -36,6 +35,7 @@ export function NotificationsMenu() {
     [rawNotices, activeProfile?.id, seenTick],
   )
   const unread = notices.some((notice) => notice.unread)
+  const [hoverKey, setHoverKey] = useState<string | null>(null)
   const groups = useMemo(() => {
     const buckets: Record<'Today' | 'Yesterday' | 'Earlier', typeof notices> = {
       Today: [],
@@ -68,7 +68,7 @@ export function NotificationsMenu() {
     >
       <button
         type="button"
-        className="notify-toggle"
+        className={`notify-toggle ${unread ? 'has-unread' : ''}`}
         aria-label="Notifications"
         aria-expanded={open}
         onClick={toggle}
@@ -87,7 +87,9 @@ export function NotificationsMenu() {
                     <button
                       type="button"
                       key={`${kicker}-${item.id}`}
-                      className={`notify-row ${isUnread ? 'is-unread' : ''}`}
+                      className={`notify-row ${isUnread ? 'is-unread' : ''} ${hoverKey === `${kicker}-${item.id}` ? 'is-hover' : ''}`}
+                      onMouseEnter={() => setHoverKey(`${kicker}-${item.id}`)}
+                      onMouseLeave={() => setHoverKey((current) => (current === `${kicker}-${item.id}` ? null : current))}
                       onClick={(event) => {
                         setOpen(false)
                         openTitle(item, event.currentTarget)
@@ -107,9 +109,6 @@ export function NotificationsMenu() {
           ) : (
             <p>No recent notifications.</p>
           )}
-          <Link className="notify-foot" to="/browse/my-netflix" onClick={() => setOpen(false)}>
-            Go to My Netflix
-          </Link>
         </div>
       ) : null}
     </div>

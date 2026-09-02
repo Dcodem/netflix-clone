@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { getMovie, getShow } from '../api/client'
 import type { MovieDetail, MovieListItem } from '../api/types'
 import { comingLineFor, isComingSoon } from '../lib/comingSoon'
-import { stillWatching } from '../lib/homeRows'
 import { genresOf, isShow } from '../lib/media'
 import { buildWatchSession } from '../lib/watchSession'
 import { maturityLabel, toLiked } from '../lib/netflix'
@@ -47,6 +46,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
 
   useEffect(() => {
     let cancelled = false
+    setDetail(null)
     setTrailerReady(false)
     setTrailerEnded(false)
     setMuted(true)
@@ -61,7 +61,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
     return () => {
       cancelled = true
     }
-  }, [item])
+  }, [item.id])
 
   useEffect(() => {
     const el = mediaRef.current
@@ -84,20 +84,21 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
     setSettled(false)
     setHeroHover(false)
     if (!previewActive) return
-    const timer = window.setTimeout(() => setSettled(true), 6000)
+    const timer = window.setTimeout(() => setSettled(true), 7500)
     return () => window.clearTimeout(timer)
   }, [previewActive, item.id])
 
-  const backdrop = detail?.backdrop_url || item.poster_url
+  const liveDetail = detail?.id === item.id ? detail : null
+  const backdrop = liveDetail?.backdrop_url || item.poster_url
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
-  const sessionReady = buildWatchSession(item, detail, last)
+  const sessionReady = buildWatchSession(item, liveDetail, last)
   const tmdbInfo = useTmdbInfo(item)
   const copy = presentCopy(
     {
-      synopsis: detail?.synopsis,
-      runtime: detail?.runtime,
-      year: item.year ?? detail?.year,
-      genres: genresOf(detail ?? item),
+      synopsis: liveDetail?.synopsis,
+      runtime: liveDetail?.runtime,
+      year: item.year ?? liveDetail?.year,
+      genres: genresOf(liveDetail ?? item),
     },
     tmdbInfo,
   )
@@ -109,7 +110,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
   const coming = comingLineFor(item)
 
   function onWatch() {
-    const next = buildWatchSession(item, detail, last)
+    const next = buildWatchSession(item, liveDetail, last)
     if (!next) return
     playClick()
     openWatch(next.href, item.title, next.payload)
@@ -165,9 +166,10 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
             style={{ '--trailer-scale': String(scale) } as CSSProperties}
           >
             <TrailerPreview
+              key={item.id}
               ref={trailerRef}
               title={item.title}
-              year={copy.year ?? item.year}
+              year={item.year}
               kind={item.kind}
               tmdb_id={item.tmdb_id}
               className="hero-trailer"
@@ -182,11 +184,13 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
         ) : null}
       </div>
       <div className="hero-body">
-        <div className="billboard-kicker">
-          <span className="n-mark">F</span>
-          <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
+        <div className="hero-lockup">
+          <div className="billboard-kicker">
+            <span className="n-mark">F</span>
+            <span>{isShow(item) ? 'SERIES' : 'FILM'}</span>
+          </div>
+          <TitleLogo key={item.id} item={item} className="hero-logo" titleClassName="hero-title" />
         </div>
-        <TitleLogo item={item} className="hero-logo" titleClassName="hero-title" />
         {rank && rankLabel ? (
           <p className="hero-rank">
             <span>#{rank}</span> in {rankLabel}
@@ -209,13 +213,15 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
           ) : (
             <button type="button" className="btn btn-play" onClick={onWatch} disabled={!sessionReady}>
               <PlayIcon className="icon" />
-              {last && stillWatching(last) ? 'Resume' : 'Play'}
+              Play
             </button>
           )}
           <button type="button" className="btn btn-info hero-more" onClick={(event) => openTitle(item, event.currentTarget)}>
             <InfoIcon className="icon" />
             <span className="hero-more-wide">More Info</span>
-            <span className="hero-more-short">Info</span>
+            <span className="hero-more-short" aria-hidden="true">
+              Info
+            </span>
           </button>
           {soon ? null : (
             <button

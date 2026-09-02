@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { getCatalogMany, getMovies, getTrending } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { CategoriesSheet } from '../components/CategoriesSheet'
+import { CaretIcon } from '../components/Icons'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { GenreSelect } from '../components/GenreSelect'
@@ -10,6 +11,7 @@ import { Hero } from '../components/Hero'
 import { MediaRow } from '../components/MediaRow'
 import { Spinner } from '../components/Spinner'
 import { useFetch } from '../hooks/useFetch'
+import { useKeyedState } from '../hooks/useKeyedState'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { isComingSoon } from '../lib/comingSoon'
 import { useCatalogEnrichment } from '../trailers/useCatalogEnrichment'
@@ -33,7 +35,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   const [headingStuck, setHeadingStuck] = useState(false)
   const desktop = useMediaQuery('(min-width: 768px)')
   const genre = params.get('genre') ?? ''
-  const heading = filter === 'home' && genre ? genre : HEADINGS[filter]
+  const heading = genre && filter !== 'popular' ? genre : HEADINGS[filter]
   const movies = useFetch(() => getMovies(), 'home-movies')
   const trending = useFetch(() => getTrending('all').catch(() => [] as MovieListItem[]), 'home-trending')
   const extras = useFetch(async () => {
@@ -83,11 +85,22 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     [kindPool, genre],
   )
   const top10 = useMemo(() => sortByRating(pool).slice(0, 10), [pool])
+  const heroScope = `${filter}:${genre}:${activeProfile?.id ?? ''}`
+  const [lockedHeroId, setLockedHeroId] = useKeyedState<string | null>(heroScope, null)
   const hero = useMemo(() => {
     const source = top10.length ? top10 : pool
     const playable = source.filter((item) => !isComingSoon(item))
-    return pickHero(playable.length ? playable : source)
-  }, [top10, pool])
+    const candidates = playable.length ? playable : source
+    if (lockedHeroId) {
+      const locked =
+        candidates.find((item) => item.id === lockedHeroId) ?? pool.find((item) => item.id === lockedHeroId)
+      if (locked) return locked
+    }
+    return pickHero(candidates)
+  }, [top10, pool, lockedHeroId])
+  useEffect(() => {
+    if (hero?.id && hero.id !== lockedHeroId) setLockedHeroId(hero.id)
+  }, [hero, lockedHeroId, setLockedHeroId])
   const heroRank = useMemo(() => {
     if (!hero) return 0
     const index = top10.findIndex((item) => item.id === hero.id)
@@ -169,7 +182,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
                 onChange={setGenre}
                 useMenu={useGenreMenu}
                 onFallback={() => setCategoriesOpen(true)}
-                buttonLabel={filter === 'home' && genre ? 'Genres' : undefined}
+                buttonLabel="Genres"
               />
             ) : null}
           </div>
@@ -199,7 +212,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
               onChange={setGenre}
               useMenu={useGenreMenu}
               onFallback={() => setCategoriesOpen(true)}
-              buttonLabel={filter === 'home' && genre ? 'Genres' : undefined}
+              buttonLabel="Genres"
             />
           ) : null}
         </div>
@@ -210,11 +223,12 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           <Link to="/browse/movies">Movies</Link>
           <button type="button" onClick={() => setCategoriesOpen(true)}>
             Categories
+            <CaretIcon className="icon" />
           </button>
         </div>
       ) : null}
-      {hero && filter !== 'popular' ? (
-        <Hero item={hero} rank={heroRank || undefined} rankLabel={heroRank ? heroRankLabel : undefined} />
+      {hero ? (
+        <Hero key={hero.id} item={hero} rank={heroRank || undefined} rankLabel={heroRank ? heroRankLabel : undefined} />
       ) : null}
       {rows.map((row) => (
         <MediaRow

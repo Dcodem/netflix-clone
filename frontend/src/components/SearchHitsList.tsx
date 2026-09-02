@@ -24,6 +24,7 @@ export function SearchHitsList({
   const { openWatch } = useWatch()
   const { activeProfile, toggleMyList } = useProfiles()
   const [playingId, setPlayingId] = useState<string | null>(null)
+  const [hoverId, setHoverId] = useState<string | null>(null)
 
   function remindNow(item: MovieListItem) {
     const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
@@ -55,13 +56,22 @@ export function SearchHitsList({
   return (
     <ul className={`search-top ${ranked ? 'is-ranked' : ''}`}>
       {items.map((item, index) => (
-        <li key={item.id}>
-          <button type="button" className="search-top-hit" onClick={(event) => openTitle(item, event.currentTarget)} aria-label={item.title}>
+        <li key={item.id} className={hoverId === item.id ? 'is-hover' : ''}>
+          <button
+            type="button"
+            className="search-top-hit"
+            onMouseEnter={() => setHoverId(item.id)}
+            onMouseLeave={() => setHoverId((current) => (current === item.id ? null : current))}
+            onClick={(event) => openTitle(item, event.currentTarget)}
+            aria-label={item.title}
+          >
             {ranked ? <span className="search-top-rank">{index + 1}</span> : null}
             <span className="search-top-still">
               <CatalogImage item={item} alt="" prefer="backdrop" />
             </span>
-            <span className="search-top-title">{item.title}</span>
+            <span className="search-top-copy">
+              <span className="search-top-title">{item.title}</span>
+            </span>
           </button>
           {ranked ? null : isComingSoon(item) ? (
             <button

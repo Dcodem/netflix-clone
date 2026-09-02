@@ -21,9 +21,11 @@ export function GenreSelect({
   const btnRef = useRef<HTMLButtonElement>(null)
   const [open, setOpen] = useState(false)
   const [box, setBox] = useState<DOMRect | null>(null)
+  const [hoverGenre, setHoverGenre] = useState<string | null>(null)
 
   useEffect(() => {
     setOpen(false)
+    setHoverGenre(null)
   }, [value])
 
   useEffect(() => {
@@ -75,14 +77,22 @@ export function GenreSelect({
                 aria-label="Genres"
                 style={{ top: box.bottom + 8, left: Math.max(16, box.left) }}
               >
-                <button type="button" className={!value ? 'is-on' : ''} onClick={() => pick('')}>
+                <button
+                  type="button"
+                  className={`${!value ? 'is-on' : ''} ${hoverGenre === '' ? 'is-hover' : ''}`}
+                  onMouseEnter={() => setHoverGenre('')}
+                  onMouseLeave={() => setHoverGenre((current) => (current === '' ? null : current))}
+                  onClick={() => pick('')}
+                >
                   All
                 </button>
                 {genres.map((entry) => (
                   <button
                     type="button"
                     key={entry}
-                    className={value === entry ? 'is-on' : ''}
+                    className={`${value === entry ? 'is-on' : ''} ${hoverGenre === entry ? 'is-hover' : ''}`}
+                    onMouseEnter={() => setHoverGenre(entry)}
+                    onMouseLeave={() => setHoverGenre((current) => (current === entry ? null : current))}
                     onClick={() => pick(entry)}
                   >
                     {entry}

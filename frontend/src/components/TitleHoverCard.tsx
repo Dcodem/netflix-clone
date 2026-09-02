@@ -6,16 +6,15 @@ import { comingLineFor, isComingSoon } from '../lib/comingSoon'
 import { stillWatching } from '../lib/homeRows'
 import { formatRuntime, genresOf, isShow, remainingLabel } from '../lib/media'
 import { isNewEpisodes, matchPercent, maturityLabel } from '../lib/netflix'
+import { playWhoosh } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
-import { useTitleModal } from '../title/TitleModalContext'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTmdbInfo } from '../trailers/useTmdbInfo'
 import { presentCopy } from '../trailers/tmdbOverlay'
 import { CatalogImage } from './CatalogImage'
 import { FeatureBadges } from './FeatureBadges'
 import { GenreDots } from './GenreDots'
-import { ContinueMenu } from './ContinueMenu'
-import { SpeakerIcon, MoreVertIcon } from './Icons'
+import { SpeakerIcon } from './Icons'
 import { TitleActions } from './TitleActions'
 import { TitleLogo } from './TitleLogo'
 
@@ -32,22 +31,23 @@ export function TitleHoverCard({
   onClose: () => void
   onKeep: () => void
 }) {
-  const { activeProfile, hideContinue } = useProfiles()
-  const { openTitle } = useTitleModal()
+  const { activeProfile } = useProfiles()
   const trailerRef = useRef<TrailerHandle>(null)
   const jawRef = useRef<HTMLDivElement>(null)
   const [detail, setDetail] = useState<MovieDetail | null>(null)
   const [trailerReady, setTrailerReady] = useState(false)
   const [muted, setMuted] = useState(true)
-  const [rowMenu, setRowMenu] = useState(false)
 
   useEffect(() => {
     document.body.classList.add('is-jaw-open')
+    playWhoosh()
     return () => document.body.classList.remove('is-jaw-open')
   }, [])
 
   useEffect(() => {
     let cancelled = false
+    setDetail(null)
+    setTrailerReady(false)
     const load = isShow(item) ? getShow(item.id) : getMovie(item.id)
     load
       .then((result) => {
@@ -59,47 +59,62 @@ export function TitleHoverCard({
     return () => {
       cancelled = true
     }
-  }, [item])
+  }, [item.id])
 
-  const width = Math.max(340, Math.min(430, Math.round(anchor.width * 1.65)))
+  const liveDetail = detail?.id === item.id ? detail : null
+  const continueMode = stillWatching({ progress, kind: item.kind })
+  const width = continueMode
+    ? Math.max(420, Math.min(520, Math.round(anchor.width * 1.65)))
+    : Math.max(352, Math.min(440, Math.round(anchor.width * 1.7)))
   const artH = width * (9 / 16)
+  const gutter = Math.max(12, Math.round(window.innerWidth * 0.04))
   let left = anchor.left + anchor.width / 2 - width / 2
-  left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
-  const heightGuess = artH + 196
+  left = Math.max(gutter, Math.min(left, window.innerWidth - width - gutter))
+  // Keep the 16:9 art locked to the tile. Shifting the whole jaw to fit metadata
+  // made continue-on-hero previews jump up off the thumbnail.
   let top = anchor.top + anchor.height / 2 - artH / 2
   if (top < 12) top = 12
-  if (top + heightGuess > window.innerHeight - 12) {
-    top = Math.max(12, window.innerHeight - heightGuess - 12)
+  if (top + artH > window.innerHeight - 24) {
+    top = Math.max(12, window.innerHeight - artH - 24)
   }
   const fromScale = Math.max(0.42, Math.min(0.82, anchor.width / width))
 
   const tmdbInfo = useTmdbInfo(item)
   const copy = presentCopy(
     {
-      synopsis: detail?.synopsis,
-      runtime: detail?.runtime,
-      year: item.year ?? detail?.year,
-      genres: genresOf(detail ?? item),
+      synopsis: liveDetail?.synopsis,
+      runtime: liveDetail?.runtime,
+      year: item.year ?? liveDetail?.year,
+      genres: genresOf(liveDetail ?? item),
     },
     tmdbInfo,
   )
   const match = matchPercent(item, activeProfile)
   const maturity = maturityLabel({ ...item, genres: copy.genres })
   const runtime = formatRuntime(copy.runtime)
-  const quality = item.quality || detail?.quality
+  const quality = item.quality || liveDetail?.quality
   const genres = copy.genres.slice(0, 3)
-  const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
+  const seasons = isShow(item) ? ((liveDetail as ShowDetail | null)?.seasons ?? []) : []
   const episodeCount = seasons.reduce((count, season) => count + (season.episodes?.length ?? 0), 0)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
+  const watchRuntime =
+    last?.runtime ??
+    (isShow(item)
+      ? ((liveDetail as ShowDetail | null)?.seasons ?? [])
+          .find((season) => season.season_number === last?.seasonNumber)
+          ?.episodes?.find(
+            (episode) => episode.id === last?.episodeId || episode.number === last?.episodeNumber,
+          )?.duration
+      : null) ??
+    copy.runtime
+  const remaining = remainingLabel(progress, watchRuntime)
   const soon = isComingSoon(item)
   const coming = comingLineFor(item)
   const previewOn = activeProfile?.autoplayPreview !== false
   const watchHref =
     last?.watch_href ||
-    (isShow(item)
-      ? (detail as { seasons?: { episodes?: { watch_href: string }[] }[] })?.seasons?.[0]?.episodes?.[0]?.watch_href ||
-        detail?.watch_href
-      : detail?.watch_href)
+    (isShow(item) ? (liveDetail as ShowDetail | null)?.seasons?.[0]?.episodes?.[0]?.watch_href : undefined) ||
+    liveDetail?.watch_href
 
   const originX = Math.max(24, Math.min(width - 24, anchor.left + anchor.width / 2 - left))
   const originY = Math.max(24, Math.min(160, anchor.top + anchor.height / 2 - top))
@@ -112,7 +127,7 @@ export function TitleHoverCard({
 
   return createPortal(
     <div
-      className="jawbone"
+      className={`jawbone ${continueMode ? 'is-continue' : ''}`}
       ref={jawRef}
       style={
         {
@@ -127,12 +142,13 @@ export function TitleHoverCard({
       onMouseLeave={onClose}
     >
       <div className={`jawbone-art ${trailerReady ? 'is-playing' : ''}`}>
-        <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />
+        <CatalogImage item={{ ...item, backdrop_url: liveDetail?.backdrop_url }} alt="" prefer="backdrop" />
         {previewOn ? (
           <TrailerPreview
+            key={item.id}
             ref={trailerRef}
             title={item.title}
-            year={copy.year ?? item.year}
+            year={item.year}
             kind={item.kind}
             tmdb_id={item.tmdb_id}
             mode="mini"
@@ -152,62 +168,31 @@ export function TitleHoverCard({
         {previewOn ? (
           <button
             type="button"
-            className={`hero-mute jawbone-mute ${progress ? 'has-progress' : ''}`}
+            className="hero-mute jawbone-mute"
             onClick={toggleMute}
             aria-label={muted ? 'Unmute preview' : 'Mute preview'}
           >
             <SpeakerIcon muted={muted} className="icon" />
           </button>
         ) : null}
-        {progress ? (
-          <div className={`continue-more jawbone-more ${rowMenu ? 'is-open' : ''}`}>
-            <button
-              type="button"
-              className="continue-hide"
-              onClick={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                setRowMenu((open) => !open)
-              }}
-              aria-label="More"
-              aria-expanded={rowMenu}
-            >
-              <MoreVertIcon className="icon" />
-            </button>
-            {rowMenu ? (
-              <ContinueMenu
-                onRemove={() => {
-                  hideContinue(item.id)
-                  setRowMenu(false)
-                  onClose()
-                }}
-                onDetails={() => {
-                  setRowMenu(false)
-                  onClose()
-                  openTitle(item, jawRef.current)
-                }}
-              />
-            ) : null}
-          </div>
-        ) : null}
+        <div className={`jawbone-controls ${progress ? 'has-progress' : ''}`}>
+          <span className="maturity-flag jawbone-rating">{maturity}</span>
+        </div>
       </div>
       <div className="jawbone-body">
         <TitleActions
           item={item}
-          detail={detail}
+          detail={liveDetail}
           watchHref={watchHref}
           size="sm"
-          continueMode={stillWatching({ progress, kind: item.kind })}
+          continueMode={continueMode}
         />
         <div className="jawbone-meta">
           {soon && coming ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}
           {soon ? null : isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
-          {detail?.year || item.year ? <span>{detail?.year || item.year}</span> : null}
           <span className="maturity">{maturity}</span>
-          {soon ? (
-            item.year ? <span>{item.year}</span> : null
-          ) : remainingLabel(progress, detail?.runtime) ? (
-            <span>{remainingLabel(progress, detail?.runtime)}</span>
+          {soon ? null : remaining ? (
+            <span>{remaining}</span>
           ) : isShow(item) ? (
             <span>
               {seasons.length > 1

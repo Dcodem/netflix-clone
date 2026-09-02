@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { useMediaQuery } from '../hooks/useMediaQuery'
-import { isLiveSearchInput, pushRecentSearch } from '../lib/recentSearch'
+import { isLiveSearchInput, listRecentSearches, pushRecentSearch, removeRecentSearch } from '../lib/recentSearch'
 import { useProfiles } from '../profiles/ProfileContext'
 import { AccountMenu } from './AccountMenu'
 import { CastMenu } from './CastMenu'
 import { NotificationsMenu } from './NotificationsMenu'
-import { ChevronLeftIcon, CloseIcon, SearchIcon } from './Icons'
+import { ChevronLeftIcon, ClockIcon, CloseIcon, SearchIcon } from './Icons'
 
 const NAV = [
   { to: '/browse', label: 'Home', end: true },
@@ -34,6 +34,8 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const phone = useMediaQuery('(max-width: 767px)')
   const [searchOpen, setSearchOpen] = useState(Boolean(urlQuery) || location.pathname === '/search')
+  const [recents, setRecents] = useState(listRecentSearches)
+  const [hoverRecent, setHoverRecent] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const searchRef = useRef<HTMLDivElement>(null)
   const browseRef = useRef<HTMLDetailsElement>(null)
@@ -51,6 +53,10 @@ export function Header() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  useEffect(() => {
+    if (open) setRecents(listRecentSearches())
+  }, [open, debounced])
 
   useEffect(() => {
     const live = query.trim()
@@ -172,31 +178,69 @@ export function Header() {
         </nav>
         <div className="header-tools">
           <CastMenu />
-          <div className={`search-wrap ${open ? 'is-open' : ''}`} ref={searchRef}>
-            <button type="button" className="search-toggle" aria-label="Search" onClick={toggleSearch}>
-              <SearchIcon className="icon" />
-            </button>
-            {open ? (
-              <>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  inputMode="search"
-                  autoComplete="off"
-                  placeholder={phone ? 'Search' : 'Titles, people, genres'}
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  aria-label="Search"
-                />
-                <button
-                  type="button"
-                  className={`search-close ${query ? 'is-shown' : ''}`}
-                  aria-label={query ? 'Clear search' : 'Close search'}
-                  onClick={query ? clearQuery : leaveSearch}
-                >
-                  <CloseIcon className="icon" />
-                </button>
-              </>
+          <div className="search-slot" ref={searchRef}>
+            <div className={`search-wrap ${open ? 'is-open' : ''}`}>
+              <button type="button" className="search-toggle" aria-label="Search" onClick={toggleSearch}>
+                <SearchIcon className="icon" />
+              </button>
+              {open ? (
+                <>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    inputMode="search"
+                    autoComplete="off"
+                    placeholder={phone ? 'Search' : 'Titles, people, genres'}
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    aria-label="Search"
+                  />
+                  <button
+                    type="button"
+                    className={`search-close ${query ? 'is-shown' : ''}`}
+                    aria-label={query ? 'Clear search' : 'Close search'}
+                    onClick={query ? clearQuery : leaveSearch}
+                  >
+                    <CloseIcon className="icon" />
+                  </button>
+                </>
+              ) : null}
+            </div>
+            {open && !phone && !query.trim() && recents.length ? (
+              <div className="search-suggest" role="listbox" aria-label="Recent searches">
+                <p className="search-suggest-label">Recent Searches</p>
+                <ul className="search-suggest-list">
+                  {recents.slice(0, 5).map((entry) => (
+                    <li key={entry} className={hoverRecent === entry ? 'is-hover' : ''}>
+                      <button
+                        type="button"
+                        onMouseEnter={() => setHoverRecent(entry)}
+                        onMouseLeave={() => setHoverRecent((current) => (current === entry ? null : current))}
+                        onClick={() => {
+                          setQuery(entry)
+                          navigate(`/search?q=${encodeURIComponent(entry)}`)
+                        }}
+                      >
+                        <ClockIcon className="icon" />
+                        <span>{entry}</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="search-suggest-forget"
+                        aria-label={`Remove ${entry}`}
+                        onMouseEnter={() => setHoverRecent(entry)}
+                        onMouseLeave={() => setHoverRecent((current) => (current === entry ? null : current))}
+                        onClick={() => {
+                          removeRecentSearch(entry)
+                          setRecents(listRecentSearches())
+                        }}
+                      >
+                        <CloseIcon className="icon" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ) : null}
           </div>
           <NotificationsMenu />

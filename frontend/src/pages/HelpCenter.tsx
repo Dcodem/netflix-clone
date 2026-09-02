@@ -18,7 +18,7 @@ export function HelpCenter() {
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search help"
+          placeholder="What do you need help with?"
           autoComplete="off"
         />
       </label>

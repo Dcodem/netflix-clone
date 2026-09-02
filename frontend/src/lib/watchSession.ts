@@ -34,6 +34,7 @@ export function buildWatchSession(
       poster_url: item.poster_url ?? null,
       genres: genresOf(detail ?? item),
       tmdb_id: item.tmdb_id ?? detail?.tmdb_id,
+      synopsis: resumeEpisode?.synopsis || detail?.synopsis || history?.synopsis || null,
       watch_href: href,
       runtime: resumeEpisode?.duration ?? detail?.runtime ?? history?.runtime ?? null,
       progress: restart || replayMovie ? 0 : history?.progress,

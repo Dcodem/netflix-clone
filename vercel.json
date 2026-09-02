@@ -17,7 +17,9 @@
       "cursor/tmdb-trailers-a7c7": true,
       "cursor/tmdb-title-enrich-a7c7": true,
       "cursor/vercel-hover-trailers-a7c7": true,
-      "cursor/embed-tmdb-key-a7c7": true
+      "cursor/embed-tmdb-key-a7c7": true,
+      "cursor/phone-header-chrome-a7c7": true,
+      "cursor/player-jaw-chrome-a7c7": true
     }
   },
   "functions": {

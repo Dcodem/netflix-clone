@@ -26,7 +26,7 @@ import { CastMenu } from '../components/CastMenu'
 import { MediaImage } from '../components/MediaImage'
 import { SeasonMenu } from '../components/SeasonMenu'
 import { TitleLogo } from '../components/TitleLogo'
-import { createWatchAmbience, playClick, playIdentBump, playWhoosh } from '../lib/sounds'
+import { createWatchAmbience, playClick, playIdentBump } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { watchForEpisode } from '../lib/episodeProgress'
@@ -49,20 +49,32 @@ const PLAYER_SOURCE = 'flix-player'
 const NEXT_CARD_AT = 16
 const AUTO_IN = 5
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] as const
-const CAPTIONS = [
-  'The city never really sleeps.',
-  'Stay close. We move on my mark.',
-  'This is the last chance we get.',
-  'Don’t look back.',
-]
 
 function captionLines(text?: string | null): string[] {
-  if (!text?.trim()) return CAPTIONS
+  if (!text?.trim()) return []
   const parts = text
     .split(/(?<=[.!?])\s+/)
     .map((line) => line.replace(/\s+/g, ' ').trim())
     .filter((line) => line.length >= 8)
-  return parts.length ? parts : CAPTIONS
+  const wrapped: string[] = []
+  for (const part of parts) {
+    if (part.length <= 72) {
+      wrapped.push(part)
+      continue
+    }
+    let buf = ''
+    for (const word of part.split(' ')) {
+      const next = buf ? `${buf} ${word}` : word
+      if (next.length > 64 && buf) {
+        wrapped.push(buf)
+        buf = word
+      } else {
+        buf = next
+      }
+    }
+    if (buf) wrapped.push(buf)
+  }
+  return wrapped.slice(0, 12)
 }
 
 function formatClock(seconds: number, remaining = false) {
@@ -170,13 +182,15 @@ export function WatchOverlay() {
   const [showDetail, setShowDetail] = useState<ShowDetail | null>(null)
   const [episodesOpen, setEpisodesOpen] = useState(false)
   const [audioOpen, setAudioOpen] = useState(false)
+  const [audioHover, setAudioHover] = useState<string | null>(null)
   const [speedOpen, setSpeedOpen] = useState(false)
+  const [speedHover, setSpeedHover] = useState<number | null>(null)
   const [speed, setSpeed] = useState(initialPrefs.speed)
   const [subs, setSubs] = useState(initialPrefs.subs)
-  const [captionSize, setCaptionSize] = useState<CaptionSize>(initialPrefs.captionSize)
-  const [captionBg, setCaptionBg] = useState<CaptionBg>(initialPrefs.captionBg)
-  const [captionFont, setCaptionFont] = useState<CaptionFont>(initialPrefs.captionFont)
-  const [captionColor, setCaptionColor] = useState<CaptionColor>(initialPrefs.captionColor)
+  const [captionSize] = useState<CaptionSize>(initialPrefs.captionSize)
+  const [captionBg] = useState<CaptionBg>(initialPrefs.captionBg)
+  const [captionFont] = useState<CaptionFont>(initialPrefs.captionFont)
+  const [captionColor] = useState<CaptionColor>(initialPrefs.captionColor)
   const [audioTrack, setAudioTrack] = useState(initialPrefs.audioTrack)
   const [introSkipped, setIntroSkipped] = useState(false)
   const [recapSkipped, setRecapSkipped] = useState(false)
@@ -184,11 +198,16 @@ export function WatchOverlay() {
   const [seasonNumber, setSeasonNumber] = useState<number | null>(null)
   const [volOpen, setVolOpen] = useState(false)
   const [barHover, setBarHover] = useState(false)
+  const [scrubHover, setScrubHover] = useState(false)
+  const [creditsHover, setCreditsHover] = useState(false)
+  const [nextEpHover, setNextEpHover] = useState(false)
+  const [epHoverId, setEpHoverId] = useState<string | null>(null)
   const [scrubHint, setScrubHint] = useState<{ ratio: number; x: number } | null>(null)
   const [nextDismissed, setNextDismissed] = useState(false)
   const [stillWatching, setStillWatching] = useState(false)
   const [identOn, setIdentOn] = useState(true)
   const [identPhase, setIdentPhase] = useState<'logo' | 'title' | 'off'>('logo')
+  const [identBump, setIdentBump] = useState(true)
   const [helpOpen, setHelpOpen] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
   const [reportReason, setReportReason] = useState<(typeof REPORT_REASONS)[number]['id']>('buffering')
@@ -205,6 +224,7 @@ export function WatchOverlay() {
   const autoNextRef = useRef('')
   const streakRef = useRef(0)
   const showIdRef = useRef('')
+  const identFromStartRef = useRef(false)
   const showChromeRef = useRef<() => void>(() => setChrome(true))
 
   const runtimeSec = Math.max(60, (session?.history?.runtime ?? 48) * 60)
@@ -215,14 +235,16 @@ export function WatchOverlay() {
     if (showIdRef.current && showIdRef.current !== showId) streakRef.current = 0
     showIdRef.current = showId
     autoNextRef.current = ''
+    identFromStartRef.current = startProgress < 0.02
     setClockKey(sessionKey)
     setCurrent(startProgress * runtimeSec)
     setDuration(runtimeSec)
     setPaused(false)
     setNextDismissed(false)
     setStillWatching(false)
-    setIdentOn(startProgress < 0.02)
-    setIdentPhase(startProgress < 0.02 ? (streakRef.current > 0 ? 'title' : 'logo') : 'off')
+    setIdentOn(identFromStartRef.current)
+    setIdentBump(identFromStartRef.current && streakRef.current === 0)
+    setIdentPhase(identFromStartRef.current ? 'logo' : 'off')
     setIntroSkipped(false)
     setRecapSkipped(false)
     setHelpOpen(false)
@@ -292,7 +314,6 @@ export function WatchOverlay() {
   const skip = useCallback(
     (delta: number) => {
     playClick()
-    playWhoosh()
     post({ cmd: 'skip', delta })
       pulse(delta < 0 ? 'back' : 'fwd')
     },
@@ -381,26 +402,30 @@ export function WatchOverlay() {
 
   useEffect(() => {
     if (!sessionKey) return
-    const fromStart = startProgress < 0.02
+    const fromStart = identFromStartRef.current
     const bingeTitle = fromStart && streakRef.current > 0
     setIdentOn(fromStart)
-    setIdentPhase(fromStart ? (bingeTitle ? 'title' : 'logo') : 'off')
+    setIdentBump(fromStart && !bingeTitle)
+    setIdentPhase(fromStart ? 'logo' : 'off')
     if (!fromStart) {
       showChromeRef.current()
       return
     }
     if (!bingeTitle) playIdentBump()
-    const toTitle = bingeTitle ? 0 : window.setTimeout(() => setIdentPhase('title'), 3200)
+    const toTitle = window.setTimeout(() => setIdentPhase('title'), bingeTitle ? 40 : 1400)
+    const bumpOff = bingeTitle ? 0 : window.setTimeout(() => setIdentBump(false), 1800)
     const timer = window.setTimeout(() => {
       setIdentOn(false)
+      setIdentBump(false)
       setIdentPhase('off')
       showChromeRef.current()
-    }, bingeTitle ? 2200 : 6000)
+    }, bingeTitle ? 1800 : 4000)
     return () => {
-      if (toTitle) window.clearTimeout(toTitle)
+      window.clearTimeout(toTitle)
+      if (bumpOff) window.clearTimeout(bumpOff)
       window.clearTimeout(timer)
     }
-  }, [sessionKey, startProgress])
+  }, [sessionKey])
 
   useEffect(() => {
     if (!session?.history?.id || session.history.kind !== 'show') {
@@ -575,7 +600,8 @@ export function WatchOverlay() {
         event.key.toLowerCase() === 's' &&
         isShow &&
         !introSkipped &&
-        currentRef.current < skipMarks(runtimeSec, session?.history?.genres).introUntil
+        currentRef.current > 2.4 &&
+        currentRef.current < skipMarks(runtimeSec, session?.history?.genres).introAt
       ) {
         event.preventDefault()
         setIntroSkipped(true)
@@ -687,9 +713,9 @@ export function WatchOverlay() {
 
   useEffect(() => {
     if (!session || !isShow || !activeProfile?.skipIntros) return
-    if (identPhase === 'logo' || paused || stillWatching) return
+    if (identOn || paused || stillWatching) return
     const marks = skipMarks(runtimeSec, session.history?.genres)
-    if (!introSkipped && current > 2.4 && current < marks.introUntil) {
+    if (!introSkipped && playhead < marks.introAt && (playhead > 2.4 || identFromStartRef.current)) {
       setIntroSkipped(true)
       post({ cmd: 'seek', seconds: marks.introAt })
       return
@@ -697,25 +723,23 @@ export function WatchOverlay() {
     if (
       marks.recapUntil > marks.recapAt &&
       !recapSkipped &&
-      !identOn &&
-      current >= marks.introUntil &&
-      current < marks.recapUntil
+      playhead >= marks.recapAt &&
+      playhead < marks.recapUntil
     ) {
       setRecapSkipped(true)
       setIntroSkipped(true)
-      post({ cmd: 'seek', seconds: marks.recapAt })
+      post({ cmd: 'seek', seconds: marks.recapUntil })
     }
   }, [
     session,
     isShow,
     activeProfile?.skipIntros,
-    identPhase,
     identOn,
     paused,
     stillWatching,
     introSkipped,
     recapSkipped,
-    current,
+    playhead,
     runtimeSec,
     post,
   ])
@@ -788,21 +812,22 @@ export function WatchOverlay() {
   if (!session) return null
 
   const length = duration || runtimeSec
-  const progress = length ? Math.min(1, current / length) : 0
-  const remaining = Math.max(0, length - current)
+  const progress = length ? Math.min(1, playhead / length) : 0
+  const remaining = Math.max(0, length - playhead)
   const episodeLabel = playing
     ? `S${playing.season.season_number}:E${playing.episode.number}`
     : isShow
       ? `S${session.history?.seasonNumber ?? 1}:E${session.history?.episodeNumber ?? 1}`
       : null
   const marks = skipMarks(runtimeSec, session.history?.genres)
+  const pastIntroGate = playhead > 2.4 || (identFromStartRef.current && !identOn)
   const showSkipIntro =
     isShow &&
-    identPhase !== 'logo' &&
+    !identOn &&
     !introSkipped &&
     !activeProfile?.skipIntros &&
-    current > 2.4 &&
-    current < marks.introUntil &&
+    pastIntroGate &&
+    playhead < marks.introAt &&
     !episodesOpen &&
     !audioOpen &&
     !speedOpen
@@ -813,8 +838,8 @@ export function WatchOverlay() {
     !identOn &&
     !showSkipIntro &&
     !activeProfile?.skipIntros &&
-    current >= marks.introUntil &&
-    current < marks.recapUntil &&
+    playhead >= marks.recapAt &&
+    playhead < marks.recapUntil &&
     !episodesOpen &&
     !audioOpen &&
     !speedOpen
@@ -822,9 +847,15 @@ export function WatchOverlay() {
   const showNext = Boolean(upcoming && showCredits)
   const countingDown = remaining <= AUTO_IN && activeProfile?.autoplayNext !== false
   const nextCount = countingDown ? Math.max(1, Math.ceil(remaining)) : null
-  const nextProgress = countingDown ? Math.min(1, remaining / AUTO_IN) : 1
-  const captionPool = captionLines(playing?.episode.synopsis)
-  const caption = subs === 'off' ? null : captionPool[Math.floor(current / 9) % captionPool.length]
+  const nextProgress =
+    activeProfile?.autoplayNext !== false ? Math.min(1, Math.max(0, remaining / NEXT_CARD_AT)) : 1
+  const captionPool = captionLines(
+    playing?.episode.synopsis || showDetail?.synopsis || session?.history?.synopsis,
+  )
+  const caption =
+    subs === 'off' || !captionPool.length
+      ? null
+      : captionPool[Math.floor(current / 9) % captionPool.length]
 
   function ratioFromEvent(event: ReactPointerEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect()
@@ -838,7 +869,6 @@ export function WatchOverlay() {
   function skipIntro(event: { stopPropagation: () => void }) {
     event.stopPropagation()
     playClick()
-    playWhoosh()
     setIntroSkipped(true)
     post({ cmd: 'seek', seconds: marks.introAt })
   }
@@ -846,10 +876,9 @@ export function WatchOverlay() {
   function skipRecap(event: { stopPropagation: () => void }) {
     event.stopPropagation()
     playClick()
-    playWhoosh()
     setRecapSkipped(true)
     setIntroSkipped(true)
-    post({ cmd: 'seek', seconds: marks.recapAt })
+    post({ cmd: 'seek', seconds: marks.recapUntil })
   }
 
   function playEpisode(season: Season, episode: Episode, binge = false) {
@@ -891,7 +920,7 @@ export function WatchOverlay() {
   return (
     <div
       ref={overlayRef}
-      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identPhase === 'logo' && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''} ${reportOpen ? 'is-report' : ''} ${locked ? 'is-locked' : ''} ${pip ? 'is-pip' : ''}`}
+      className={`watch-overlay ${paused ? 'is-paused' : ''} ${chrome && !identOn ? 'is-chrome' : ''} ${episodesOpen || audioOpen ? 'is-panel' : ''} ${speedOpen ? 'is-speed' : ''} ${stillWatching ? 'is-still' : ''} ${identOn && !stillWatching ? 'is-ident' : ''} ${identBump && !stillWatching ? 'is-ident-logo' : ''} ${showNext ? 'is-next' : ''} ${helpOpen ? 'is-help' : ''} ${reportOpen ? 'is-report' : ''} ${locked ? 'is-locked' : ''} ${pip ? 'is-pip' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Player"
@@ -990,24 +1019,30 @@ export function WatchOverlay() {
           {flash === 'fwd' ? <SkipForwardIcon className="icon" /> : null}
         </div>
       ) : null}
-      {stillWatching ? null : identPhase === 'logo' ? (
-        <div className="watch-ident-bump" aria-hidden="true">
-          <strong>FLIX</strong>
-        </div>
-      ) : (
-        <div className={`watch-ident ${chrome && !identOn ? 'is-raised' : ''} ${identOn ? 'is-on' : ''}`} aria-hidden="true">
-          <TitleLogo
-            item={trailerSearch(session)}
-            className="watch-ident-logo"
-            titleClassName="watch-ident-title"
-          />
-          {isShow ? (
-            <p className="watch-ident-ep">
-              {episodeLabel}
-              {playing?.episode.title ? ` ${playing.episode.title}` : ''}
-            </p>
+      {stillWatching ? null : (
+        <>
+          {identBump ? (
+            <div className="watch-ident-bump" aria-hidden="true">
+              <strong className="watch-ident-mark">F</strong>
+            </div>
           ) : null}
-        </div>
+          <div
+            className={`watch-ident ${chrome && !identOn ? 'is-raised' : ''} ${identOn && identPhase === 'title' ? 'is-on' : ''}`}
+            aria-hidden="true"
+          >
+            <TitleLogo
+              item={trailerSearch(session)}
+              className="watch-ident-logo"
+              titleClassName="watch-ident-title"
+            />
+            {isShow ? (
+              <p className="watch-ident-ep">
+                {episodeLabel}
+                {playing?.episode.title ? ` ${playing.episode.title}` : ''}
+              </p>
+            ) : null}
+          </div>
+        </>
       )}
       <div
         className={`watch-topbar ${chrome ? 'is-visible' : ''}`}
@@ -1075,7 +1110,9 @@ export function WatchOverlay() {
         <div className={`watch-end-cluster ${showNext ? 'has-card' : 'is-credits-only'}`}>
         <button
           type="button"
-          className="watch-credits is-visible"
+          className={`watch-credits is-visible ${creditsHover ? 'is-hover' : ''}`}
+          onMouseEnter={() => setCreditsHover(true)}
+          onMouseLeave={() => setCreditsHover(false)}
           onClick={(event) => {
             event.stopPropagation()
             setNextDismissed(true)
@@ -1106,14 +1143,18 @@ export function WatchOverlay() {
                 style={{ '--p': String(nextProgress) } as CSSProperties}
                 aria-hidden="true"
               >
-                <span key={nextCount ?? 'go'}>{nextCount != null ? nextCount : <PlayIcon className="icon" />}</span>
+                <span key={nextCount ?? (remaining <= 0.85 ? 'go' : 'wait')}>
+                  {nextCount != null ? nextCount : remaining <= 0.85 ? <PlayIcon className="icon" /> : null}
+                </span>
               </span>
             ) : null}
             Next Episode
           </span>
           <button
             type="button"
-            className="next-ep-body"
+            className={`next-ep-body ${nextEpHover ? 'is-hover' : ''}`}
+            onMouseEnter={() => setNextEpHover(true)}
+            onMouseLeave={() => setNextEpHover(false)}
             onClick={(event) => {
               event.stopPropagation()
               playEpisode(upcoming.season, upcoming.episode, true)
@@ -1186,12 +1227,17 @@ export function WatchOverlay() {
       >
         <div className="watch-scrub">
           <div
-            className="watch-progress"
+            className={`watch-progress ${scrubHover || scrubHint ? 'is-hover' : ''}`}
             role="slider"
             aria-label="Seek"
             aria-valuemin={0}
             aria-valuemax={Math.round(length)}
             aria-valuenow={Math.round(current)}
+            onMouseEnter={() => setScrubHover(true)}
+            onMouseLeave={() => {
+              setScrubHover(false)
+              setScrubHint(null)
+            }}
             onPointerDown={(event) => {
               event.currentTarget.setPointerCapture(event.pointerId)
               seekFromEvent(event)
@@ -1215,10 +1261,10 @@ export function WatchOverlay() {
                 {formatClock(scrubHint.ratio * length)}
               </span>
             ) : null}
-            {isShow && length > 0 && marks.introUntil > 0 ? (
+            {isShow && length > 0 && marks.introAt > 0 ? (
               <span
                 className="watch-mark is-intro"
-                style={{ left: `${Math.min(100, (marks.introUntil / length) * 100)}%` }}
+                style={{ left: `${Math.min(100, (marks.introAt / length) * 100)}%` }}
                 aria-hidden="true"
               />
             ) : null}
@@ -1234,15 +1280,6 @@ export function WatchOverlay() {
             </div>
           </div>
           <span className="watch-time">{formatClock(remaining, true)}</span>
-        </div>
-        <div className="watch-now-playing">
-          <p className="watch-now-title">{session.history?.title || session.title}</p>
-          {episodeLabel ? (
-            <p className="watch-now-ep">
-              {episodeLabel}
-              {playing?.episode.title ? ` ${playing.episode.title}` : ''}
-            </p>
-          ) : null}
         </div>
         <div className="watch-controls">
           <div className="watch-controls-left">
@@ -1271,6 +1308,8 @@ export function WatchOverlay() {
             </button>
             <div
               className={`watch-vol ${volOpen ? 'is-open' : ''}`}
+              onMouseEnter={() => setVolOpen(true)}
+              onMouseLeave={() => setVolOpen(false)}
               onPointerEnter={() => setVolOpen(true)}
               onPointerLeave={() => setVolOpen(false)}
             >
@@ -1316,6 +1355,15 @@ export function WatchOverlay() {
                 </span>
               </div>
             </div>
+          </div>
+          <div className="watch-now-playing">
+            <p className="watch-now-title">{session.history?.title || session.title}</p>
+            {episodeLabel ? (
+              <p className="watch-now-ep">
+                {episodeLabel}
+                {playing?.episode.title ? ` ${playing.episode.title}` : ''}
+              </p>
+            ) : null}
           </div>
           <div className="watch-controls-right">
             {isShow && upcoming ? (
@@ -1380,7 +1428,9 @@ export function WatchOverlay() {
                     <button
                       type="button"
                       key={rate}
-                      className={speed === rate ? 'is-on' : ''}
+                      className={`${speed === rate ? 'is-on' : ''} ${speedHover === rate ? 'is-hover' : ''}`}
+                      onMouseEnter={() => setSpeedHover(rate)}
+                      onMouseLeave={() => setSpeedHover((current) => (current === rate ? null : current))}
                       onClick={() => {
                         setSpeed(rate)
                         post({ cmd: 'rate', value: rate })
@@ -1388,7 +1438,7 @@ export function WatchOverlay() {
                       }}
                     >
                       {speed === rate ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-                      {rate === 1 ? 'Normal' : `${rate}x`}
+                      {rate === 1 ? '1x (Normal)' : `${rate}x`}
                     </button>
                   ))}
                 </div>
@@ -1640,7 +1690,7 @@ export function WatchOverlay() {
           <span className="watch-sheet-handle" aria-hidden="true" />
           <div className="watch-ep-head">
             <h2>{session.history?.title || session.title}</h2>
-            {showDetail && showDetail.seasons && showDetail.seasons.length > 1 ? (
+            {showDetail?.seasons?.length ? (
               <SeasonMenu
                 seasons={showDetail.seasons}
                 history={session.history ? { ...session.history, watchedAt: 0 } : undefined}
@@ -1665,7 +1715,9 @@ export function WatchOverlay() {
                 <button
                   type="button"
                   key={episode.id}
-                  className={`watch-ep ${active ? 'is-on' : ''} ${done ? 'is-watched' : ''}`}
+                  className={`watch-ep ${active ? 'is-on' : ''} ${done ? 'is-watched' : ''} ${epHoverId === episode.id ? 'is-hover' : ''}`}
+                  onMouseEnter={() => setEpHoverId(episode.id)}
+                  onMouseLeave={() => setEpHoverId(null)}
                   onClick={() => playEpisode(season, episode)}
                 >
                   <span className="watch-ep-num">{episode.number}</span>
@@ -1714,103 +1766,59 @@ export function WatchOverlay() {
           </div>
           <div>
             <h2>Audio</h2>
-            <button type="button" className={audioTrack === 'en' ? 'is-on' : ''} onClick={() => setAudioTrack('en')}>
+            <button
+              type="button"
+              className={`${audioTrack === 'en' ? 'is-on' : ''} ${audioHover === 'en' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setAudioHover('en')}
+              onMouseLeave={() => setAudioHover((current) => (current === 'en' ? null : current))}
+              onClick={() => setAudioTrack('en')}
+            >
               {audioTrack === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English [Original]
             </button>
-            <button type="button" className={audioTrack === 'ad' ? 'is-on' : ''} onClick={() => setAudioTrack('ad')}>
+            <button
+              type="button"
+              className={`${audioTrack === 'ad' ? 'is-on' : ''} ${audioHover === 'ad' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setAudioHover('ad')}
+              onMouseLeave={() => setAudioHover((current) => (current === 'ad' ? null : current))}
+              onClick={() => setAudioTrack('ad')}
+            >
               {audioTrack === 'ad' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English [Audio Description]
             </button>
           </div>
           <div>
             <h2>Subtitles</h2>
-            <button type="button" className={subs === 'off' ? 'is-on' : ''} onClick={() => setSubs('off')}>
+            <button
+              type="button"
+              className={`${subs === 'off' ? 'is-on' : ''} ${audioHover === 'off' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setAudioHover('off')}
+              onMouseLeave={() => setAudioHover((current) => (current === 'off' ? null : current))}
+              onClick={() => setSubs('off')}
+            >
               {subs === 'off' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               Off
             </button>
-            <button type="button" className={subs === 'en' ? 'is-on' : ''} onClick={() => setSubs('en')}>
+            <button
+              type="button"
+              className={`${subs === 'en' ? 'is-on' : ''} ${audioHover === 'sub-en' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setAudioHover('sub-en')}
+              onMouseLeave={() => setAudioHover((current) => (current === 'sub-en' ? null : current))}
+              onClick={() => setSubs('en')}
+            >
               {subs === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English
             </button>
-            <button type="button" className={subs === 'cc' ? 'is-on' : ''} onClick={() => setSubs('cc')}>
+            <button
+              type="button"
+              className={`${subs === 'cc' ? 'is-on' : ''} ${audioHover === 'cc' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setAudioHover('cc')}
+              onMouseLeave={() => setAudioHover((current) => (current === 'cc' ? null : current))}
+              onClick={() => setSubs('cc')}
+            >
               {subs === 'cc' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English [CC]
             </button>
-            <h2 className="watch-caption-size-label">Size</h2>
-            {(
-              [
-                ['s', 'Small'],
-                ['m', 'Medium'],
-                ['l', 'Large'],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                type="button"
-                key={value}
-                className={captionSize === value ? 'is-on' : ''}
-                onClick={() => setCaptionSize(value)}
-              >
-                {captionSize === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-                {label}
-              </button>
-            ))}
-            <h2 className="watch-caption-size-label">Background</h2>
-            {(
-              [
-                ['shadow', 'Drop shadow'],
-                ['box', 'Opaque'],
-                ['none', 'None'],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                type="button"
-                key={value}
-                className={captionBg === value ? 'is-on' : ''}
-                onClick={() => setCaptionBg(value)}
-              >
-                {captionBg === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-                {label}
-              </button>
-            ))}
-            <h2 className="watch-caption-size-label">Font</h2>
-            {(
-              [
-                ['default', 'Default'],
-                ['casual', 'Casual'],
-                ['cursive', 'Cursive'],
-                ['smallcaps', 'Small Caps'],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                type="button"
-                key={value}
-                className={captionFont === value ? 'is-on' : ''}
-                onClick={() => setCaptionFont(value)}
-              >
-                {captionFont === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-                {label}
-              </button>
-            ))}
-            <h2 className="watch-caption-size-label">Font color</h2>
-            {(
-              [
-                ['white', 'White'],
-                ['yellow', 'Yellow'],
-                ['cyan', 'Cyan'],
-                ['green', 'Green'],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                type="button"
-                key={value}
-                className={captionColor === value ? 'is-on' : ''}
-                onClick={() => setCaptionColor(value)}
-              >
-                {captionColor === value ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-                {label}
-              </button>
-            ))}
           </div>
         </div>
       ) : null}

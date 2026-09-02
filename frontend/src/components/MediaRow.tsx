@@ -1,8 +1,8 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { MovieListItem } from '../api/types'
 import { useFineHover } from '../hooks/useFineHover'
 import { useRowOverflow } from '../hooks/useRowOverflow'
-import { playWhoosh } from '../lib/sounds'
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons'
 import { PosterCard } from './PosterCard'
 
@@ -37,9 +37,15 @@ export function MediaRow({
   exploreTo?: string
 }) {
   const fineHover = useFineHover()
+  const [rowHover, setRowHover] = useState(false)
+  const [headingHover, setHeadingHover] = useState(false)
+  const [arrowHover, setArrowHover] = useState<'prev' | 'next' | null>(null)
   const ranked = variant === 'top10'
   const looping = loop && !seed && !ranked && items.length >= 8 && fineHover
-  const { ref, canPrev, canNext, copies, scrollByPage } = useRowOverflow(looping, items.length)
+  const { ref, canPrev, canNext, copies, pageIndex, pageCount, scrollByPage } = useRowOverflow(
+    looping,
+    items.length,
+  )
 
   if (!items.length) return null
 
@@ -48,10 +54,22 @@ export function MediaRow({
   const canExplore = !subtitle && !continueMode && !ranked
 
   return (
-    <section className={`media-row ${seed ? 'has-scene' : ''} ${ranked ? 'is-top10' : ''}`}>
+    <section
+      className={`media-row ${seed ? 'has-scene' : ''} ${ranked ? 'is-top10' : ''} ${continueMode ? 'is-continue' : ''} ${rowHover ? 'is-hover' : ''}`}
+      onMouseEnter={() => setRowHover(true)}
+      onMouseLeave={() => {
+        setRowHover(false)
+        setArrowHover(null)
+      }}
+    >
       <div className="row-heading">
         {canExplore ? (
-          <Link className="row-heading-link" to={exploreHref(items, seed, exploreTo)}>
+          <Link
+            className={`row-heading-link ${headingHover ? 'is-hover' : ''}`}
+            to={exploreHref(items, seed, exploreTo)}
+            onMouseEnter={() => setHeadingHover(true)}
+            onMouseLeave={() => setHeadingHover(false)}
+          >
             <h2 className="section-title">{title}</h2>
             <span className="row-explore">
               Explore All
@@ -61,18 +79,24 @@ export function MediaRow({
         ) : (
           <h2 className="section-title">{title}</h2>
         )}
+        {pageCount > 1 ? (
+          <div className="row-pages" aria-hidden="true">
+            {Array.from({ length: pageCount }, (_, index) => (
+              <span key={index} className={index === pageIndex ? 'is-on' : ''} />
+            ))}
+          </div>
+        ) : null}
       </div>
       {subtitle ? <p className="section-sub row-sub">{subtitle}</p> : null}
       <div className="row-wrap">
         {canPrev ? (
           <button
             type="button"
-            className="row-arrow row-arrow-prev"
+            className={`row-arrow row-arrow-prev ${arrowHover === 'prev' ? 'is-hover' : ''}`}
             aria-label={`Scroll ${title} left`}
-            onClick={() => {
-              playWhoosh()
-              scrollByPage(-1)
-            }}
+            onClick={() => scrollByPage(-1)}
+            onMouseEnter={() => setArrowHover('prev')}
+            onMouseLeave={() => setArrowHover(null)}
           >
             <ChevronLeftIcon className="icon" />
           </button>
@@ -96,12 +120,11 @@ export function MediaRow({
         {canNext ? (
           <button
             type="button"
-            className="row-arrow row-arrow-next"
+            className={`row-arrow row-arrow-next ${arrowHover === 'next' ? 'is-hover' : ''}`}
             aria-label={`Scroll ${title} right`}
-            onClick={() => {
-              playWhoosh()
-              scrollByPage(1)
-            }}
+            onClick={() => scrollByPage(1)}
+            onMouseEnter={() => setArrowHover('next')}
+            onMouseLeave={() => setArrowHover(null)}
           >
             <ChevronRightIcon className="icon" />
           </button>

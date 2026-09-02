@@ -13,6 +13,14 @@ import {
   type DataUsage,
   type DownloadQuality,
 } from '../profiles/types'
+import {
+  patchPlayerPrefs,
+  readPlayerPrefs,
+  type CaptionBg,
+  type CaptionColor,
+  type CaptionFont,
+  type CaptionSize,
+} from '../lib/playerPrefs'
 
 const PLANS = [
   { id: 'standard', name: 'Standard', quality: 'HD', devices: '2 devices at a time', price: '$15.49' },
@@ -105,6 +113,7 @@ export function Account() {
   const [pinDraft, setPinDraft] = useState('')
   const [pinConfirm, setPinConfirm] = useState('')
   const [actionPin, setActionPin] = useState('')
+  const [captionPrefs, setCaptionPrefs] = useState(() => readPlayerPrefs())
   const referralCode = user?.referralCode ?? ''
   const extraMembers = extraMembersFor(user)
   const extraSlots = extraMemberSlots(planId)
@@ -860,6 +869,84 @@ export function Account() {
                         {entry.label}
                         <small>{entry.detail}</small>
                       </span>
+                    </label>
+                  ))}
+                </fieldset>
+                <fieldset className="account-data-usage">
+                  <legend>Subtitle appearance</legend>
+                  <p>These choices apply the next time you play a title.</p>
+                  <p className="account-prefs-lead">Size</p>
+                  {(
+                    [
+                      ['s', 'Small'],
+                      ['m', 'Medium'],
+                      ['l', 'Large'],
+                    ] as const
+                  ).map(([id, label]) => (
+                    <label className="edit-check" key={id}>
+                      <input
+                        type="radio"
+                        name="caption-size"
+                        checked={captionPrefs.captionSize === id}
+                        onChange={() => setCaptionPrefs(patchPlayerPrefs({ captionSize: id as CaptionSize }))}
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                  <p className="account-prefs-lead">Background</p>
+                  {(
+                    [
+                      ['shadow', 'Drop shadow'],
+                      ['box', 'Opaque box'],
+                      ['none', 'None'],
+                    ] as const
+                  ).map(([id, label]) => (
+                    <label className="edit-check" key={id}>
+                      <input
+                        type="radio"
+                        name="caption-bg"
+                        checked={captionPrefs.captionBg === id}
+                        onChange={() => setCaptionPrefs(patchPlayerPrefs({ captionBg: id as CaptionBg }))}
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                  <p className="account-prefs-lead">Font</p>
+                  {(
+                    [
+                      ['default', 'Default'],
+                      ['casual', 'Casual'],
+                      ['cursive', 'Cursive'],
+                      ['smallcaps', 'Small Caps'],
+                    ] as const
+                  ).map(([id, label]) => (
+                    <label className="edit-check" key={id}>
+                      <input
+                        type="radio"
+                        name="caption-font"
+                        checked={captionPrefs.captionFont === id}
+                        onChange={() => setCaptionPrefs(patchPlayerPrefs({ captionFont: id as CaptionFont }))}
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                  <p className="account-prefs-lead">Font color</p>
+                  {(
+                    [
+                      ['white', 'White'],
+                      ['yellow', 'Yellow'],
+                      ['cyan', 'Cyan'],
+                      ['green', 'Green'],
+                    ] as const
+                  ).map(([id, label]) => (
+                    <label className="edit-check" key={id}>
+                      <input
+                        type="radio"
+                        name="caption-color"
+                        checked={captionPrefs.captionColor === id}
+                        onChange={() => setCaptionPrefs(patchPlayerPrefs({ captionColor: id as CaptionColor }))}
+                      />
+                      <span>{label}</span>
                     </label>
                   ))}
                 </fieldset>

@@ -117,7 +117,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         id: 'languages',
         title: 'Browse by Languages',
-        body: 'Browse by Languages lists titles in their original language. The menu only offers languages that have a title. Sort by Suggestions, year, A–Z, or Z–A.',
+        body: 'Browse by Languages lists titles by original language, dubbing, or subtitles. Original only offers languages that have a title. Sort by Suggestions, year, A–Z, or Z–A.',
       },
     ],
   },
@@ -132,7 +132,7 @@ export const FAQ_ITEMS: HelpArticle[] = [
   {
     id: 'watch',
     title: 'How do I watch?',
-    body: 'Open a title and choose Play or Resume. Ways to Watch lists this browser and phone. Smart TVs and consoles are not on this demo.',
+    body: 'Open a title and choose Play. Ways to Watch lists this browser and phone. Smart TVs and consoles are not on this demo.',
   },
   {
     id: 'account',

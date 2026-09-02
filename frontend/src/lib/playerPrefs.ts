@@ -65,3 +65,9 @@ export function writePlayerPrefs(prefs: PlayerPrefs) {
     /* ignore quota / private mode */
   }
 }
+
+export function patchPlayerPrefs(partial: Partial<PlayerPrefs>): PlayerPrefs {
+  const next = { ...readPlayerPrefs(), ...partial }
+  writePlayerPrefs(next)
+  return next
+}

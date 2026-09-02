@@ -47,10 +47,9 @@ export function Search() {
     return relatedSearchResults(hits, pool, activeProfile, 48).filter((item) => !hitIds.has(item.id))
   }, [hits, pool, activeProfile])
   const popularItems = useMemo(
-    () => sortByRating(filterByMaturity(popular.data ?? [], activeProfile)).slice(0, 18),
+    () => sortByRating(filterByMaturity(popular.data ?? [], activeProfile)).slice(0, 36),
     [popular.data, activeProfile],
   )
-  const desktopItems = useMemo(() => uniqueById([...hits, ...related]), [hits, related])
   const phone = useMediaQuery('(max-width: 767px)')
 
   useEffect(() => {
@@ -104,15 +103,17 @@ export function Search() {
     return (
       <main className="page page-pad search-page">
         {phone ? recentBlock : null}
-        {popularItems.length ? (
+        {popular.loading && !popularItems.length ? (
+          <Spinner label="Loading titles" />
+        ) : popularItems.length ? (
           <>
             <h2 className="section-title search-recommended-title">
-              {phone ? 'Top Searches' : 'Recommended TV Shows and Movies'}
+              {phone ? 'Top Searches' : 'Recommended TV Shows & Movies'}
             </h2>
             {phone ? (
               <SearchHitsList items={popularItems.slice(0, 10)} ranked />
             ) : (
-              <MediaGrid items={popularItems} layout="landscape" />
+              <MediaGrid items={popularItems} layout="poster" />
             )}
           </>
         ) : null}
@@ -140,12 +141,12 @@ export function Search() {
     return (
       <main className="page page-pad search-page">
         <div className="search-empty">
-          <p>Your search for “{q}” did not have any matches.</p>
+          <p>{`Your search for "${q}" did not have any matches.`}</p>
           <p className="search-empty-kicker">Suggestions:</p>
           <ul>
             <li>Try different keywords</li>
             <li>Looking for a movie or TV show?</li>
-            <li>Try using a movie, TV show title, an actor or director</li>
+            <li>Try using a movie, TV show title, an actor, or director</li>
             <li>Try a genre, like comedy, romance, sports, or drama</li>
           </ul>
         </div>
@@ -167,20 +168,16 @@ export function Search() {
             </>
           ) : null}
         </>
-      ) : (
+      ) : hits.length || related.length ? (
         <>
-          {hits.length ? (
-            <h1 className="search-heading">
-              Results for: <span>{q}</span>
-            </h1>
-          ) : related.length ? (
-            <h1 className="search-heading">
+          {!hits.length && related.length ? (
+            <h1 className="search-heading is-related">
               Explore titles related to: <span>{q}</span>
             </h1>
           ) : null}
-          <MediaGrid items={desktopItems} layout="landscape" />
+          <MediaGrid items={[...hits, ...related]} layout="poster" hoverable />
         </>
-      )}
+      ) : null}
     </main>
   )
 }

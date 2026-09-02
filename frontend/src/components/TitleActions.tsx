@@ -97,6 +97,9 @@ export function TitleActions({
   const rateControl = (
     <div
       className={`thumbs-pop ${rateOpen ? 'is-open' : ''} ${sheet ? 'title-sheet-tool' : ''}`}
+      onMouseEnter={() => {
+        if (fineHover) setRateOpen(true)
+      }}
       onMouseLeave={() => setRateOpen(false)}
     >
       <button
@@ -186,7 +189,7 @@ export function TitleActions({
       ) : playStyle === 'labeled' ? (
         <button type="button" className="btn btn-play" onClick={() => play(false)} disabled={!href}>
           <PlayIcon className="icon" />
-          {continueMode ? 'Resume' : 'Play'}
+          Play
         </button>
       ) : (
         <button
@@ -194,7 +197,7 @@ export function TitleActions({
           className="circle-btn circle-play"
           onClick={() => play(false)}
           disabled={!href}
-          aria-label={continueMode ? 'Resume' : 'Play'}
+          aria-label="Play"
         >
           <PlayIcon className="icon" />
         </button>
@@ -212,24 +215,13 @@ export function TitleActions({
           {downloaded ? 'Downloaded' : 'Download'}
         </button>
       ) : null}
-      {continueMode && playStyle === 'labeled' && !sheet && !soon ? (
+      {continueMode && !sheet && !soon && playStyle !== 'labeled' ? (
         <button type="button" className="circle-btn" onClick={() => play(true)} disabled={!href} aria-label="Play from beginning">
           <RestartIcon className="icon" />
         </button>
       ) : null}
       {sheet ? (
-        <div className={`title-sheet-tools ${continueMode ? 'is-continue' : ''}`}>
-          {continueMode && !soon ? (
-            <button
-              type="button"
-              className="title-sheet-btn"
-              onClick={() => play(true)}
-              disabled={!href}
-            >
-              <RestartIcon className="icon" />
-              <span>Restart</span>
-            </button>
-          ) : null}
+        <div className="title-sheet-tools">
           {soon ? null : (
           <button
             type="button"
@@ -286,16 +278,6 @@ export function TitleActions({
           </button>
         </>
       )}
-      {!sheet && playStyle === 'labeled' ? (
-        <button
-          type="button"
-          className={`circle-btn ${copied ? 'is-on' : ''}`}
-          onClick={() => void shareTitle()}
-          aria-label={copied ? 'Copied' : 'Share'}
-        >
-          <ShareIcon className="icon" />
-        </button>
-      ) : null}
       {!sheet && showMore ? (
         <button type="button" className="circle-btn circle-more" onClick={(event) => openTitle(item, event.currentTarget)} aria-label="More info">
           <CaretIcon className="icon" />

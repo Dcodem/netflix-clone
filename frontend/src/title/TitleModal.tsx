@@ -59,6 +59,7 @@ export function TitleModal() {
   const [settled, setSettled] = useState(false)
   const [tab, setTab] = useState<'episodes' | 'more' | 'trailers' | null>(null)
   const [seasonNumber, setSeasonNumber] = useState(1)
+  const [trailerHover, setTrailerHover] = useState<number | null>(null)
   const [leaving, setLeaving] = useState(false)
   const leaveTimer = useRef(0)
   const leavingRef = useRef(false)
@@ -71,6 +72,7 @@ export function TitleModal() {
     setHeroStill(null)
     setSettled(false)
     setTab(null)
+    setTrailerHover(null)
     setLeaving(false)
     leavingRef.current = false
     setSeasonNumber(last?.seasonNumber ?? 1)
@@ -83,11 +85,6 @@ export function TitleModal() {
   useEffect(() => () => window.clearTimeout(leaveTimer.current), [])
 
   const requestClose = useCallback(() => {
-    const desktopFromTile = Boolean(origin && typeof window !== 'undefined' && window.innerWidth >= 768)
-    if (!desktopFromTile) {
-      closeTitle()
-      return
-    }
     if (leavingRef.current) return
     leavingRef.current = true
     setLeaving(true)
@@ -97,7 +94,7 @@ export function TitleModal() {
       setLeaving(false)
       closeTitle()
     }, 280)
-  }, [origin, closeTitle])
+  }, [closeTitle])
 
   useEffect(() => {
     if (!item) return
@@ -334,9 +331,10 @@ export function TitleModal() {
             prefer="backdrop"
           />
           <TrailerPreview
+            key={item.id}
             ref={trailerRef}
             title={item.title}
-            year={copy.year ?? item.year}
+            year={item.year}
             kind={item.kind}
             tmdb_id={item.tmdb_id}
             className="title-modal-trailer"
@@ -509,17 +507,22 @@ export function TitleModal() {
                 <div className="trailer-card-grid">
                   {trailerCards.map((card, index) => {
                     const src = card.still ? stillUrl(card.still) : null
-                    if (!src) return null
                     return (
                       <button
                         type="button"
-                        className={`trailer-card ${clipHit?.src === card.key ? 'is-on' : ''}`}
-                        key={`${card.label}-${card.still}`}
+                        className={`trailer-card ${clipHit?.src === card.key ? 'is-on' : ''} ${trailerHover === index ? 'is-hover' : ''}`}
+                        key={`${card.label}-${card.still ?? card.key ?? index}`}
                         onClick={() => playTrailerClip(index)}
+                        onMouseEnter={() => setTrailerHover(index)}
+                        onMouseLeave={() => setTrailerHover((current) => (current === index ? null : current))}
                         aria-label={card.label}
                       >
                         <span className="trailer-card-art">
-                          <img src={proxyImageUrl(src)} alt="" />
+                          {src ? (
+                            <img src={proxyImageUrl(src)} alt="" />
+                          ) : (
+                            <CatalogImage item={item} alt="" prefer="backdrop" />
+                          )}
                           <span className="trailer-card-play" aria-hidden="true">
                             <PlayIcon className="icon" />
                           </span>

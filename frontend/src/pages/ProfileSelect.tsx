@@ -97,6 +97,7 @@ export function ProfileSelect() {
   const navigate = useNavigate()
   const location = useLocation()
   const [managing, setManaging] = useState(() => Boolean((location.state as { manage?: boolean } | null)?.manage))
+  const [hoverId, setHoverId] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
   const [name, setName] = useState('')
   const [pin, setPin] = useState('')
@@ -375,6 +376,7 @@ export function ProfileSelect() {
             </button>
             <div className="edit-profile-fields">
               <input
+                name="name"
                 value={editName}
                 onChange={(event) => setEditName(event.target.value)}
                 placeholder="Name"
@@ -712,7 +714,9 @@ export function ProfileSelect() {
                 <button
                   type="button"
                   key={profile.id}
-                  className={`profile-cell ${managing ? 'is-managing' : ''}`}
+                  className={`profile-cell ${managing ? 'is-managing' : ''} ${hoverId === profile.id ? 'is-hover' : ''}`}
+                  onMouseEnter={() => setHoverId(profile.id)}
+                  onMouseLeave={() => setHoverId(null)}
                   onClick={() => onSelect(profile)}
                   aria-label={managing ? `Edit ${profile.name}` : `Watch as ${profile.name}`}
                 >
@@ -725,14 +729,22 @@ export function ProfileSelect() {
                       <span className="profile-pencil" aria-hidden="true">
                         <PencilIcon className="icon" />
                       </span>
+                    ) : profile.pinHash ? (
+                      <LockIcon className="profile-lock" />
                     ) : null}
                   </span>
                   <span className="profile-name">{profile.name}</span>
-                  {profile.pinHash && !managing ? <LockIcon className="profile-lock" /> : null}
                 </button>
               )
             })}
-            <button type="button" className="profile-cell" onClick={() => setAdding(true)} aria-label="Add profile">
+            <button
+              type="button"
+              className={`profile-cell ${hoverId === 'add' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setHoverId('add')}
+              onMouseLeave={() => setHoverId(null)}
+              onClick={() => setAdding(true)}
+              aria-label="Add profile"
+            >
               <span className="profile-add">
                 <span className="profile-add-plus">
                   <PlusIcon className="icon" />
@@ -745,7 +757,10 @@ export function ProfileSelect() {
             <button
               type="button"
               className={`btn manage-profiles ${managing ? 'is-done' : ''}`}
-              onClick={() => setManaging((value) => !value)}
+              onClick={() => {
+                setHoverId(null)
+                setManaging((value) => !value)
+              }}
             >
               {managing ? 'Done' : 'Manage Profiles'}
             </button>

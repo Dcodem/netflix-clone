@@ -1,16 +1,29 @@
 import type { MovieListItem } from '../api/types'
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function titleBare(title: string) {
+  return title.replace(/^(the|a|an)\s+/, '')
+}
+
 export function searchHitScore(item: MovieListItem, query: string): number {
   const needle = query.trim().toLowerCase()
   if (needle.length < 2) return 0
   const title = item.title.toLowerCase()
-  if (title === needle) return 400
-  if (title.startsWith(needle)) return 300
-  if (title.includes(` ${needle}`)) return 220
-  if (title.includes(needle)) return 180
+  const bare = titleBare(title)
+  if (title === needle || bare === needle) return 400
+  if (title.startsWith(needle) || bare.startsWith(needle)) return 300
+  const word = new RegExp(`(?:^|\\s)${escapeRegExp(needle)}`)
+  if (word.test(title) || word.test(bare)) return 220
+  if (title.includes(needle) || bare.includes(needle)) return 180
+  const tokens = needle.split(/[^a-z0-9]+/).filter((part) => part.length >= 2)
+  if (tokens.length > 1 && tokens.every((part) => title.includes(part) || bare.includes(part))) return 160
   const genres = item.genres ?? []
   if (genres.some((genre) => genre.toLowerCase() === needle)) return 80
   if (genres.some((genre) => genre.toLowerCase().includes(needle))) return 40
+  if (item.year && String(item.year) === needle) return 50
   return 0
 }
 

@@ -48,49 +48,54 @@ export function CategoriesSheet({
       <nav className="categories-list">
         {variant === 'categories' ? (
           <>
-            <Link to="/browse" className={location.pathname === '/browse' && !selected ? 'is-on' : ''} onClick={onClose}>
+            <Link
+              to="/browse"
+              className={`cat-nav ${location.pathname === '/browse' && !selected ? 'is-on' : ''}`}
+              onClick={onClose}
+            >
               Home
             </Link>
             <Link
               to="/browse/my-list"
-              className={location.pathname === '/browse/my-list' ? 'is-on' : ''}
+              className={`cat-nav ${location.pathname === '/browse/my-list' ? 'is-on' : ''}`}
               onClick={onClose}
             >
               My List
             </Link>
             <Link
               to="/browse/shows"
-              className={location.pathname === '/browse/shows' ? 'is-on' : ''}
+              className={`cat-nav ${location.pathname === '/browse/shows' ? 'is-on' : ''}`}
               onClick={onClose}
             >
               TV Shows
             </Link>
             <Link
               to="/browse/movies"
-              className={location.pathname === '/browse/movies' ? 'is-on' : ''}
+              className={`cat-nav ${location.pathname === '/browse/movies' ? 'is-on' : ''}`}
               onClick={onClose}
             >
               Movies
             </Link>
             <Link
               to="/browse/latest"
-              className={location.pathname === '/browse/latest' ? 'is-on' : ''}
+              className={`cat-nav ${location.pathname === '/browse/latest' ? 'is-on' : ''}`}
               onClick={onClose}
             >
               New &amp; Hot
             </Link>
             <Link
               to="/browse/languages"
-              className={location.pathname === '/browse/languages' ? 'is-on' : ''}
+              className={`cat-nav ${location.pathname === '/browse/languages' ? 'is-on' : ''}`}
               onClick={onClose}
             >
               Browse by Languages
             </Link>
+            {genres.length ? <div className="cat-divider" aria-hidden="true" /> : null}
           </>
         ) : (
           <button
             type="button"
-            className={!selected ? 'is-on' : ''}
+            className={`cat-genre ${!selected ? 'is-on' : ''}`}
             onClick={() => {
               onSelect('')
               onClose()
@@ -103,7 +108,7 @@ export function CategoriesSheet({
           <button
             type="button"
             key={genre}
-            className={selected === genre ? 'is-on' : ''}
+            className={`cat-genre ${selected === genre ? 'is-on' : ''}`}
             onClick={() => {
               onSelect(genre)
               onClose()

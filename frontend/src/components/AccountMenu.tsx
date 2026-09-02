@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useHoverMenu } from '../hooks/useHoverMenu'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { AvatarArt } from './AvatarArt'
-import { CaretIcon, CheckIcon, ExitIcon, HelpCircleIcon, MyNetflixIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
+import { CaretIcon, CheckIcon, ExitIcon, HelpCircleIcon, PencilIcon, PersonIcon, TransferIcon } from './Icons'
 import { TransferProfileDialog } from './TransferProfileDialog'
 
 export function AccountMenu() {
@@ -14,10 +15,24 @@ export function AccountMenu() {
   const navigate = useNavigate()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
   const [transferOpen, setTransferOpen] = useState(false)
+  const [hoverKey, setHoverKey] = useState<string | null>(null)
+  const phone = useMediaQuery('(max-width: 767px)')
 
   if (!user || !activeProfile) return null
 
   const avatar = avatarFor(activeProfile)
+
+  if (phone) {
+    return (
+      <div className="account-menu">
+        <Link to="/browse/my-netflix" className="profile-chip" aria-label="My Netflix">
+          <span className="avatar-dot" style={{ background: avatar.color }}>
+            <AvatarArt avatar={avatar} alt={activeProfile.name} />
+          </span>
+        </Link>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -41,7 +56,9 @@ export function AccountMenu() {
               <button
                 type="button"
                 key={profile.id}
-                className={`account-profile-row ${current ? 'is-current' : ''}`}
+                className={`account-profile-row ${current ? 'is-current' : ''} ${hoverKey === profile.id ? 'is-hover' : ''}`}
+                onMouseEnter={() => setHoverKey(profile.id)}
+                onMouseLeave={() => setHoverKey((currentKey) => (currentKey === profile.id ? null : currentKey))}
                 onClick={() => {
                   setOpen(false)
                   if (current) return
@@ -68,20 +85,21 @@ export function AccountMenu() {
           })}
           <Link
             to="/"
-            className="account-manage"
+            className={`account-manage ${hoverKey === 'manage' ? 'is-hover' : ''}`}
             state={{ manage: true }}
+            onMouseEnter={() => setHoverKey('manage')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'manage' ? null : current))}
             onClick={() => setOpen(false)}
           >
             <PencilIcon className="icon" />
             Manage Profiles
           </Link>
-          <Link to="/browse/my-netflix" onClick={() => setOpen(false)}>
-            <MyNetflixIcon className="icon" />
-            My Netflix
-          </Link>
           <div className="account-dropdown-rule" />
           <Link
             to="/"
+            className={hoverKey === 'exit' ? 'is-hover' : ''}
+            onMouseEnter={() => setHoverKey('exit')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'exit' ? null : current))}
             onClick={() => {
               setOpen(false)
               clearActive()
@@ -92,6 +110,9 @@ export function AccountMenu() {
           </Link>
           <button
             type="button"
+            className={hoverKey === 'transfer' ? 'is-hover' : ''}
+            onMouseEnter={() => setHoverKey('transfer')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'transfer' ? null : current))}
             onClick={() => {
               setOpen(false)
               setTransferOpen(true)
@@ -100,17 +121,32 @@ export function AccountMenu() {
             <TransferIcon className="icon" />
             Transfer Profile
           </button>
-          <Link to="/account" onClick={() => setOpen(false)}>
+          <Link
+            to="/account"
+            className={hoverKey === 'account' ? 'is-hover' : ''}
+            onMouseEnter={() => setHoverKey('account')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'account' ? null : current))}
+            onClick={() => setOpen(false)}
+          >
             <PersonIcon className="icon" />
             Account
           </Link>
-          <Link to="/help" onClick={() => setOpen(false)}>
+          <Link
+            to="/help"
+            className={hoverKey === 'help' ? 'is-hover' : ''}
+            onMouseEnter={() => setHoverKey('help')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'help' ? null : current))}
+            onClick={() => setOpen(false)}
+          >
             <HelpCircleIcon className="icon" />
             Help Center
           </Link>
           <div className="account-dropdown-rule" />
           <button
             type="button"
+            className={`account-signout ${hoverKey === 'signout' ? 'is-hover' : ''}`}
+            onMouseEnter={() => setHoverKey('signout')}
+            onMouseLeave={() => setHoverKey((current) => (current === 'signout' ? null : current))}
             onClick={() => {
               clearActive()
               logout()

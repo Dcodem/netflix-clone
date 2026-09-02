@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useKeyedState } from './useKeyedState'
 
 const cache = new Map<string, unknown>()
 
@@ -11,9 +12,9 @@ export function useFetch<T>(
   const fnRef = useRef(fn)
   fnRef.current = fn
 
-  const [data, setData] = useState<T | null>(() => (cache.has(key) ? (cache.get(key) as T) : null))
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(() => enabled && !cache.has(key))
+  const [data, setData] = useKeyedState<T | null>(key, cache.has(key) ? (cache.get(key) as T) : null)
+  const [error, setError] = useKeyedState<string | null>(`${key}:error`, null)
+  const [loading, setLoading] = useKeyedState(`${key}:loading`, enabled && !cache.has(key))
   const [tick, setTick] = useState(0)
 
   const retry = useCallback(() => {

@@ -16,7 +16,10 @@ export function isLiveSearchInput(value: string) {
 }
 
 export function isRecentSearchQuery(value: string) {
-  return value.trim().length >= 3 && isLiveSearchInput(value)
+  const query = value.trim()
+  if (query.length < 3 || !isLiveSearchInput(query)) return false
+  if (/(.)\1{3,}/.test(query)) return false
+  return true
 }
 
 export function listRecentSearches(): string[] {
