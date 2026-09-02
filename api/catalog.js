@@ -31,10 +31,11 @@ export default async function handler(req, res) {
         return
       }
       const upstream = await fetch(target, { headers })
-      const body = await upstream.arrayBuffer()
+      const body = Buffer.from(await upstream.arrayBuffer())
       res.writeHead(upstream.status, {
         'content-type': upstream.headers.get('content-type') || 'application/json',
         'cache-control': 'no-cache',
+        'content-length': body.length,
       })
       res.end(body)
       return
