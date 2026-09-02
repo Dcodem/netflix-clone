@@ -181,7 +181,14 @@ export function PosterCard({
           <span className="continue-title">{item.title}</span>
           {item.continueLabel ? <span className="continue-ep">{item.continueLabel}</span> : null}
         </div>
-      ) : null}
+      ) : (
+        // Netflix shows the title permanently under every card, not just on
+        // hover. Year is secondary info, matching their billboard meta style.
+        <div className="card-caption">
+          <span className="card-caption-title">{item.title}</span>
+          {item.year ? <span className="card-caption-year">{item.year}</span> : null}
+        </div>
+      )}
       {continueMode ? (
         <div className={`continue-more ${rowMenu ? 'is-open' : ''}`}>
           <button
