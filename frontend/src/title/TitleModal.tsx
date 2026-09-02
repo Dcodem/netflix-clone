@@ -418,7 +418,32 @@ export function TitleModal() {
               {copy.synopsis ? <p className="title-modal-syn">{copy.synopsis}</p> : null}
             </div>
             <div className="title-modal-split-side">
-              {detail?.cast?.length ? (
+              {detail?.cast_details?.length ? (
+                <div className="title-modal-cast-block">
+                  <span className="title-kicker">Cast</span>
+                  <div className="cast-strip">
+                    {detail.cast_details.slice(0, 8).map((person) => (
+                      <button
+                        key={person.name}
+                        type="button"
+                        className="cast-chip"
+                        onClick={() => goSearch(person.name)}
+                        title={person.character || person.name}
+                      >
+                        {person.profile ? (
+                          <img src={person.profile} alt="" loading="lazy" />
+                        ) : (
+                          <span className="cast-chip-fallback">{person.name.slice(0, 1)}</span>
+                        )}
+                        <span className="cast-chip-name">{person.name}</span>
+                        {person.character ? (
+                          <span className="cast-chip-role">{person.character}</span>
+                        ) : null}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : detail?.cast?.length ? (
                 <p className="title-modal-cast">
                   <span className="title-kicker">Cast:</span>{' '}
                   {detail.cast.map((name, index) => (

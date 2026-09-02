@@ -94,7 +94,7 @@ function FeedCard({
   const [trailerReady, setTrailerReady] = useState(false)
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
   const genres = genresOf(item).slice(0, 3)
-  const date = mode === 'soon' ? comingDate(item.id) : null
+  const date = mode === 'soon' ? comingDate(item.id, item) : null
   const match = matchPercent(item, activeProfile)
   const maturity = maturityLabel(item)
   const history = activeProfile?.history.find((entry) => entry.id === item.id)
@@ -339,7 +339,7 @@ function NewsHotFeed() {
     const series = soon.filter(isShow)
     const films = soon.filter((item) => !isShow(item))
     return uniqueById([...series.slice(0, 4), ...films.slice(0, 10)]).sort(
-      (a, b) => comingDate(a.id).getTime() - comingDate(b.id).getTime(),
+      (a, b) => comingDate(a.id, a).getTime() - comingDate(b.id, b).getTime(),
     )
   }, [catalog])
   const watching = useMemo(() => {
@@ -549,7 +549,7 @@ function NewsHotFeed() {
               key={item.id}
               item={item}
               mode="soon"
-              hideDate={index > 0 && comingDayKey(item.id) === comingDayKey(coming[index - 1].id)}
+              hideDate={index > 0 && comingDayKey(item) === comingDayKey(coming[index - 1])}
               synopsis={synopses[item.id]}
               preview={previewId === item.id}
               muted={previewMuted}
@@ -582,7 +582,7 @@ function NewsHotFeed() {
             const soon = isComingSoon(item)
             const prev = index > 0 ? worth[index - 1] : null
             const hideDate = Boolean(
-              soon && prev && isComingSoon(prev) && comingDayKey(item.id) === comingDayKey(prev.id),
+              soon && prev && isComingSoon(prev) && comingDayKey(item) === comingDayKey(prev),
             )
             return (
               <FeedCard

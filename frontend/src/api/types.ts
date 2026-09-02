@@ -11,8 +11,12 @@ export type MovieListItem = {
   poster_url?: string | null
   href: string
   continueLabel?: string
-  /** Existing-site id. Playback still uses watch_href from that source. */
-  source_id?: string | null
+  /** TMDB vote count — obscurity/quality signals. */
+  votes?: number | null
+  /** TMDB release/air date (YYYY-MM-DD). Real dates only, drives Coming Soon. */
+  release_date?: string | null
+  /** False = not yet released; UI must show Coming Soon, not Play. */
+  playable?: boolean
   /** TMDB id for art, copy, and rails. Never used as a play URL. */
   tmdb_id?: number | string | null
 }
@@ -21,11 +25,15 @@ export type MovieDetail = MovieListItem & {
   synopsis?: string
   runtime?: number | null
   cast?: string[]
+  /** Top-billed cast with headshots from TMDB. */
+  cast_details?: { name: string; character?: string; profile?: string | null }[]
   creators?: string[]
   director?: string
   writers?: string[]
   backdrop_url?: string | null
   watch_href?: string | null
+  /** False = not yet released; UI must show Coming Soon, not Play. */
+  playable?: boolean
 }
 
 export type Episode = {

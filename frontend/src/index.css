@@ -6128,17 +6128,17 @@ img.is-logo-pending {
 .is-top10 .row-scroller .poster-card {
   position: relative;
   z-index: 1;
-  margin-left: 42%;
-  width: 58%;
+  margin-left: 46%;
+  width: 54%;
 }
 
 .rank-num.rank-num-svg {
   position: absolute;
-  left: -18%;
-  bottom: 0;
+  left: -22%;
+  bottom: -7%;
   z-index: 0;
-  width: 92%;
-  height: 100%;
+  width: 96%;
+  height: 114%;
   overflow: visible;
   user-select: none;
   pointer-events: none;
@@ -6147,10 +6147,10 @@ img.is-logo-pending {
 .rank-num.rank-num-svg text {
   font-family: 'Arial Black', 'Arial Narrow', Arial, var(--display);
   font-weight: 900;
-  font-size: 165px;
+  font-size: 158px;
   letter-spacing: -0.04em;
-  stroke: #6d6d6d;
-  stroke-width: 7;
+  stroke: #7a7a7a;
+  stroke-width: 4.5;
   fill: none;
   paint-order: stroke;
 }
@@ -12600,3 +12600,13 @@ img.is-logo-pending {
 .onboarding-btn-ghost:hover:not(:disabled){background:#2c2c34;box-shadow:none}
 .onboarding-loading{padding:56px 0;text-align:center;color:#9b9ba3;font-size:14px;letter-spacing:.04em}
 @media (max-width:640px){.onboarding-card{padding:26px 20px}.onboarding-grid{grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px}}
+
+/* --- Cast strip (TMDB headshots) --- */
+.title-modal-cast-block{margin-bottom:14px}
+.cast-strip{display:flex;gap:10px;overflow-x:auto;padding:10px 2px 6px;scrollbar-width:thin;scrollbar-color:#333 transparent}
+.cast-chip{flex:0 0 auto;width:84px;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.cast-chip img{width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;margin-bottom:6px;border:2px solid #2e2e34}
+.cast-chip:hover img{border-color:#e50914}
+.cast-chip-fallback{width:64px;height:64px;border-radius:50%;background:#22222a;color:#888;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.cast-chip-name{display:block;font-size:11.5px;font-weight:600;color:#fff;line-height:1.25}
+.cast-chip-role{display:block;font-size:10.5px;color:#8a8a94;line-height:1.3;margin-top:2px}
