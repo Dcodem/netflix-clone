@@ -579,7 +579,7 @@ function NewsHotFeed() {
         <section className="news-feed" ref={worthRef} aria-label="Worth the Wait">
           <h2 className="news-section-title">Worth the Wait</h2>
           {worth.map((item, index) => {
-            const soon = isComingSoon(item)
+            const soon = isComingSoon(item) && item.playable !== false
             const prev = index > 0 ? worth[index - 1] : null
             const hideDate = Boolean(
               soon && prev && isComingSoon(prev) && comingDayKey(item) === comingDayKey(prev),

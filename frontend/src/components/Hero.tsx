@@ -105,7 +105,7 @@ export function Hero({ item, rank, rankLabel }: { item: MovieListItem; rank?: nu
   const synopsis = copy.synopsis
   const genres = copy.genres.slice(0, 3)
   const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
-  const soon = isComingSoon(item)
+  const soon = isComingSoon(item) && item.playable !== false
   const coming = comingLineFor(item)
 
   function onWatch() {

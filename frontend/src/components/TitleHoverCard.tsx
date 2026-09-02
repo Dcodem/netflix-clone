@@ -91,7 +91,7 @@ export function TitleHoverCard({
   const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
   const episodeCount = seasons.reduce((count, season) => count + (season.episodes?.length ?? 0), 0)
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
-  const soon = isComingSoon(item)
+  const soon = isComingSoon(item) && item.playable !== false
   const coming = comingLineFor(item)
   const previewOn = activeProfile?.autoplayPreview !== false
   const watchHref =
