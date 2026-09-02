@@ -15358,6 +15358,18 @@ img.is-logo-pending {
   color: #fff;
 }
 
+.watch-panel button.is-hover,
+.watch-panel button:hover,
+.watch-panel button:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.search-top li.is-hover .search-top-hit,
+.search-top-hit:hover,
+.search-top-hit:focus-visible {
+  background: rgba(255, 255, 255, 0.04);
+}
+
 
 
 

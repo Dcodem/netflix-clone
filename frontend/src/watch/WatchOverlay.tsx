@@ -182,6 +182,7 @@ export function WatchOverlay() {
   const [showDetail, setShowDetail] = useState<ShowDetail | null>(null)
   const [episodesOpen, setEpisodesOpen] = useState(false)
   const [audioOpen, setAudioOpen] = useState(false)
+  const [audioHover, setAudioHover] = useState<string | null>(null)
   const [speedOpen, setSpeedOpen] = useState(false)
   const [speedHover, setSpeedHover] = useState<number | null>(null)
   const [speed, setSpeed] = useState(initialPrefs.speed)
@@ -1765,26 +1766,56 @@ export function WatchOverlay() {
           </div>
           <div>
             <h2>Audio</h2>
-            <button type="button" className={audioTrack === 'en' ? 'is-on' : ''} onClick={() => setAudioTrack('en')}>
+            <button
+              type="button"
+              className={`${audioTrack === 'en' ? 'is-on' : ''} ${audioHover === 'en' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setAudioHover('en')}
+              onMouseLeave={() => setAudioHover((current) => (current === 'en' ? null : current))}
+              onClick={() => setAudioTrack('en')}
+            >
               {audioTrack === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English [Original]
             </button>
-            <button type="button" className={audioTrack === 'ad' ? 'is-on' : ''} onClick={() => setAudioTrack('ad')}>
+            <button
+              type="button"
+              className={`${audioTrack === 'ad' ? 'is-on' : ''} ${audioHover === 'ad' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setAudioHover('ad')}
+              onMouseLeave={() => setAudioHover((current) => (current === 'ad' ? null : current))}
+              onClick={() => setAudioTrack('ad')}
+            >
               {audioTrack === 'ad' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English [Audio Description]
             </button>
           </div>
           <div>
             <h2>Subtitles</h2>
-            <button type="button" className={subs === 'off' ? 'is-on' : ''} onClick={() => setSubs('off')}>
+            <button
+              type="button"
+              className={`${subs === 'off' ? 'is-on' : ''} ${audioHover === 'off' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setAudioHover('off')}
+              onMouseLeave={() => setAudioHover((current) => (current === 'off' ? null : current))}
+              onClick={() => setSubs('off')}
+            >
               {subs === 'off' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               Off
             </button>
-            <button type="button" className={subs === 'en' ? 'is-on' : ''} onClick={() => setSubs('en')}>
+            <button
+              type="button"
+              className={`${subs === 'en' ? 'is-on' : ''} ${audioHover === 'sub-en' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setAudioHover('sub-en')}
+              onMouseLeave={() => setAudioHover((current) => (current === 'sub-en' ? null : current))}
+              onClick={() => setSubs('en')}
+            >
               {subs === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English
             </button>
-            <button type="button" className={subs === 'cc' ? 'is-on' : ''} onClick={() => setSubs('cc')}>
+            <button
+              type="button"
+              className={`${subs === 'cc' ? 'is-on' : ''} ${audioHover === 'cc' ? 'is-hover' : ''}`}
+              onMouseEnter={() => setAudioHover('cc')}
+              onMouseLeave={() => setAudioHover((current) => (current === 'cc' ? null : current))}
+              onClick={() => setSubs('cc')}
+            >
               {subs === 'cc' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               English [CC]
             </button>
