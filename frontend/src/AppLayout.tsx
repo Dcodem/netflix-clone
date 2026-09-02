@@ -13,7 +13,7 @@ import { TitleModal } from './title/TitleModal'
 import { WatchOverlay } from './watch/WatchOverlay'
 
 export function AppLayout() {
-  const { user } = useAuth()
+  const { user, autoReady } = useAuth()
   const { activeProfile } = useProfiles()
   const location = useLocation()
   const navigate = useNavigate()
@@ -34,6 +34,11 @@ export function AppLayout() {
       window.clearTimeout(done)
     }
   }, [fromProfile, activeProfile, location.pathname, location.search, navigate])
+
+  if (!autoReady) {
+    // Household mode: silently preparing the local account (first launch only).
+    return null
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />

@@ -757,7 +757,7 @@ export function ProfileSelect() {
               {managing ? 'Done' : 'Manage Profiles'}
             </button>
           ) : null}
-          {!managing ? (
+          {false && !managing ? (
             <button
               type="button"
               className="profiles-signout"

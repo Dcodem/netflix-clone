@@ -9,7 +9,7 @@ import { CaretIcon, CheckIcon, ExitIcon, HelpCircleIcon, MyNetflixIcon, PencilIc
 import { TransferProfileDialog } from './TransferProfileDialog'
 
 export function AccountMenu() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const { profiles, activeProfile, clearActive, selectProfile } = useProfiles()
   const navigate = useNavigate()
   const { open, setOpen, rootRef, onEnter, onLeave, toggle } = useHoverMenu()
@@ -108,17 +108,6 @@ export function AccountMenu() {
             <HelpCircleIcon className="icon" />
             Help Center
           </Link>
-          <div className="account-dropdown-rule" />
-          <button
-            type="button"
-            onClick={() => {
-              clearActive()
-              logout()
-              navigate('/login')
-            }}
-          >
-            Sign out of Flix
-          </button>
         </div>
       ) : null}
       <TransferProfileDialog open={transferOpen} onClose={() => setTransferOpen(false)} />

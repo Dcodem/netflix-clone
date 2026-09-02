@@ -40,6 +40,7 @@ function publicUser(user: UserAccount): UserAccount {
 
 type AuthContextValue = {
   user: UserAccount | null
+  autoReady: boolean
   signup: (input: { email: string; name: string; password: string }) => Promise<void>
   login: (email: string, password: string) => Promise<void>
   logout: () => void
@@ -377,6 +378,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const user = store.users.find((entry) => entry.id === store.sessionUserId) ?? null
 
+  // Household mode: no login screen. If this device has no account yet,
+  // silently create one local household account and sign it in. People are
+  // separated by profiles (Who's watching?), not credentials.
+  const [autoReady, setAutoReady] = useState(false)
+  useEffect(() => {
+    if (autoReady) return
+    const current = loadStore()
+    if (current.sessionUserId && current.users.some((u) => u.id === current.sessionUserId)) {
+      setAutoReady(true)
+      return
+    }
+    let cancelled = false
+    void (async () => {
+      try {
+        await signup({ email: 'family@flix.local', name: 'Family', password: 'flix-local-only' })
+      } catch {
+        // account exists but no session (e.g. signed out) -> sign back in
+        try {
+          await login('family@flix.local', 'flix-local-only')
+        } catch {
+          /* leave as-is; the login page remains a fallback */
+        }
+      }
+      if (!cancelled) setAutoReady(true)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [autoReady, signup, login])
+
   useEffect(() => {
     if (!user) return
     const id = currentDeviceId()
@@ -389,6 +420,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       user: user ? publicUser(user) : null,
+      autoReady,
       signup,
       login,
       logout,
@@ -420,6 +452,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       verifyPurchasePin,
       signOutDevice,
       signOutOtherDevices,
+      autoReady,
     ],
   )
 
