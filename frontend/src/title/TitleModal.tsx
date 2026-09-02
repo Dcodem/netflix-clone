@@ -196,7 +196,7 @@ export function TitleModal() {
     ? last?.watch_href || resumeEpisode?.watch_href || detail?.watch_href
     : detail?.watch_href
   const continueMode = Boolean(last && stillWatching(last))
-  const soon = isComingSoon(item) && (detail ? detail.playable !== false : item.playable !== false)
+  const soon = isComingSoon(item) && (detail ? detail.playable !== true : item.playable !== true)
   const coming = comingLineFor(item)
   const activeTab = tab ?? (isShow(item) && !soon ? 'episodes' : 'more')
 
