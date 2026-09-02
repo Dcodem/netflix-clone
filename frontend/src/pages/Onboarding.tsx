@@ -3,13 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { getMovies, getTrending } from '../api/client'
 import type { MovieListItem } from '../api/types'
 import { useProfiles } from '../profiles/ProfileContext'
+
 const GENRE_CHOICES = [
   'Action', 'Comedy', 'Drama', 'Thriller', 'Horror', 'Science Fiction',
   'Romance', 'Animation', 'Documentary', 'Family', 'Crime', 'Fantasy',
   'Adventure', 'Mystery', 'War', 'Music',
 ]
 
-/** First-login onboarding: 3 quick questions + a 5-title pick grid. */
+const STEP_LABELS = ['Taste', 'Favorites', 'Done']
+
+/** First-login onboarding: 2 quick questions + a 5-title pick grid. */
 export function Onboarding() {
   const navigate = useNavigate()
   const { setFavoriteGenres, rateTitle } = useProfiles()
@@ -32,10 +35,13 @@ export function Onboarding() {
           if (seen.has(item.id)) continue
           seen.add(item.id)
           merged.push(item)
-          if (merged.length >= 30) break
+          if (merged.length >= 24) break
         }
         setPool(merged)
       })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const canNext = step === 0 ? genres.length >= 3 : loved.length >= 5
@@ -69,11 +75,23 @@ export function Onboarding() {
 
   return (
     <main className="onboarding">
+      <div className="onboarding-progress" aria-hidden="true">
+        {STEP_LABELS.map((label, i) => (
+          <div key={label} className={`onboarding-progress-step ${i <= step ? 'is-done' : ''}`}>
+            <span className="onboarding-progress-dot" />
+            <span className="onboarding-progress-label">{label}</span>
+          </div>
+        ))}
+      </div>
       <div className="onboarding-card">
         {step === 0 && (
           <>
-            <h1>Pick at least three genres you love</h1>
-            <p className="onboarding-sub">This shapes your home page right away. You can change it later.</p>
+            <div className="onboarding-brand">F L I X</div>
+            <h1>What do you love watching?</h1>
+            <p className="onboarding-sub">
+              Pick at least three genres — we'll shape your home page around them. You can change
+              this any time.
+            </p>
             <div className="onboarding-genres">
               {GENRE_CHOICES.map((genre) => {
                 const on = genres.includes(genre)
@@ -95,8 +113,11 @@ export function Onboarding() {
         )}
         {step === 1 && (
           <>
-            <h1>Pick five titles you love</h1>
-            <p className="onboarding-sub">Tap the ones you've enjoyed — even ones you've seen elsewhere.</p>
+            <div className="onboarding-brand">F L I X</div>
+            <h1>Pick five you've loved</h1>
+            <p className="onboarding-sub">
+              Tap titles you've enjoyed — anywhere, any time. {loved.length}/5 selected
+            </p>
             {pool.length === 0 ? (
               <div className="onboarding-loading">Loading picks…</div>
             ) : (
@@ -113,14 +134,20 @@ export function Onboarding() {
                           on ? prev.filter((l) => l.id !== item.id) : prev.length < 8 ? [...prev, item] : prev,
                         )
                       }
+                      aria-label={item.title}
                     >
                       {item.poster_url ? (
-                        <img src={item.poster_url} alt={item.title} loading="lazy" />
+                        <img src={item.poster_url} alt="" loading="lazy" />
                       ) : (
                         <span className="onboarding-title-fallback">{item.title}</span>
                       )}
+                      <span className="onboarding-title-shade" aria-hidden="true" />
                       <span className="onboarding-title-name">{item.title}</span>
-                      {on && <span className="onboarding-check">✓</span>}
+                      {on && (
+                        <span className="onboarding-check" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>
+                        </span>
+                      )}
                     </button>
                   )
                 })}
@@ -130,11 +157,12 @@ export function Onboarding() {
         )}
         {step === 2 && (
           <>
-            <h1>That's it — your FLIX is ready</h1>
+            <div className="onboarding-brand">F L I X</div>
+            <h1>You're all set.</h1>
             <p className="onboarding-sub">
-              Your home page is tuned to {genres.slice(0, 3).join(', ')} from your picks like{' '}
-              {loved.slice(0, 2).map((l) => l.title).join(' and ')}. It keeps learning from what you
-              watch.
+              Your home page is tuned to {genres.slice(0, 3).join(', ')}
+              {loved.length ? `, starting from picks like ${loved.slice(0, 2).map((l) => l.title).join(' and ')}` : ''}.
+              It keeps learning every time you watch.
             </p>
           </>
         )}

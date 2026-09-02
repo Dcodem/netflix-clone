@@ -269,18 +269,20 @@ export function buildBrowseRows(opts: {
 
   const trendingTitle =
     filter === 'movies' ? 'Trending Movies' : filter === 'shows' ? 'Trending TV Shows' : 'Trending Now'
-  pushRow(rows, { id: 'trending', title: trendingTitle, items: sortByRating(pool) })
+  pushRow(rows, { id: 'trending', title: trendingTitle, items: profile ? rankByTaste(pool, profile) : sortByRating(pool) })
 
-  const top10 = sortByRating(pool).slice(0, 10)
+  // Top 10: honest title — this pool is the profile's catalog, ranked by
+  // taste. The server's real popularity-driven Top 10 lives in /rails.
+  const top10 = (profile ? rankByTaste(pool, profile) : sortByRating(pool)).slice(0, 10)
   if (top10.length >= 4) {
     pushRow(rows, {
       id: 'top10',
       title:
         filter === 'movies'
-          ? 'Top 10 Movies in the U.S. Today'
+          ? 'Top 10 Movies for You'
           : filter === 'shows'
-            ? 'Top 10 TV Shows in the U.S. Today'
-            : 'Top 10 in the U.S. Today',
+            ? 'Top 10 TV Shows for You'
+            : 'Top 10 Picks for You',
       items: top10,
       variant: 'top10',
       loop: false,
