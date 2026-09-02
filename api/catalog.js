@@ -7,7 +7,7 @@ import { handleCatalog } from '../mock/handle.mjs'
 const UPSTREAM = (globalThis.process?.env?.CATALOG_UPSTREAM || '').replace(/\/$/, '')
 const PROXIED = new Set([
   '/movies', '/shows', '/search', '/catalog', '/trending', '/rails',
-  '/stream', '/watch', '/img', '/health',
+  '/stream', '/watch', '/img', '/media', '/health',
 ])
 
 export default async function handler(req, res) {
