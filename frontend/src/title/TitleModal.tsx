@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getCatalogMany, getMovie, getShow, proxyImageUrl } from '../api/client'
+import { getMovie, getShow, getSimilar, proxyImageUrl } from '../api/client'
 import type { Episode, MovieDetail, MovieListItem, Season, ShowDetail } from '../api/types'
 import { CatalogImage } from '../components/CatalogImage'
 import { EpisodeList, SeasonPicker } from '../components/EpisodeList'
@@ -16,13 +16,11 @@ import { useFetch } from '../hooks/useFetch'
 import { watchForEpisode } from '../lib/episodeProgress'
 import { comingLineFor, isComingSoon } from '../lib/comingSoon'
 import { stillWatching } from '../lib/homeRows'
-import { formatRuntime, genresOf, isShow, stillUrl, uniqueById } from '../lib/media'
+import { formatRuntime, genresOf, isShow, stillUrl } from '../lib/media'
 import { audioTracksFor, subtitleTracksFor } from '../lib/languages'
 import { matchPercent, maturityBlurb, maturityLabel, moodTags, isNewEpisodes, filterByMaturity } from '../lib/netflix'
 import { playClick } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
-import { rankByTaste, similarByGenres } from '../profiles/taste'
-import { usesPersonalizedRecs } from '../profiles/types'
 import { TrailerPreview, type TrailerHandle } from '../trailers/TrailerPreview'
 import { useTmdbGallery } from '../trailers/useTmdbGallery'
 import { useTmdbInfo } from '../trailers/useTmdbInfo'
@@ -126,28 +124,16 @@ export function TitleModal() {
     item ? `modal-${item.id}` : 'modal-none',
     { enabled: Boolean(item) },
   )
-  const catalog = useFetch(async () => {
-    const [movies, shows] = await Promise.all([
-      getCatalogMany('movies', 3).catch(() => [] as MovieListItem[]),
-      getCatalogMany('shows', 3).catch(() => [] as MovieListItem[]),
-    ])
-    return uniqueById([...movies, ...shows])
-  }, 'modal-similar', { enabled: Boolean(item) })
+  const similarFetch = useFetch(
+    () => (item ? getSimilar(item.id).catch(() => [] as MovieListItem[]) : Promise.resolve([])),
+    item ? `similar-${item.id}` : 'similar-none',
+    { enabled: Boolean(item) },
+  )
 
-  const similar = useMemo(() => {
-    if (!item || !catalog.data) return []
-    const pool = catalog.data
-    const byGenre = similarByGenres(item, pool, 12)
-    if (byGenre.length >= 12) return byGenre
-    const seen = new Set([item.id, ...byGenre.map((entry) => entry.id)])
-    const rest = usesPersonalizedRecs(activeProfile)
-      ? rankByTaste(
-          pool.filter((entry) => !seen.has(entry.id)),
-          activeProfile,
-        )
-      : pool.filter((entry) => !seen.has(entry.id))
-    return uniqueById([...byGenre, ...rest]).slice(0, 12)
-  }, [item, catalog.data, activeProfile])
+  const similar = useMemo(
+    () => (similarFetch.data ?? []) as unknown as MovieListItem[],
+    [similarFetch.data],
+  )
   const similarSafe = useMemo(() => filterByMaturity(similar, activeProfile), [similar, activeProfile])
   const trailerCards = useMemo(() => {
     const labels = ['Trailer', 'Teaser', 'Clip', 'Recap', 'Featurette', 'Behind the Scenes', 'Clip 2', 'Bonus']
@@ -416,8 +402,6 @@ export function TitleModal() {
                 {soon ? null : <FeatureBadges quality={item.quality || detail?.quality} />}
               </div>
               {copy.synopsis ? <p className="title-modal-syn">{copy.synopsis}</p> : null}
-            </div>
-            <div className="title-modal-split-side">
               {detail?.cast_details?.length ? (
                 <div className="title-modal-cast-block">
                   <span className="title-kicker">Cast</span>
@@ -456,6 +440,8 @@ export function TitleModal() {
                   ))}
                 </p>
               ) : null}
+            </div>
+            <div className="title-modal-split-side">
               {genres.length ? (
                 <p className="title-modal-cast">
                   <span className="title-kicker">Genres:</span>{' '}

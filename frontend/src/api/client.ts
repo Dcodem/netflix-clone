@@ -69,6 +69,13 @@ export function getRails(region = 'CA'): Promise<HomeRails> {
   return getJson<HomeRails>(`/rails?region=${encodeURIComponent(region)}`)
 }
 
+/** More Like This: server-side genre/score matching over the enriched pool. */
+export function getSimilar(id: string): Promise<MovieListItem[]> {
+  return getJson<CatalogPage | MovieListItem[]>(`/similar/${encodeURIComponent(id)}`).then(
+    (data) => (Array.isArray(data) ? data : data.items ?? []),
+  )
+}
+
 /** Fetch a few catalog pages so home rails have enough titles to theme. */
 export async function getCatalogMany(
   kind: 'movies' | 'shows',
