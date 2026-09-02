@@ -109,10 +109,13 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     })
     if (filter === 'popular') return built
     // Server rails (our ranking engine: popularity+recency+region+quality)
-    // interleave with the personal rows: Trending after Continue Watching,
-    // the rest appended. Personalized rails from taste.ts stay untouched.
+    // REPLACE the local trending row and append below. Personalized rows from
+    // taste.ts (Because you watched / Top Picks) stay untouched.
     const byTitle = new Map<string, HomeRail>()
     for (const rail of railsData.data ?? []) byTitle.set(rail.id, rail)
+    // The client-side 'trending' row is replaced by the server's real one.
+    const localTrendIdx = built.findIndex((row) => row.id === 'trending')
+    if (localTrendIdx >= 0) built.splice(localTrendIdx, 1)
     const trendingRail = byTitle.get('trending')
     if (trendingRail && trendingRail.items.length >= 4) {
       const items = trendingRail.items.filter((item) =>
