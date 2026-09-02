@@ -6109,82 +6109,55 @@ img.is-logo-pending {
 }
 
 .is-top10 .row-scroller {
-  gap: 4px;
+  gap: 0;
   scroll-snap-type: none;
   scroll-padding-left: max(36px, var(--page-gutter));
-  padding-top: 36px;
+  padding-top: 0;
   padding-left: max(36px, var(--page-gutter));
+  align-items: flex-end;
 }
 
-.poster-wrap.is-ranked .poster-card {
+/* Netflix Top-10 geometry: an SVG numeral (viewBox-scaled, so it can never
+   clip or mis-size) sits absolutely behind the poster; the poster is offset
+   right so the number's right half tucks behind it. */
+.is-top10 .row-scroller .poster-wrap {
+  position: relative;
+  overflow: visible;
+}
+
+.is-top10 .row-scroller .poster-card {
   position: relative;
   z-index: 1;
-  flex: 1 1 auto;
-  width: auto;
-  min-width: 0;
+  margin-left: 42%;
+  width: 58%;
 }
 
-.rank-num {
-  display: block;
-  position: relative;
+.rank-num.rank-num-svg {
+  position: absolute;
+  left: -18%;
+  bottom: 0;
   z-index: 0;
-  isolation: isolate;
+  width: 92%;
+  height: 100%;
   overflow: visible;
-  flex: 0 0 auto;
-  font-family: 'Arial Black', Arial, var(--display);
-  font-size: clamp(92px, 11.2vw, 168px);
-  font-weight: 900;
-  font-stretch: condensed;
-  line-height: 0.72;
-  color: #000;
-  -webkit-text-fill-color: #000;
-  letter-spacing: -0.14em;
-  margin: 0 -0.22em 0 0;
-  min-width: 0.7em;
-  text-align: left;
-  padding: 0 0.04em 0 0.12em;
-  box-sizing: content-box;
   user-select: none;
   pointer-events: none;
-  transform: none;
 }
 
-.rank-num::before {
-  content: attr(data-rank);
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  padding: inherit;
-  box-sizing: border-box;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 6px #8c8c8c;
-  font: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
+.rank-num.rank-num-svg text {
+  font-family: 'Arial Black', 'Arial Narrow', Arial, var(--display);
+  font-weight: 900;
+  font-size: 165px;
+  letter-spacing: -0.04em;
+  stroke: #6d6d6d;
+  stroke-width: 7;
+  fill: none;
+  paint-order: stroke;
 }
 
-.rank-num.is-first {
-  letter-spacing: 0;
-  margin-left: 0;
-  margin-right: -0.1em;
-  min-width: 0.58em;
-  padding-left: 0.08em;
-}
-
-.rank-num.is-first::before {
-  -webkit-text-stroke-width: 6px;
-}
-
-.rank-num.is-ten {
-  font-size: clamp(78px, 12vw, 158px);
-  letter-spacing: -0.18em;
-  margin-right: -0.2em;
-  min-width: 1.18em;
-}
-
-.rank-num.is-ten::before {
-  -webkit-text-stroke-width: 5px;
+.rank-num.rank-num-svg text.rank-num-fill {
+  fill: #000;
+  stroke: none;
 }
 
 .search-heading {
@@ -6720,36 +6693,20 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller {
-    padding-left: 4px;
+    padding-left: 40px;
     padding-right: 20px;
-    padding-top: 44px;
-    scroll-padding-left: 4px;
+    scroll-padding-left: 40px;
   }
 
-  .rank-num {
-    font-size: 108px;
-    margin-right: -0.12em;
-    min-width: 0.72em;
-    letter-spacing: -0.1em;
-    padding-left: 0;
+  .is-top10 .row-scroller .poster-wrap {
+    flex-basis: calc((100% - 56px) / 1.52);
+    scroll-snap-align: none;
   }
 
-  .rank-num::before {
-    -webkit-text-stroke-width: 5px;
-  }
-
-  .rank-num.is-first {
-    min-width: 0.86em;
-    margin-left: -0.32em;
-    margin-right: -0.18em;
-    padding-left: 0;
-  }
-
-  .rank-num.is-ten {
-    font-size: 72px;
-    min-width: 1.16em;
-    margin-right: -0.08em;
-    padding-left: 0.14em;
+  /* keep numerals fully on-screen at phone widths */
+  .rank-num.rank-num-svg {
+    left: 0;
+    width: 78%;
   }
 
   .ep-num {
@@ -6770,11 +6727,6 @@ img.is-logo-pending {
   .more-like-grid {
     grid-template-columns: 1fr;
   }
-
-  .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - 56px) / 1.52);
-    scroll-snap-align: none;
-  }
 }
 
 @media (min-width: 768px) {
@@ -6785,20 +6737,6 @@ img.is-logo-pending {
 
   .is-top10 .row-scroller .poster-wrap {
     flex-basis: calc((100% - var(--page-gutter) * 2) / 3.15);
-  }
-
-  .rank-num {
-    margin-right: -0.38em;
-  }
-
-  .rank-num.is-first {
-    margin-left: 0;
-    margin-right: -0.28em;
-    min-width: 0.7em;
-  }
-
-  .rank-num.is-ten {
-    margin-right: -0.36em;
   }
 }
 

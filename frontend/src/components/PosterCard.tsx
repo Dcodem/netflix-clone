@@ -120,12 +120,31 @@ export function PosterCard({
       onPointerLeave={onLeave}
     >
       {ranked ? (
-        <span
-          className={`rank-num ${rank === 1 ? 'is-first' : ''} ${rank === 10 ? 'is-ten' : ''}`}
-          data-rank={rank}
+        <svg
+          className={`rank-num rank-num-svg ${rank === 10 ? 'is-ten' : ''}`}
+          viewBox="0 0 130 190"
+          aria-hidden="true"
         >
-          {rank}
-        </span>
+          <text
+            x="50%"
+            y="54%"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-rank={rank}
+          >
+            {rank}
+          </text>
+          <text
+            x="50%"
+            y="54%"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="rank-num-fill"
+            data-rank={rank}
+          >
+            {rank}
+          </text>
+        </svg>
       ) : null}
       <button
         type="button"
