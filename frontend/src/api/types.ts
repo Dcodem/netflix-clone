@@ -51,3 +51,11 @@ export type CatalogPage = {
   items?: MovieListItem[]
   next?: unknown
 }
+
+export type HomeRail = {
+  id: string
+  title: string
+  items: MovieListItem[]
+}
+
+export type HomeRails = HomeRail[]

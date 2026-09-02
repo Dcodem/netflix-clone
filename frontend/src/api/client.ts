@@ -1,4 +1,4 @@
-import type { CatalogPage, MovieDetail, MovieListItem, ShowDetail } from './types'
+import type { CatalogPage, MovieDetail, MovieListItem, ShowDetail, HomeRails } from './types'
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? ''
 
@@ -62,6 +62,11 @@ export function getTrending(kind: 'movies' | 'shows' | 'all' = 'all'): Promise<M
   return getJson<CatalogPage | MovieListItem[]>(path).then((data) =>
     Array.isArray(data) ? data : data.items ?? [],
   )
+}
+
+/** Our ranking engine's rails (server-side: popularity+recency+region+quality). */
+export function getRails(region = 'CA'): Promise<HomeRails> {
+  return getJson<HomeRails>(`/rails?region=${encodeURIComponent(region)}`)
 }
 
 /** Fetch a few catalog pages so home rails have enough titles to theme. */

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { getCatalogMany, getMovies, getTrending } from '../api/client'
-import type { MovieListItem } from '../api/types'
+import { getCatalogMany, getMovies, getRails, getTrending } from '../api/client'
+import type { HomeRail, MovieListItem } from '../api/types'
 import { CategoriesSheet } from '../components/CategoriesSheet'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
@@ -36,6 +36,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   const heading = filter === 'home' && genre ? genre : HEADINGS[filter]
   const movies = useFetch(() => getMovies(), 'home-movies')
   const trending = useFetch(() => getTrending('all').catch(() => [] as MovieListItem[]), 'home-trending')
+  const railsData = useFetch(() => getRails('CA').catch(() => [] as HomeRail[]), 'home-rails')
   const extras = useFetch(async () => {
     const [catalogMovies, catalogShows] = await Promise.all([
       getCatalogMany('movies').catch(() => [] as MovieListItem[]),
@@ -106,25 +107,52 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
       profile: activeProfile,
       genre,
     })
-    // Real-world trending rail (TMDB weekly), right after Continue Watching.
-    const trendingItems = (trending.data ?? []).filter((item) =>
-      genre ? matchesGenreFilter(item, genre) : true,
-    )
-    if (trendingItems.length >= 4 && filter !== 'popular') {
-      const ids = new Set(trendingItems.map((item) => item.id))
-      const idx = built.findIndex((row) => row.id === 'continue')
-      const insertAt = idx >= 0 ? idx + 1 : 0
-      built.splice(insertAt, 0, {
-        id: 'trending-world',
-        title: 'Trending Now',
-        subtitle: 'What the world is watching this week',
-        items: trendingItems,
-        loop: trendingItems.length >= 8,
+    if (filter === 'popular') return built
+    // Server rails (our ranking engine: popularity+recency+region+quality)
+    // interleave with the personal rows: Trending after Continue Watching,
+    // the rest appended. Personalized rails from taste.ts stay untouched.
+    const byTitle = new Map<string, HomeRail>()
+    for (const rail of railsData.data ?? []) byTitle.set(rail.id, rail)
+    const trendingRail = byTitle.get('trending')
+    if (trendingRail && trendingRail.items.length >= 4) {
+      const items = trendingRail.items.filter((item) =>
+        genre ? matchesGenreFilter(item, genre) : true,
+      )
+      if (items.length >= 4) {
+        const idx = built.findIndex((row) => row.id === 'continue')
+        built.splice(idx >= 0 ? idx + 1 : 0, 0, {
+          id: 'trending-world',
+          title: trendingRail.title,
+          subtitle: 'What the world is watching this week',
+          items,
+          loop: items.length >= 8,
+        })
+      }
+    }
+    const tailRails: Array<[string, string]> = [
+      ['popular_ca', 'Popular in Canada'],
+      ['top10_movies', 'Top 10 Movies Today'],
+      ['top10_tv', 'Top 10 TV Shows Today'],
+      ['new', 'New Releases'],
+      ['gems', 'Hidden Gems'],
+    ]
+    for (const [railId, fallbackTitle] of tailRails) {
+      const rail = byTitle.get(railId)
+      if (!rail || rail.items.length < 4) continue
+      if (built.some((row) => row.id === railId)) continue
+      const items = rail.items.filter((item) =>
+        genre ? matchesGenreFilter(item, genre) : true,
+      )
+      if (items.length < 4) continue
+      built.push({
+        id: railId,
+        title: rail.title || fallbackTitle,
+        items,
+        loop: items.length >= 8,
       })
-      void ids
     }
     return built
-  }, [catalog, filter, activeProfile, genre, trending.data])
+  }, [catalog, filter, activeProfile, genre, trending.data, railsData.data])
   const progressById = useMemo(() => {
     const map: Record<string, number> = {}
     for (const item of activeProfile?.history ?? []) {

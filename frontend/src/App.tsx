@@ -14,6 +14,7 @@ import { MyNetflix } from './pages/MyNetflix'
 import { NewsHot } from './pages/NewsHot'
 import { ProfileSelect } from './pages/ProfileSelect'
 import { Search } from './pages/Search'
+import { Onboarding } from './pages/Onboarding'
 import { SiteInfo } from './pages/SiteInfo'
 import { SpeedTest } from './pages/SpeedTest'
 import { TvPair } from './pages/TvPair'
@@ -53,6 +54,7 @@ export default function App() {
                   <Route path="/browse/languages" element={<BrowseLanguages />} />
                   <Route path="/browse/my-netflix" element={<MyNetflix />} />
                   <Route path="/search" element={<Search />} />
+                  <Route path="/onboarding" element={<Onboarding />} />
                   <Route path="/taste" element={<Navigate to="/browse" replace />} />
                   <Route path="/account" element={<Account />} />
                   <Route path="/help" element={<HelpCenter />} />

@@ -213,7 +213,14 @@ export function ProfileSelect() {
     picking.current = true
     selectProfile(profile.id)
     playProfileSting()
-    navigate('/browse', { state: { fromProfile: true } })
+    // First-login onboarding: a profile with no taste seeds yet goes through
+    // the 3-question + 5-pick flow once. Any favorites/history after that
+    // means taste exists and we go straight home.
+    const hasTaste =
+      (profile.favoriteGenres?.length ?? 0) > 0 ||
+      (profile.liked?.length ?? 0) > 0 ||
+      (profile.history?.length ?? 0) > 0
+    navigate(hasTaste ? '/browse' : '/onboarding', { state: { fromProfile: true } })
   }
 
   async function onPin(event: FormEvent) {
