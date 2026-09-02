@@ -57,7 +57,7 @@ export function TitleActions({
   const session = buildWatchSession(item, detail, history, false, watchHref)
   const href = session?.href
   const sheet = layout === 'sheet'
-  const soon = isComingSoon(item)
+  const soon = isComingSoon(item) && (detail ? detail.playable !== false : item.playable !== false)
   const [copied, setCopied] = useState(false)
 
   function remind() {

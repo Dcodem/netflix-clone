@@ -63,7 +63,7 @@ export function SearchHitsList({
             </span>
             <span className="search-top-title">{item.title}</span>
           </button>
-          {ranked ? null : isComingSoon(item) ? (
+          {ranked ? null : (isComingSoon(item) && item.playable !== false) ? (
             <button
               type="button"
               className="search-top-play"

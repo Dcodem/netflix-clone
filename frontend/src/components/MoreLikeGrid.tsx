@@ -111,7 +111,7 @@ export function MoreLikeGrid({ items }: { items: MovieListItem[] }) {
           const onList = activeProfile?.myList.some((entry) => entry.id === item.id) ?? false
           const match = matchPercent(item, activeProfile)
           const info = chips[item.id]
-          const soon = isComingSoon(item)
+          const soon = isComingSoon(item) && item.playable !== false
           const coming = comingLineFor(item)
           return (
             <article
