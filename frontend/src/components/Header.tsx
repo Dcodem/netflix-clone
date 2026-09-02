@@ -64,11 +64,14 @@ export function Header() {
       }
       return
     }
+    // Only drive the URL while the user is actually ON the search page.
+    // Navigating away (logo, nav links) must never get hijacked back here.
+    if (location.pathname !== '/search') return
     if (debounced !== live) return
     if (!isLiveSearchInput(debounced)) return
     pushRecentSearch(debounced)
-    if (location.pathname !== '/search' || searchParams.get('q') !== debounced) {
-      navigate(`/search?q=${encodeURIComponent(debounced)}`, { replace: location.pathname === '/search' })
+    if (searchParams.get('q') !== debounced) {
+      navigate(`/search?q=${encodeURIComponent(debounced)}`, { replace: true })
     }
   }, [debounced, query, urlQuery, syncedQuery, location.pathname, navigate, searchParams])
 
@@ -137,7 +140,7 @@ export function Header() {
         <button type="button" className="search-back" onClick={leaveSearch} aria-label="Back">
           <ChevronLeftIcon className="icon" />
         </button>
-        <Link className="logo" to="/browse">
+        <Link className="logo" to="/browse" onClick={() => { setQuery(''); setSearchOpen(false) }}>
           FLIX
         </Link>
         <details className="browse-menu" ref={browseRef} onToggle={syncBrowseCaret}>
@@ -165,7 +168,13 @@ export function Header() {
         </details>
         <nav className="primary-nav" aria-label="Browse">
           {NAV.map((link) => (
-            <NavLink key={link.to} className="nav-link" to={link.to} end={'end' in link ? link.end : false}>
+            <NavLink
+              key={link.to}
+              className="nav-link"
+              to={link.to}
+              end={'end' in link ? link.end : false}
+              onClick={() => { setQuery(''); setSearchOpen(false) }}
+            >
               {link.label}
             </NavLink>
           ))}

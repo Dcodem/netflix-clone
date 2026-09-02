@@ -12617,3 +12617,8 @@ img.is-logo-pending {
 .card-caption-title{font-size:13px;font-weight:600;color:#e6e6ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .card-caption-year{flex:0 0 auto;font-size:12px;color:#8a8a94;font-weight:500}
 .is-top10 .card-caption{justify-content:flex-end;padding-right:4px}
+
+/* Cast strip: give the side panel room + wrap instead of clipping */
+.title-modal-split-side .title-modal-cast-block{margin-bottom:18px}
+.cast-strip{flex-wrap:wrap;overflow:visible;max-height:none}
+.cast-chip{width:76px}
