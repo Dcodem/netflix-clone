@@ -202,6 +202,7 @@ function FeedCard({
         >
           <em>{monthLabel(date)}</em>
           <strong>{date.getDate()}</strong>
+          <span className="news-kind">{isShow(item) ? 'Series' : 'Film'}</span>
         </div>
       ) : null}
       {ranked ? (

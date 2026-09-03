@@ -26,7 +26,7 @@ import { CastMenu } from '../components/CastMenu'
 import { MediaImage } from '../components/MediaImage'
 import { SeasonMenu } from '../components/SeasonMenu'
 import { TitleLogo } from '../components/TitleLogo'
-import { createWatchAmbience, playClick, playIdentBump, playWhoosh } from '../lib/sounds'
+import { createWatchAmbience, playClick, playIdentBump } from '../lib/sounds'
 import { useProfiles } from '../profiles/ProfileContext'
 import { avatarFor } from '../profiles/types'
 import { watchForEpisode } from '../lib/episodeProgress'
@@ -292,7 +292,6 @@ export function WatchOverlay() {
   const skip = useCallback(
     (delta: number) => {
     playClick()
-    playWhoosh()
     post({ cmd: 'skip', delta })
       pulse(delta < 0 ? 'back' : 'fwd')
     },
@@ -838,7 +837,6 @@ export function WatchOverlay() {
   function skipIntro(event: { stopPropagation: () => void }) {
     event.stopPropagation()
     playClick()
-    playWhoosh()
     setIntroSkipped(true)
     post({ cmd: 'seek', seconds: marks.introAt })
   }
@@ -846,7 +844,6 @@ export function WatchOverlay() {
   function skipRecap(event: { stopPropagation: () => void }) {
     event.stopPropagation()
     playClick()
-    playWhoosh()
     setRecapSkipped(true)
     setIntroSkipped(true)
     post({ cmd: 'seek', seconds: marks.recapAt })
