@@ -1106,7 +1106,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 .row-scroller .poster-wrap {
   --tile-n: 2.35;
   flex: 0 0 calc((100% - var(--page-gutter) * 2) / var(--tile-n));
-  transition: flex-basis 0.45s cubic-bezier(0.33, 0.02, 0.2, 1);
+  transition: flex-basis 0.6s cubic-bezier(0.4, 0.02, 0.15, 1);
   max-width: none;
   min-width: 0;
   scroll-snap-align: start;
@@ -1185,7 +1185,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   border-radius: 2px;
   overflow: hidden;
   transform: translateZ(0);
-  transition: transform 0.4s cubic-bezier(0.33, 0, 0.2, 1);
+  transition: transform 0.55s cubic-bezier(0.34, 0.01, 0.14, 1);
 }
 
 .continue-more {
@@ -4112,14 +4112,14 @@ body:has(.account-page),
   background: #181818;
   overflow: visible;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
-  --jaw-from: 0.96;
-  animation: jaw-in 0.5s cubic-bezier(0.3, 0.02, 0.16, 1) both;
+  --jaw-from: 0.97;
+  animation: jaw-in 0.65s cubic-bezier(0.34, 0.01, 0.14, 1) both;
 }
 
 @keyframes jaw-in {
   from {
     transform: scale(var(--jaw-from));
-    opacity: 0.4;
+    opacity: 0.3;
   }
   to {
     transform: scale(1);
@@ -4252,7 +4252,7 @@ body:has(.account-page),
   position: static;
   padding: 16px 18px 18px;
   background: #181818;
-  animation: jaw-body-in 0.55s cubic-bezier(0.3, 0.02, 0.16, 1) 0.12s both;
+  animation: jaw-body-in 0.7s cubic-bezier(0.34, 0.01, 0.14, 1) 0.18s both;
 }
 
 @keyframes jaw-body-in {
