@@ -61,11 +61,14 @@ export function TitleHoverCard({
     }
   }, [item])
 
-  const width = Math.max(340, Math.min(430, Math.round(anchor.width * 1.65)))
+  // Netflix geometry: the expanded card is 1.5x the tile width, centered on
+  // the tile both axes, clamped to the viewport. The 16:9 preview top edge
+  // stays aligned with the tile's top so it reads as the tile growing.
+  const width = Math.max(300, Math.min(400, anchor.width * 1.5))
   const artH = width * (9 / 16)
   let left = anchor.left + anchor.width / 2 - width / 2
   left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
-  const heightGuess = artH + 196
+  const heightGuess = artH + 186
   let top = anchor.top + anchor.height / 2 - artH / 2
   if (top < 12) top = 12
   if (top + heightGuess > window.innerHeight - 12) {

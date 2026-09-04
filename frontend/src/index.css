@@ -4088,21 +4088,21 @@ body:has(.account-page),
   position: fixed;
   z-index: 1200;
   background: #181818;
-  border-radius: 6px;
+  border-radius: 4px;
   overflow: visible;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), 0 18px 48px rgba(0, 0, 0, 0.72);
-  --jaw-from: 0.54;
-  animation: jaw-in 0.35s cubic-bezier(0.5, 0, 0.1, 1) both;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+  --jaw-from: 0.62;
+  animation: jaw-in 0.42s cubic-bezier(0.22, 0.9, 0.3, 1) both;
 }
 
 @keyframes jaw-in {
   from {
     transform: scale(var(--jaw-from));
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    opacity: 0.55;
   }
   to {
     transform: scale(1);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), 0 18px 48px rgba(0, 0, 0, 0.72);
+    opacity: 1;
   }
 }
 
