@@ -75,7 +75,14 @@ export function TitleHoverCard({
   }))
   const wrapRef = useRef<HTMLElement | null>(null)
   useEffect(() => {
-    wrapRef.current = (anchorEl ?? document.querySelector<HTMLElement>('.poster-wrap.is-previewing, .scene-wrap.is-previewing')) as HTMLElement | null
+    const wrap = (anchorEl ?? document.querySelector<HTMLElement>('.poster-wrap.is-previewing, .scene-wrap.is-previewing')) as HTMLElement | null
+    // Top 10 tiles carry the giant numeral inside the wrap — anchor the
+    // expanded card to the POSTER portion (Netflix positions its top10
+    // preview over the poster, overlapping the next ranked tile rightward).
+    const card = wrap?.classList.contains('is-top10-wrap')
+      ? wrap.querySelector<HTMLElement>('.poster-card')
+      : null
+    wrapRef.current = (card ?? wrap) as HTMLElement | null
     if (!wrapRef.current) return
     let raf = 0
     let last = ''
@@ -130,7 +137,13 @@ export function TitleHoverCard({
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
   }, [])
-  const width = box.width
+  // Top 10 rows: the poster box is narrower than a normal tile (the numeral
+  // takes the left side) — Netflix's top10 preview expands WIDER than the
+  // poster and overlaps the next ranked tile rightward.
+  const isTop10 = Boolean(
+    wrapRef.current?.closest('.is-top10') || wrapRef.current?.classList.contains('is-top10-wrap'),
+  )
+  const width = isTop10 ? box.width * 1.85 : box.width
   // Top-aligned with the tile, but if the roomy card would run past the
   // viewport bottom, nudge it up in DOCUMENT space (never scrolls the page).
   // Uses the card's REAL rendered height once mounted (jawRef), estimate

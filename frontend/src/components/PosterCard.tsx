@@ -104,7 +104,7 @@ export function PosterCard({
 
   return (
     <div
-      className={`poster-wrap ${scene ? 'scene-wrap' : ''} ${ranked ? 'is-ranked' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'} ${peek ? 'is-peeking' : ''} ${hover ? 'is-previewing' : ''} ${rowMenu ? 'is-row-menu' : ''}`}
+      className={`poster-wrap ${scene ? 'scene-wrap' : ''} ${ranked ? 'is-ranked is-top10-wrap' : ''} ${layout === 'poster' ? 'is-poster' : 'is-landscape'} ${peek ? 'is-peeking' : ''} ${hover ? 'is-previewing' : ''} ${rowMenu ? 'is-row-menu' : ''}`}
       onPointerEnter={onEnter}
       onPointerLeave={onLeave}
     >

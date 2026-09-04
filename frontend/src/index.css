@@ -6179,6 +6179,13 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing {
   flex-basis: calc((100% - var(--page-gutter) * 2) / (var(--tile-n) / 1.5));
 }
 
+/* Top 10 rows: Netflix does NOT reflow the row on hover — the expanded
+   preview overlaps the neighboring ranked tile while the numeral stays put.
+   Keep the slot at its normal size; the jawbone floats over the neighbor. */
+body.is-jaw-open .is-top10 .row-scroller .poster-wrap.is-previewing {
+  flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
+}
+
 body.is-jaw-open .row-scroller .poster-wrap.is-previewing .poster-card,
 body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
   visibility: hidden;
