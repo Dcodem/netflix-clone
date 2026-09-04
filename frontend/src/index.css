@@ -2262,7 +2262,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 5.3);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 3.8);
   }
 
   .grid {
@@ -2313,7 +2313,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 5.5);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 3.8);
   }
 
   .btn-play,
@@ -6118,31 +6118,46 @@ img.is-logo-pending {
   align-items: flex-end;
 }
 
-/* Netflix Top-10 geometry: the wrap carries aspect-ratio 2/3 (uniform tile),
-   the numeral SVG is absolutely positioned behind, and the poster-card is
-   absolutely inset — nothing sizes off image content, so tiles stay identical. */
+/* Netflix Top-10 geometry, 1:1: the number is a huge outlined digit standing
+   at the LEFT of the tile at full poster height; the poster sits to its right
+   and overlaps the digit's right side. The card keeps the standard 2:3 poster
+   proportions; the digit lives in a left gutter. */
 .is-top10 .row-scroller .poster-wrap {
   position: relative;
   overflow: visible;
-  flex-basis: calc((100% - var(--page-gutter) * 2) / 5.3);
+  flex-basis: calc((100% - var(--page-gutter) * 2) / 3.8);
   aspect-ratio: 2 / 3;
 }
 
 .is-top10 .row-scroller .poster-card {
-  position: absolute;
+  position: relative;
   z-index: 1;
-  inset: 0 0 0 30%;
-  width: 70%;
+  flex: 0 0 62%;
+  margin-left: 38%;
   height: 100%;
+}
+
+.is-top10 .row-scroller .poster-art {
+  height: 100%;
+}
+
+.is-top10 .row-scroller .poster-art img,
+.is-top10 .row-scroller .poster-art .media-fallback {
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.is-top10 .row-scroller .card-caption {
+  margin-left: 38%;
 }
 
 .rank-num.rank-num-svg {
   position: absolute;
-  left: -6%;
-  bottom: -4%;
+  left: -12%;
+  bottom: -3%;
   z-index: 0;
-  width: 76%;
-  height: 106%;
+  width: 58%;
+  height: 100%;
   overflow: visible;
   user-select: none;
   pointer-events: none;
@@ -6703,7 +6718,7 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - 56px) / 2.5);
+    flex-basis: calc((100% - 56px) / 1.75);
     scroll-snap-align: none;
   }
 
@@ -6740,13 +6755,13 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 5.3);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 3.8);
   }
 }
 
 @media (min-width: 1100px) {
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 5.5);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 3.8);
   }
 }
 
