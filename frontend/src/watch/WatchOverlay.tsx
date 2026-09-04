@@ -173,6 +173,9 @@ export function WatchOverlay() {
   const [speedOpen, setSpeedOpen] = useState(false)
   const [speed, setSpeed] = useState(initialPrefs.speed)
   const [subs, setSubs] = useState(initialPrefs.subs)
+  const [playerSubs, setPlayerSubs] = useState<{ label: string; index: number }[]>([])
+  const [playerAudio, setPlayerAudio] = useState<{ label: string; index: number }[]>([])
+  const [activeSubIndex, setActiveSubIndex] = useState(-1)
   const [captionSize, setCaptionSize] = useState<CaptionSize>(initialPrefs.captionSize)
   const [captionBg, setCaptionBg] = useState<CaptionBg>(initialPrefs.captionBg)
   const [captionFont, setCaptionFont] = useState<CaptionFont>(initialPrefs.captionFont)
@@ -603,8 +606,15 @@ export function WatchOverlay() {
         current?: number
         duration?: number
         paused?: boolean
+        subtitles?: { label: string; index: number }[]
+        audio?: { label: string; index: number }[]
       }
       if (!data || data.source !== PLAYER_SOURCE) return
+      if (data.type === 'mediaList') {
+        setPlayerSubs(data.subtitles ?? [])
+        setPlayerAudio(data.audio ?? [])
+        return
+      }
       if (data.type === 'media' && data.kind === 'youtube') {
         ambienceRef.current?.stop()
         ambienceRef.current = null
@@ -1139,6 +1149,7 @@ export function WatchOverlay() {
       {caption ? (
         <p
           className={`watch-caption is-${captionSize} is-bg-${captionBg} is-font-${captionFont} is-color-${captionColor} ${chrome ? 'is-raised' : ''} ${subs === 'cc' ? 'is-cc' : ''}`}
+          style={{ display: 'none' }}
         >
           {caption}
         </p>
@@ -1346,7 +1357,10 @@ export function WatchOverlay() {
               type="button"
               className={`watch-ctrl ${audioOpen ? 'is-on' : ''}`}
               onClick={() => {
-                setAudioOpen((value) => !value)
+                setAudioOpen((value) => {
+                  if (!value) post({ cmd: 'getMediaList' })
+                  return !value
+                })
                 setEpisodesOpen(false)
                 setSpeedOpen(false)
               }}
@@ -1714,29 +1728,63 @@ export function WatchOverlay() {
           </div>
           <div>
             <h2>Audio</h2>
-            <button type="button" className={audioTrack === 'en' ? 'is-on' : ''} onClick={() => setAudioTrack('en')}>
-              {audioTrack === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-              English [Original]
-            </button>
-            <button type="button" className={audioTrack === 'ad' ? 'is-on' : ''} onClick={() => setAudioTrack('ad')}>
-              {audioTrack === 'ad' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-              English [Audio Description]
-            </button>
+            {playerAudio.length ? (
+              playerAudio.map((track) => (
+                <button
+                  key={track.index}
+                  type="button"
+                  className={audioTrack === String(track.index) ? 'is-on' : ''}
+                  onClick={() => {
+                    setAudioTrack(String(track.index))
+                    post({ cmd: 'setAudio', value: track.index })
+                  }}
+                >
+                  {audioTrack === String(track.index) ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+                  {track.label}
+                </button>
+              ))
+            ) : (
+              <>
+                <button type="button" className={audioTrack === 'en' ? 'is-on' : ''} onClick={() => setAudioTrack('en')}>
+                  {audioTrack === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+                  English [Original]
+                </button>
+                <button type="button" className={audioTrack === 'ad' ? 'is-on' : ''} onClick={() => setAudioTrack('ad')}>
+                  {audioTrack === 'ad' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+                  English [Audio Description]
+                </button>
+              </>
+            )}
           </div>
           <div>
             <h2>Subtitles</h2>
-            <button type="button" className={subs === 'off' ? 'is-on' : ''} onClick={() => setSubs('off')}>
-              {subs === 'off' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+            <button
+              type="button"
+              className={activeSubIndex === -1 ? 'is-on' : ''}
+              onClick={() => {
+                setActiveSubIndex(-1)
+                setSubs('off')
+                post({ cmd: 'setSubs', value: -1 })
+              }}
+            >
+              {activeSubIndex === -1 ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
               Off
             </button>
-            <button type="button" className={subs === 'en' ? 'is-on' : ''} onClick={() => setSubs('en')}>
-              {subs === 'en' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-              English
-            </button>
-            <button type="button" className={subs === 'cc' ? 'is-on' : ''} onClick={() => setSubs('cc')}>
-              {subs === 'cc' ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
-              English [CC]
-            </button>
+            {playerSubs.map((track) => (
+              <button
+                key={track.index}
+                type="button"
+                className={activeSubIndex === track.index ? 'is-on' : ''}
+                onClick={() => {
+                  setActiveSubIndex(track.index)
+                  setSubs('en')
+                  post({ cmd: 'setSubs', value: track.index })
+                }}
+              >
+                {activeSubIndex === track.index ? <CheckIcon className="icon" /> : <span className="watch-check-spacer" />}
+                {track.label}
+              </button>
+            ))}
             <h2 className="watch-caption-size-label">Size</h2>
             {(
               [

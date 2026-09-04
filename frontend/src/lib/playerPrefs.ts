@@ -13,7 +13,7 @@ export type PlayerPrefs = {
   captionBg: CaptionBg
   captionFont: CaptionFont
   captionColor: CaptionColor
-  audioTrack: 'en' | 'ad'
+  audioTrack: string
   speed: number
 }
 
@@ -50,7 +50,7 @@ export function readPlayerPrefs(): PlayerPrefs {
         raw.captionColor === 'yellow' || raw.captionColor === 'cyan' || raw.captionColor === 'green'
           ? raw.captionColor
           : 'white',
-      audioTrack: raw.audioTrack === 'ad' ? 'ad' : 'en',
+      audioTrack: typeof raw.audioTrack === 'string' ? raw.audioTrack : 'en',
       speed,
     }
   } catch {
