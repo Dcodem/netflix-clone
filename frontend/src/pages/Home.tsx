@@ -108,12 +108,16 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
       profile: activeProfile,
       genre,
     })
-    // Netflix's real hours-viewed Top 10 leads the home page.
+    // Netflix's real hours-viewed Top 10 leads the home page. On the Movies /
+    // TV Shows pages every rail shows that kind only — server rails arrive
+    // unfiltered and would mix TV into the Movies page.
+    const kindFilter = (items: MovieListItem[]) =>
+      genre
+        ? items.filter((item) => matchesGenreFilter(item, genre))
+        : ofKind(items, filter === 'movies' ? 'movies' : filter === 'shows' ? 'shows' : 'all')
     const nfRail = netflixTop10.data ?? []
     if (nfRail.length >= 4 && filter !== 'popular') {
-      const items = nfRail
-        .map((entry) => entry.item)
-        .filter((item) => (genre ? matchesGenreFilter(item, genre) : true))
+      const items = kindFilter(nfRail.map((entry) => entry.item))
       if (items.length >= 4) {
         const idx = built.findIndex((row) => row.id === 'continue')
         built.splice(idx >= 0 ? idx + 1 : 0, 0, {
@@ -132,9 +136,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
     if (localTrendIdx >= 0) built.splice(localTrendIdx, 1)
     const trendingRail = byTitle.get('trending')
     if (trendingRail && trendingRail.items.length >= 4) {
-      const items = trendingRail.items.filter((item) =>
-        genre ? matchesGenreFilter(item, genre) : true,
-      )
+      const items = kindFilter(trendingRail.items)
       if (items.length >= 4) {
         const idx = built.findIndex((row) => row.id === 'continue')
         built.splice(idx >= 0 ? idx + 1 : 0, 0, {
@@ -157,9 +159,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
       const rail = byTitle.get(railId)
       if (!rail || rail.items.length < 4) continue
       if (built.some((row) => row.id === railId)) continue
-      const items = rail.items.filter((item) =>
-        genre ? matchesGenreFilter(item, genre) : true,
-      )
+      const items = kindFilter(rail.items)
       if (items.length < 4) continue
       built.push({
         id: railId,

@@ -2234,9 +2234,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 @media (min-width: 768px) {
   .header-inner,
   .hero-body,
-  .section-title,
   .section-sub,
-  .row-heading,
   .row-scroller,
   .grid,
   .detail-hero-body,
@@ -2248,6 +2246,10 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
     padding-left: var(--page-gutter);
     padding-right: var(--page-gutter);
   }
+
+  /* .section-title is NOT padded here: .row-heading already applies the
+     gutter as a margin — padding both double-indents the header past the
+     posters' left edge. */
 
   .section-title {
     font-size: max(16px, 1.4vw);
@@ -6261,7 +6263,7 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
   letter-spacing: -0.06em;
   stroke: rgba(255, 255, 255, 0.9);
   stroke-width: 8;
-  fill: rgba(0, 0, 0, 0.2);
+  fill: none;
   paint-order: stroke;
 }
 
