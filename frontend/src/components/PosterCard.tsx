@@ -93,7 +93,7 @@ export function PosterCard({
       const rect = card.getBoundingClientRect()
       setAnchor(rect)
       setHover(true)
-    }, 400)
+    }, 320)
   }
 
   function onLeave(event: PointerEvent<HTMLDivElement>) {
