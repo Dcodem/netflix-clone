@@ -1112,6 +1112,13 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   scroll-snap-align: start;
 }
 
+/* Snap must account for the scroller's left gutter, or mandatory snapping
+   scrolls the row past the gutter at load — tiles end up flush with the
+   viewport while the header sits at the gutter (the "indent" mismatch). */
+.row-scroller {
+  scroll-padding-left: var(--page-gutter);
+}
+
 .row-scroller .scene-wrap {
   --tile-n: 1.55;
   flex: 0 0 calc((100% - var(--page-gutter) * 2) / var(--tile-n));
@@ -6210,6 +6217,12 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
    at the LEFT of the tile at full poster height; the poster sits to its right
    and overlaps the digit's right side. The card keeps the standard 2:3 poster
    proportions; the digit lives in a left gutter. */
+.is-top10 .row-scroller {
+  /* The overlaid numeral bleeds ~28px left of the slot — compensate so the
+     FIRST numeral's visible edge lines up with the header and the gutter. */
+  padding-left: calc(var(--page-gutter) - 28px);
+}
+
 .is-top10 .row-scroller .poster-wrap {
   position: relative;
   overflow: visible;
