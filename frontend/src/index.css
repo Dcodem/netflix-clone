@@ -4099,12 +4099,12 @@ body:has(.account-page),
 }
 
 .jawbone {
-  position: fixed;
+  /* Document-anchored: scrolls WITH the page/row like Netflix, never
+     floats over the page while the user scrolls. No frame, no shadow. */
+  position: absolute;
   z-index: 1200;
   background: #181818;
-  border-radius: 4px;
   overflow: visible;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
   --jaw-from: 0.62;
   animation: jaw-in 0.42s cubic-bezier(0.22, 0.9, 0.3, 1) both;
 }
@@ -4125,7 +4125,6 @@ body:has(.account-page),
   aspect-ratio: 16 / 9;
   background: #000;
   overflow: hidden;
-  border-radius: 6px 6px 0 0;
 }
 
 .jawbone-art::after {
@@ -4176,12 +4175,15 @@ body:has(.account-page),
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
   border: 0;
   pointer-events: none;
   z-index: 1;
   opacity: 0;
   transition: opacity 0.8s ease;
+  /* Fill the tile: crop away YouTube's letterbox bars by oversizing the
+     player and letting .jawbone-art clip it (cover behavior). */
+  transform: scale(1.5);
+  transform-origin: center;
 }
 
 .jawbone-art.is-playing .jawbone-trailer {

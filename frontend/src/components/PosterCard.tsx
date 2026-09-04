@@ -216,6 +216,7 @@ export function PosterCard({
         <TitleHoverCard
           item={item}
           anchor={anchor}
+          anchorEl={rootRef.current}
           progress={progress}
           onKeep={cancelClose}
           onClose={dropLock}

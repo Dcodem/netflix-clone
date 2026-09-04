@@ -22,12 +22,14 @@ import { TitleLogo } from './TitleLogo'
 export function TitleHoverCard({
   item,
   anchor,
+  anchorEl,
   progress,
   onClose,
   onKeep,
 }: {
   item: MovieListItem
   anchor: DOMRect
+  anchorEl?: HTMLElement | null
   progress?: number
   onClose: () => void
   onKeep: () => void
@@ -73,22 +75,33 @@ export function TitleHoverCard({
   }))
   const wrapRef = useRef<HTMLElement | null>(null)
   useEffect(() => {
-    wrapRef.current = document.querySelector<HTMLElement>('.poster-wrap.is-previewing, .scene-wrap.is-previewing')
+    wrapRef.current = (anchorEl ?? document.querySelector<HTMLElement>('.poster-wrap.is-previewing, .scene-wrap.is-previewing')) as HTMLElement | null
     if (!wrapRef.current) return
     let raf = 0
     let last = ''
-    let stable = 0
+    // The card is absolutely positioned in DOCUMENT space so it scrolls with
+    // the row. Track the wrap every frame (flex transition AND page scroll)
+    // and stop only when the box is stable AND the page isn't scrolling.
+    let closed = false
     const tick = () => {
-      const rect = wrapRef.current?.getBoundingClientRect()
-      if (rect) {
-        const key = `${Math.round(rect.left)},${Math.round(rect.top)},${Math.round(rect.width)}`
-        if (key !== last) {
-          last = key
-          stable = 0
-          setBox({ left: rect.left, top: rect.top, width: rect.width, height: rect.height })
-        } else if (++stable > 8) {
-          return // box settled — the flex transition is done
-        }
+      const el = wrapRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      // Row scrolled away from the pointer's view — close like Netflix.
+      if (!closed && (rect.bottom < -80 || rect.top > window.innerHeight + 80)) {
+        closed = true
+        onClose()
+        return
+      }
+      const key = `${Math.round(rect.left)},${Math.round(rect.top + window.scrollY)},${Math.round(rect.width)}`
+      if (key !== last) {
+        last = key
+        setBox({
+          left: rect.left + window.scrollX,
+          top: rect.top + window.scrollY,
+          width: rect.width,
+          height: rect.height,
+        })
       }
       raf = requestAnimationFrame(tick)
     }
@@ -97,13 +110,10 @@ export function TitleHoverCard({
   }, [])
   const width = box.width
   const artH = width * (9 / 16)
-  let left = box.left
-  const heightGuess = artH + 186
-  let top = box.top + box.height / 2 - artH / 2
-  if (top < 12) top = 12
-  if (top + heightGuess > window.innerHeight - 12) {
-    top = Math.max(12, window.innerHeight - heightGuess - 12)
-  }
+  const left = box.left
+  // Center the art on the tile vertically; the card scrolls with the page,
+  // so no viewport clamping here.
+  const top = box.top + box.height / 2 - artH / 2
   const fromScale = Math.max(0.42, Math.min(0.82, anchor.width / width))
 
   const tmdbInfo = useTmdbInfo(item)
