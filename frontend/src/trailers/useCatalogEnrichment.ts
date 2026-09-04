@@ -30,7 +30,17 @@ export function useCatalogEnrichment(items: MovieListItem[]): MovieListItem[] {
   useEffect(() => subscribeTitleOverlay(() => setVersion((value) => value + 1)), [])
 
   useEffect(() => {
-    if (!items.length) return
+    // Stand down while a hover preview is open: the hover's own trailer
+    // resolve must win the connection pool, or it times out and no video loads.
+    // Watch the body class so opening/closing the preview pauses/resumes us.
+    const mo = new MutationObserver(() => setVersion((value) => value + 1))
+    mo.observe(document.body, { attributes: true, attributeFilter: ['class'] })
+    if (document.body.classList.contains('is-jaw-open')) {
+      return () => mo.disconnect()
+    }
+    if (!items.length) {
+      return () => mo.disconnect()
+    }
     const queue = items.filter(
       (item) => needsCatalogEnrichment(item) && !enriched.has(enrichmentKey(item)),
     )
@@ -62,6 +72,7 @@ export function useCatalogEnrichment(items: MovieListItem[]): MovieListItem[] {
     void Promise.all(Array.from({ length: Math.min(CONCURRENCY, queue.length) }, () => worker()))
     return () => {
       cancelled = true
+      mo.disconnect()
     }
   }, [items, key])
 
