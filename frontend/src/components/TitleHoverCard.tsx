@@ -109,10 +109,15 @@ export function TitleHoverCard({
     return () => cancelAnimationFrame(raf)
   }, [])
   const width = box.width
-  // The card is exactly a 16:9 rectangle anchored to the tile's top edge:
-  // the video IS the tile grown, flush with the row — no pop-down centering.
+  // Top-aligned with the tile, but if the roomy card would run past the
+  // viewport bottom, nudge it up in DOCUMENT space (never scrolls the page).
+  // Uses the card's REAL rendered height once mounted (jawRef), estimate
+  // before that.
   const left = box.left
-  const top = box.top
+  const realH = jawRef.current?.offsetHeight
+  const estimated = realH && realH > 40 ? realH : width * (9 / 16) + 260
+  const viewportBottom = window.scrollY + window.innerHeight
+  const top = Math.min(box.top, Math.max(window.scrollY + 8, viewportBottom - estimated - 14))
   const fromScale = Math.max(0.42, Math.min(0.82, anchor.width / width))
 
   const tmdbInfo = useTmdbInfo(item)
@@ -132,6 +137,10 @@ export function TitleHoverCard({
   const genres = copy.genres.slice(0, 3)
   const seasons = isShow(item) ? ((detail as ShowDetail | null)?.seasons ?? []) : []
   const episodeCount = seasons.reduce((count, season) => count + (season.episodes?.length ?? 0), 0)
+  const releaseDate = (detail as { release_date?: string | null } | null)?.release_date ?? null
+  const releaseLine = releaseDate
+    ? new Date(releaseDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    : null
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
   const soon = isComingSoon(item) && item.playable !== true
   const coming = comingLineFor(item)
@@ -161,7 +170,6 @@ export function TitleHoverCard({
           top,
           left,
           width,
-          aspectRatio: '16 / 9',
           transformOrigin: `${originX}px ${originY}px`,
           '--jaw-from': String(fromScale),
         } as CSSProperties
@@ -267,6 +275,8 @@ export function TitleHoverCard({
           {soon ? null : <FeatureBadges quality={quality} compact />}
         </div>
         {genres.length ? <GenreDots genres={genres} className="jawbone-genres" /> : null}
+        {releaseLine ? <div className="jawbone-release">{releaseLine}</div> : null}
+        {copy.synopsis ? <p className="jawbone-synopsis">{copy.synopsis}</p> : null}
       </div>
     </div>,
     document.body,

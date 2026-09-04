@@ -4099,12 +4099,13 @@ body:has(.account-page),
 }
 
 .jawbone {
-  /* Document-anchored: scrolls WITH the page/row like Netflix, never
-     floats over the page while the user scrolls. No frame, no shadow. */
+  /* Document-anchored: scrolls WITH the page/row like Netflix. A soft
+     shadow separates it from the tiles it covers (not a frame). */
   position: absolute;
   z-index: 1200;
   background: #181818;
   overflow: visible;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
   --jaw-from: 0.62;
   animation: jaw-in 0.42s cubic-bezier(0.22, 0.9, 0.3, 1) both;
 }
@@ -4238,15 +4239,29 @@ body:has(.account-page),
 }
 
 .jawbone-body {
-  /* Netflix lower-third: controls and metadata overlay the video's bottom
-     on a gradient — the card is ONE flat video rectangle, no framed panel. */
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 6;
-  padding: 34px 16px 12px;
-  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.55) 34%, rgba(0, 0, 0, 0.92) 100%);
+  /* Info block sits UNDER the video (Tudum top10 card style): video flush
+     with the row top, then a roomy info panel beneath on the card body. */
+  position: static;
+  padding: 16px 18px 18px;
+  background: #181818;
+}
+
+.jawbone-release {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b3b3b3;
+}
+
+.jawbone-synopsis {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #d2d2d2;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .jawbone-meta {
