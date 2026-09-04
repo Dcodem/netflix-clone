@@ -2262,7 +2262,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 3.8);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 4.4);
   }
 
   .grid {
@@ -2313,7 +2313,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 3.8);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 4.4);
   }
 
   .btn-play,
@@ -6125,7 +6125,7 @@ img.is-logo-pending {
 .is-top10 .row-scroller .poster-wrap {
   position: relative;
   overflow: visible;
-  flex-basis: calc((100% - var(--page-gutter) * 2) / 3.8);
+  flex-basis: calc((100% - var(--page-gutter) * 2) / 4.4);
   aspect-ratio: 2 / 3;
 }
 
@@ -6145,6 +6145,7 @@ img.is-logo-pending {
 .is-top10 .row-scroller .poster-art .media-fallback {
   height: 100%;
   aspect-ratio: auto;
+  object-fit: cover;
 }
 
 .is-top10 .row-scroller .card-caption {
@@ -6718,7 +6719,7 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - 56px) / 1.75);
+    flex-basis: calc((100% - 56px) / 2.1);
     scroll-snap-align: none;
   }
 
@@ -6755,13 +6756,13 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 3.8);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 4.4);
   }
 }
 
 @media (min-width: 1100px) {
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 3.8);
+    flex-basis: calc((100% - var(--page-gutter) * 2) / 4.4);
   }
 }
 
