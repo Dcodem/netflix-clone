@@ -6138,6 +6138,10 @@ img.is-logo-pending {
    instead of floating over it. */
 body.is-jaw-open .row-scroller {
   scroll-snap-type: none;
+  /* Lock the row in place while a preview is open: no horizontal scrolling
+     from wheel/trackpad under a stationary mouse. Vertical page scroll stays
+     free; the jawbone closes if the row moves out from under the pointer. */
+  overflow-x: hidden;
 }
 
 body.is-jaw-open .row-scroller .poster-wrap.is-previewing,

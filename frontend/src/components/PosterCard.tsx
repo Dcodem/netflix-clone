@@ -80,18 +80,6 @@ export function PosterCard({
     window.clearTimeout(timer.current)
   }
 
-  function nudgeRow(card: HTMLElement) {
-    const scroller = card.closest('.row-scroller')
-    if (!(scroller instanceof HTMLElement)) return
-    const pad = 72
-    const tile = card.getBoundingClientRect()
-    const rail = scroller.getBoundingClientRect()
-    let delta = 0
-    if (tile.left < rail.left + pad) delta = tile.left - (rail.left + pad)
-    else if (tile.right > rail.right - pad) delta = tile.right - (rail.right - pad)
-    if (Math.abs(delta) > 2) scroller.scrollLeft += delta
-  }
-
   function onEnter(event: PointerEvent<HTMLDivElement>) {
     if (!hoverable || event.pointerType !== 'mouse' || rowMenu) return
     cancelClose()
@@ -100,7 +88,8 @@ export function PosterCard({
     timer.current = window.setTimeout(() => {
       const card = rootRef.current
       if (!card) return
-      nudgeRow(card)
+      // No auto-scroll: the row must stay fixed under the mouse while the
+      // slot expands (the grown slot extends into the scrollable overflow).
       const rect = card.getBoundingClientRect()
       setAnchor(rect)
       setHover(true)
