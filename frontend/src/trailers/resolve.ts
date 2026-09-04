@@ -34,12 +34,10 @@ export async function resolveTrailer(
   }
 
   let hit: TrailerHit | null = knownTrailer(item)
-  console.log('[trailer-debug] start', item.title, 'known:', hit?.src ?? null)
   try {
     hit = (await findTmdbTrailer(item, keys.tmdb)) ?? hit
-    console.log('[trailer-debug] tmdb result', item.title, hit?.src ?? null)
-  } catch (err) {
-    console.log('[trailer-debug] tmdb FAILED', item.title, String(err).slice(0, 120))
+  } catch {
+    /* keep catalog fallback when the TMDB proxy has no key */
   }
   if (!hit && keys.iva) {
     try {
