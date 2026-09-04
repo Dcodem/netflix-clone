@@ -1303,6 +1303,12 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   pointer-events: none;
 }
 
+.poster-wrap.is-previewing .card-caption {
+  /* Title lives inside the expanded card's wordmark — drop the caption
+     entirely (not just hide) so no gap is left under the grown slot. */
+  display: none;
+}
+
 .poster-wrap.is-peeking:not(.is-previewing) .poster-art img,
 .poster-wrap.is-peeking:not(.is-previewing) .poster-art .media-fallback,
 .poster-wrap.is-peeking:not(.is-previewing) .scene-art img,
@@ -4181,9 +4187,10 @@ body:has(.account-page),
   z-index: 1;
   opacity: 0;
   transition: opacity 0.8s ease;
-  /* Fill the tile: crop away YouTube's letterbox bars by oversizing the
-     player and letting .jawbone-art clip it (cover behavior). */
-  transform: scale(1.5);
+  /* Fill the tile and hide YouTube's embedded chrome (logo watermark,
+     Watch-on-YouTube pill, title cards): oversize the player and bias the
+     crop toward the top-right corner where that chrome lives. */
+  transform: scale(1.6) translate(-3%, -5%);
   transform-origin: center;
 }
 
