@@ -61,15 +61,45 @@ export function TitleHoverCard({
     }
   }, [item])
 
-  // Netflix geometry: the expanded card is 1.5x the tile width, centered on
-  // the tile both axes, clamped to the viewport. The 16:9 preview top edge
-  // stays aligned with the tile's top so it reads as the tile growing.
-  const width = Math.max(300, Math.min(400, anchor.width * 1.5))
+  // In-row expansion geometry: the WRAP grows to 1.5x in the row flow (CSS),
+  // and this card fills the grown slot — positioned to the wrap's live box,
+  // vertically centered on the row, overflowing above/below like Netflix.
+  // Re-measure on the animation frame so we ride the flex-basis transition.
+  const [box, setBox] = useState(() => ({
+    left: anchor.left,
+    top: anchor.top,
+    width: anchor.width,
+    height: anchor.height,
+  }))
+  const wrapRef = useRef<HTMLElement | null>(null)
+  useEffect(() => {
+    wrapRef.current = document.querySelector<HTMLElement>('.poster-wrap.is-previewing, .scene-wrap.is-previewing')
+    if (!wrapRef.current) return
+    let raf = 0
+    let last = ''
+    let stable = 0
+    const tick = () => {
+      const rect = wrapRef.current?.getBoundingClientRect()
+      if (rect) {
+        const key = `${Math.round(rect.left)},${Math.round(rect.top)},${Math.round(rect.width)}`
+        if (key !== last) {
+          last = key
+          stable = 0
+          setBox({ left: rect.left, top: rect.top, width: rect.width, height: rect.height })
+        } else if (++stable > 8) {
+          return // box settled — the flex transition is done
+        }
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+  const width = box.width
   const artH = width * (9 / 16)
-  let left = anchor.left + anchor.width / 2 - width / 2
-  left = Math.max(12, Math.min(left, window.innerWidth - width - 12))
+  let left = box.left
   const heightGuess = artH + 186
-  let top = anchor.top + anchor.height / 2 - artH / 2
+  let top = box.top + box.height / 2 - artH / 2
   if (top < 12) top = 12
   if (top + heightGuess > window.innerHeight - 12) {
     top = Math.max(12, window.innerHeight - heightGuess - 12)

@@ -1104,14 +1104,17 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 }
 
 .row-scroller .poster-wrap {
-  flex: 0 0 calc((100% - var(--page-gutter) * 2) / 2.35);
+  --tile-n: 2.35;
+  flex: 0 0 calc((100% - var(--page-gutter) * 2) / var(--tile-n));
+  transition: flex-basis 0.36s cubic-bezier(0.22, 0.9, 0.3, 1);
   max-width: none;
   min-width: 0;
   scroll-snap-align: start;
 }
 
 .row-scroller .scene-wrap {
-  flex: 0 0 calc((100% - var(--page-gutter) * 2) / 1.55);
+  --tile-n: 1.55;
+  flex: 0 0 calc((100% - var(--page-gutter) * 2) / var(--tile-n));
 }
 
 .row-scroller.is-looping .poster-wrap {
@@ -2179,11 +2182,13 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 
 @media (min-width: 480px) {
   .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 3.25);
+    --tile-n: 3.25;
+    flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 
   .row-scroller .scene-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 2.15);
+    --tile-n: 2.15;
+    flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 
   .grid {
@@ -2257,15 +2262,18 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 3.15);
+    --tile-n: 3.15;
+    flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 
   .row-scroller .scene-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 2.6);
+    --tile-n: 2.6;
+    flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 4.4);
+    --tile-n: 4.4;
+    flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 
   .grid {
@@ -2295,11 +2303,13 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 6.35);
+    --tile-n: 6.35;
+    flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 
   .row-scroller .scene-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 3.2);
+    --tile-n: 3.2;
+    flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 
   .scene-caption {
@@ -2316,7 +2326,8 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 4.4);
+    --tile-n: 4.4;
+    flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 
   .btn-play,
@@ -6121,14 +6132,33 @@ img.is-logo-pending {
   align-items: flex-end;
 }
 
-/* Netflix Top-10 geometry, 1:1: the number is a huge outlined digit standing
+/* ---- In-row expansion (Tudum top10 hover behavior) ----
+   The hovered tile's slot in the row physically grows to 1.5x and its
+   neighbors shift aside; the jawbone content then fills that grown slot
+   instead of floating over it. */
+body.is-jaw-open .row-scroller {
+  scroll-snap-type: none;
+}
+
+body.is-jaw-open .row-scroller .poster-wrap.is-previewing,
+body.is-jaw-open .row-scroller .scene-wrap.is-previewing {
+  flex-basis: calc((100% - var(--page-gutter) * 2) / (var(--tile-n) / 1.5));
+}
+
+body.is-jaw-open .row-scroller .poster-wrap.is-previewing .poster-card,
+body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
+  visibility: hidden;
+}
+
+/* ---- Netflix Top-10 geometry, 1:1: the number is a huge outlined digit standing
    at the LEFT of the tile at full poster height; the poster sits to its right
    and overlaps the digit's right side. The card keeps the standard 2:3 poster
    proportions; the digit lives in a left gutter. */
 .is-top10 .row-scroller .poster-wrap {
   position: relative;
   overflow: visible;
-  flex-basis: calc((100% - var(--page-gutter) * 2) / 4.4);
+  --tile-n: 4.4;
+    flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   aspect-ratio: 2 / 3;
 }
 
@@ -6759,13 +6789,15 @@ img.is-logo-pending {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 4.4);
+    --tile-n: 4.4;
+    flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 }
 
 @media (min-width: 1100px) {
   .is-top10 .row-scroller .poster-wrap {
-    flex-basis: calc((100% - var(--page-gutter) * 2) / 4.4);
+    --tile-n: 4.4;
+    flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 }
 
