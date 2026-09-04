@@ -47,6 +47,9 @@ export async function resolveTrailer(
     }
   }
   memory.set(key, hit)
+  // Only cache POSITIVE hits in sessionStorage. A null (timeout/rate-limit
+  // during a busy page load) must stay retryable — caching it permanently
+  // killed trailers for the whole session.
   if (hit) {
     try {
       sessionStorage.setItem(key, JSON.stringify(hit))
