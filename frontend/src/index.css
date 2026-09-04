@@ -1286,15 +1286,18 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
     transform: scale(1.08);
   }
 
-  .poster-wrap.is-previewing .poster-card {
-    /* Keep the tile under the expanding card so the row never flashes a hole. */
-    pointer-events: none;
-  }
 
   .poster-wrap.is-previewing .continue-hide {
     opacity: 0;
     pointer-events: none;
   }
+}
+
+.poster-wrap.is-previewing .poster-card {
+  /* Netflix: the tile is REPLACED by the grown card — hide the source poster
+     so the expansion reads as the tile itself growing, not a popup covering. */
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .poster-wrap.is-peeking:not(.is-previewing) .poster-art img,
