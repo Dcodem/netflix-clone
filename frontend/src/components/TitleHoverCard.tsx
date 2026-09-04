@@ -143,7 +143,7 @@ export function TitleHoverCard({
   const isTop10 = Boolean(
     wrapRef.current?.closest('.is-top10') || wrapRef.current?.classList.contains('is-top10-wrap'),
   )
-  const width = isTop10 ? box.width * 1.85 : box.width
+  const width = isTop10 ? box.width * 1.3 : box.width
   // Top-aligned with the tile, but if the roomy card would run past the
   // viewport bottom, nudge it up in DOCUMENT space (never scrolls the page).
   // Uses the card's REAL rendered height once mounted (jawRef), estimate

@@ -2278,7 +2278,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    --tile-n: 4.4;
+    --tile-n: 3.0;
     flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 
@@ -2332,7 +2332,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    --tile-n: 4.4;
+    --tile-n: 3.0;
     flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 
@@ -6198,16 +6198,18 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
 .is-top10 .row-scroller .poster-wrap {
   position: relative;
   overflow: visible;
-  --tile-n: 4.4;
+  --tile-n: 3.0;
     flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 7 / 10;
 }
 
 .is-top10 .row-scroller .poster-card {
   position: relative;
   z-index: 1;
-  flex: 0 0 62%;
-  margin-left: 38%;
+  /* Netflix Tudum top10: the poster IS the full tile (wide!), and the big
+     outlined numeral overlays its upper-left corner in front of the art. */
+  flex: 0 0 100%;
+  margin-left: 0;
   height: 100%;
 }
 
@@ -6223,16 +6225,17 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
 }
 
 .is-top10 .row-scroller .card-caption {
-  margin-left: 38%;
+  margin-left: 0;
 }
 
 .rank-num.rank-num-svg {
+  /* Tudum style: numeral overlays the poster's upper-left corner. */
   position: absolute;
-  left: -12%;
-  bottom: -3%;
-  z-index: 0;
-  width: 58%;
-  height: 100%;
+  left: -1%;
+  top: -2%;
+  z-index: 2;
+  width: 72%;
+  height: 60%;
   overflow: visible;
   user-select: none;
   pointer-events: none;
@@ -6241,11 +6244,11 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
 .rank-num.rank-num-svg text {
   font-family: 'Arial Black', 'Arial Narrow', Arial, var(--display);
   font-weight: 900;
-  font-size: 158px;
-  letter-spacing: -0.04em;
-  stroke: #7a7a7a;
-  stroke-width: 4.5;
-  fill: none;
+  font-size: 270px;
+  letter-spacing: -0.06em;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 8;
+  fill: rgba(0, 0, 0, 0.2);
   paint-order: stroke;
 }
 
@@ -6830,14 +6833,14 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
   }
 
   .is-top10 .row-scroller .poster-wrap {
-    --tile-n: 4.4;
+    --tile-n: 3.0;
     flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 }
 
 @media (min-width: 1100px) {
   .is-top10 .row-scroller .poster-wrap {
-    --tile-n: 4.4;
+    --tile-n: 3.0;
     flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   }
 }
