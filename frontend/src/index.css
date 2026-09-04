@@ -1106,7 +1106,7 @@ body.is-jaw-open .media-row:has(.poster-wrap.is-previewing) {
 .row-scroller .poster-wrap {
   --tile-n: 2.35;
   flex: 0 0 calc((100% - var(--page-gutter) * 2) / var(--tile-n));
-  transition: flex-basis 0.36s cubic-bezier(0.22, 0.9, 0.3, 1);
+  transition: flex-basis 0.45s cubic-bezier(0.33, 0.02, 0.2, 1);
   max-width: none;
   min-width: 0;
   scroll-snap-align: start;
@@ -4112,14 +4112,14 @@ body:has(.account-page),
   background: #181818;
   overflow: visible;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
-  --jaw-from: 0.62;
-  animation: jaw-in 0.42s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+  --jaw-from: 0.96;
+  animation: jaw-in 0.5s cubic-bezier(0.3, 0.02, 0.16, 1) both;
 }
 
 @keyframes jaw-in {
   from {
     transform: scale(var(--jaw-from));
-    opacity: 0.55;
+    opacity: 0.4;
   }
   to {
     transform: scale(1);
@@ -4247,10 +4247,23 @@ body:has(.account-page),
 
 .jawbone-body {
   /* Info block sits UNDER the video (Tudum top10 card style): video flush
-     with the row top, then a roomy info panel beneath on the card body. */
+     with the row top, then a roomy info panel beneath on the card body.
+     Fades in just after the expansion starts so the card feels alive. */
   position: static;
   padding: 16px 18px 18px;
   background: #181818;
+  animation: jaw-body-in 0.55s cubic-bezier(0.3, 0.02, 0.16, 1) 0.12s both;
+}
+
+@keyframes jaw-body-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .jawbone-release {
