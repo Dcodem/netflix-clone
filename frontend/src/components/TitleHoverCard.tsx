@@ -79,6 +79,8 @@ export function TitleHoverCard({
     if (!wrapRef.current) return
     let raf = 0
     let last = ''
+    let settleFrames = 0
+    let lastScroll = window.scrollY
     // The card is absolutely positioned in DOCUMENT space so it scrolls with
     // the row. Track the wrap every frame (flex transition AND page scroll)
     // and stop only when the box is stable AND the page isn't scrolling.
@@ -103,15 +105,25 @@ export function TitleHoverCard({
           height: rect.height,
         })
       }
-      // Continuous viewport-bottom correction: the card's height settles as
-      // fonts/images load, so keep nudging it to stay fully on screen.
+      // Viewport-bottom correction — only while something is actually
+      // changing. When both wrap and jaw are stable, stop the loop entirely
+      // (per-frame setState re-renders the card and restarts trailer resolve).
       const jaw = jawRef.current
-      if (jaw) {
-        const jr = jaw.getBoundingClientRect()
-        const overflow = jr.bottom - window.innerHeight
-        if (overflow > 0) {
-          setBox((prev) => ({ ...prev, top: prev.top - overflow - 14 }))
-        }
+      const jr = jaw?.getBoundingClientRect()
+      const overflow = jr ? jr.bottom - window.innerHeight : 0
+      // Page scrolling counts as activity: the card must follow the row.
+      if (window.scrollY !== lastScroll) {
+        lastScroll = window.scrollY
+        settleFrames = 0
+      }
+      const stable = key === last && overflow <= 0
+      if (stable) {
+        if (++settleFrames > 12) return // fully settled — stop the loop
+      } else {
+        settleFrames = 0
+      }
+      if (overflow > 0) {
+        setBox((prev) => ({ ...prev, top: prev.top - overflow - 14 }))
       }
       raf = requestAnimationFrame(tick)
     }

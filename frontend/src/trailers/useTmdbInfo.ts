@@ -4,6 +4,7 @@ import { findTmdbInfo, type TmdbInfo } from './tmdb'
 import { envKeys } from './types'
 
 const memory = new Map<string, TmdbInfo | null>()
+const inflight = new Map<string, Promise<TmdbInfo | null>>()
 
 function cacheId(item: { title?: string; year?: number | null; kind?: string; tmdb_id?: number | string | null }) {
   return `flix.info.v1:${item.kind ?? 'movie'}:${item.tmdb_id ?? ''}:${(item.title ?? '').toLowerCase()}:${item.year ?? ''}`
@@ -31,15 +32,24 @@ export function useTmdbInfo(item: {
       return
     }
     let cancelled = false
-    findTmdbInfo({ title, year: item?.year, kind: item?.kind, tmdb_id: item?.tmdb_id }, key)
-      .then((result) => {
-        memory.set(cacheKey, result)
-        if (!cancelled) setInfo(result)
-      })
-      .catch(() => {
-        memory.set(cacheKey, null)
-        if (!cancelled) setInfo(null)
-      })
+    let pending = inflight.get(cacheKey)
+    if (!pending) {
+      pending = findTmdbInfo({ title, year: item?.year, kind: item?.kind, tmdb_id: item?.tmdb_id }, key)
+        .then((result) => {
+          memory.set(cacheKey, result)
+          inflight.delete(cacheKey)
+          return result
+        })
+        .catch(() => {
+          memory.set(cacheKey, null)
+          inflight.delete(cacheKey)
+          return null
+        })
+      inflight.set(cacheKey, pending)
+    }
+    pending.then((result) => {
+      if (!cancelled) setInfo(result)
+    })
     return () => {
       cancelled = true
     }
