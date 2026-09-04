@@ -13,6 +13,15 @@ import {
 
 const CONCURRENCY = 3
 
+// Global completion ledger: rows re-render and restart this effect constantly
+// (new items array identity), so queue progress must live outside the effect
+// or the same titles get re-searched hundreds of times.
+const enriched = new Set<string>()
+
+function enrichmentKey(item: { title?: string; year?: number | null; kind?: string }) {
+  return `${item.kind ?? 'movie'}|${(item.title ?? '').toLowerCase()}|${item.year ?? ''}`
+}
+
 export function useCatalogEnrichment(items: MovieListItem[]): MovieListItem[] {
   const { user } = useAuth()
   const key = (user?.tmdbKey || envKeys().tmdb).trim()
@@ -22,7 +31,9 @@ export function useCatalogEnrichment(items: MovieListItem[]): MovieListItem[] {
 
   useEffect(() => {
     if (!items.length) return
-    const queue = items.filter(needsCatalogEnrichment)
+    const queue = items.filter(
+      (item) => needsCatalogEnrichment(item) && !enriched.has(enrichmentKey(item)),
+    )
     if (!queue.length) return
     let cancelled = false
     let cursor = 0
@@ -32,7 +43,9 @@ export function useCatalogEnrichment(items: MovieListItem[]): MovieListItem[] {
         const item = queue[cursor]
         cursor += 1
         if (!item) return
-        if (getTitleOverlay(item)) continue
+        const ekey = enrichmentKey(item)
+        if (getTitleOverlay(item) || enriched.has(ekey)) continue
+        enriched.add(ekey)
         try {
           const info = await findTmdbInfo(
             { title: item.title, year: item.year, kind: item.kind, tmdb_id: item.tmdb_id },
