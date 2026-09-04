@@ -50,6 +50,7 @@
     { "source": "/rails", "destination": "/api/catalog?__p=/rails" },
     { "source": "/stream/:path*", "destination": "/api/catalog?__p=/stream/:path*" },
     { "source": "/similar/:path*", "destination": "/api/catalog?__p=/similar/:path*" },
+    { "source": "/netflix-top10", "destination": "/api/catalog?__p=/netflix-top10" },
     { "source": "/media", "destination": "/api/catalog?__p=/media" },
     { "source": "/browse", "destination": "/index.html" },
     { "source": "/browse/:path*", "destination": "/index.html" },

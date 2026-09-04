@@ -66,4 +66,15 @@ export type HomeRail = {
   items: MovieListItem[]
 }
 
+export type NetflixTop10Entry = {
+  netflix_rank: number
+  views?: string | null
+  hours_viewed?: string | null
+  week_ending?: string | null
+  kind: string
+  item: MovieListItem
+}
+
+export type NetflixTop10 = NetflixTop10Entry[]
+
 export type HomeRails = HomeRail[]

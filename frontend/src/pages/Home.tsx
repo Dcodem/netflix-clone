@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { getCatalogMany, getMovies, getRails, getTrending } from '../api/client'
-import type { HomeRail, MovieListItem } from '../api/types'
+import { getCatalogMany, getMovies, getNetflixTop10, getRails, getTrending } from '../api/client'
+import type { HomeRail, MovieListItem, NetflixTop10Entry } from '../api/types'
 import { CategoriesSheet } from '../components/CategoriesSheet'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
@@ -37,6 +37,7 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
   const movies = useFetch(() => getMovies(), 'home-movies')
   const trending = useFetch(() => getTrending('all').catch(() => [] as MovieListItem[]), 'home-trending')
   const railsData = useFetch(() => getRails('CA').catch(() => [] as HomeRail[]), 'home-rails')
+  const netflixTop10 = useFetch(() => getNetflixTop10().catch(() => [] as NetflixTop10Entry[]), 'home-nf10')
   const extras = useFetch(async () => {
     const [catalogMovies, catalogShows] = await Promise.all([
       getCatalogMany('movies').catch(() => [] as MovieListItem[]),
@@ -107,13 +108,26 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
       profile: activeProfile,
       genre,
     })
-    if (filter === 'popular') return built
-    // Server rails (our ranking engine: popularity+recency+region+quality)
-    // REPLACE the local trending row and append below. Personalized rows from
-    // taste.ts (Because you watched / Top Picks) stay untouched.
+    // Netflix's real hours-viewed Top 10 leads the home page.
+    const nfRail = netflixTop10.data ?? []
+    if (nfRail.length >= 4 && filter !== 'popular') {
+      const items = nfRail
+        .map((entry) => entry.item)
+        .filter((item) => (genre ? matchesGenreFilter(item, genre) : true))
+      if (items.length >= 4) {
+        const idx = built.findIndex((row) => row.id === 'continue')
+        built.splice(idx >= 0 ? idx + 1 : 0, 0, {
+          id: 'netflix-top10',
+          title: 'Top 10 on Netflix This Week',
+          subtitle: 'Ranked by hours viewed — matches playable titles',
+          items,
+          loop: items.length >= 8,
+        })
+      }
+    }
+    // Server rails (ranking engine) replace the local trending row and append.
     const byTitle = new Map<string, HomeRail>()
     for (const rail of railsData.data ?? []) byTitle.set(rail.id, rail)
-    // The client-side 'trending' row is replaced by the server's real one.
     const localTrendIdx = built.findIndex((row) => row.id === 'trending')
     if (localTrendIdx >= 0) built.splice(localTrendIdx, 1)
     const trendingRail = byTitle.get('trending')

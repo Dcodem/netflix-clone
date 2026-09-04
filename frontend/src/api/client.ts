@@ -1,4 +1,4 @@
-import type { CatalogPage, MovieDetail, MovieListItem, ShowDetail, HomeRails } from './types'
+import type { CatalogPage, MovieDetail, MovieListItem, ShowDetail, HomeRails, NetflixTop10 } from './types'
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? ''
 
@@ -74,6 +74,11 @@ export function getSimilar(id: string): Promise<MovieListItem[]> {
   return getJson<CatalogPage | MovieListItem[]>(`/similar/${encodeURIComponent(id)}`).then(
     (data) => (Array.isArray(data) ? data : data.items ?? []),
   )
+}
+
+/** Netflix's real hours-viewed Top 10 (Tudum), matched to playable titles. */
+export function getNetflixTop10(): Promise<NetflixTop10> {
+  return getJson<NetflixTop10>('/netflix-top10')
 }
 
 /** Fetch a few catalog pages so home rails have enough titles to theme. */
