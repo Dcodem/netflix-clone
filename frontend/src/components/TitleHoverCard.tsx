@@ -109,11 +109,10 @@ export function TitleHoverCard({
     return () => cancelAnimationFrame(raf)
   }, [])
   const width = box.width
-  const artH = width * (9 / 16)
+  // The card is exactly a 16:9 rectangle anchored to the tile's top edge:
+  // the video IS the tile grown, flush with the row — no pop-down centering.
   const left = box.left
-  // Center the art on the tile vertically; the card scrolls with the page,
-  // so no viewport clamping here.
-  const top = box.top + box.height / 2 - artH / 2
+  const top = box.top
   const fromScale = Math.max(0.42, Math.min(0.82, anchor.width / width))
 
   const tmdbInfo = useTmdbInfo(item)
@@ -162,6 +161,7 @@ export function TitleHoverCard({
           top,
           left,
           width,
+          aspectRatio: '16 / 9',
           transformOrigin: `${originX}px ${originY}px`,
           '--jaw-from': String(fromScale),
         } as CSSProperties
