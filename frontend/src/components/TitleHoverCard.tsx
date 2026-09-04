@@ -103,6 +103,16 @@ export function TitleHoverCard({
           height: rect.height,
         })
       }
+      // Continuous viewport-bottom correction: the card's height settles as
+      // fonts/images load, so keep nudging it to stay fully on screen.
+      const jaw = jawRef.current
+      if (jaw) {
+        const jr = jaw.getBoundingClientRect()
+        const overflow = jr.bottom - window.innerHeight
+        if (overflow > 0) {
+          setBox((prev) => ({ ...prev, top: prev.top - overflow - 14 }))
+        }
+      }
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
