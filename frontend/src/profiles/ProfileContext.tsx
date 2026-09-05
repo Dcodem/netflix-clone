@@ -150,6 +150,8 @@ type ProfileContextValue = {
   toggleDownload: (item: LikedTitle) => void
   unlockProfile: (id: string, pin: string) => Promise<boolean>
   clearActive: () => void
+  /** Profile recovery: swap in a store pulled from the backend backup. */
+  setStoreFromBackup: (backup: ProfileStore) => void
 }
 
 const ProfileContext = createContext<ProfileContextValue | null>(null)
@@ -504,6 +506,13 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       toggleDownload,
       unlockProfile,
       clearActive,
+      // Profile recovery: swap in a store pulled from the backend backup
+      // (runs through parseStore to hydrate every profile field).
+      setStoreFromBackup: (backup: ProfileStore) => {
+        const hydrated = parseStore(JSON.stringify(backup)) ?? emptyStore()
+        if (userId) persist(userId, hydrated)
+        setStore(hydrated)
+      },
     }),
     [
       store.profiles,

@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-
 import { AppLayout } from './AppLayout'
 import { AuthProvider } from './auth/AuthContext'
 import { ProfileProvider } from './profiles/ProfileContext'
+import { ProfileSync } from './profiles/ProfileSync'
 import { Account } from './pages/Account'
 import { Faq } from './pages/Faq'
 import { GiftCards } from './pages/GiftCards'
@@ -31,6 +32,7 @@ export default function App() {
   return (
     <AuthProvider>
       <ProfileProvider>
+        <ProfileSync />
         <WatchProvider>
           <BrowserRouter>
             <TitleModalProvider>
