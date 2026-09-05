@@ -6215,9 +6215,9 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
    and overlaps the digit's right side. The card keeps the standard 2:3 poster
    proportions; the digit lives in a left gutter. */
 .is-top10 .row-scroller {
-  /* The overlaid numeral bleeds ~28px left of the slot — compensate so the
-     FIRST numeral's visible edge lines up with the header and the gutter. */
-  padding-left: calc(var(--page-gutter) - 28px);
+  /* The numeral bleeds slightly left of the slot — compensate so the FIRST
+     numeral's visible edge lines up with the header and the gutter. */
+  padding-left: calc(var(--page-gutter) - 12px);
 }
 
 .is-top10 .row-scroller .poster-wrap {
@@ -6254,13 +6254,14 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
 }
 
 .rank-num.rank-num-svg {
-  /* Tudum style: numeral overlays the poster's upper-left corner. */
+  /* Numeral anchored at the poster's top-left corner, outline only. The
+     SVG viewBox keeps the glyph scaling with the tile at every size. */
   position: absolute;
-  left: -1%;
-  top: -2%;
+  left: -9%;
+  top: -10%;
   z-index: 2;
-  width: 72%;
-  height: 60%;
+  width: 54%;
+  height: 50%;
   overflow: visible;
   user-select: none;
   pointer-events: none;
@@ -6269,18 +6270,15 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
 .rank-num.rank-num-svg text {
   font-family: 'Arial Black', 'Arial Narrow', Arial, var(--display);
   font-weight: 900;
-  font-size: 270px;
+  font-size: 190px;
   letter-spacing: -0.06em;
   stroke: rgba(255, 255, 255, 0.9);
-  stroke-width: 8;
+  stroke-width: 5;
   fill: none;
   paint-order: stroke;
 }
 
-.rank-num.rank-num-svg text.rank-num-fill {
-  fill: #000;
-  stroke: none;
-}
+/* Numeral is outline-only with transparent fill — artwork shows through. */
 
 .search-heading {
   font-size: 16px;

@@ -267,7 +267,6 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
           key={row.id}
           title={row.title}
           subtitle={row.subtitle}
-          seed={row.seed}
           items={row.items}
           progressById={row.variant === 'continue' ? progressById : undefined}
           continueMode={row.variant === 'continue'}
