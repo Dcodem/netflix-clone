@@ -39,13 +39,11 @@ export function PosterCard({
   const scrollingRef = useRef(false)
   const scrollTimer = useRef<number>(0)
   const scrollYOnEnter = useRef(0)
+  const pointerRef = useRef({ x: -1, y: -1 })
   const lock = useRef<HoverLock>({ dismiss() {} }).current
   const ranked = typeof rank === 'number'
 
   lock.dismiss = () => {
-    // Page scroll under a stationary pointer fires programmatic leaves; the
-    // card is glued to its row, so ignore close attempts while scrolling.
-    if (scrollingRef.current) return
     window.clearTimeout(timer.current)
     setHover(false)
     setPeek(false)
@@ -92,6 +90,11 @@ export function PosterCard({
       window.clearTimeout(scrollTimer.current)
       scrollTimer.current = window.setTimeout(() => {
         scrollingRef.current = false
+        // Scroll settled: if the pointer is no longer over this tile (the
+        // row moved under a stationary cursor), close the preview — the
+        // card must stay locked to its tile, never linger un-hovered.
+        // The jaw's own scroll handler closes the preview when the pointer
+        // is no longer over the tile — nothing to do here.
       }, 400)
     }
     window.addEventListener('scroll', mark, { passive: true })
@@ -103,9 +106,17 @@ export function PosterCard({
 
   function onEnter(event: PointerEvent<HTMLDivElement>) {
     if (!hoverable || event.pointerType !== 'mouse' || rowMenu) return
+    // After a scroll slides a different tile under a stationary pointer,
+    // don't auto-open a preview — the user didn't move the mouse onto it.
+    // A real pointermove re-enables previews.
+    if (scrollingRef.current || window.scrollY !== scrollYOnEnter.current) {
+      scrollYOnEnter.current = window.scrollY
+      return
+    }
     cancelClose()
     takeLock()
     scrollYOnEnter.current = window.scrollY
+    pointerRef.current = { x: event.clientX, y: event.clientY }
     setPeek(true)
     timer.current = window.setTimeout(() => {
       const card = rootRef.current

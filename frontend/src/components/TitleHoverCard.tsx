@@ -38,13 +38,22 @@ export function TitleHoverCard({
   const { openTitle } = useTitleModal()
   const trailerRef = useRef<TrailerHandle>(null)
   const jawRef = useRef<HTMLDivElement>(null)
-  // Scroll position at the last real pointer move. A scroll under a
-  // stationary pointer changes scrollY without any move — used to reject
-  // the synthetic mouseleave the browser fires in that case.
+  // Scroll position at the last real pointer move, plus the pointer's
+  // viewport position. A scroll under a stationary pointer changes scrollY
+  // without any move — used to reject the synthetic mouseleave the browser
+  // fires in that case — and to detect when the row slides out from under
+  // the pointer (then the card must close: it stays locked to its tile).
   const lastPointerScrollY = useRef(-1)
+  // Initialize with the anchor tile's center — the pointer opened the card
+  // by hovering it, so that IS the pointer position at open time.
+  const pointerPos = useRef({
+    x: anchor.left + anchor.width / 2,
+    y: anchor.top + anchor.height / 2,
+  })
   useEffect(() => {
-    const track = () => {
+    const track = (e: PointerEvent | MouseEvent) => {
       lastPointerScrollY.current = window.scrollY
+      pointerPos.current = { x: e.clientX, y: e.clientY }
     }
     window.addEventListener('pointermove', track, { passive: true })
     window.addEventListener('mousemove', track, { passive: true })
@@ -151,16 +160,31 @@ export function TitleHoverCard({
     // Scroll-away close: after the card locks (the rAF loop stops), a page
     // scroll that carries the row out of view must close the card — it can
     // no longer re-measure itself.
+    let settleTimer = 0
     const onScroll = () => {
       if (closed) return
       const el = wrapRef.current
       if (!el) return
-      const r = el.getBoundingClientRect()
-      if (r.bottom < -80 || r.top > window.innerHeight + 80) {
-        closed = true
-        window.removeEventListener('scroll', onScroll)
-        onClose()
-      }
+      // Once the scroll settles, if the pointer is no longer over the tile,
+      // the user scrolled past it — close. The card stays locked to its
+      // tile; it never lingers un-hovered.
+      window.clearTimeout(settleTimer)
+      settleTimer = window.setTimeout(() => {
+        if (closed) return
+        const r = el.getBoundingClientRect()
+        const p = pointerPos.current
+        const over = p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom
+        if (!over || r.bottom < -80 || r.top > window.innerHeight + 80) {
+          closed = true
+          window.removeEventListener('scroll', onScroll)
+          // Belt-and-braces: strip the preview classes at the DOM level too,
+          // so even if React's state lags the card visually disappears.
+          el.classList.remove('is-previewing', 'is-peeking')
+          el.querySelector('.poster-card')?.classList.remove('is-previewing')
+          document.body.classList.remove('is-jaw-open')
+          setTimeout(onClose, 0)
+        }
+      }, 600)
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
