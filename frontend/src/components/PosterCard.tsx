@@ -36,10 +36,16 @@ export function PosterCard({
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
   const [rowMenu, setRowMenu] = useState(false)
   const timer = useRef<number>(0)
+  const scrollingRef = useRef(false)
+  const scrollTimer = useRef<number>(0)
+  const scrollYOnEnter = useRef(0)
   const lock = useRef<HoverLock>({ dismiss() {} }).current
   const ranked = typeof rank === 'number'
 
   lock.dismiss = () => {
+    // Page scroll under a stationary pointer fires programmatic leaves; the
+    // card is glued to its row, so ignore close attempts while scrolling.
+    if (scrollingRef.current) return
     window.clearTimeout(timer.current)
     setHover(false)
     setPeek(false)
@@ -80,10 +86,26 @@ export function PosterCard({
     window.clearTimeout(timer.current)
   }
 
+  useEffect(() => {
+    const mark = () => {
+      scrollingRef.current = true
+      window.clearTimeout(scrollTimer.current)
+      scrollTimer.current = window.setTimeout(() => {
+        scrollingRef.current = false
+      }, 400)
+    }
+    window.addEventListener('scroll', mark, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', mark)
+      window.clearTimeout(scrollTimer.current)
+    }
+  }, [])
+
   function onEnter(event: PointerEvent<HTMLDivElement>) {
     if (!hoverable || event.pointerType !== 'mouse' || rowMenu) return
     cancelClose()
     takeLock()
+    scrollYOnEnter.current = window.scrollY
     setPeek(true)
     timer.current = window.setTimeout(() => {
       const card = rootRef.current
@@ -98,6 +120,11 @@ export function PosterCard({
 
   function onLeave(event: PointerEvent<HTMLDivElement>) {
     if (event.pointerType !== 'mouse') return
+    // A page scroll under a stationary pointer fires pointerleave — the card
+    // is document-anchored and rides with its row, so don't close. Detect
+    // scroll directly: window.scrollY differs from the value captured on
+    // enter (the pointer never moved, so only scroll could cause this leave).
+    if (scrollingRef.current || window.scrollY !== scrollYOnEnter.current) return
     cancelClose()
     timer.current = window.setTimeout(() => dropLock(), 140)
   }

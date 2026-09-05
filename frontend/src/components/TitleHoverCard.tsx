@@ -38,6 +38,21 @@ export function TitleHoverCard({
   const { openTitle } = useTitleModal()
   const trailerRef = useRef<TrailerHandle>(null)
   const jawRef = useRef<HTMLDivElement>(null)
+  // Scroll position at the last real pointer move. A scroll under a
+  // stationary pointer changes scrollY without any move — used to reject
+  // the synthetic mouseleave the browser fires in that case.
+  const lastPointerScrollY = useRef(-1)
+  useEffect(() => {
+    const track = () => {
+      lastPointerScrollY.current = window.scrollY
+    }
+    window.addEventListener('pointermove', track, { passive: true })
+    window.addEventListener('mousemove', track, { passive: true })
+    return () => {
+      window.removeEventListener('pointermove', track)
+      window.removeEventListener('mousemove', track)
+    }
+  }, [])
   const [detail, setDetail] = useState<MovieDetail | null>(null)
   const [trailerReady, setTrailerReady] = useState(false)
   const [muted, setMuted] = useState(true)
@@ -45,7 +60,9 @@ export function TitleHoverCard({
 
   useEffect(() => {
     document.body.classList.add('is-jaw-open')
-    return () => document.body.classList.remove('is-jaw-open')
+    return () => {
+      document.body.classList.remove('is-jaw-open')
+    }
   }, [])
 
   useEffect(() => {
@@ -100,11 +117,12 @@ export function TitleHoverCard({
       const key = `${rect.left.toFixed(1)},${(rect.top + window.scrollY).toFixed(1)},${rect.width.toFixed(1)}`
       if (key !== last) {
         last = key
-        // While the flex transition runs, ride the wrap's VIEWPORT rect.
-        // (Document coords are derived at render time; see box consumer.)
+        // The card lives in DOCUMENT space (absolute) and tracks the wrap
+        // every frame — it stays glued to its tile in the row as the page
+        // scrolls, never floating free or lagging behind.
         setBox({
-          left: rect.left,
-          top: rect.top,
+          left: rect.left + window.scrollX,
+          top: rect.top + window.scrollY,
           width: rect.width,
           height: rect.height,
         })
@@ -120,11 +138,7 @@ export function TitleHoverCard({
         // 45 frames (~0.75s): must outlive the 0.6s flex-basis transition
         // or the card freezes at an intermediate width, leaving a black
         // band between the card and the next tile.
-        if (++settleFrames > 45) {
-          // Lock: stop tracking — the card holds its viewport position from
-          // here on (the box was last set to the wrap's viewport rect).
-          return
-        }
+        if (++settleFrames > 45) return
       } else {
         settleFrames = 0
       }
@@ -161,13 +175,13 @@ export function TitleHoverCard({
     wrapRef.current?.closest('.is-top10') || wrapRef.current?.classList.contains('is-top10-wrap'),
   )
   const width = isTop10 ? box.width * 1.3 : box.width
-  // Viewport-space positioning: the card opens where the tile is and stays
-  // there (fixed), so page scroll never drags it. The bottom clamp keeps it
-  // fully on screen; it closes when its row scrolls away.
+  // Document-space positioning: the card is glued to its tile in the row and
+  // moves with the page. The bottom clamp keeps it fully on screen at open.
   const left = box.left
   const realH = jawRef.current?.offsetHeight
   const estimated = realH && realH > 40 ? realH : width * (9 / 16) + 260
-  const top = Math.min(box.top, Math.max(8, window.innerHeight - estimated - 14))
+  const viewportBottom = window.scrollY + window.innerHeight
+  const top = Math.min(box.top, Math.max(window.scrollY + 8, viewportBottom - estimated - 14))
   const fromScale = Math.max(0.42, Math.min(0.82, anchor.width / width))
 
   const tmdbInfo = useTmdbInfo(item)
@@ -237,7 +251,17 @@ export function TitleHoverCard({
         } as CSSProperties
       }
       onMouseEnter={onKeep}
-      onMouseLeave={onClose}
+      onMouseLeave={() => {
+        // A page scroll slides the row (and this card) out from under a
+        // stationary pointer — that synthetic leave must not close the card;
+        // it stays glued to its tile. Only a real pointer move closes.
+        if (window.scrollY !== lastPointerScrollY.current) {
+          // The pointer hasn't moved since the last scroll — this leave was
+          // caused by the page moving under the pointer, not by the user.
+          return
+        }
+        onClose()
+      }}
     >
       <div className={`jawbone-art ${trailerReady ? 'is-playing' : ''}`}>
         <CatalogImage item={{ ...item, backdrop_url: detail?.backdrop_url }} alt="" prefer="backdrop" />

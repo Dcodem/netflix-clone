@@ -4114,10 +4114,11 @@ body:has(.account-page),
 }
 
 .jawbone {
-  /* Viewport-locked: the card opens at the tile and stays put on screen —
-     page scroll must not drag it with the row (it closes if the row leaves).
+  /* Document-anchored: the card belongs to its tile in the row — it moves
+     with the page as you scroll, staying glued to its tile (never floating
+     free over the page). It closes when its row leaves the viewport.
      A soft shadow separates it from the tiles it covers (not a frame). */
-  position: fixed;
+  position: absolute;
   z-index: 1200;
   background: #181818;
   overflow: visible;
