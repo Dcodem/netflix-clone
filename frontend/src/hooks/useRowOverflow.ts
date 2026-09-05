@@ -53,19 +53,41 @@ export function useRowOverflow(loop = false, itemCount = 0) {
   const scrollByPage = (direction: -1 | 1) => {
     const el = ref.current
     if (!el) return
-    const page = el.clientWidth * 0.9
-    if (loop && copies > 1) {
-      const width = el.scrollWidth / copies
-      if (direction > 0 && el.scrollLeft + page >= width - 8) {
-        el.scrollTo({ left: 0, behavior: 'smooth' })
-        return
-      }
-      if (direction < 0 && el.scrollLeft <= 12) {
-        el.scrollTo({ left: Math.max(0, width - page), behavior: 'smooth' })
-        return
-      }
+
+    // Tile pitch = tile width + gap. Scrolling by whole tiles guarantees no
+    // tile is ever left half-covered, at any screen size.
+    const first = el.querySelector('.poster-wrap, .scene-wrap') as HTMLElement | null
+    const next = first?.nextElementSibling as HTMLElement | null
+    let pitch = 0
+    if (first && next) pitch = next.getBoundingClientRect().left - first.getBoundingClientRect().left
+    if (!pitch) {
+      pitch = (first?.getBoundingClientRect().width ?? 0) + 6
     }
-    el.scrollBy({ left: direction * page, behavior: 'smooth' })
+
+    if (loop && copies > 1) {
+      // Infinite marquee: step by full tiles, wrapping seamlessly inside the
+      // duplicated strip (no snap, no half-covered tiles, no visible jump).
+      const width = el.scrollWidth / copies
+      const step = Math.max(1, Math.floor((el.clientWidth * 0.9) / pitch)) * pitch
+      let target = el.scrollLeft + direction * step
+      // Keep scrollLeft inside the first copy so the loop never shows a seam.
+      if (target >= width) target -= width
+      if (target < 0) target += width
+      el.scrollTo({ left: target, behavior: 'smooth' })
+      return
+    }
+
+    // Non-looping rows: snap to whole tiles as well. If the remaining span
+    // is shorter than a full step, jump flush to the end instead of leaving
+    // a half-covered tile hanging at the edge.
+    const step = pitch
+      ? Math.max(1, Math.round((el.clientWidth * 0.9) / pitch)) * pitch
+      : el.clientWidth * 0.9
+    const max = el.scrollWidth - el.clientWidth
+    let target = el.scrollLeft + direction * step
+    if (target > max) target = max
+    if (target < 0) target = 0
+    el.scrollTo({ left: target, behavior: 'smooth' })
   }
 
   return {
