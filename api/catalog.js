@@ -21,6 +21,9 @@ export default async function handler(req, res) {
     try {
       const target = UPSTREAM + rewritten + (url.searchParams.toString() ? `?${url.searchParams.toString()}` : '')
       const headers = { accept: req.headers.accept || 'application/json' }
+      if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+        headers['content-type'] = req.headers['content-type'] || 'application/json'
+      }
       if (prefix === '/img') {
         // image proxy: stream bytes through
         const upstream = await fetch(target, { headers: { 'user-agent': 'flix-vercel' } })
@@ -31,7 +34,19 @@ export default async function handler(req, res) {
         res.end(Buffer.from(await upstream.arrayBuffer()))
         return
       }
-      const upstream = await fetch(target, { headers })
+      const upstream = await fetch(target, {
+        method: req.method || 'GET',
+        headers,
+        // Forward the body for POST/PUT so the backend receives the payload
+        // (profile backup stores, etc.). GET/HEAD must have no body.
+        body: ['GET', 'HEAD'].includes(req.method || 'GET')
+          ? undefined
+          : await new Promise((resolve) => {
+              const chunks = []
+              req.on('data', (c) => chunks.push(c))
+              req.on('end', () => resolve(Buffer.concat(chunks)))
+            }),
+      })
       const body = Buffer.from(await upstream.arrayBuffer())
       res.writeHead(upstream.status, {
         'content-type': upstream.headers.get('content-type') || 'application/json',
