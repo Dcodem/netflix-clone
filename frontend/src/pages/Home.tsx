@@ -169,6 +169,20 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
         ...(variant ? { variant } : {}),
       })
     }
+    // On the TV Shows page the NA-trend Top 10 (Reacher, Silo, …) replaces
+    // the local taste-ranked one — it's what North America is actually
+    // watching. Hoist it to lead the page and drop the local lookalike.
+    if (filter === 'shows') {
+      const naIdx = built.findIndex((row) => row.id === 'top10_tv')
+      if (naIdx >= 0) {
+        const naRail = built[naIdx]
+        built.splice(naIdx, 1)
+        const localIdx = built.findIndex((row) => row.id === 'top10')
+        if (localIdx >= 0) built.splice(localIdx, 1)
+        const anchor = built.findIndex((row) => row.id === 'continue')
+        built.splice(anchor >= 0 ? anchor + 1 : 0, 0, { ...naRail, title: 'Top 10 TV Shows in the U.S. Today' })
+      }
+    }
     return built
   }, [catalog, filter, activeProfile, genre, trending.data, railsData.data])
   const progressById = useMemo(() => {
