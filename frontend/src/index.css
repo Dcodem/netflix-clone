@@ -4367,13 +4367,22 @@ body:has(.account-page),
   display: grid;
   place-items: center;
   z-index: 2;
+  /* The expanded menu is IN-FLOW: the row makes room instead of the menu
+     covering the + button beside it. */
+  transition: width 0.16s ease;
+}
+
+.thumbs-pop:hover,
+.thumbs-pop.is-open,
+.thumbs-pop:focus-within {
+  width: 122px; /* 2 menu buttons + padding */
 }
 
 .thumbs-menu {
   position: absolute;
-  left: 50%;
+  left: 0;
   top: 50%;
-  transform: translate(-50%, -50%) scale(0.86);
+  transform: translateY(-50%) scale(0.86);
   display: flex;
   gap: 6px;
   padding: 6px;
@@ -4394,7 +4403,7 @@ body:has(.account-page),
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
+  transform: translateY(-50%) scale(1);
 }
 
 .thumbs-pop:hover .thumbs-face,

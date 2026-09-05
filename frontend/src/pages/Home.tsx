@@ -123,7 +123,6 @@ export function Home({ filter = 'home' }: { filter?: BrowseFilter }) {
         built.splice(idx >= 0 ? idx + 1 : 0, 0, {
           id: 'netflix-top10',
           title: 'Top 10 on Netflix This Week',
-          subtitle: 'Ranked by hours viewed — matches playable titles',
           items,
           loop: items.length >= 8,
         })
