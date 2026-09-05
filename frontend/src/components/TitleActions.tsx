@@ -144,17 +144,6 @@ export function TitleActions({
         >
           <ThumbUpIcon className="icon" />
         </button>
-        <button
-          type="button"
-          className={`circle-btn ${loved ? 'is-on' : ''}`}
-          onClick={() => {
-            rateTitle(likedItem, loved ? null : 'love')
-            setRateOpen(false)
-          }}
-          aria-label="Love"
-        >
-          <DoubleThumbUpIcon className="icon" />
-        </button>
       </div>
     </div>
   )
