@@ -55,12 +55,13 @@ export function useProfileSync() {
       })
   }, [userId, setStoreFromBackup])
 
-  // Backup on change (debounced).
+  // Backup on change (debounced). Runs ONCE per user — the interval keeps
+  // re-checking, so re-renders can't cancel a pending upload.
   useEffect(() => {
     if (!userId) return
     const id = readRecoveryCookie() || crypto.randomUUID()
     writeRecoveryCookie(id)
-    const t = window.setTimeout(() => {
+    const t = window.setInterval(() => {
       const raw = localStorage.getItem(scopedKey(userId))
       if (!raw) return
       if (raw === lastUploaded.current) return
@@ -72,7 +73,7 @@ export function useProfileSync() {
       }).catch(() => {
         /* backup is best-effort; localStorage remains the primary store */
       })
-    }, 5000)
-    return () => window.clearTimeout(t)
+    }, 6000)
+    return () => window.clearInterval(t)
   }, [userId])
 }
