@@ -6257,11 +6257,11 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
   /* Numeral anchored at the poster's top-left corner, outline only. The
      SVG viewBox keeps the glyph scaling with the tile at every size. */
   position: absolute;
-  left: -9%;
-  top: -10%;
+  left: -6%;
+  top: 3%;
   z-index: 2;
-  width: 54%;
-  height: 50%;
+  width: 44%;
+  height: 40%;
   overflow: visible;
   user-select: none;
   pointer-events: none;
@@ -6272,10 +6272,11 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
   font-weight: 900;
   font-size: 190px;
   letter-spacing: -0.06em;
-  stroke: rgba(255, 255, 255, 0.9);
+  stroke: rgba(255, 255, 255, 0.92);
   stroke-width: 5;
   fill: none;
   paint-order: stroke;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55));
 }
 
 /* Numeral is outline-only with transparent fill — artwork shows through. */
