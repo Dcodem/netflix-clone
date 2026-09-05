@@ -102,7 +102,7 @@ export function TitleHoverCard({
         onClose()
         return
       }
-      const key = `${Math.round(rect.left)},${Math.round(rect.top + window.scrollY)},${Math.round(rect.width)}`
+      const key = `${rect.left.toFixed(1)},${(rect.top + window.scrollY).toFixed(1)},${rect.width.toFixed(1)}`
       if (key !== last) {
         last = key
         setBox({
@@ -125,7 +125,10 @@ export function TitleHoverCard({
       }
       const stable = key === last && overflow <= 0
       if (stable) {
-        if (++settleFrames > 12) return // fully settled — stop the loop
+        // 45 frames (~0.75s): must outlive the 0.6s flex-basis transition
+        // or the card freezes at an intermediate width, leaving a black
+        // band between the card and the next tile.
+        if (++settleFrames > 45) return
       } else {
         settleFrames = 0
       }

@@ -4121,17 +4121,14 @@ body:has(.account-page),
   background: #181818;
   overflow: visible;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
-  --jaw-from: 0.97;
   animation: jaw-in 0.65s cubic-bezier(0.34, 0.01, 0.14, 1) both;
 }
 
 @keyframes jaw-in {
   from {
-    transform: scale(var(--jaw-from));
     opacity: 0.3;
   }
   to {
-    transform: scale(1);
     opacity: 1;
   }
 }
