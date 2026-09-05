@@ -4194,10 +4194,9 @@ body:has(.account-page),
   z-index: 1;
   opacity: 0;
   transition: opacity 0.8s ease;
-  /* Fill the tile and hide YouTube's embedded chrome (logo watermark,
-     Watch-on-YouTube pill, title cards): oversize the player and bias the
-     crop toward the top-right corner where that chrome lives. */
-  transform: scale(1.6) translate(-3%, -5%);
+  /* Fit the trailer properly: a modest oversize just trims YouTube's
+     corner chrome without chopping the subject like the old 1.6x did. */
+  transform: scale(1.06) translate(-1.5%, -2%);
   transform-origin: center;
 }
 
