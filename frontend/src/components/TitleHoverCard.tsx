@@ -84,30 +84,27 @@ export function TitleHoverCard({
       : null
     wrapRef.current = (card ?? wrap) as HTMLElement | null
     if (!wrapRef.current) return
+    // The card is FIXED in the viewport at the position where it opened —
+    // scrolling must not drag it with the row (the user's eyes stay on the
+    // card). Scroll activity only matters for the scroll-away auto-close.
+    // Fixed coords are captured once the flex transition settles; while the
+    // transition runs the box tracks the wrap's viewport rect.
     let raf = 0
     let last = ''
     let settleFrames = 0
-    let lastScroll = window.scrollY
-    // The card is absolutely positioned in DOCUMENT space so it scrolls with
-    // the row. Track the wrap every frame (flex transition AND page scroll)
-    // and stop only when the box is stable AND the page isn't scrolling.
     let closed = false
     const tick = () => {
       const el = wrapRef.current
       if (!el) return
       const rect = el.getBoundingClientRect()
-      // Row scrolled away from the pointer's view — close like Netflix.
-      if (!closed && (rect.bottom < -80 || rect.top > window.innerHeight + 80)) {
-        closed = true
-        onClose()
-        return
-      }
       const key = `${rect.left.toFixed(1)},${(rect.top + window.scrollY).toFixed(1)},${rect.width.toFixed(1)}`
       if (key !== last) {
         last = key
+        // While the flex transition runs, ride the wrap's VIEWPORT rect.
+        // (Document coords are derived at render time; see box consumer.)
         setBox({
-          left: rect.left + window.scrollX,
-          top: rect.top + window.scrollY,
+          left: rect.left,
+          top: rect.top,
           width: rect.width,
           height: rect.height,
         })
@@ -118,17 +115,16 @@ export function TitleHoverCard({
       const jaw = jawRef.current
       const jr = jaw?.getBoundingClientRect()
       const overflow = jr ? jr.bottom - window.innerHeight : 0
-      // Page scrolling counts as activity: the card must follow the row.
-      if (window.scrollY !== lastScroll) {
-        lastScroll = window.scrollY
-        settleFrames = 0
-      }
       const stable = key === last && overflow <= 0
       if (stable) {
         // 45 frames (~0.75s): must outlive the 0.6s flex-basis transition
         // or the card freezes at an intermediate width, leaving a black
         // band between the card and the next tile.
-        if (++settleFrames > 45) return
+        if (++settleFrames > 45) {
+          // Lock: stop tracking — the card holds its viewport position from
+          // here on (the box was last set to the wrap's viewport rect).
+          return
+        }
       } else {
         settleFrames = 0
       }
@@ -138,7 +134,25 @@ export function TitleHoverCard({
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+    // Scroll-away close: after the card locks (the rAF loop stops), a page
+    // scroll that carries the row out of view must close the card — it can
+    // no longer re-measure itself.
+    const onScroll = () => {
+      if (closed) return
+      const el = wrapRef.current
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      if (r.bottom < -80 || r.top > window.innerHeight + 80) {
+        closed = true
+        window.removeEventListener('scroll', onScroll)
+        onClose()
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll)
+    }
   }, [])
   // Top 10 rows: the poster box is narrower than a normal tile (the numeral
   // takes the left side) — Netflix's top10 preview expands WIDER than the
@@ -147,15 +161,13 @@ export function TitleHoverCard({
     wrapRef.current?.closest('.is-top10') || wrapRef.current?.classList.contains('is-top10-wrap'),
   )
   const width = isTop10 ? box.width * 1.3 : box.width
-  // Top-aligned with the tile, but if the roomy card would run past the
-  // viewport bottom, nudge it up in DOCUMENT space (never scrolls the page).
-  // Uses the card's REAL rendered height once mounted (jawRef), estimate
-  // before that.
+  // Viewport-space positioning: the card opens where the tile is and stays
+  // there (fixed), so page scroll never drags it. The bottom clamp keeps it
+  // fully on screen; it closes when its row scrolls away.
   const left = box.left
   const realH = jawRef.current?.offsetHeight
   const estimated = realH && realH > 40 ? realH : width * (9 / 16) + 260
-  const viewportBottom = window.scrollY + window.innerHeight
-  const top = Math.min(box.top, Math.max(window.scrollY + 8, viewportBottom - estimated - 14))
+  const top = Math.min(box.top, Math.max(8, window.innerHeight - estimated - 14))
   const fromScale = Math.max(0.42, Math.min(0.82, anchor.width / width))
 
   const tmdbInfo = useTmdbInfo(item)

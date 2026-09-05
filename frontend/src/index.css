@@ -4114,9 +4114,10 @@ body:has(.account-page),
 }
 
 .jawbone {
-  /* Document-anchored: scrolls WITH the page/row like Netflix. A soft
-     shadow separates it from the tiles it covers (not a frame). */
-  position: absolute;
+  /* Viewport-locked: the card opens at the tile and stays put on screen —
+     page scroll must not drag it with the row (it closes if the row leaves).
+     A soft shadow separates it from the tiles it covers (not a frame). */
+  position: fixed;
   z-index: 1200;
   background: #181818;
   overflow: visible;
@@ -6216,14 +6217,17 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
    proportions; the digit lives in a left gutter. */
 .is-top10 .row-scroller {
   /* The numeral bleeds slightly left of the slot — compensate so the FIRST
-     numeral's visible edge lines up with the header and the gutter. */
+     numeral's visible edge lines up with the header and the gutter. Extra
+     top padding gives the corner-hang room (the scroller clips overflow). */
   padding-left: calc(var(--page-gutter) - 12px);
+  padding-top: 72px;
+  margin-top: -44px;
 }
 
 .is-top10 .row-scroller .poster-wrap {
   position: relative;
   overflow: visible;
-  --tile-n: 3.0;
+  --tile-n: 3.3;
     flex-basis: calc((100% - var(--page-gutter) * 2) / var(--tile-n));
   aspect-ratio: 7 / 10;
 }
@@ -6257,11 +6261,11 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
   /* Numeral anchored at the poster's top-left corner, outline only. The
      SVG viewBox keeps the glyph scaling with the tile at every size. */
   position: absolute;
-  left: -6%;
-  top: 3%;
+  left: -7%;
+  top: -10%;
   z-index: 2;
-  width: 44%;
-  height: 40%;
+  width: 54%;
+  height: 50%;
   overflow: visible;
   user-select: none;
   pointer-events: none;
