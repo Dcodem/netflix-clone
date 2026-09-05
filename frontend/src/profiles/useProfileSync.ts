@@ -31,6 +31,7 @@ function writeRecoveryCookie(id: string) {
  */
 export function useProfileSync() {
   const { user } = useAuth()
+  const userId = user?.id ?? null
   const { setStoreFromBackup } = useProfiles()
   const restoringRef = useRef(false)
   const lastUploaded = useRef('')
@@ -38,8 +39,8 @@ export function useProfileSync() {
   // Restore once on mount: no local store but a recovery cookie → pull.
   useEffect(() => {
     const id = readRecoveryCookie()
-    if (!id || !user) return
-    if (localStorage.getItem(scopedKey(user.id))) return // already local
+    if (!id || !userId) return
+    if (localStorage.getItem(scopedKey(userId))) return // already local
     restoringRef.current = true
     fetch(`/profile/backup/${encodeURIComponent(id)}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
@@ -52,15 +53,15 @@ export function useProfileSync() {
       .finally(() => {
         restoringRef.current = false
       })
-  }, [user, setStoreFromBackup])
+  }, [userId, setStoreFromBackup])
 
   // Backup on change (debounced).
   useEffect(() => {
-    if (!user || !setStoreFromBackup) return
+    if (!userId) return
     const id = readRecoveryCookie() || crypto.randomUUID()
     writeRecoveryCookie(id)
     const t = window.setTimeout(() => {
-      const raw = localStorage.getItem(scopedKey(user.id))
+      const raw = localStorage.getItem(scopedKey(userId))
       if (!raw) return
       if (raw === lastUploaded.current) return
       lastUploaded.current = raw
@@ -73,5 +74,5 @@ export function useProfileSync() {
       })
     }, 5000)
     return () => window.clearTimeout(t)
-  }, [user])
+  }, [userId])
 }
