@@ -15,7 +15,7 @@ export function genreWeights(
   }
 
   for (const item of liked) {
-    for (const genre of item.genres) {
+    for (const genre of item.genres ?? []) {
       weights[genre] = (weights[genre] ?? 0) + 2.4
     }
   }
@@ -23,7 +23,7 @@ export function genreWeights(
   for (const item of history) {
     const ageDays = Math.max(0, (now - item.watchedAt) / (1000 * 60 * 60 * 24))
     const recency = Math.max(0.35, 1 - ageDays / 60)
-    for (const genre of item.genres) {
+    for (const genre of item.genres ?? []) {
       weights[genre] = (weights[genre] ?? 0) + recency
     }
   }
@@ -203,8 +203,8 @@ export function tasteGenreRails(
   limit = 4,
 ): { id: string; title: string; items: MovieListItem[] }[] {
   const weights = genreWeights(profile?.history ?? [], profile?.favoriteGenres ?? [], profile?.liked ?? [])
-  const watchedGenres = new Set((profile?.history ?? []).flatMap((item) => item.genres))
-  const likedGenres = new Set((profile?.liked ?? []).flatMap((item) => item.genres))
+  const watchedGenres = new Set((profile?.history ?? []).flatMap((item) => item.genres ?? []))
+  const likedGenres = new Set((profile?.liked ?? []).flatMap((item) => item.genres ?? []))
   const personal = new Set([...watchedGenres, ...likedGenres, ...(profile?.favoriteGenres ?? [])])
   const rows: { id: string; title: string; items: MovieListItem[] }[] = []
 
@@ -258,7 +258,7 @@ export function rankByTaste(
   const watched = new Set(profile.history.map((item) => item.id))
   const liked = new Set(profile.liked.map((item) => item.id))
   const disliked = new Set(profile.dislikedIds)
-  const likedGenres = new Set(profile.liked.flatMap((item) => item.genres))
+  const likedGenres = new Set(profile.liked.flatMap((item) => item.genres ?? []))
   const excludeSeen = opts.excludeSeen !== false
 
   return [...items]
