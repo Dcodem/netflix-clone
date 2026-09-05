@@ -8,6 +8,7 @@ const UPSTREAM = (globalThis.process?.env?.CATALOG_UPSTREAM || '').replace(/\/$/
 const PROXIED = new Set([
   '/movies', '/shows', '/search', '/catalog', '/trending', '/rails',
   '/stream', '/watch', '/img', '/media', '/similar', '/netflix-top10', '/health',
+  '/profile',
 ])
 
 export default async function handler(req, res) {
