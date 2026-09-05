@@ -12726,8 +12726,12 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
 
 /* --- Cast strip (TMDB headshots) --- */
 .title-modal-cast-block{margin-bottom:14px}
-.cast-strip{display:flex;gap:10px;overflow-x:auto;padding:10px 2px 6px;scrollbar-width:thin;scrollbar-color:#333 transparent}
-.cast-chip{flex:0 0 auto;width:84px;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.cast-strip{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);gap:10px 12px;justify-content:start;overflow-x:auto;padding:10px 2px 6px;scrollbar-width:thin;scrollbar-color:#333 transparent}
+.cast-chip{width:84px;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+/* All heads on one line: name and role get fixed two-line blocks so a long
+   name wrapping never shifts the row's photos. */
+.cast-chip-name{min-height:2.5em}
+.cast-chip-role{min-height:2.6em}
 .cast-chip img{width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;margin-bottom:6px;border:2px solid #2e2e34}
 .cast-chip:hover img{border-color:#e50914}
 .cast-chip-fallback{width:64px;height:64px;border-radius:50%;background:#22222a;color:#888;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
@@ -12742,5 +12746,5 @@ body.is-jaw-open .row-scroller .scene-wrap.is-previewing .poster-card {
 
 /* Cast strip: give the side panel room + wrap instead of clipping */
 .title-modal-split-side .title-modal-cast-block{margin-bottom:18px}
-.cast-strip{flex-wrap:wrap;overflow:visible;max-height:none}
+.cast-strip{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);gap:10px 12px;justify-content:start;overflow-x:auto}
 .cast-chip{width:76px}
