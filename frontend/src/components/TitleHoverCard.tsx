@@ -191,6 +191,18 @@ export function TitleHoverCard({
   const releaseLine = releaseDate
     ? new Date(releaseDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     : null
+  // Original language as a readable name (TMDB ISO-639-1 code → label).
+  const langCode =
+    (detail as { language?: string | null } | null)?.language ?? item.language ?? null
+  const LANG_NAMES: Record<string, string> = {
+    en: 'English', ko: 'Korean', ja: 'Japanese', es: 'Spanish', fr: 'French',
+    de: 'German', it: 'Italian', pt: 'Portuguese', zh: 'Chinese', hi: 'Hindi',
+    ta: 'Tamil', te: 'Telugu', ml: 'Malayalam', ru: 'Russian', ar: 'Arabic',
+    tr: 'Turkish', th: 'Thai', id: 'Indonesian', tl: 'Tagalog', sv: 'Swedish',
+    no: 'Norwegian', da: 'Danish', fi: 'Finnish', nl: 'Dutch', pl: 'Polish',
+    he: 'Hebrew', ro: 'Romanian', bg: 'Bulgarian', uk: 'Ukrainian',
+  }
+  const languageName = langCode ? LANG_NAMES[langCode] ?? null : null
   const last = activeProfile?.history.find((entry) => entry.id === item.id)
   const soon = isComingSoon(item) && item.playable !== true
   const coming = comingLineFor(item)
@@ -304,6 +316,7 @@ export function TitleHoverCard({
           {soon && coming ? <span className="jawbone-coming">{coming}</span> : <span className="match">{match}% Match</span>}
           {soon ? null : isNewEpisodes(item.id, item.kind) ? <span className="now-badge">New Episodes</span> : null}
           {detail?.year || item.year ? <span>{detail?.year || item.year}</span> : null}
+          {languageName ? <span>{languageName}</span> : null}
           <span className="maturity">{maturity}</span>
           {soon ? (
             item.year ? <span>{item.year}</span> : null

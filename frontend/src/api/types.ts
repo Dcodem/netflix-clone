@@ -15,6 +15,8 @@ export type MovieListItem = {
   votes?: number | null
   /** TMDB release/air date (YYYY-MM-DD). Real dates only, drives Coming Soon. */
   release_date?: string | null
+  /** TMDB original_language (ISO-639-1, e.g. 'en', 'ko'). */
+  language?: string | null
   /** False = not yet released; UI must show Coming Soon, not Play. */
   playable?: boolean
   /** TMDB id for art, copy, and rails. Never used as a play URL. */
