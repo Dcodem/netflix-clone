@@ -405,7 +405,9 @@ export function TitleModal() {
               {detail?.cast_details?.length ? (
                 <div className="title-modal-cast-block">
                   <span className="title-kicker">Cast</span>
-                  <div className="cast-strip">
+                  <div
+                    className={`cast-strip cast-count-${Math.min(detail.cast_details.length, 8)}`}
+                  >
                     {detail.cast_details.slice(0, 8).map((person) => (
                       <button
                         key={person.name}
